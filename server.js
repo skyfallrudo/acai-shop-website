@@ -4,7 +4,7 @@ const express = require("express");
 const { createClient } = require("@libsql/client"); 
 const session = require("express-session");
 const bcrypt = require("bcrypt");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const multer = require("multer");
 const path = require("path");
 
@@ -17,26 +17,8 @@ const tursoClient = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN
 });
 
-// Middleware များ
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Session Setup (Admin Login အတွက် သုံးထားသည်များ ပါပါက လိုအပ်သည်)
-app.use(session({
-  secret: process.env.SESSION_SECRET || "acai-shop-secret-key",
-  resave: false,
-  saveUninitialized: true
-}));
-
-// Root folder ထဲက HTML/CSS/JS တွေကို Static အဖြစ် သုံးခွင့်ပေးခြင်း
-app.use(express.static(__dirname));
-
-// Root URL (/) ကို ဝင်ရင် index.html ကို ပြသရန်
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
-// ကျန်ရှိနေသော တခြား API Routes များနှင့် app.listen တို့ကို ဆက်လက် ရေးသားနိုင်ပါပြီ...
+// Resend Email Client Setup
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Turso SQLite Wrapper
 const db = {
@@ -119,10 +101,8 @@ const db = {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// [Security Fix] Public folder မှ မဟုတ်သော root directory တစ်ခုလုံး exposure မဖြစ်အောင် ပြင်ဆင်ထားခြင်း
 app.use(express.static(path.join(__dirname, "public")));
 
-// [Security Fix] Cookie / Session Security မြှင့်တင်ထားခြင်း
 app.use(session({
   secret: process.env.SESSION_SECRET || "acai-shop-secret",
   resave: false,
@@ -143,14 +123,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
-  }
-});
 
 const otpStore = {};
 const resetOtpStore = {};
@@ -200,7 +172,6 @@ app.post("/send-otp", (req, res) => {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       otpStore[email] = otp;
 
-      // [Bug Fix] 5 မိနစ်ပြည့်ပါက OTP ကို Memory မှ အလိုအလျောက် ပယ်ဖျက်ခြင်း
       setTimeout(() => {
         if (otpStore[email] === otp) {
           delete otpStore[email];
@@ -208,8 +179,8 @@ app.post("/send-otp", (req, res) => {
       }, 5 * 60 * 1000);
 
       try {
-        await transporter.sendMail({
-          from: `"Acai Shop" <${process.env.GMAIL_USER}>`,
+        await resend.emails.send({
+          from: 'Acai Shop <onboarding@resend.dev>',
           to: email,
           subject: "Verify your Acai Shop account",
           html: `
@@ -336,8 +307,8 @@ app.post("/forgot-password", (req, res) => {
       }, 5 * 60 * 1000);
 
       try {
-        await transporter.sendMail({
-          from: `"Acai Shop" <${process.env.GMAIL_USER}>`,
+        await resend.emails.send({
+          from: 'Acai Shop <onboarding@resend.dev>',
           to: email,
           subject: "Reset Your Acai Shop Password",
           html: `
@@ -632,7 +603,6 @@ app.post("/place-order", auth, (req, res) => {
 
               const orderId = this.lastID;
 
-              // [Bug Fix] Stock လျှော့သည့် Query များကို စနစ်တကျ အစဉ်လိုက် အောင်မြင်စွာ ပို့ဆောင်ခြင်း
               try {
                 for (const item of cart) {
                   await db.run(
@@ -871,7 +841,7 @@ app.get("/admin/dashboard", adminAuth, (req, res) => {
   });
 });
 
-// ---------------- Revenue Chart [Security Fixed] ----------------
+// ---------------- Revenue Chart ----------------
 
 app.get("/admin/revenue", adminAuth, (req, res) => {
   db.all(
@@ -887,7 +857,7 @@ app.get("/admin/revenue", adminAuth, (req, res) => {
   );
 });
 
-// ---------------- New Order Notification [Security Fixed] ----------------
+// ---------------- New Order Notification ----------------
 
 app.get("/admin/new-orders", adminAuth, (req, res) => {
   db.get(
