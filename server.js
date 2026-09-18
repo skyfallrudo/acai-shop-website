@@ -1,27 +1,115 @@
 require("dotenv").config();
 
 const express = require("express");
+const { createClient } = require("@libsql/client"); 
 const session = require("express-session");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const multer = require("multer");
 const path = require("path");
 
-// Turso Database Client ကို database.js မှ Import လုပ်ခြင်း
-const db = require("./database");
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Turso Client Setup
+const tursoClient = createClient({
+  url: process.env.TURSO_DATABASE_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN
+});
+
+// Turso SQLite Wrapper
+const db = {
+  get: (sql, params = [], callback) => {
+    if (typeof params === 'function') {
+      callback = params;
+      params = [];
+    }
+    if (!Array.isArray(params)) params = [params];
+
+    return tursoClient.execute({ sql, args: params })
+      .then(res => {
+        const row = res.rows[0] ? { ...res.rows[0] } : null;
+        if (callback) callback(null, row);
+        return row;
+      })
+      .catch(err => {
+        console.error("Turso DB Get Error:", err);
+        if (callback) callback(err, null);
+        else throw err;
+      });
+  },
+
+  all: (sql, params = [], callback) => {
+    if (typeof params === 'function') {
+      callback = params;
+      params = [];
+    }
+    if (!Array.isArray(params)) params = [params];
+
+    return tursoClient.execute({ sql, args: params })
+      .then(res => {
+        const rows = res.rows.map(r => ({ ...r }));
+        if (callback) callback(null, rows);
+        return rows;
+      })
+      .catch(err => {
+        console.error("Turso DB All Error:", err);
+        if (callback) callback(err, null);
+        else throw err;
+      });
+  },
+
+  run: (sql, params = [], callback) => {
+    if (typeof params === 'function') {
+      callback = params;
+      params = [];
+    }
+    if (!Array.isArray(params)) params = [params];
+
+    return tursoClient.execute({ sql, args: params })
+      .then(res => {
+        const info = {
+          lastID: res.lastInsertRowid !== undefined ? Number(res.lastInsertRowid) : null,
+          changes: Number(res.rowsAffected)
+        };
+        if (callback) callback.call(info, null);
+        return info;
+      })
+      .catch(err => {
+        console.error("Turso DB Run Error:", err);
+        if (callback) callback(err);
+        else throw err;
+      });
+  },
+
+  exec: (sql, callback) => {
+    return tursoClient.executeMultiple(sql)
+      .then(() => {
+        if (callback) callback(null);
+      })
+      .catch(err => {
+        console.error("Turso DB Exec Error:", err);
+        if (callback) callback(err);
+        else throw err;
+      });
+  }
+};
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname));
 
+// [Security Fix] Public folder မှ မဟုတ်သော root directory တစ်ခုလုံး exposure မဖြစ်အောင် ပြင်ဆင်ထားခြင်း
+app.use(express.static(path.join(__dirname, "public")));
+
+// [Security Fix] Cookie / Session Security မြှင့်တင်ထားခြင်း
 app.use(session({
   secret: process.env.SESSION_SECRET || "acai-shop-secret",
   resave: false,
   saveUninitialized: false,
   cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
     maxAge: 1000 * 60 * 60 * 24
   }
 }));
@@ -67,36 +155,43 @@ function adminAuth(req, res, next) {
 }
 
 // ---------------- OTP Send ----------------
-app.post("/send-otp", async (req, res) => {
+
+app.post("/send-otp", (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.json({ success: false });
+    return res.json({ success: false, message: "Email is required" });
   }
 
-  try {
-    const result = await db.execute({
-      sql: "SELECT id FROM customers WHERE email=?",
-      args: [email]
-    });
+  db.get(
+    "SELECT id FROM customers WHERE email=?",
+    [email],
+    async (err, user) => {
+      if (err) return res.json({ success: false });
 
-    const user = result.rows[0];
+      if (user) {
+        return res.json({
+          success: false,
+          message: "Email already exists. Please Sign In."
+        });
+      }
 
-    if (user) {
-      return res.json({
-        success: false,
-        message: "Email already exists. Please Sign In."
-      });
-    }
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      otpStore[email] = otp;
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    otpStore[email] = otp;
+      // [Bug Fix] 5 မိနစ်ပြည့်ပါက OTP ကို Memory မှ အလိုအလျောက် ပယ်ဖျက်ခြင်း
+      setTimeout(() => {
+        if (otpStore[email] === otp) {
+          delete otpStore[email];
+        }
+      }, 5 * 60 * 1000);
 
-    await transporter.sendMail({
-      from: `"Acai Shop" <${process.env.GMAIL_USER}>`,
-      to: email,
-      subject: "Verify your Acai Shop account",
-      html: `
+      try {
+        await transporter.sendMail({
+          from: `"Acai Shop" <${process.env.GMAIL_USER}>`,
+          to: email,
+          subject: "Verify your Acai Shop account",
+          html: `
 <div style="margin:0;padding:40px;background:url('https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg.jpg.jpg') center/cover no-repeat;font-family:Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0">
     <tr>
@@ -121,21 +216,25 @@ app.post("/send-otp", async (req, res) => {
       </td>
     </tr>
   </table>
-</div>`
-    });
+</div>
+`
+        });
 
-    res.json({ success: true });
-  } catch (e) {
-    console.log(e);
-    res.json({ success: false });
-  }
+        res.json({ success: true });
+      } catch (e) {
+        console.log(e);
+        res.json({ success: false });
+      }
+    }
+  );
 });
 
 // ---------------- Verify OTP ----------------
+
 app.post("/verify-otp", (req, res) => {
   const { email, otp } = req.body;
 
-  if (otpStore[email] === otp) {
+  if (otpStore[email] && otpStore[email] === otp) {
     return res.json({ success: true });
   }
 
@@ -143,38 +242,41 @@ app.post("/verify-otp", (req, res) => {
 });
 
 // ---------------- Register ----------------
+
 app.post("/register", async (req, res) => {
   const { username, email, password, otp } = req.body;
 
-  if (otpStore[email] !== otp) {
+  if (!otpStore[email] || otpStore[email] !== otp) {
     return res.json({
       success: false,
-      message: "Wrong OTP"
+      message: "Wrong or expired OTP"
     });
   }
 
   delete otpStore[email];
 
-  try {
-    const hash = await bcrypt.hash(password, 10);
+  const hash = await bcrypt.hash(password, 10);
 
-    const result = await db.execute({
-      sql: "INSERT INTO customers(username,email,password) VALUES(?,?,?)",
-      args: [username || "", email, hash]
-    });
+  db.run(
+    "INSERT INTO customers(username,email,password) VALUES(?,?,?)",
+    [username || "", email, hash],
+    function (err) {
+      if (err) {
+        return res.json({
+          success: false,
+          message: "Email already exists"
+        });
+      }
 
-    req.session.userId = Number(result.lastInsertRowid);
-    res.json({ success: true });
-  } catch (err) {
-    res.json({
-      success: false,
-      message: "Email already exists"
-    });
-  }
+      req.session.userId = this.lastID;
+      res.json({ success: true });
+    }
+  );
 });
 
 // ---------------- Forgot Password ----------------
-app.post("/forgot-password", async (req, res) => {
+
+app.post("/forgot-password", (req, res) => {
   const { email } = req.body;
 
   if (!email) {
@@ -184,35 +286,40 @@ app.post("/forgot-password", async (req, res) => {
     });
   }
 
-  try {
-    const result = await db.execute({
-      sql: "SELECT id FROM customers WHERE email=?",
-      args: [email]
-    });
-
-    const user = result.rows[0];
-
-    if (!user) {
-      return res.json({
-        success: false,
-        message: "Account not found. Please create an account first."
-      });
-    }
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    resetOtpStore[email] = otp;
-
-    setTimeout(() => {
-      if (resetOtpStore[email] === otp) {
-        delete resetOtpStore[email];
+  db.get(
+    "SELECT id FROM customers WHERE email=?",
+    [email],
+    async (err, user) => {
+      if (err) {
+        console.log(err);
+        return res.json({
+          success: false,
+          message: "Database error."
+        });
       }
-    }, 5 * 60 * 1000);
 
-    await transporter.sendMail({
-      from: `"Acai Shop" <${process.env.GMAIL_USER}>`,
-      to: email,
-      subject: "Reset Your Acai Shop Password",
-      html: `
+      if (!user) {
+        return res.json({
+          success: false,
+          message: "Account not found. Please create an account first."
+        });
+      }
+
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      resetOtpStore[email] = otp;
+
+      setTimeout(() => {
+        if (resetOtpStore[email] === otp) {
+          delete resetOtpStore[email];
+        }
+      }, 5 * 60 * 1000);
+
+      try {
+        await transporter.sendMail({
+          from: `"Acai Shop" <${process.env.GMAIL_USER}>`,
+          to: email,
+          subject: "Reset Your Acai Shop Password",
+          html: `
 <div style="margin:0;padding:40px;background:url('https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg.jpg.jpg') center/cover no-repeat;font-family:Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0">
     <tr>
@@ -237,21 +344,27 @@ app.post("/forgot-password", async (req, res) => {
       </td>
     </tr>
   </table>
-</div>`
-    });
+</div>
+`
+        });
 
-    res.json({ success: true });
-  } catch (error) {
-    console.log("Forgot password email error:", error);
-    if (resetOtpStore[email]) delete resetOtpStore[email];
-    res.json({
-      success: false,
-      message: "Failed to send OTP."
-    });
-  }
+        res.json({ success: true });
+      } catch (error) {
+        console.log("Forgot password email error:", error);
+        if (resetOtpStore[email] === otp) {
+          delete resetOtpStore[email];
+        }
+        res.json({
+          success: false,
+          message: "Failed to send OTP."
+        });
+      }
+    }
+  );
 });
 
 // ---------------- Reset Password ----------------
+
 app.post("/reset-password", async (req, res) => {
   const { email, otp, password } = req.body;
 
@@ -295,17 +408,25 @@ app.post("/reset-password", async (req, res) => {
   try {
     const hash = await bcrypt.hash(password, 10);
 
-    await db.execute({
-      sql: "UPDATE customers SET password=? WHERE email=?",
-      args: [hash, email]
-    });
+    db.run(
+      "UPDATE customers SET password=? WHERE email=?",
+      [hash, email],
+      function (err) {
+        if (err) {
+          return res.json({
+            success: false,
+            message: "Database error."
+          });
+        }
 
-    delete resetOtpStore[email];
+        delete resetOtpStore[email];
 
-    res.json({
-      success: true,
-      message: "Password updated successfully."
-    });
+        res.json({
+          success: true,
+          message: "Password updated successfully."
+        });
+      }
+    );
   } catch {
     res.json({
       success: false,
@@ -315,61 +436,60 @@ app.post("/reset-password", async (req, res) => {
 });
 
 // ---------------- Login ----------------
-app.post("/login", async (req, res) => {
+
+app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  try {
-    const result = await db.execute({
-      sql: "SELECT * FROM customers WHERE email=?",
-      args: [email]
-    });
+  db.get(
+    "SELECT * FROM customers WHERE email=?",
+    [email],
+    async (err, user) => {
+      if (err || !user) {
+        return res.json({
+          success: false,
+          message: "Invalid email or password"
+        });
+      }
 
-    const user = result.rows[0];
+      const ok = await bcrypt.compare(password, user.password);
 
-    if (!user) {
-      return res.json({
-        success: false,
-        message: "Invalid email or password"
-      });
+      if (!ok) {
+        return res.json({
+          success: false,
+          message: "Invalid email or password"
+        });
+      }
+
+      req.session.userId = user.id;
+
+      res.json({ success: true });
     }
-
-    const ok = await bcrypt.compare(password, user.password);
-
-    if (!ok) {
-      return res.json({
-        success: false,
-        message: "Invalid email or password"
-      });
-    }
-
-    req.session.userId = user.id;
-    res.json({ success: true });
-  } catch (err) {
-    res.json({ success: false, message: "Database error" });
-  }
+  );
 });
 
 // ---------------- Current User ----------------
-app.get("/me", auth, async (req, res) => {
-  try {
-    const result = await db.execute({
-      sql: "SELECT id,username,email,phone,address FROM customers WHERE id=?",
-      args: [req.session.userId]
-    });
 
-    const user = result.rows[0];
+app.get("/me", auth, (req, res) => {
+  db.get(
+    "SELECT id,username,email,phone,address FROM customers WHERE id=?",
+    [req.session.userId],
+    (err, user) => {
+      if (err || !user) {
+        return res.status(401).json({
+          loggedIn: false
+        });
+      }
 
-    if (!user) {
-      return res.status(401).json({ loggedIn: false });
+      res.json({
+        loggedIn: true,
+        user
+      });
     }
-
-    res.json({ loggedIn: true, user });
-  } catch (err) {
-    res.status(401).json({ loggedIn: false });
-  }
+  );
 });
 
 // ---------------- Logout ----------------
+
 app.post("/logout", (req, res) => {
   req.session.destroy(() => {
     res.json({ success: true });
@@ -378,68 +498,50 @@ app.post("/logout", (req, res) => {
 
 // ---------------- Products ----------------
 
-// Product List
-app.get("/products", async (req, res) => {
-  try {
-    const result = await db.execute("SELECT * FROM products ORDER BY id DESC");
-    res.json(result.rows);
-  } catch (err) {
-    res.json([]);
-  }
+app.get("/products", (req, res) => {
+  db.all("SELECT * FROM products ORDER BY id DESC", [], (err, rows) => {
+    if (err) return res.json([]);
+    res.json(rows);
+  });
 });
 
-// Add Product
-app.post("/add-product", upload.single("image"), async (req, res) => {
+app.post("/add-product", upload.single("image"), (req, res) => {
   const { name, price, stock, description } = req.body;
   const image = req.file ? req.file.filename : "";
 
-  try {
-    const result = await db.execute({
-      sql: `INSERT INTO products(name,price,stock,image,description) VALUES(?,?,?,?,?)`,
-      args: [name, Number(price), Number(stock), image, description]
-    });
-
-    res.json({
-      success: true,
-      id: Number(result.lastInsertRowid)
-    });
-  } catch (err) {
-    res.json({ success: false });
-  }
+  db.run(
+    `INSERT INTO products(name,price,stock,image,description) VALUES(?,?,?,?,?)`,
+    [name, Number(price), Number(stock), image, description],
+    function (err) {
+      if (err) return res.json({ success: false });
+      res.json({ success: true, id: this.lastID });
+    }
+  );
 });
 
-// Update Product
-app.put("/update-product/:id", async (req, res) => {
+app.put("/update-product/:id", (req, res) => {
   const { name, price, stock, description } = req.body;
 
-  try {
-    await db.execute({
-      sql: `UPDATE products SET name=?,price=?,stock=?,description=? WHERE id=?`,
-      args: [name, Number(price), Number(stock), description, req.params.id]
-    });
-
-    res.json({ success: true });
-  } catch (err) {
-    res.json({ success: false });
-  }
+  db.run(
+    `UPDATE products SET name=?,price=?,stock=?,description=? WHERE id=?`,
+    [name, Number(price), Number(stock), description, req.params.id],
+    function (err) {
+      if (err) return res.json({ success: false });
+      res.json({ success: true });
+    }
+  );
 });
 
-// Delete Product
-app.delete("/delete-product/:id", async (req, res) => {
-  try {
-    await db.execute({
-      sql: "DELETE FROM products WHERE id=?",
-      args: [req.params.id]
-    });
-
+app.delete("/delete-product/:id", (req, res) => {
+  db.run("DELETE FROM products WHERE id=?", [req.params.id], function (err) {
+    if (err) return res.json({ success: false });
     res.json({ success: true });
-  } catch (err) {
-    res.json({ success: false });
-  }
+  });
 });
 
 // ---------------- Checkout ----------------
-app.post("/place-order", auth, async (req, res) => {
+
+app.post("/place-order", auth, (req, res) => {
   const {
     name,
     phone,
@@ -465,92 +567,102 @@ app.post("/place-order", auth, async (req, res) => {
   }
 
   const fullAddress = `${city}, ${township}, ${road}, ${building || ""}, ${address}`;
+  const ids = cart.map(() => "?").join(",");
 
-  try {
-    // Stock Check
-    const ids = cart.map(() => "?").join(",");
-    const productsRes = await db.execute({
-      sql: `SELECT id,name,stock FROM products WHERE name IN (${ids})`,
-      args: cart.map(i => i.name)
-    });
-
-    const products = productsRes.rows;
-
-    for (const item of cart) {
-      const p = products.find(x => x.name === item.name);
-      if (!p || p.stock < item.qty) {
-        return res.json({
-          success: false,
-          message: `${item.name} out of stock`
-        });
+  db.all(
+    `SELECT id,name,stock FROM products WHERE name IN (${ids})`,
+    cart.map(i => i.name),
+    async (err, products) => {
+      if (err) {
+        return res.json({ success: false });
       }
+
+      for (const item of cart) {
+        const p = products.find(x => x.name === item.name);
+        if (!p || p.stock < item.qty) {
+          return res.json({
+            success: false,
+            message: `${item.name} out of stock`
+          });
+        }
+      }
+
+      db.get(
+        "SELECT email FROM customers WHERE id=?",
+        [req.session.userId],
+        async (err2, user) => {
+          if (err2 || !user) return res.json({ success: false });
+
+          db.run(
+            `INSERT INTO orders(customer,email,phone,address,items,total,status) VALUES(?,?,?,?,?,?,?)`,
+            [
+              name,
+              user.email,
+              phone,
+              fullAddress,
+              JSON.stringify(cart),
+              total,
+              "Pending"
+            ],
+            async function (err3) {
+              if (err3) {
+                return res.json({ success: false });
+              }
+
+              const orderId = this.lastID;
+
+              // [Bug Fix] Stock လျှော့သည့် Query များကို စနစ်တကျ အစဉ်လိုက် အောင်မြင်စွာ ပို့ဆောင်ခြင်း
+              try {
+                for (const item of cart) {
+                  await db.run(
+                    `UPDATE products SET stock = stock - ? WHERE name=?`,
+                    [item.qty, item.name]
+                  );
+                }
+                res.json({ success: true, orderId });
+              } catch (stockErr) {
+                console.error("Stock update error:", stockErr);
+                res.json({ success: false, message: "Error updating stock" });
+              }
+            }
+          );
+        }
+      );
     }
-
-    // Get Customer Email
-    const userRes = await db.execute({
-      sql: "SELECT email FROM customers WHERE id=?",
-      args: [req.session.userId]
-    });
-    const user = userRes.rows[0];
-
-    // Insert Order
-    const orderRes = await db.execute({
-      sql: `INSERT INTO orders(customer,email,phone,address,items,total,status) VALUES(?,?,?,?,?,?,?)`,
-      args: [
-        name,
-        user.email,
-        phone,
-        fullAddress,
-        JSON.stringify(cart),
-        total,
-        "Pending"
-      ]
-    });
-
-    // Reduce Stock
-    for (const item of cart) {
-      await db.execute({
-        sql: `UPDATE products SET stock = stock - ? WHERE name=?`,
-        args: [item.qty, item.name]
-      });
-    }
-
-    res.json({
-      success: true,
-      orderId: Number(orderRes.lastInsertRowid)
-    });
-  } catch (err) {
-    console.error(err);
-    res.json({ success: false });
-  }
+  );
 });
 
 // ---------------- Admin: Orders ----------------
-app.get("/admin/orders", adminAuth, async (req, res) => {
-  try {
-    const result = await db.execute("SELECT * FROM orders ORDER BY id DESC");
-    res.json(result.rows);
-  } catch (err) {
-    console.log(err);
-    res.json([]);
-  }
+
+app.get("/admin/orders", adminAuth, (req, res) => {
+  db.all("SELECT * FROM orders ORDER BY id DESC", [], (err, rows) => {
+    if (err) {
+      console.log(err);
+      return res.json([]);
+    }
+    res.json(rows);
+  });
 });
 
 // ---------------- Admin: Customers ----------------
-app.get("/admin/customers", adminAuth, async (req, res) => {
-  try {
-    const result = await db.execute(
-      "SELECT id, username, email, phone, address, created_at FROM customers ORDER BY id DESC"
-    );
-    res.json(result.rows);
-  } catch (err) {
-    console.log(err);
-    res.json([]);
-  }
+
+app.get("/admin/customers", adminAuth, (req, res) => {
+  db.all(
+    `SELECT id, username, email, phone, address, created_at FROM customers ORDER BY id DESC`,
+    [],
+    (err, rows) => {
+      if (err) {
+        console.log(err);
+        return res.json([]);
+      }
+      res.json(rows);
+    }
+  );
 });
 
 // ---------------- Admin: Update Order Status ----------------
-app.put("/admin/orders/:id/status", adminAuth, async (req, res) => {
+
+app.put("/admin/orders/:id/status", adminAuth, (req, res) => {
   const { status } = req.body;
 
   const allowed = [
@@ -569,30 +681,24 @@ app.put("/admin/orders/:id/status", adminAuth, async (req, res) => {
     });
   }
 
-  try {
-    await db.execute({
-      sql: "UPDATE orders SET status=? WHERE id=?",
-      args: [status, req.params.id]
-    });
-
-    res.json({ success: true });
-  } catch (err) {
-    console.log(err);
-    res.json({ success: false });
-  }
+  db.run(
+    `UPDATE orders SET status=? WHERE id=?`,
+    [status, req.params.id],
+    function (err) {
+      if (err) {
+        console.log(err);
+        return res.json({ success: false });
+      }
+      res.json({ success: true });
+    }
+  );
 });
 
 // ---------------- Admin: Order Details ----------------
-app.get("/admin/orders/:id", adminAuth, async (req, res) => {
-  try {
-    const result = await db.execute({
-      sql: "SELECT * FROM orders WHERE id=?",
-      args: [req.params.id]
-    });
 
-    const row = result.rows[0];
-
-    if (!row) {
+app.get("/admin/orders/:id", adminAuth, (req, res) => {
+  db.get("SELECT * FROM orders WHERE id=?", [req.params.id], (err, row) => {
+    if (err || !row) {
       return res.status(404).json({ success: false });
     }
 
@@ -600,207 +706,188 @@ app.get("/admin/orders/:id", adminAuth, async (req, res) => {
       ...row,
       items: JSON.parse(row.items || "[]")
     });
-  } catch (err) {
-    res.status(404).json({ success: false });
-  }
+  });
 });
 
 // ---------------- Admin: Delete Order ----------------
-app.delete("/admin/orders/:id", adminAuth, async (req, res) => {
-  try {
-    await db.execute({
-      sql: "DELETE FROM orders WHERE id=?",
-      args: [req.params.id]
-    });
 
+app.delete("/admin/orders/:id", adminAuth, (req, res) => {
+  db.run("DELETE FROM orders WHERE id=?", [req.params.id], function (err) {
+    if (err) {
+      console.log(err);
+      return res.json({ success: false });
+    }
     res.json({ success: true });
-  } catch (err) {
-    console.log(err);
-    res.json({ success: false });
-  }
+  });
 });
 
 // ---------------- Admin: Delete Customer ----------------
-app.delete("/admin/customers/:id", adminAuth, async (req, res) => {
-  try {
-    await db.execute({
-      sql: "DELETE FROM customers WHERE id=?",
-      args: [req.params.id]
-    });
 
+app.delete("/admin/customers/:id", adminAuth, (req, res) => {
+  db.run("DELETE FROM customers WHERE id=?", [req.params.id], function (err) {
+    if (err) {
+      return res.json({ success: false });
+    }
     res.json({ success: true });
-  } catch (err) {
-    res.json({ success: false });
-  }
+  });
 });
 
 // ---------------- Profile ----------------
-app.get("/profile", auth, async (req, res) => {
-  try {
-    const result = await db.execute({
-      sql: "SELECT id, username, email, phone, address FROM customers WHERE id=?",
-      args: [req.session.userId]
-    });
 
-    const user = result.rows[0];
+app.get("/profile", auth, (req, res) => {
+  db.get(
+    `SELECT id, username, email, phone, address FROM customers WHERE id=?`,
+    [req.session.userId],
+    (err, user) => {
+      if (err || !user) {
+        return res.status(404).json({ success: false });
+      }
 
-    if (!user) {
-      return res.status(404).json({ success: false });
+      res.json({
+        success: true,
+        user
+      });
     }
-
-    res.json({ success: true, user });
-  } catch (err) {
-    res.status(404).json({ success: false });
-  }
+  );
 });
 
 // ---------------- Update Profile ----------------
-app.put("/profile", auth, async (req, res) => {
+
+app.put("/profile", auth, (req, res) => {
   const { username, phone, address } = req.body;
 
-  try {
-    await db.execute({
-      sql: "UPDATE customers SET username=?, phone=?, address=? WHERE id=?",
-      args: [username || "", phone || "", address || "", req.session.userId]
-    });
-
-    res.json({ success: true });
-  } catch (err) {
-    console.log(err);
-    res.json({ success: false });
-  }
+  db.run(
+    `UPDATE customers SET username=?, phone=?, address=? WHERE id=?`,
+    [username || "", phone || "", address || "", req.session.userId],
+    function (err) {
+      if (err) {
+        console.log(err);
+        return res.json({ success: false });
+      }
+      res.json({ success: true });
+    }
+  );
 });
 
 // ---------------- My Orders ----------------
-app.get("/my-orders", auth, async (req, res) => {
-  try {
-    const userRes = await db.execute({
-      sql: "SELECT email FROM customers WHERE id=?",
-      args: [req.session.userId]
-    });
 
-    const user = userRes.rows[0];
+app.get("/my-orders", auth, (req, res) => {
+  db.get(
+    "SELECT email FROM customers WHERE id=?",
+    [req.session.userId],
+    (err, user) => {
+      if (err || !user) {
+        return res.json([]);
+      }
 
-    if (!user) {
-      return res.json([]);
+      db.all(
+        `SELECT * FROM orders WHERE email=? ORDER BY id DESC`,
+        [user.email],
+        (err2, orders) => {
+          if (err2) {
+            console.log(err2);
+            return res.json([]);
+          }
+          res.json(orders);
+        }
+      );
     }
-
-    const ordersRes = await db.execute({
-      sql: "SELECT * FROM orders WHERE email=? ORDER BY id DESC",
-      args: [user.email]
-    });
-
-    res.json(ordersRes.rows);
-  } catch (err) {
-    console.log(err);
-    res.json([]);
-  }
+  );
 });
 
 // ---------------- Dashboard Stats ----------------
-app.get("/admin/dashboard", adminAuth, async (req, res) => {
-  try {
-    const ordersRes = await db.execute("SELECT COUNT(*) AS totalOrders FROM orders");
-    const customersRes = await db.execute("SELECT COUNT(*) AS totalCustomers FROM customers");
-    const productsRes = await db.execute("SELECT COUNT(*) AS totalProducts FROM products");
-    const revenueRes = await db.execute(
-      "SELECT COALESCE(SUM(total),0) AS revenue FROM orders WHERE status!='Cancelled'"
-    );
-    const allOrdersRes = await db.execute(
-      "SELECT items,total,created_at FROM orders WHERE status!='Cancelled'"
-    );
 
-    const orders = ordersRes.rows[0];
-    const customers = customersRes.rows[0];
-    const products = productsRes.rows[0];
-    const revenue = revenueRes.rows[0];
-    const allOrders = allOrdersRes.rows || [];
+app.get("/admin/dashboard", adminAuth, (req, res) => {
+  db.get(`SELECT COUNT(*) AS totalOrders FROM orders`, [], (err, orders) => {
+    db.get(`SELECT COUNT(*) AS totalCustomers FROM customers`, [], (err2, customers) => {
+      db.get(`SELECT COUNT(*) AS totalProducts FROM products`, [], (err3, products) => {
+        db.get(
+          `SELECT COALESCE(SUM(total),0) AS revenue FROM orders WHERE status!='Cancelled'`,
+          [],
+          (err4, revenue) => {
+            db.all(
+              `SELECT items,total,created_at FROM orders WHERE status!='Cancelled'`,
+              [],
+              (err5, allOrders) => {
+                const seller = {};
+                const weekly = {};
 
-    const seller = {};
-    const weekly = {};
+                (allOrders || []).forEach(o => {
+                  const day = (o.created_at || "").split(" ")[0];
+                  weekly[day] = (weekly[day] || 0) + Number(o.total || 0);
 
-    allOrders.forEach(o => {
-      const day = (o.created_at || "").split(" ")[0];
-      weekly[day] = (weekly[day] || 0) + Number(o.total || 0);
+                  try {
+                    JSON.parse(o.items || "[]").forEach(i => {
+                      seller[i.name] = (seller[i.name] || 0) + Number(i.qty || 0);
+                    });
+                  } catch {}
+                });
 
-      try {
-        JSON.parse(o.items || "[]").forEach(i => {
-          seller[i.name] = (seller[i.name] || 0) + Number(i.qty || 0);
-        });
-      } catch {}
+                let bestProduct = "-";
+                let max = 0;
+
+                Object.entries(seller).forEach(([name, qty]) => {
+                  if (qty > max) {
+                    max = qty;
+                    bestProduct = name;
+                  }
+                });
+
+                res.json({
+                  totalOrders: orders?.totalOrders || 0,
+                  totalCustomers: customers?.totalCustomers || 0,
+                  totalProducts: products?.totalProducts || 0,
+                  revenue: revenue?.revenue || 0,
+                  bestProduct,
+                  weekly
+                });
+              }
+            );
+          }
+        );
+      });
     });
+  });
+});
 
-    let bestProduct = "-";
-    let max = 0;
+// ---------------- Revenue Chart [Security Fixed] ----------------
 
-    Object.entries(seller).forEach(([name, qty]) => {
-      if (qty > max) {
-        max = qty;
-        bestProduct = name;
+app.get("/admin/revenue", adminAuth, (req, res) => {
+  db.all(
+    `SELECT DATE(created_at) AS date, COALESCE(SUM(total),0) AS revenue FROM orders WHERE status != 'Cancelled' GROUP BY DATE(created_at) ORDER BY DATE(created_at) ASC`,
+    [],
+    (err, rows) => {
+      if (err) {
+        console.log(err);
+        return res.json([]);
       }
-    });
-
-    res.json({
-      totalOrders: orders?.totalOrders || 0,
-      totalCustomers: customers?.totalCustomers || 0,
-      totalProducts: products?.totalProducts || 0,
-      revenue: revenue?.revenue || 0,
-      bestProduct,
-      weekly
-    });
-  } catch (err) {
-    console.log(err);
-    res.json({
-      totalOrders: 0,
-      totalCustomers: 0,
-      totalProducts: 0,
-      revenue: 0,
-      bestProduct: "-",
-      weekly: {}
-    });
-  }
+      res.json(rows);
+    }
+  );
 });
 
-// ---------------- Revenue Chart ----------------
-app.get("/admin/revenue", async (req, res) => {
-  try {
-    const result = await db.execute(`
-      SELECT
-        DATE(created_at) AS date,
-        COALESCE(SUM(total),0) AS revenue
-      FROM orders
-      WHERE status != 'Cancelled'
-      GROUP BY DATE(created_at)
-      ORDER BY DATE(created_at) ASC
-    `);
+// ---------------- New Order Notification [Security Fixed] ----------------
 
-    res.json(result.rows);
-  } catch (err) {
-    console.log(err);
-    res.json([]);
-  }
-});
-
-// ---------------- New Order Notification ----------------
-app.get("/admin/new-orders", async (req, res) => {
-  try {
-    const result = await db.execute(
-      "SELECT COUNT(*) AS count FROM orders WHERE status='Pending'"
-    );
-
-    res.json({
-      count: result.rows[0]?.count || 0
-    });
-  } catch (err) {
-    res.json({ count: 0 });
-  }
+app.get("/admin/new-orders", adminAuth, (req, res) => {
+  db.get(
+    `SELECT COUNT(*) AS count FROM orders WHERE status='Pending'`,
+    [],
+    (err, row) => {
+      if (err) {
+        return res.json({ count: 0 });
+      }
+      res.json({ count: row.count || 0 });
+    }
+  );
 });
 
 // ---------------- Admin Auth Routes ----------------
+
 app.post("/admin-login", (req, res) => {
   const { username, password } = req.body;
+
   const adminUsername = process.env.ADMIN_USER || "admin";
-  const adminPassword = process.env.ADMIN_PASS || "admin123";
+  const adminPassword = process.env.ADMIN_PASSWORD || process.env.ADMIN_PASS || "admin123";
 
   if (username === adminUsername && password === adminPassword) {
     req.session.admin = true;
