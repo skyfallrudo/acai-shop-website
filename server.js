@@ -17,6 +17,27 @@ const tursoClient = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN
 });
 
+// Middleware များ
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Session Setup (Admin Login အတွက် သုံးထားသည်များ ပါပါက လိုအပ်သည်)
+app.use(session({
+  secret: process.env.SESSION_SECRET || "acai-shop-secret-key",
+  resave: false,
+  saveUninitialized: true
+}));
+
+// Root folder ထဲက HTML/CSS/JS တွေကို Static အဖြစ် သုံးခွင့်ပေးခြင်း
+app.use(express.static(__dirname));
+
+// Root URL (/) ကို ဝင်ရင် index.html ကို ပြသရန်
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// ကျန်ရှိနေသော တခြား API Routes များနှင့် app.listen တို့ကို ဆက်လက် ရေးသားနိုင်ပါပြီ...
+
 // Turso SQLite Wrapper
 const db = {
   get: (sql, params = [], callback) => {
