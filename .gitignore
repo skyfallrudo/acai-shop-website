@@ -1,0 +1,16 @@
+# Sensitive & Environment Variables
+.env
+.env.local
+
+# Database & Local Files
+local.db
+local.db-journal
+
+# Uploaded Files / Images
+uploads/
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log

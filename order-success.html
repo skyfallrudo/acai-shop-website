@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Order Successful | Acai Shop</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
+
+body{
+background:url("bg.jpg") center/cover fixed no-repeat;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:25px;
+position:relative;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(5,8,15,.65);
+backdrop-filter:blur(6px);
+z-index:-1;
+}
+
+.card{
+max-width:500px;
+width:100%;
+background:rgba(15,23,42,.9);
+border:1px solid rgba(255,255,255,.08);
+border-radius:28px;
+padding:40px 30px;
+text-align:center;
+color:white;
+box-shadow:0 25px 60px rgba(0,0,0,.45);
+}
+
+.icon{
+width:90px;
+height:90px;
+margin:0 auto 20px;
+border-radius:50%;
+background:#16A34A;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:45px;
+}
+
+h1{
+font-size:32px;
+margin-bottom:10px;
+}
+
+p{
+color:#CBD5E1;
+line-height:1.6;
+margin-bottom:30px;
+}
+
+.buttons{
+display:grid;
+gap:12px;
+}
+
+.btn{
+padding:15px;
+border:none;
+border-radius:14px;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+text-decoration:none;
+display:block;
+}
+
+.primary{
+background:#2563EB;
+color:white;
+}
+
+.secondary{
+background:#1E293B;
+color:white;
+}
+
+.primary:hover,
+.secondary:hover{
+opacity:.95;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="icon">✓</div>
+
+<h1>Order Successful!</h1>
+
+<p>
+Thank you for shopping with <b>Acai Shop</b>.<br>
+Your order has been received successfully and we will process it soon.
+</p>
+
+<div class="buttons">
+
+<a href="my-orders.html" class="btn primary">
+📦 View My Orders
+</a>
+
+<a href="index.html" class="btn secondary">
+🛍 Continue Shopping
+</a>
+
+</div>
+
+</div>
+
+</body>
+</html>

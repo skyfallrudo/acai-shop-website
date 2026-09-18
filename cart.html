@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopping Cart | Acai Shop</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+
+body{
+background:url("bg.jpg") center/cover fixed no-repeat;
+min-height:100vh;
+color:white;
+padding:25px;
+position:relative;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(5,8,15,.65);
+backdrop-filter:blur(6px);
+z-index:-1;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+}
+
+.back{
+display:inline-block;
+margin-bottom:20px;
+color:white;
+text-decoration:none;
+}
+
+h1{
+text-align:center;
+margin-bottom:25px;
+}
+
+.item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:rgba(15,23,42,.9);
+padding:18px;
+border-radius:18px;
+margin-bottom:15px;
+border:1px solid rgba(255,255,255,.08);
+}
+
+.qty{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.qty button{
+width:32px;
+height:32px;
+border:none;
+border-radius:8px;
+background:#2563EB;
+color:white;
+cursor:pointer;
+}
+
+.qty button:disabled{
+background:#475569;
+cursor:not-allowed;
+}
+
+.remove{
+background:#DC2626!important;
+width:auto!important;
+padding:0 10px;
+}
+
+.total-box{
+margin-top:20px;
+background:rgba(15,23,42,.9);
+padding:20px;
+border-radius:18px;
+display:flex;
+justify-content:space-between;
+font-size:20px;
+font-weight:bold;
+}
+
+.checkout{
+width:100%;
+margin-top:20px;
+padding:16px;
+border:none;
+border-radius:14px;
+background:#2563EB;
+color:white;
+font-size:17px;
+font-weight:600;
+cursor:pointer;
+}
+
+.empty{
+text-align:center;
+padding:60px 20px;
+background:rgba(15,23,42,.9);
+border-radius:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="index.html" class="back">← Continue Shopping</a>
+
+<h1>Shopping Cart</h1>
+
+<div id="cartItems"></div>
+
+<div class="total-box">
+<span>Total</span>
+<span id="total">0 MMK</span>
+</div>
+
+<button id="checkoutBtn" class="checkout">
+Proceed to Checkout
+</button>
+
+</div>
+
+<script>
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let products = [];
+
+async function loadProducts(){
+  products = await fetch("/products").then(r=>r.json());
+}
+
+function getStock(name){
+  const p = products.find(x=>x.name===name);
+  return p ? Number(p.stock) : 0;
+}
+
+function saveCart(){
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+function renderCart(){
+
+  const list = document.getElementById("cartItems");
+  const totalBox = document.getElementById("total");
+
+  list.innerHTML = "";
+
+  let total = 0;
+
+  if(cart.length===0){
+
+    list.innerHTML = `
+      <div class="empty">
+        <h2>Your cart is empty</h2>
+      </div>
+    `;
+
+    totalBox.innerText="0 MMK";
+    return;
+  }
+
+  cart.forEach((item,index)=>{
+
+    total += item.price * item.qty;
+    const stock = getStock(item.name);
+
+    list.innerHTML += `
+      <div class="item">
+
+        <div>
+          <h3>${item.name}</h3>
+          <p>${Number(item.price).toLocaleString()} MMK</p>
+          <small>Stock: ${stock}</small>
+        </div>
+
+        <div class="qty">
+
+          <button onclick="changeQty(${index},-1)">-</button>
+
+          <span>${item.qty}</span>
+
+          <button
+            onclick="changeQty(${index},1)"
+            ${item.qty>=stock?"disabled":""}
+          >
+            +
+          </button>
+
+          <button
+            class="remove"
+            onclick="removeItem(${index})"
+          >
+            Remove
+          </button>
+
+        </div>
+
+      </div>
+    `;
+  });
+
+  totalBox.innerText =
+    Number(total).toLocaleString()+" MMK";
+}
+
+function changeQty(index,change){
+
+  const stock = getStock(cart[index].name);
+
+  if(change===1 && cart[index].qty>=stock){
+
+    alert("Only "+stock+" items left.");
+    return;
+  }
+
+  cart[index].qty += change;
+
+  if(cart[index].qty<=0){
+    cart.splice(index,1);
+  }
+
+  saveCart();
+  renderCart();
+}
+
+function removeItem(index){
+  cart.splice(index,1);
+  saveCart();
+  renderCart();
+}
+
+document.getElementById("checkoutBtn")
+.addEventListener("click",()=>{
+
+  if(cart.length===0){
+    alert("Your cart is empty.");
+    return;
+  }
+
+  window.location="checkout.html";
+});
+
+(async()=>{
+
+  await loadProducts();
+  renderCart();
+
+})();
+</script>
+
+</body>
+</html>

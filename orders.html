@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Acai Shop - Orders</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .order {
+      background: white;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    }
+
+    .order h2 {
+      margin-top: 0;
+    }
+
+    .items {
+      background: #f8f8f8;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+
+    .item {
+      padding: 8px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .total {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 6px 12px;
+      background: #fff3cd;
+      border-radius: 20px;
+      margin-top: 10px;
+    }
+
+    .empty {
+      text-align: center;
+      font-size: 20px;
+      margin-top: 80px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <h1>📦 Acai Shop Orders</h1>
+
+  <div id="orders"></div>
+
+  <script>
+
+    fetch("/orders")
+      .then(response => response.json())
+      .then(orders => {
+
+        const container = document.getElementById("orders");
+
+        if (!orders.length) {
+          container.innerHTML =
+            '<div class="empty">No orders yet.</div>';
+          return;
+        }
+
+        orders.forEach(order => {
+
+          let items = [];
+
+          try {
+            items = JSON.parse(order.items);
+          } catch (e) {
+            items = [];
+          }
+
+          let itemHTML = "";
+
+          items.forEach(item => {
+
+            itemHTML += `
+              <div class="item">
+                ${item.name}
+                × ${item.qty}
+                — ${Number(item.price).toLocaleString()} MMK
+              </div>
+            `;
+
+          });
+
+          container.innerHTML += `
+
+            <div class="order">
+
+              <h2>Order #${order.id}</h2>
+
+              <p>
+                <strong>Customer:</strong>
+                ${order.customer}
+              </p>
+
+              <p>
+                <strong>Phone:</strong>
+                ${order.phone}
+              </p>
+
+              <p>
+                <strong>Address:</strong>
+                ${order.address}
+              </p>
+
+              <div class="items">
+
+                <strong>Items</strong>
+
+                ${itemHTML}
+
+              </div>
+
+              <div class="total">
+                Total:
+                ${Number(order.total).toLocaleString()} MMK
+              </div>
+
+              <div class="status">
+                Status: ${order.status}
+              </div>
+
+            </div>
+
+          `;
+
+        });
+
+      })
+      .catch(error => {
+
+        console.error(error);
+
+        document.getElementById("orders").innerHTML =
+          "<div class='empty'>Cannot load orders.</div>";
+
+      });
+
+  </script>
+
+</body>
+</html>

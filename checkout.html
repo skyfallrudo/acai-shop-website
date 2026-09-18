@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout | Acai Shop</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Poppins",sans-serif;
+}
+
+body{
+background:url("bg.jpg") center/cover fixed no-repeat;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:30px;
+position:relative;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(5,8,15,.65);
+backdrop-filter:blur(6px);
+z-index:-1;
+}
+
+.card{
+width:100%;
+max-width:560px;
+background:rgba(15,23,42,.88);
+border:1px solid rgba(255,255,255,.08);
+border-radius:28px;
+padding:35px;
+box-shadow:0 25px 60px rgba(0,0,0,.45);
+color:white;
+}
+
+.back{
+display:inline-block;
+margin-bottom:18px;
+color:white;
+text-decoration:none;
+}
+
+h1{
+text-align:center;
+margin-bottom:8px;
+font-size:32px;
+}
+
+.subtitle{
+text-align:center;
+color:#94A3B8;
+margin-bottom:28px;
+}
+
+label{
+display:block;
+margin-bottom:8px;
+color:#CBD5E1;
+font-size:14px;
+}
+
+input,select,textarea{
+width:100%;
+padding:15px;
+margin-bottom:16px;
+border:none;
+outline:none;
+border-radius:14px;
+background:#1E293B;
+color:white;
+font-size:15px;
+}
+
+input::placeholder,
+textarea::placeholder{
+color:#64748B;
+}
+
+button{
+width:100%;
+padding:16px;
+border:none;
+border-radius:14px;
+background:linear-gradient(135deg,#3B82F6,#2563EB);
+color:white;
+font-size:17px;
+font-weight:600;
+cursor:pointer;
+}
+
+button:hover{
+opacity:.95;
+}
+
+#paymentInfo{
+display:none;
+background:#1E293B;
+padding:15px;
+border-radius:14px;
+margin-bottom:16px;
+font-size:14px;
+color:#CBD5E1;
+}
+
+@media(max-width:600px){
+.card{
+padding:25px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<a href="cart.html" class="back">← Back to Cart</a>
+
+<h1>Checkout</h1>
+
+<p class="subtitle">
+Enter your delivery information.
+</p>
+
+<form id="checkoutForm">
+
+<label>Full Name</label>
+<input id="name" required placeholder="Enter your full name">
+
+<label>Phone Number</label>
+<input id="phone" required placeholder="09xxxxxxxxx">
+
+<label>City</label>
+
+<select id="city" required onchange="updateTownships()">
+
+<option value="">Select City</option>
+
+<option value="Yangon">Yangon</option>
+<option value="Mandalay">Mandalay</option>
+<option value="Naypyidaw">Naypyidaw</option>
+<option value="Bago">Bago</option>
+<option value="Pathein">Pathein</option>
+<option value="Mawlamyine">Mawlamyine</option>
+<option value="Taunggyi">Taunggyi</option>
+<option value="Sittwe">Sittwe</option>
+<option value="Myitkyina">Myitkyina</option>
+<option value="Hpa-An">Hpa-An</option>
+<option value="Loikaw">Loikaw</option>
+<option value="Dawei">Dawei</option>
+<option value="Magway">Magway</option>
+<option value="Sagaing">Sagaing</option>
+<option value="Hakha">Hakha</option>
+
+</select>
+
+<label>Township</label>
+
+<select id="township" required>
+<option value="">Select Township</option>
+</select>
+
+<label>Road / Street</label>
+<input id="road" required placeholder="Example: Insein Road">
+
+<label>Building / Apartment (Optional)</label>
+<input id="building" placeholder="Apartment, Floor, Room">
+
+<label>House No. / Landmark</label>
+<textarea id="address" rows="3" required placeholder="House No., Landmark"></textarea>
+
+<label>Payment Method</label>
+
+<select id="payment" onchange="togglePaymentInfo()">
+
+<option value="Cash on Delivery">🚚 Cash on Delivery (COD)</option>
+<option value="KBZPay">💙 KBZPay</option>
+<option value="WavePay">💚 WavePay</option>
+<option value="Bank Transfer">🏦 Bank Transfer</option>
+
+</select>
+
+<div id="paymentInfo">
+<b>Payment Instructions</b><br><br>
+ငွေလွှဲပြီးပါက Screenshot ကို နောက်အဆင့်မှာ တင်ပေးပါ။
+</div>
+
+<button type="submit">Place Order</button>
+
+</form>
+
+</div>
+
+<script>
+
+const townshipData={
+
+Yangon:["Hlaing","Kamayut","Mayangone","Insein","Sanchaung","Bahan","Yankin","Thingangyun","Tamwe","Lanmadaw","Latha","Kyauktada","Pabedan","Ahlone","Dagon","North Dagon","South Dagon","East Dagon","Dagon Seikkan","Shwepyitha","Hlaingthaya","Mingaladon","Thaketa","Dawbon","Pazundaung","Botahtaung","Seikkyi Kanaungto","Thanlyin","Twante","Hmawbi","Taikkyi"],
+
+Mandalay:["Aungmyaythazan","Chanayethazan","Chanmyathazi","Maha Aungmyay","Pyigyidagun","Amarapura","Patheingyi","Pyin Oo Lwin","Kyaukse","Meiktila","Myingyan","Yamethin"],
+
+Naypyidaw:["Zabuthiri","Ottarathiri","Pobbathiri","Dekkhinathiri","Pyinmana","Lewe","Tatkon"],
+
+Bago:["Bago","Taungoo","Pyay","Tharrawaddy","Nattalin"],
+
+Pathein:["Pathein","Hinthada","Myaungmya","Maubin","Labutta"],
+
+Mawlamyine:["Mawlamyine","Thaton","Kyaikto","Ye"],
+
+Taunggyi:["Taunggyi","Kalaw","Nyaungshwe","Lashio","Muse","Hsipaw","Kengtung"],
+
+Sittwe:["Sittwe","Kyaukphyu","Thandwe","Mrauk-U"],
+
+Myitkyina:["Myitkyina","Bhamo","Mohnyin","Putao"],
+
+"Hpa-An":["Hpa-An","Myawaddy","Kawkareik","Hlaingbwe"],
+
+Loikaw:["Loikaw","Demoso","Bawlakhe"],
+
+Dawei:["Dawei","Myeik","Kawthaung","Bokpyin"],
+
+Magway:["Magway","Pakokku","Minbu","Thayet","Aunglan"],
+
+Sagaing:["Sagaing","Monywa","Shwebo","Kalay","Tamu"],
+
+Hakha:["Hakha","Falam","Tedim","Mindat"]
+
+};
+
+function updateTownships(){
+
+const city=document.getElementById("city").value;
+
+const township=document.getElementById("township");
+
+township.innerHTML='<option value="">Select Township</option>';
+
+if(!townshipData[city]) return;
+
+townshipData[city].forEach(t=>{
+
+const option=document.createElement("option");
+
+option.value=t;
+
+option.textContent=t;
+
+township.appendChild(option);
+
+});
+
+}
+
+function togglePaymentInfo(){
+
+const payment=document.getElementById("payment").value;
+
+const info=document.getElementById("paymentInfo");
+
+info.style.display=payment==="Cash on Delivery"?"none":"block";
+
+}
+
+togglePaymentInfo();
+
+document.getElementById("checkoutForm").addEventListener("submit",async function(e){
+
+e.preventDefault();
+
+const order={
+
+name:document.getElementById("name").value,
+phone:document.getElementById("phone").value,
+city:document.getElementById("city").value,
+township:document.getElementById("township").value,
+road:document.getElementById("road").value,
+building:document.getElementById("building").value,
+address:document.getElementById("address").value,
+payment:document.getElementById("payment").value,
+cart:JSON.parse(localStorage.getItem("cart"))||[]
+
+};
+
+try{
+
+const res=await fetch("/place-order",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify(order)
+
+});
+
+const data=await res.json();
+
+if(res.status===401){
+
+alert("Please sign in first.");
+
+window.location="login.html";
+
+return;
+
+}
+
+if(data.success){
+
+localStorage.removeItem("cart");
+
+window.location="order-success.html";
+
+}else{
+
+alert(data.message||"Failed to place order.");
+
+}
+
+}catch{
+
+alert("Cannot connect to server.");
+
+}
+
+});
+</script>
+
+</body>
+</html>

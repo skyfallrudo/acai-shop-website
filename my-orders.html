@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Orders | Acai Shop</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,sans-serif;
+}
+
+body{
+background:url("bg.jpg") center/cover fixed no-repeat;
+min-height:100vh;
+color:white;
+padding:25px;
+position:relative;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(5,8,15,.65);
+backdrop-filter:blur(6px);
+z-index:-1;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+}
+
+.back{
+display:inline-block;
+margin-bottom:20px;
+color:white;
+text-decoration:none;
+}
+
+h1{
+margin-bottom:25px;
+}
+
+.order{
+background:rgba(15,23,42,.9);
+border:1px solid rgba(255,255,255,.08);
+border-radius:22px;
+padding:22px;
+margin-bottom:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+.top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:18px;
+flex-wrap:wrap;
+gap:10px;
+}
+
+.id{
+font-size:22px;
+font-weight:700;
+}
+
+.date{
+color:#94A3B8;
+font-size:13px;
+margin-top:4px;
+}
+
+.status{
+padding:8px 14px;
+border-radius:999px;
+font-size:13px;
+font-weight:600;
+}
+
+.Pending{background:#475569;}
+.Packed{background:#EA580C;}
+.Shipped{background:#2563EB;}
+.Delivered{background:#16A34A;}
+
+.items{
+margin-top:15px;
+border-top:1px solid rgba(255,255,255,.08);
+padding-top:15px;
+}
+
+.item{
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+color:#E2E8F0;
+}
+
+.total{
+margin-top:15px;
+padding-top:15px;
+border-top:1px solid rgba(255,255,255,.08);
+display:flex;
+justify-content:space-between;
+font-size:18px;
+font-weight:bold;
+}
+
+.address{
+margin-top:12px;
+color:#CBD5E1;
+font-size:14px;
+line-height:1.6;
+}
+
+.empty{
+text-align:center;
+padding:70px 20px;
+background:rgba(15,23,42,.85);
+border-radius:22px;
+}
+
+.empty a{
+display:inline-block;
+margin-top:20px;
+padding:12px 22px;
+border-radius:12px;
+background:#2563EB;
+color:white;
+text-decoration:none;
+}
+
+@media(max-width:600px){
+
+.top{
+flex-direction:column;
+align-items:flex-start;
+}
+
+.item{
+font-size:14px;
+}
+
+.total{
+font-size:16px;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="index.html" class="back">← Back to Shop</a>
+
+<h1>📦 My Orders</h1>
+
+<div id="orders"></div>
+
+</div>
+
+<script>
+
+async function loadOrders(){
+
+try{
+
+const res = await fetch("/my-orders");
+
+if(res.status===401){
+
+window.location="login.html";
+return;
+
+}
+
+const orders = await res.json();
+
+const container = document.getElementById("orders");
+
+container.innerHTML="";
+
+if(orders.length===0){
+
+container.innerHTML=`
+<div class="empty">
+<h2>No Orders Yet</h2>
+<p>You haven't placed any orders.</p>
+<a href="index.html">Start Shopping</a>
+</div>
+`;
+
+return;
+
+}
+
+orders.forEach(o=>{
+
+let items=[];
+
+try{
+items=JSON.parse(o.items);
+}catch{}
+
+const itemHTML=items.map(i=>`
+<div class="item">
+<span>${i.name} × ${i.qty}</span>
+<span>${Number(i.price*i.qty).toLocaleString()} MMK</span>
+</div>
+`).join("");
+
+container.innerHTML+=`
+<div class="order">
+
+<div class="top">
+
+<div>
+
+<div class="id">
+Order #${o.id}
+</div>
+
+<div class="date">
+${o.created_at||""}
+</div>
+
+</div>
+
+<div class="status ${o.status}">
+${o.status}
+</div>
+
+</div>
+
+<div class="items">
+
+${itemHTML}
+
+</div>
+
+<div class="address">
+
+<b>Delivery Address</b><br>
+
+${o.address}<br>
+
+📞 ${o.phone}
+
+</div>
+
+<div class="total">
+
+<span>Total</span>
+
+<span>${Number(o.total).toLocaleString()} MMK</span>
+
+</div>
+
+</div>
+`;
+
+});
+
+}catch{
+
+document.getElementById("orders").innerHTML=`
+<div class="empty">
+<h2>Cannot connect to server</h2>
+</div>
+`;
+
+}
+
+}
+
+loadOrders();
+
+// Auto Refresh every 5 seconds
+setInterval(loadOrders,5000);
+
+</script>
+
+</body>
+</html>

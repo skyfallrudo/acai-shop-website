@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account | Acai Shop</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Poppins",sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:url("bg.jpg") center/cover no-repeat;
+overflow:hidden;
+position:relative;
+}
+
+body::before{
+content:"";
+position:absolute;
+inset:0;
+background:rgba(0,0,0,.45);
+backdrop-filter:blur(3px);
+}
+
+.glow{
+position:absolute;
+top:5%;
+left:50%;
+transform:translateX(-50%);
+width:550px;
+height:180px;
+background:radial-gradient(circle,rgba(255,245,210,.8),transparent 75%);
+filter:blur(22px);
+pointer-events:none;
+}
+
+.card{
+position:relative;
+z-index:2;
+width:420px;
+padding:38px;
+border-radius:26px;
+background:rgba(15,23,42,.78);
+backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 25px 60px rgba(0,0,0,.45);
+animation:float 5s ease-in-out infinite;
+}
+
+@keyframes float{
+0%,100%{transform:translateY(0);}
+50%{transform:translateY(-6px);}
+}
+
+.logo{
+text-align:center;
+margin-bottom:18px;
+}
+
+.logo img{
+width:82px;
+height:82px;
+border-radius:50%;
+background:white;
+padding:6px;
+box-shadow:0 8px 20px rgba(0,0,0,.3);
+}
+
+h1{
+color:white;
+text-align:center;
+font-size:30px;
+margin-bottom:8px;
+}
+
+p{
+text-align:center;
+color:#94A3B8;
+margin-bottom:28px;
+font-size:14px;
+}
+
+.input{
+position:relative;
+margin-bottom:18px;
+}
+
+.input i{
+position:absolute;
+left:16px;
+top:50%;
+transform:translateY(-50%);
+color:#94A3B8;
+}
+
+.input input{
+width:100%;
+padding:15px 18px 15px 48px;
+background:#1E293B;
+border:1px solid transparent;
+border-radius:14px;
+outline:none;
+color:white;
+font-size:15px;
+transition:.3s;
+}
+
+.input input::placeholder{
+color:#64748B;
+}
+
+.input input:focus{
+border-color:#2563EB;
+box-shadow:0 0 18px rgba(37,99,235,.35);
+}
+
+button{
+width:100%;
+padding:15px;
+border:none;
+border-radius:14px;
+background:linear-gradient(135deg,#3B82F6,#2563EB);
+color:white;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 12px 28px rgba(37,99,235,.4);
+}
+
+.footer{
+text-align:center;
+margin-top:20px;
+font-size:14px;
+color:#94A3B8;
+}
+
+.footer a{
+color:#60A5FA;
+text-decoration:none;
+font-weight:500;
+}
+
+.footer a:hover{
+text-decoration:underline;
+}
+
+/* Loading */
+
+.loading-overlay{
+position:fixed;
+inset:0;
+background:rgba(5,10,20,.78);
+backdrop-filter:blur(8px);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+.loading-box{
+background:rgba(15,23,42,.92);
+padding:35px;
+border-radius:24px;
+border:1px solid rgba(255,255,255,.08);
+text-align:center;
+min-width:300px;
+}
+
+.spinner{
+width:58px;
+height:58px;
+margin:auto;
+border:4px solid rgba(255,255,255,.12);
+border-top:4px solid #3B82F6;
+border-radius:50%;
+animation:spin .9s linear infinite;
+}
+
+@keyframes spin{
+100%{transform:rotate(360deg);}
+}
+
+.loading-box h3{
+color:white;
+margin:18px 0 8px;
+}
+
+.loading-box p{
+color:#94A3B8;
+margin:0;
+}
+
+@media(max-width:480px){
+.card{
+width:92%;
+padding:30px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="glow"></div>
+
+<div class="card">
+
+<div class="logo">
+<img src="logo.jpg" alt="Logo">
+</div>
+
+<h1>Create Account</h1>
+
+<p>Enter your email and password to receive a verification code.</p>
+
+<form onsubmit="event.preventDefault(); sendOTP();">
+
+<div class="input">
+<i class="fa-regular fa-envelope"></i>
+<input type="email" id="email" placeholder="Email Address" required>
+</div>
+
+<div class="input">
+<i class="fa-solid fa-lock"></i>
+<input type="password" id="password" placeholder="Password" required>
+</div>
+
+<button type="submit">
+<i class="fa-solid fa-paper-plane"></i>
+ Send OTP
+</button>
+
+</form>
+
+<div class="footer">
+Already have an account?
+<a href="login.html">Sign In</a>
+</div>
+
+</div>
+
+<div id="loadingOverlay" class="loading-overlay">
+<div class="loading-box">
+
+<div class="spinner"></div>
+
+<h3>Sending verification code...</h3>
+
+<p>Please wait a moment.</p>
+
+</div>
+</div>
+<script>
+
+async function sendOTP(){
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const loading = document.getElementById("loadingOverlay");
+
+  loading.style.display = "flex";
+
+  try{
+
+    const res = await fetch("/send-otp",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+
+      window.location =
+        "verify.html?email=" +
+        encodeURIComponent(email) +
+        "&password=" +
+        encodeURIComponent(password);
+
+    }else{
+
+      loading.style.display = "none";
+      alert(data.message || "Failed to send OTP.");
+
+    }
+
+  }catch(err){
+
+    loading.style.display = "none";
+    alert("Cannot connect to server.");
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>

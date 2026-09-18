@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify OTP | Acai Shop</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Poppins",sans-serif;
+}
+
+body{
+  min-height:100dvh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:url("bg.jpg") center/cover no-repeat;
+  position:relative;
+  padding:20px;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+
+body::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(5,8,15,.62);
+  backdrop-filter:blur(5px);
+}
+
+.card{
+  position:relative;
+  z-index:2;
+  width:min(100%,430px);
+  padding:38px;
+  background:rgba(15,23,42,.82);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:28px;
+  box-shadow:0 25px 60px rgba(0,0,0,.45);
+  text-align:center;
+  overflow:hidden;
+}
+
+.logo{
+  width:82px;
+  height:82px;
+  border-radius:50%;
+  padding:6px;
+  background:white;
+  margin-bottom:18px;
+}
+
+h1{
+  color:white;
+  font-size:30px;
+  margin-bottom:10px;
+}
+
+p{
+  color:#94A3B8;
+  margin-bottom:25px;
+  line-height:1.5;
+}
+
+.email{
+  color:#60A5FA;
+  font-size:13px;
+  margin-bottom:18px;
+  word-break:break-word;
+}
+
+.otp-boxes{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:22px;
+  width:100%;
+}
+
+.otp{
+  flex:1;
+  max-width:52px;
+  min-width:36px;
+  aspect-ratio:1/1;
+  height:auto;
+  border:none;
+  outline:none;
+  border-radius:14px;
+  background:#1E293B;
+  color:white;
+  font-size:24px;
+  text-align:center;
+  font-weight:600;
+  transition:.25s;
+}
+
+.otp:focus{
+  box-shadow:0 0 18px rgba(37,99,235,.35);
+  border:1px solid #3B82F6;
+}
+
+button{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(135deg,#3B82F6,#2563EB);
+  color:white;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.3s;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 28px rgba(37,99,235,.35);
+}
+
+#message{
+  margin-top:18px;
+  font-size:14px;
+  min-height:20px;
+}
+
+.success{color:#22C55E;}
+.error{color:#EF4444;}
+
+.resend{
+  margin-top:18px;
+  color:#94A3B8;
+  font-size:14px;
+}
+
+.resend a{
+  color:#60A5FA;
+  text-decoration:none;
+  pointer-events:none;
+  opacity:.5;
+}
+
+.resend a.active{
+  pointer-events:auto;
+  opacity:1;
+}
+
+.loading{
+  display:none;
+  margin-top:18px;
+  color:#CBD5E1;
+}
+
+/* Mobile */
+@media (max-width:430px){
+
+  .card{
+    padding:28px 18px;
+  }
+
+  h1{
+    font-size:26px;
+  }
+
+  .otp-boxes{
+    gap:6px;
+  }
+
+  .otp{
+    min-width:34px;
+    font-size:22px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<img src="logo.jpg" class="logo" alt="Acai Shop">
+
+<h1>Verify OTP</h1>
+
+<p>Enter the 6-digit verification code sent to your email.</p>
+
+<div class="email" id="emailText"></div>
+
+<div class="otp-boxes">
+  <input class="otp" maxlength="1" inputmode="numeric">
+  <input class="otp" maxlength="1" inputmode="numeric">
+  <input class="otp" maxlength="1" inputmode="numeric">
+  <input class="otp" maxlength="1" inputmode="numeric">
+  <input class="otp" maxlength="1" inputmode="numeric">
+  <input class="otp" maxlength="1" inputmode="numeric">
+</div>
+
+<button id="verifyBtn">
+  <i class="fa-solid fa-check"></i> Verify
+</button>
+
+<div class="loading" id="loading">Verifying...</div>
+
+<div id="message"></div>
+
+<div class="resend">
+  Resend OTP in <span id="timer">60</span>s
+  <br><br>
+  <a href="#" id="resendLink">Resend OTP</a>
+</div>
+
+</div>
+
+<script>
+
+const params = new URLSearchParams(location.search);
+
+const email = params.get("email");
+const password = params.get("password");
+
+document.getElementById("emailText").innerText = email || "";
+
+const inputs = document.querySelectorAll(".otp");
+
+inputs[0].focus();
+
+inputs.forEach((input,index)=>{
+
+  input.addEventListener("input",()=>{
+
+    input.value = input.value.replace(/\D/g,"");
+
+    if(input.value && index < 5){
+      inputs[index+1].focus();
+    }
+
+  });
+
+  input.addEventListener("keydown",(e)=>{
+
+    if(e.key==="Backspace" && !input.value && index>0){
+      inputs[index-1].focus();
+    }
+
+  });
+
+});
+
+document.addEventListener("paste",(e)=>{
+
+  const text = (e.clipboardData.getData("text") || "")
+  .replace(/\D/g,"")
+  .slice(0,6);
+
+  if(text.length===6){
+
+    inputs.forEach((i,n)=>{
+      i.value=text[n];
+    });
+
+    inputs[5].focus();
+    e.preventDefault();
+
+  }
+
+});
+
+let time=60;
+
+const timer=document.getElementById("timer");
+const resend=document.getElementById("resendLink");
+
+const interval=setInterval(()=>{
+
+  time--;
+
+  timer.innerText=time;
+
+  if(time<=0){
+
+    clearInterval(interval);
+
+    timer.innerText="0";
+
+    resend.classList.add("active");
+
+  }
+
+},1000);
+
+resend.addEventListener("click",async function(e){
+
+  e.preventDefault();
+
+  if(!resend.classList.contains("active")) return;
+
+  const res=await fetch("/send-otp",{
+
+    method:"POST",
+
+    headers:{
+      "Content-Type":"application/json"
+    },
+
+    body:JSON.stringify({email})
+
+  });
+
+  const data=await res.json();
+
+  if(data.success){
+    location.reload();
+  }
+
+});
+
+document.getElementById("verifyBtn")
+.addEventListener("click",async()=>{
+
+  const otp=[...inputs].map(i=>i.value).join("");
+
+  if(otp.length!==6){
+
+    show("Enter all 6 digits.","error");
+    return;
+
+  }
+
+  document.getElementById("loading").style.display="block";
+
+  const res=await fetch("/register",{
+
+    method:"POST",
+
+    headers:{
+      "Content-Type":"application/json"
+    },
+
+    body:JSON.stringify({
+      email,
+      password,
+      otp
+    })
+
+  });
+
+  const data=await res.json();
+
+  document.getElementById("loading").style.display="none";
+
+  if(data.success){
+
+    show("Account created successfully!","success");
+
+    setTimeout(()=>{
+      window.location="login.html";
+    },1200);
+
+  }else{
+
+    show(data.message || "Wrong OTP","error");
+
+    inputs.forEach(i=>i.value="");
+
+    inputs[0].focus();
+
+  }
+
+});
+
+function show(text,type){
+
+  const m=document.getElementById("message");
+
+  m.innerText=text;
+
+  m.className=type;
+
+}
+
+</script>
+
+</body>
+</html>
