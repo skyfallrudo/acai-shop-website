@@ -181,7 +181,7 @@ app.post("/send-otp", (req, res) => {
 
       try {
         await resend.emails.send({
-          from: 'Acai Shop <onboarding@resend.dev>',
+          from: 'Acai Shop <support@acaishopmm.store>',
           to: email,
           subject: "Verify your Acai Shop account",
           html: `
