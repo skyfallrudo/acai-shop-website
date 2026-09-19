@@ -651,6 +651,22 @@ app.get("/admin/customers", adminAuth, (req, res) => {
     }
   );
 });
+// Public API (same data as admin)
+app.get("/api/customers", async (req, res) => {
+  db.all(
+    `SELECT id, username, email, phone, address, created_at
+     FROM customers
+     ORDER BY id DESC`,
+    [],
+    (err, rows) => {
+      if (err) {
+        console.log(err);
+        return res.json([]);
+      }
+      res.json(rows);
+    }
+  );
+});
 
 // ---------------- Admin: Update Order Status ----------------
 
