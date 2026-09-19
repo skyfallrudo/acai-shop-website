@@ -10,6 +10,7 @@ const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.set("trust proxy", 1); 
 
 // Turso Client Setup
 const tursoClient = createClient({
@@ -102,7 +103,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(__dirname));
-
 
 app.use(session({
   secret: process.env.SESSION_SECRET || "acai-shop-secret",
