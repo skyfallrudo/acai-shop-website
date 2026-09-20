@@ -538,6 +538,8 @@ app.post("/place-order", auth, (req, res) => {
   const {
     name,
     phone,
+    telegram,     // <-- Telegram ထည့်ရန်
+    altSocial,    // <-- Alt Social ထည့်ရန်
     city,
     township,
     road,
@@ -586,12 +588,15 @@ app.post("/place-order", auth, (req, res) => {
         async (err2, user) => {
           if (err2 || !user) return res.json({ success: false });
 
+          // database orders table ထဲသို့ telegram နှင့် alt_social ပါ ထည့်သွင်းခြင်း
           db.run(
-            `INSERT INTO orders(customer,email,phone,address,items,total,status) VALUES(?,?,?,?,?,?,?)`,
+            `INSERT INTO orders(customer, email, phone, telegram, alt_social, address, items, total, status) VALUES(?,?,?,?,?,?,?,?,?)`,
             [
               name,
               user.email,
               phone,
+              telegram || "",
+              altSocial || "",
               fullAddress,
               JSON.stringify(cart),
               total,
@@ -599,6 +604,7 @@ app.post("/place-order", auth, (req, res) => {
             ],
             async function (err3) {
               if (err3) {
+                console.error("Order Insert Error:", err3);
                 return res.json({ success: false });
               }
 
@@ -623,7 +629,6 @@ app.post("/place-order", auth, (req, res) => {
     }
   );
 });
-
 // ---------------- Admin: Orders ----------------
 
 app.get("/admin/orders", adminAuth, (req, res) => {

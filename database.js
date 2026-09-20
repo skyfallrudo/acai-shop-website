@@ -39,13 +39,41 @@ async function initDb() {
         customer TEXT,
         email TEXT,
         phone TEXT,
+        telegram TEXT,
+        alt_social TEXT,
+        city TEXT,
+        township TEXT,
+        road TEXT,
+        building TEXT,
         address TEXT,
+        payment_method TEXT,
+        deli_fee REAL,
         items TEXT,
         total REAL,
         status TEXT DEFAULT 'Pending',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // သာမန်အဟောင်း Table ရှိနေပါက Column များ အလိုအလျောက် ပေါင်းထည့်ပေးမည့် စနစ်
+    const alterQueries = [
+      "ALTER TABLE orders ADD COLUMN telegram TEXT;",
+      "ALTER TABLE orders ADD COLUMN alt_social TEXT;",
+      "ALTER TABLE orders ADD COLUMN city TEXT;",
+      "ALTER TABLE orders ADD COLUMN township TEXT;",
+      "ALTER TABLE orders ADD COLUMN road TEXT;",
+      "ALTER TABLE orders ADD COLUMN building TEXT;",
+      "ALTER TABLE orders ADD COLUMN payment_method TEXT;",
+      "ALTER TABLE orders ADD COLUMN deli_fee REAL;"
+    ];
+
+    for (const q of alterQueries) {
+      try {
+        await db.execute(q);
+      } catch (e) {
+        // Column ရှိပြီးသားဆိုရင် Error တက်တာကို ကျော်သွားမည်
+      }
+    }
 
     console.log("Turso Database connection & tables initialized successfully!");
   } catch (err) {

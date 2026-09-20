@@ -205,6 +205,68 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
 }
 
+/* Telegram Checkbox & Alt Social Box Styling */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: #E2E8F0;
+    user-select: none;
+    margin-bottom: 12px;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #2563EB;
+    cursor: pointer;
+}
+
+.alt-social-box {
+    border: 1px dashed rgba(255, 255, 255, 0.25);
+    padding: 18px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.5);
+    margin-bottom: 18px;
+}
+
+.helper-text {
+    color: #94A3B8;
+    font-size: 12px;
+    margin-top: 8px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+/* Order Summary Box */
+.summary-box {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #CBD5E1;
+}
+
+.summary-row.total {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 10px;
+    margin-top: 10px;
+    margin-bottom: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #93C5FD;
+}
+
 #paymentInfo {
     display: none;
     background: rgba(30, 41, 59, 0.7);
@@ -272,7 +334,7 @@ Enter your delivery information.
 <form id="checkoutForm">
 
 <div class="form-group">
-    <label for="name">Full Name</label>
+    <label for="name">Full Name *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-user"></i>
         <input id="name" required placeholder="Enter your full name">
@@ -280,15 +342,46 @@ Enter your delivery information.
 </div>
 
 <div class="form-group">
-    <label for="phone">Phone Number</label>
+    <label for="phone">Phone Number *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-phone"></i>
         <input id="phone" required placeholder="09xxxxxxxxx">
     </div>
 </div>
 
+<!-- Telegram Account Section -->
+<div class="form-group" id="telegramGroup">
+    <label for="telegram">Telegram Account / Username *</label>
+    <div class="input-wrapper">
+        <i class="fa-brands fa-telegram"></i>
+        <input id="telegram" placeholder="@username or Phone Number">
+    </div>
+</div>
+
+<!-- Checkbox: I don't have Telegram -->
 <div class="form-group">
-    <label for="city">City</label>
+    <label class="checkbox-label">
+        <input type="checkbox" id="noTelegram" onchange="toggleTelegramInput()">
+        <i>I don't have Telegram</i>
+    </label>
+</div>
+
+<!-- Alternative Social Media Section (Show when Checkbox is checked) -->
+<div class="alt-social-box" id="altSocialGroup" style="display: none;">
+    <div class="form-group" style="margin-bottom: 0;">
+        <label for="altSocial" style="color: #93C5FD;">Where else can we reach you? *</label>
+        <div class="input-wrapper">
+            <i class="fa-solid fa-share-nodes"></i>
+            <input id="altSocial" placeholder="e.g., Viber, Instagram, Snapchat, Discord">
+        </div>
+        <div class="helper-text">
+            e.g., Viber: Your phone number / Instagram: @username / Snapchat: @username / Discord: @username
+        </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="city">City *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-city"></i>
         <select id="city" required onchange="updateTownships()">
@@ -300,30 +393,25 @@ Enter your delivery information.
             <option value="Pathein">Pathein</option>
             <option value="Mawlamyine">Mawlamyine</option>
             <option value="Taunggyi">Taunggyi</option>
-            <option value="Sittwe">Sittwe</option>
-            <option value="Myitkyina">Myitkyina</option>
-            <option value="Hpa-An">Hpa-An</option>
-            <option value="Loikaw">Loikaw</option>
-            <option value="Dawei">Dawei</option>
             <option value="Magway">Magway</option>
             <option value="Sagaing">Sagaing</option>
-            <option value="Hakha">Hakha</option>
+            <option value="Hpa-An">Hpa-An (Myawaddy)</option>
         </select>
     </div>
 </div>
 
 <div class="form-group">
-    <label for="township">Township</label>
+    <label for="township">Township *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-location-dot"></i>
-        <select id="township" required>
+        <select id="township" required onchange="calculateTotals()">
             <option value="">Select Township</option>
         </select>
     </div>
 </div>
 
 <div class="form-group">
-    <label for="road">Road / Street</label>
+    <label for="road">Road / Street *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-road"></i>
         <input id="road" required placeholder="Example: Insein Road">
@@ -339,7 +427,7 @@ Enter your delivery information.
 </div>
 
 <div class="form-group">
-    <label for="address">House No. / Landmark</label>
+    <label for="address">House No. / Landmark *</label>
     <div class="input-wrapper textarea-wrapper">
         <i class="fa-solid fa-house"></i>
         <textarea id="address" rows="3" required placeholder="House No., Landmark"></textarea>
@@ -347,21 +435,33 @@ Enter your delivery information.
 </div>
 
 <div class="form-group">
-    <label for="payment">Payment Method</label>
+    <label for="payment">Payment Method *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-wallet"></i>
         <select id="payment" onchange="togglePaymentInfo()">
             <option value="Cash on Delivery">🚚 Cash on Delivery (COD)</option>
             <option value="KBZPay">💙 KBZPay</option>
-            <option value="WavePay">💚 WavePay</option>
-            <option value="Bank Transfer">🏦 Bank Transfer</option>
+            <option value="WavePay">🟡 WavePay</option>
         </select>
     </div>
 </div>
 
-<div id="paymentInfo">
-    <b>Payment Instructions</b><br><br>
-    ငွေလွှဲပြီးပါက Screenshot ကို နောက်အဆင့်မှာ တင်ပေးပါ။
+<div id="paymentInfo"></div>
+
+<!-- Order Summary Box -->
+<div class="summary-box">
+    <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="subtotalDisplay">0 MMK</span>
+    </div>
+    <div class="summary-row">
+        <span>Delivery Fee</span>
+        <span id="deliDisplay">0 MMK</span>
+    </div>
+    <div class="summary-row total">
+        <span>Total Amount</span>
+        <span id="totalDisplay">0 MMK</span>
+    </div>
 </div>
 
 <button type="submit">Place Order</button>
@@ -372,23 +472,98 @@ Enter your delivery information.
 
 <script>
 
-const townshipData={
-Yangon:["Hlaing","Kamayut","Mayangone","Insein","Sanchaung","Bahan","Yankin","Thingangyun","Tamwe","Lanmadaw","Latha","Kyauktada","Pabedan","Ahlone","Dagon","North Dagon","South Dagon","East Dagon","Dagon Seikkan","Shwepyitha","Hlaingthaya","Mingaladon","Thaketa","Dawbon","Pazundaung","Botahtaung","Seikkyi Kanaungto","Thanlyin","Twante","Hmawbi","Taikkyi"],
-Mandalay:["Aungmyaythazan","Chanayethazan","Chanmyathazi","Maha Aungmyay","Pyigyidagun","Amarapura","Patheingyi","Pyin Oo Lwin","Kyaukse","Meiktila","Myingyan","Yamethin"],
-Naypyidaw:["Zabuthiri","Ottarathiri","Pobbathiri","Dekkhinathiri","Pyinmana","Lewe","Tatkon"],
-Bago:["Bago","Taungoo","Pyay","Tharrawaddy","Nattalin"],
-Pathein:["Pathein","Hinthada","Myaungmya","Maubin","Labutta"],
-Mawlamyine:["Mawlamyine","Thaton","Kyaikto","Ye"],
-Taunggyi:["Taunggyi","Kalaw","Nyaungshwe","Lashio","Muse","Hsipaw","Kengtung"],
-Sittwe:["Sittwe","Kyaukphyu","Thandwe","Mrauk-U"],
-Myitkyina:["Myitkyina","Bhamo","Mohnyin","Putao"],
-"Hpa-An":["Hpa-An","Myawaddy","Kawkareik","Hlaingbwe"],
-Loikaw:["Loikaw","Demoso","Bawlakhe"],
-Dawei:["Dawei","Myeik","Kawthaung","Bokpyin"],
-Magway:["Magway","Pakokku","Minbu","Thayet","Aunglan"],
-Sagaing:["Sagaing","Monywa","Shwebo","Kalay","Tamu"],
-Hakha:["Hakha","Falam","Tedim","Mindat"]
+// မြို့နယ်အလိုက် ပို့ဆောင်ခ သတ်မှတ်ချက်များ (SAFE Delivery Rates)
+const deliRates = {
+  // ရန်ကုန် - ၃,၅၀၀ ကျပ်
+  "Lanmadaw": 3500, "Latha": 3500, "Pabedan": 3500, "Kyauktada": 3500,
+  "Pazundaung": 3500, "Botahtaung": 3500, "Kyimyindaing": 3500, "Ahlone": 3500,
+  "Sanchaung": 3500, "Insein": 3500, "Mayangone": 3500, "Hlaing": 3500,
+  "Kamayut": 3500, "South Okkalapa": 3500, "Thamaing": 3500, "Yankin": 3500,
+  "Dawbon": 3500, "Thaketa": 3500, "Tamwe": 3500, "Bahan": 3500,
+  "Mingalar Taungnyunt": 3500, "Dagon": 3500,
+
+  // ရန်ကုန် - ၄,၀၀၀ ကျပ်
+  "Hlaingthaya": 4000, "Shwepyitha": 4000, "Mingaladon": 4000, "North Okkalapa": 4000,
+  "South Dagon": 4000, "North Dagon": 4000, "East Dagon": 4000, "Dagon Seikkan": 4000,
+  "Dala": 4000, "Thanlyin": 4000,
+
+  // ရန်ကုန် - ၄,၅၀၀ ကျပ်
+  "Hmawbi": 4500, "Hlegu": 4500,
+
+  // မန္တလေး - ၅,၀၀၀ ကျပ်
+  "Aungmyaythazan": 5000, "Chanayethazan": 5000, "Chanmyathazi": 5000, "Maha Aungmyay": 5000,
+  "Pyigyidagun": 5000, "Amarapura": 5000, "Patheingyi": 5000, "Pyin Oo Lwin": 5000,
+  "Myittha": 5000, "Kume": 5000, "Kyaukse": 5000, "Yamethin": 5000, "Myingyan": 5000,
+  "Bagan": 5000, "Nyaung-U": 5000, "Pyawbwe": 5000,
+
+  // နေပြည်တော် - ၅,၀၀၀ ကျပ်
+  "Zabuthiri": 5000, "Ottarathiri": 5000, "Pobbathiri": 5000, "Dekkhinathiri": 5000,
+  "Pyinmana": 5000, "Lewe": 5000, "Tatkon": 5000, "Zeyathiri": 5000,
+
+  // ပဲခူး - ၅,၀၀၀ ကျပ်
+  "Bago": 5000, "Taungoo": 5000, "Pyay": 5000, "Phyu": 5000, "Shwedaung": 5000, "Myanaung": 5000, "Shwegyin": 5000,
+
+  // ဧရာဝတီ - ၅,၀၀၀ ကျပ်
+  "Pathein": 5000, "Hinthada": 5000, "Myaungmya": 5000, "Maubin": 5000, "Labutta": 5000, "Kyonpyaw": 5000, "Wakema": 5000,
+
+  // မွန် - ၅,၀၀၀ ကျပ်
+  "Mawlamyine": 5000, "Thaton": 5000,
+
+  // ရှမ်း - ၅,၀၀၀ ကျပ်
+  "Taunggyi": 5000, "Aungban": 5000,
+
+  // စစ်ကိုင်း - ၅,၀၀၀ ကျပ်
+  "Monywa": 5000,
+
+  // မကွေး - ၅,၀၀၀ ကျပ်
+  "Magway": 5000, "Chauk": 5000, "Aunglan": 5000, "Yenangyaung": 5000, "Minbu": 5000, "Taungdwingyi": 5000,
+
+  // ကရင် - ၇,၀၀၀ ကျပ်
+  "Myawaddy": 7000
 };
+
+const townshipData={
+Yangon:[
+  "Lanmadaw","Latha","Pabedan","Kyauktada","Pazundaung","Botahtaung","Kyimyindaing","Ahlone","Sanchaung",
+  "Insein","Mayangone","Hlaing","Kamayut","South Okkalapa","Thamaing","Yankin","Dawbon","Thaketa","Tamwe",
+  "Bahan","Mingalar Taungnyunt","Dagon","Hlaingthaya","Shwepyitha","Mingaladon","North Okkalapa","South Dagon",
+  "North Dagon","East Dagon","Dagon Seikkan","Dala","Thanlyin","Hmawbi","Hlegu"
+],
+Mandalay:["Aungmyaythazan","Chanayethazan","Chanmyathazi","Maha Aungmyay","Pyigyidagun","Amarapura","Patheingyi","Pyin Oo Lwin","Kyaukse","Myittha","Kume","Yamethin","Myingyan","Bagan","Nyaung-U","Pyawbwe"],
+Naypyidaw:["Zabuthiri","Ottarathiri","Pobbathiri","Dekkhinathiri","Pyinmana","Lewe","Tatkon","Zeyathiri"],
+Bago:["Bago","Taungoo","Pyay","Phyu","Shwedaung","Myanaung","Shwegyin"],
+Pathein:["Pathein","Hinthada","Myaungmya","Maubin","Labutta","Kyonpyaw","Wakema"],
+Mawlamyine:["Mawlamyine","Thaton"],
+Taunggyi:["Taunggyi","Aungban"],
+Magway:["Magway","Chauk","Aunglan","Yenangyaung","Minbu","Taungdwingyi"],
+Sagaing:["Monywa"],
+"Hpa-An":["Myawaddy"]
+};
+
+// Telegram & Alternative Social Toggle Function
+function toggleTelegramInput() {
+    const noTelegram = document.getElementById("noTelegram").checked;
+    const telegramGroup = document.getElementById("telegramGroup");
+    const telegramInput = document.getElementById("telegram");
+    const altSocialGroup = document.getElementById("altSocialGroup");
+    const altSocialInput = document.getElementById("altSocial");
+
+    if (noTelegram) {
+        telegramGroup.style.display = "none";
+        telegramInput.required = false;
+        telegramInput.value = "";
+
+        altSocialGroup.style.display = "block";
+        altSocialInput.required = true;
+    } else {
+        telegramGroup.style.display = "block";
+        telegramInput.required = true;
+
+        altSocialGroup.style.display = "none";
+        altSocialInput.required = false;
+        altSocialInput.value = "";
+    }
+}
 
 function updateTownships(){
     const city=document.getElementById("city").value;
@@ -396,7 +571,10 @@ function updateTownships(){
 
     township.innerHTML='<option value="">Select Township</option>';
 
-    if(!townshipData[city]) return;
+    if(!townshipData[city]) {
+      calculateTotals();
+      return;
+    }
 
     townshipData[city].forEach(t=>{
         const option=document.createElement("option");
@@ -404,29 +582,65 @@ function updateTownships(){
         option.textContent=t;
         township.appendChild(option);
     });
+    
+    calculateTotals();
+}
+
+function calculateTotals(){
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
+    
+    const township = document.getElementById("township").value;
+    const deliFee = deliRates[township] || 0;
+    const total = subtotal + deliFee;
+
+    document.getElementById("subtotalDisplay").textContent = subtotal.toLocaleString() + " MMK";
+    document.getElementById("deliDisplay").textContent = deliFee.toLocaleString() + " MMK";
+    document.getElementById("totalDisplay").textContent = total.toLocaleString() + " MMK";
 }
 
 function togglePaymentInfo(){
     const payment=document.getElementById("payment").value;
     const info=document.getElementById("paymentInfo");
-    info.style.display=payment==="Cash on Delivery"?"none":"block";
+    
+    if(payment === "KBZPay"){
+        info.style.display = "block";
+        info.innerHTML = "<b>KBZPay Info</b><br>Pay to: 09xxxxxxxxx (Acai Shop)<br>ငွေလွှဲပြီးပါက Transaction Screenshot သိမ်းထားပေးပါ။";
+    } else if(payment === "WavePay"){
+        info.style.display = "block";
+        info.innerHTML = "<b>WavePay Info</b><br>Pay to: 09xxxxxxxxx (Acai Shop)<br>ငွေလွှဲပြီးပါက Transaction Screenshot သိမ်းထားပေးပါ။";
+    } else {
+        info.style.display = "none";
+    }
 }
 
-togglePaymentInfo();
+// စတင်ဖွင့်ချိန်တွင် Telegram Control ပုံမှန်အတိုင်း အလုပ်လုပ်စေမည်
+toggleTelegramInput();
+calculateTotals();
 
 document.getElementById("checkoutForm").addEventListener("submit",async function(e){
     e.preventDefault();
 
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
+    const selectedTownship = document.getElementById("township").value;
+    const deliFee = deliRates[selectedTownship] || 0;
+    const noTelegram = document.getElementById("noTelegram").checked;
+
     const order={
-        name:document.getElementById("name").value,
-        phone:document.getElementById("phone").value,
-        city:document.getElementById("city").value,
-        township:document.getElementById("township").value,
-        road:document.getElementById("road").value,
-        building:document.getElementById("building").value,
-        address:document.getElementById("address").value,
-        payment:document.getElementById("payment").value,
-        cart:JSON.parse(localStorage.getItem("cart"))||[]
+        name: document.getElementById("name").value,
+        phone: document.getElementById("phone").value,
+        telegram: noTelegram ? "No Telegram" : document.getElementById("telegram").value,
+        altSocial: noTelegram ? document.getElementById("altSocial").value : "",
+        city: document.getElementById("city").value,
+        township: selectedTownship,
+        road: document.getElementById("road").value,
+        building: document.getElementById("building").value,
+        address: document.getElementById("address").value,
+        payment: document.getElementById("payment").value,
+        deliFee: deliFee,
+        totalPrice: subtotal + deliFee,
+        cart: cart
     };
 
     try{
