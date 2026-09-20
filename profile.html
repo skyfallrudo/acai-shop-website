@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Profile | Acai Shop</title>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
@@ -18,168 +19,212 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:"Poppins",sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
 }
 
-body{
-min-height:100dvh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:url("bg.jpg") center/cover no-repeat;
-padding:20px;
-position:relative;
-overflow:hidden;
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-body::before{
-content:"";
-position:absolute;
-inset:0;
-background:rgba(5,8,15,.65);
-backdrop-filter:blur(6px);
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-color: #05080f;
+    min-height: 100vh;
+    padding: 20px;
 }
 
-.card{
-position:relative;
-z-index:2;
-width:min(100%,460px);
-background:rgba(15,23,42,.85);
-backdrop-filter:blur(18px);
-border:1px solid rgba(255,255,255,.08);
-border-radius:28px;
-padding:30px;
-box-shadow:0 25px 60px rgba(0,0,0,.45);
+/* Background ပုံကို fixed အလွှာသီးသန့်ခွဲထုတ်ပြီး PC/Mobile ခွဲခြားပေးထားသည် */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
 }
 
-.top{
-text-align:center;
-margin-bottom:25px;
+/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
+@media (min-width: 769px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
+    }
 }
 
-.logo{
-width:84px;
-height:84px;
-border-radius:50%;
-background:white;
-padding:6px;
-margin-bottom:12px;
+/* ဖုန်း Screen များအတွက် Mobile ပုံ */
+@media (max-width: 768px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
+    }
 }
 
-h1{
-color:white;
-font-size:28px;
+/* အမည်းရောင် ပါးပါးအုပ်ထားသည့် အလွှာ (Blur မပါသောကြောင့် ပုံမဝါးပါ) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 8, 15, 0.65);
+    z-index: -1;
 }
 
-.sub{
-color:#94A3B8;
-font-size:14px;
-margin-top:6px;
+.card {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 460px);
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    padding: 30px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
 }
 
-label{
-display:block;
-color:#CBD5E1;
-margin:16px 0 8px;
-font-size:14px;
+.top {
+    text-align: center;
+    margin-bottom: 25px;
 }
 
-.input-box{
-position:relative;
+.logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: white;
+    padding: 6px;
+    margin: 0 auto 12px auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    display: block;
 }
 
-.input-box i{
-position:absolute;
-left:15px;
-top:50%;
-transform:translateY(-50%);
-color:#64748B;
+h1 {
+    color: white;
+    font-size: 28px;
 }
 
-input,textarea{
-width:100%;
-padding:14px 14px 14px 44px;
-background:#1E293B;
-border:1px solid transparent;
-border-radius:14px;
-color:white;
-outline:none;
-font-size:15px;
-transition:.25s;
+.sub {
+    color: #94A3B8;
+    font-size: 14px;
+    margin-top: 6px;
 }
 
-textarea{
-padding-top:14px;
-resize:none;
-height:90px;
+label {
+    display: block;
+    color: #CBD5E1;
+    margin: 16px 0 8px;
+    font-size: 14px;
+}
+
+.input-box {
+    position: relative;
+}
+
+.input-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748B;
+}
+
+.input-box i.textarea-icon {
+    top: 18px;
+    transform: none;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    background: #1E293B;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    color: white;
+    outline: none;
+    font-size: 15px;
+    transition: .25s;
+}
+
+textarea {
+    padding-top: 14px;
+    resize: none;
+    height: 90px;
 }
 
 input:focus,
-textarea:focus{
-border-color:#3B82F6;
-box-shadow:0 0 16px rgba(59,130,246,.25);
+textarea:focus {
+    border-color: #3B82F6;
+    box-shadow: 0 0 16px rgba(59, 130, 246, .25);
 }
 
-input[disabled]{
-opacity:.75;
-cursor:not-allowed;
+input[disabled] {
+    opacity: .75;
+    cursor: not-allowed;
 }
 
-.actions{
-display:flex;
-gap:10px;
-margin-top:26px;
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 26px;
 }
 
-button{
-flex:1;
-padding:14px;
-border:none;
-border-radius:14px;
-font-size:15px;
-font-weight:600;
-cursor:pointer;
-transition:.25s;
+button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .25s;
 }
 
-.save{
-background:linear-gradient(135deg,#3B82F6,#2563EB);
-color:white;
+.save {
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    color: white;
 }
 
-.back{
-background:#334155;
-color:white;
+.back {
+    background: #334155;
+    color: white;
 }
 
-button:hover{
-transform:translateY(-2px);
+button:hover {
+    transform: translateY(-2px);
 }
 
-#msg{
-margin-top:18px;
-text-align:center;
-font-size:14px;
-min-height:20px;
+#msg {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 14px;
+    min-height: 20px;
 }
 
-.success{color:#22C55E;}
-.error{color:#EF4444;}
+.success { color: #22C55E; }
+.error { color: #EF4444; }
 
-@media(max-width:430px){
+@media(max-width: 430px) {
+    .card {
+        padding: 24px 18px;
+    }
 
-.card{
-padding:24px 18px;
-}
-
-.actions{
-flex-direction:column;
-}
-
+    .actions {
+        flex-direction: column;
+    }
 }
 </style>
 </head>
@@ -189,43 +234,43 @@ flex-direction:column;
 <div class="card">
 
 <div class="top">
-<img src="logo.jpg" class="logo" alt="Acai Shop">
-<h1>My Profile</h1>
-<div class="sub">Manage your account information</div>
+  <img src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg" class="logo" alt="Acai Shop">
+  <h1>My Profile</h1>
+  <div class="sub">Manage your account information</div>
 </div>
 
 <label>Username</label>
 <div class="input-box">
-<i class="fa-solid fa-user"></i>
-<input id="username" placeholder="Username">
+  <i class="fa-solid fa-user"></i>
+  <input id="username" placeholder="Username">
 </div>
 
 <label>Email</label>
 <div class="input-box">
-<i class="fa-solid fa-envelope"></i>
-<input id="email" disabled>
+  <i class="fa-solid fa-envelope"></i>
+  <input id="email" disabled>
 </div>
 
 <label>Phone</label>
 <div class="input-box">
-<i class="fa-solid fa-phone"></i>
-<input id="phone" placeholder="09xxxxxxxxx">
+  <i class="fa-solid fa-phone"></i>
+  <input id="phone" placeholder="09xxxxxxxxx">
 </div>
 
 <label>Address</label>
 <div class="input-box">
-<i class="fa-solid fa-location-dot"></i>
-<textarea id="address" placeholder="Your address"></textarea>
+  <i class="fa-solid fa-location-dot textarea-icon"></i>
+  <textarea id="address" placeholder="Your address"></textarea>
 </div>
 
 <div class="actions">
-<button class="save" onclick="saveProfile()">
-<i class="fa-solid fa-floppy-disk"></i> Save
-</button>
+  <button class="save" onclick="saveProfile()">
+    <i class="fa-solid fa-floppy-disk"></i> Save
+  </button>
 
-<button class="back" onclick="location.href='index.html'">
-<i class="fa-solid fa-arrow-left"></i> Back
-</button>
+  <button class="back" onclick="location.href='index.html'">
+    <i class="fa-solid fa-arrow-left"></i> Back
+  </button>
 </div>
 
 <div id="msg"></div>

@@ -17,151 +17,193 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:"Poppins",sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
 }
 
-body{
-background:url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg.jpg.jpg") center/cover fixed no-repeat;
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:20px;
-position:relative;
-overflow:hidden;
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-body::before{
-content:"";
-position:fixed;
-inset:0;
-background:rgba(5,8,15,.65);
-backdrop-filter:blur(8px);
-z-index:-1;
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-color: #05080f;
+    min-height: 100vh;
+    padding: 20px;
 }
 
-.card{
-width:100%;
-max-width:420px;
-background:rgba(15,23,42,.88);
-border:1px solid rgba(255,255,255,.08);
-backdrop-filter:blur(20px);
-border-radius:30px;
-padding:35px;
-text-align:center;
-box-shadow:0 25px 60px rgba(0,0,0,.45);
-animation:fade .5s ease;
+/* Background ပုံကို fixed အလွှာသီးသန့်ခွဲထုတ်ပြီး PC/Mobile ခွဲခြားပေးထားသည် */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
 }
 
-@keyframes fade{
-from{
-opacity:0;
-transform:translateY(20px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
+/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
+@media (min-width: 769px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
+    }
 }
 
-.logo{
-width:80px;
-height:80px;
-border-radius:50%;
-padding:6px;
-background:white;
-margin-bottom:18px;
-box-shadow:0 10px 30px rgba(0,0,0,.3);
+/* ဖုန်း Screen များအတွက် Mobile ပုံ */
+@media (max-width: 768px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
+    }
 }
 
-h1{
-color:white;
-font-size:32px;
-margin-bottom:8px;
+/* အမည်းရောင် ပါးပါးအုပ်ထားသည့် အလွှာ (Blur လုံးဝမပါသောကြောင့် ကြည်လင်ပါသည်) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 8, 15, 0.45);
+    z-index: -1;
 }
 
-.subtitle{
-color:#94A3B8;
-margin-bottom:28px;
-font-size:15px;
+.card {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 30px;
+    padding: 35px;
+    text-align: center;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+    animation: fade .5s ease;
+    position: relative;
+    z-index: 2;
 }
 
-.input-box{
-position:relative;
-margin-bottom:18px;
+@keyframes fade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.input-box i{
-position:absolute;
-left:15px;
-top:50%;
-transform:translateY(-50%);
-color:#64748B;
+.logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    padding: 6px;
+    background: white;
+    margin: 0 auto 18px auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    display: block;
 }
 
-.input-box input{
-width:100%;
-padding:15px 15px 15px 45px;
-border:none;
-border-radius:14px;
-background:#1E293B;
-color:white;
-outline:none;
-font-size:15px;
-transition:.3s;
+h1 {
+    color: white;
+    font-size: 32px;
+    margin-bottom: 8px;
 }
 
-.input-box input:focus{
-box-shadow:0 0 18px rgba(37,99,235,.35);
+.subtitle {
+    color: #94A3B8;
+    margin-bottom: 28px;
+    font-size: 15px;
 }
 
-.input-box input::placeholder{
-color:#64748B;
+.input-box {
+    position: relative;
+    margin-bottom: 18px;
 }
 
-button{
-width:100%;
-padding:16px;
-border:none;
-border-radius:14px;
-background:linear-gradient(135deg,#3B82F6,#2563EB);
-color:white;
-font-size:17px;
-font-weight:600;
-cursor:pointer;
-transition:.3s;
-display:flex;
-justify-content:center;
-align-items:center;
-gap:8px;
+.input-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748B;
 }
 
-button:hover{
-transform:translateY(-2px);
-box-shadow:0 12px 28px rgba(37,99,235,.35);
+.input-box input {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    background: #1E293B;
+    color: white;
+    outline: none;
+    font-size: 15px;
+    transition: .3s;
 }
 
-.link{
-margin-top:22px;
-font-size:14px;
-color:#94A3B8;
+.input-box input:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 18px rgba(37, 99, 235, .35);
 }
 
-.link a{
-color:#60A5FA;
-text-decoration:none;
-font-weight:600;
+.input-box input::placeholder {
+    color: #64748B;
 }
 
-.loading{
-display:none;
-margin-top:15px;
-color:#CBD5E1;
-font-size:14px;
+button {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    color: white;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, .35);
+}
+
+.link {
+    margin-top: 22px;
+    font-size: 14px;
+    color: #94A3B8;
+}
+
+.link a {
+    color: #60A5FA;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.loading {
+    display: none;
+    margin-top: 15px;
+    color: #CBD5E1;
+    font-size: 14px;
 }
 </style>
 </head>
@@ -170,8 +212,7 @@ font-size:14px;
 
 <div class="card">
 
-<img class="logo"
-src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg.jpg">
+<img class="logo" src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg" alt="Logo">
 
 <h1>Welcome Back</h1>
 
@@ -183,27 +224,20 @@ Sign in to continue shopping.
 
 <div class="input-box">
 <i class="fa-solid fa-envelope"></i>
-<input
-id="email"
-type="email"
-placeholder="Email"
-required>
+<input id="email" type="email" placeholder="Email" required>
 </div>
 
 <div class="input-box">
 <i class="fa-solid fa-lock"></i>
-<input
-id="password"
-type="password"
-placeholder="Password"
-required>
+<input id="password" type="password" placeholder="Password" required>
 </div>
-<div style="text-align:right;margin:-8px 0 18px;">
-  <a href="forgot-password.html"
-     style="color:#60A5FA;text-decoration:none;font-size:14px;font-weight:500;">
+
+<div style="text-align:right; margin:-8px 0 18px;">
+  <a href="forgot-password.html" style="color:#60A5FA; text-decoration:none; font-size:14px; font-weight:500;">
     Forgot Password?
   </a>
 </div>
+
 <button type="submit" id="loginBtn">
 <i class="fa-solid fa-arrow-right-to-bracket"></i>
 Sign In
@@ -223,46 +257,42 @@ Don't have an account?
 </div>
 
 <script>
-document.getElementById("loginForm").addEventListener("submit",async function(e){
+document.getElementById("loginForm").addEventListener("submit", async function(e){
 
 e.preventDefault();
 
-const btn=document.getElementById("loginBtn");
-const loading=document.getElementById("loading");
+const btn = document.getElementById("loginBtn");
+const loading = document.getElementById("loading");
 
-btn.disabled=true;
-loading.style.display="block";
+btn.disabled = true;
+loading.style.display = "block";
 
-const res=await fetch("/login",{
+try {
+  const res = await fetch("/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: document.getElementById("email").value,
+      password: document.getElementById("password").value
+    })
+  });
 
-method:"POST",
+  const data = await res.json();
 
-headers:{
-"Content-Type":"application/json"
-},
+  loading.style.display = "none";
+  btn.disabled = false;
 
-body:JSON.stringify({
-
-email:document.getElementById("email").value,
-password:document.getElementById("password").value
-
-})
-
-});
-
-const data=await res.json();
-
-loading.style.display="none";
-btn.disabled=false;
-
-if(data.success){
-
-window.location="index.html";
-
-}else{
-
-alert("Wrong email or password");
-
+  if(data.success){
+    window.location = "index.html";
+  } else {
+    alert(data.message || "Wrong email or password");
+  }
+} catch (err) {
+  loading.style.display = "none";
+  btn.disabled = false;
+  alert("Cannot connect to server.");
 }
 
 });

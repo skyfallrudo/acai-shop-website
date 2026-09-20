@@ -5,180 +5,228 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verify OTP | Acai Shop</title>
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-F00XQ96WFJ');
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:"Poppins",sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
 }
 
-body{
-  min-height:100dvh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:url("bg.jpg") center/cover no-repeat;
-  position:relative;
-  padding:20px;
-  overflow-y:auto;
-  overflow-x:hidden;
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-body::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:rgba(5,8,15,.62);
-  backdrop-filter:blur(5px);
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-color: #05080f;
+    min-height: 100vh;
+    padding: 20px;
 }
 
-.card{
-  position:relative;
-  z-index:2;
-  width:min(100%,430px);
-  padding:38px;
-  background:rgba(15,23,42,.82);
-  backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:28px;
-  box-shadow:0 25px 60px rgba(0,0,0,.45);
-  text-align:center;
-  overflow:hidden;
+/* Background ပုံကို fixed အလွှာသီးသန့်ခွဲထုတ်ပြီး PC/Mobile ခွဲခြားပေးထားသည် */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
 }
 
-.logo{
-  width:82px;
-  height:82px;
-  border-radius:50%;
-  padding:6px;
-  background:white;
-  margin-bottom:18px;
+/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
+@media (min-width: 769px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
+    }
 }
 
-h1{
-  color:white;
-  font-size:30px;
-  margin-bottom:10px;
+/* ဖုန်း Screen များအတွက် Mobile ပုံ */
+@media (max-width: 768px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
+    }
 }
 
-p{
-  color:#94A3B8;
-  margin-bottom:25px;
-  line-height:1.5;
+/* အမည်းရောင် ပါးပါးအုပ်ထားသည့် အလွှာ (Blur မပါသောကြောင့် ပုံမဝါးပါ) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 8, 15, 0.5);
+    z-index: -1;
 }
 
-.email{
-  color:#60A5FA;
-  font-size:13px;
-  margin-bottom:18px;
-  word-break:break-word;
+.card {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 430px);
+    padding: 38px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+    text-align: center;
+    overflow: hidden;
 }
 
-.otp-boxes{
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  margin-bottom:22px;
-  width:100%;
+.logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    padding: 6px;
+    background: white;
+    margin: 0 auto 18px auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    display: block;
 }
 
-.otp{
-  flex:1;
-  max-width:52px;
-  min-width:36px;
-  aspect-ratio:1/1;
-  height:auto;
-  border:none;
-  outline:none;
-  border-radius:14px;
-  background:#1E293B;
-  color:white;
-  font-size:24px;
-  text-align:center;
-  font-weight:600;
-  transition:.25s;
+h1 {
+    color: white;
+    font-size: 30px;
+    margin-bottom: 10px;
 }
 
-.otp:focus{
-  box-shadow:0 0 18px rgba(37,99,235,.35);
-  border:1px solid #3B82F6;
+p {
+    color: #94A3B8;
+    margin-bottom: 25px;
+    line-height: 1.5;
 }
 
-button{
-  width:100%;
-  padding:15px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(135deg,#3B82F6,#2563EB);
-  color:white;
-  font-size:16px;
-  font-weight:600;
-  cursor:pointer;
-  transition:.3s;
+.email {
+    color: #60A5FA;
+    font-size: 13px;
+    margin-bottom: 18px;
+    word-break: break-word;
 }
 
-button:hover{
-  transform:translateY(-2px);
-  box-shadow:0 12px 28px rgba(37,99,235,.35);
+.otp-boxes {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 22px;
+    width: 100%;
 }
 
-#message{
-  margin-top:18px;
-  font-size:14px;
-  min-height:20px;
+.otp {
+    flex: 1;
+    max-width: 52px;
+    min-width: 36px;
+    aspect-ratio: 1/1;
+    height: auto;
+    border: 1px solid transparent;
+    outline: none;
+    border-radius: 14px;
+    background: #1E293B;
+    color: white;
+    font-size: 24px;
+    text-align: center;
+    font-weight: 600;
+    transition: .25s;
 }
 
-.success{color:#22C55E;}
-.error{color:#EF4444;}
-
-.resend{
-  margin-top:18px;
-  color:#94A3B8;
-  font-size:14px;
+.otp:focus {
+    box-shadow: 0 0 18px rgba(37, 99, 235, .35);
+    border-color: #3B82F6;
 }
 
-.resend a{
-  color:#60A5FA;
-  text-decoration:none;
-  pointer-events:none;
-  opacity:.5;
+button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .3s;
 }
 
-.resend a.active{
-  pointer-events:auto;
-  opacity:1;
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, .35);
 }
 
-.loading{
-  display:none;
-  margin-top:18px;
-  color:#CBD5E1;
+#message {
+    margin-top: 18px;
+    font-size: 14px;
+    min-height: 20px;
+}
+
+.success { color: #22C55E; }
+.error { color: #EF4444; }
+
+.resend {
+    margin-top: 18px;
+    color: #94A3B8;
+    font-size: 14px;
+}
+
+.resend a {
+    color: #60A5FA;
+    text-decoration: none;
+    pointer-events: none;
+    opacity: .5;
+}
+
+.resend a.active {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.loading {
+    display: none;
+    margin-top: 18px;
+    color: #CBD5E1;
 }
 
 /* Mobile */
-@media (max-width:430px){
+@media (max-width: 430px){
+    .card {
+        padding: 28px 18px;
+    }
 
-  .card{
-    padding:28px 18px;
-  }
+    h1 {
+        font-size: 26px;
+    }
 
-  h1{
-    font-size:26px;
-  }
+    .otp-boxes {
+        gap: 6px;
+    }
 
-  .otp-boxes{
-    gap:6px;
-  }
-
-  .otp{
-    min-width:34px;
-    font-size:22px;
-  }
-
+    .otp {
+        min-width: 34px;
+        font-size: 22px;
+    }
 }
 </style>
 </head>
@@ -187,7 +235,7 @@ button:hover{
 
 <div class="card">
 
-<img src="logo.jpg" class="logo" alt="Acai Shop">
+<img src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg" class="logo" alt="Acai Shop">
 
 <h1>Verify OTP</h1>
 
@@ -221,7 +269,6 @@ button:hover{
 </div>
 
 <script>
-
 const params = new URLSearchParams(location.search);
 
 const email = params.get("email");
@@ -233,160 +280,139 @@ const inputs = document.querySelectorAll(".otp");
 
 inputs[0].focus();
 
-inputs.forEach((input,index)=>{
+inputs.forEach((input, index) => {
 
-  input.addEventListener("input",()=>{
-
-    input.value = input.value.replace(/\D/g,"");
+  input.addEventListener("input", () => {
+    input.value = input.value.replace(/\D/g, "");
 
     if(input.value && index < 5){
       inputs[index+1].focus();
     }
-
   });
 
-  input.addEventListener("keydown",(e)=>{
-
-    if(e.key==="Backspace" && !input.value && index>0){
+  input.addEventListener("keydown", (e) => {
+    if(e.key === "Backspace" && !input.value && index > 0){
       inputs[index-1].focus();
     }
-
   });
 
 });
 
-document.addEventListener("paste",(e)=>{
+document.addEventListener("paste", (e) => {
 
   const text = (e.clipboardData.getData("text") || "")
-  .replace(/\D/g,"")
-  .slice(0,6);
+    .replace(/\D/g, "")
+    .slice(0, 6);
 
-  if(text.length===6){
-
-    inputs.forEach((i,n)=>{
-      i.value=text[n];
+  if(text.length === 6){
+    inputs.forEach((i, n) => {
+      i.value = text[n];
     });
 
     inputs[5].focus();
     e.preventDefault();
-
   }
 
 });
 
-let time=60;
+let time = 60;
 
-const timer=document.getElementById("timer");
-const resend=document.getElementById("resendLink");
+const timer = document.getElementById("timer");
+const resend = document.getElementById("resendLink");
 
-const interval=setInterval(()=>{
+const interval = setInterval(() => {
 
   time--;
+  timer.innerText = time;
 
-  timer.innerText=time;
-
-  if(time<=0){
-
+  if(time <= 0){
     clearInterval(interval);
-
-    timer.innerText="0";
-
+    timer.innerText = "0";
     resend.classList.add("active");
-
   }
 
-},1000);
+}, 1000);
 
-resend.addEventListener("click",async function(e){
+resend.addEventListener("click", async function(e){
 
   e.preventDefault();
 
   if(!resend.classList.contains("active")) return;
 
-  const res=await fetch("/send-otp",{
+  try {
+    const res = await fetch("/send-otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email })
+    });
 
-    method:"POST",
+    const data = await res.json();
 
-    headers:{
-      "Content-Type":"application/json"
-    },
-
-    body:JSON.stringify({email})
-
-  });
-
-  const data=await res.json();
-
-  if(data.success){
-    location.reload();
+    if(data.success){
+      location.reload();
+    } else {
+      show(data.message || "Failed to resend OTP.", "error");
+    }
+  } catch (err) {
+    show("Cannot connect to server.", "error");
   }
 
 });
 
-document.getElementById("verifyBtn")
-.addEventListener("click",async()=>{
+document.getElementById("verifyBtn").addEventListener("click", async () => {
 
-  const otp=[...inputs].map(i=>i.value).join("");
+  const otp = [...inputs].map(i => i.value).join("");
 
-  if(otp.length!==6){
-
-    show("Enter all 6 digits.","error");
+  if(otp.length !== 6){
+    show("Enter all 6 digits.", "error");
     return;
-
   }
 
-  document.getElementById("loading").style.display="block";
+  document.getElementById("loading").style.display = "block";
 
-  const res=await fetch("/register",{
+  try {
+    const res = await fetch("/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        otp
+      })
+    });
 
-    method:"POST",
+    const data = await res.json();
 
-    headers:{
-      "Content-Type":"application/json"
-    },
+    document.getElementById("loading").style.display = "none";
 
-    body:JSON.stringify({
-      email,
-      password,
-      otp
-    })
+    if(data.success){
+      show("Account created successfully!", "success");
 
-  });
+      setTimeout(() => {
+        window.location = "login.html";
+      }, 1200);
 
-  const data=await res.json();
-
-  document.getElementById("loading").style.display="none";
-
-  if(data.success){
-
-    show("Account created successfully!","success");
-
-    setTimeout(()=>{
-      window.location="login.html";
-    },1200);
-
-  }else{
-
-    show(data.message || "Wrong OTP","error");
-
-    inputs.forEach(i=>i.value="");
-
-    inputs[0].focus();
-
+    } else {
+      show(data.message || "Wrong OTP", "error");
+      inputs.forEach(i => i.value = "");
+      inputs[0].focus();
+    }
+  } catch (err) {
+    document.getElementById("loading").style.display = "none";
+    show("Cannot connect to server.", "error");
   }
 
 });
 
-function show(text,type){
-
-  const m=document.getElementById("message");
-
-  m.innerText=text;
-
-  m.className=type;
-
+function show(text, type){
+  const m = document.getElementById("message");
+  m.innerText = text;
+  m.className = type;
 }
-
 </script>
 
 </body>

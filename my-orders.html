@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Orders | Acai Shop</title>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
@@ -15,151 +16,226 @@
 </script>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Poppins,sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
 }
 
-body{
-background:url("bg.jpg") center/cover fixed no-repeat;
-min-height:100vh;
-color:white;
-padding:25px;
-position:relative;
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-body::before{
-content:"";
-position:fixed;
-inset:0;
-background:rgba(5,8,15,.65);
-backdrop-filter:blur(6px);
-z-index:-1;
+body {
+    background-color: #05080f;
+    min-height: 100vh;
+    color: white;
+    padding: 25px 20px;
+    position: relative;
 }
 
-.container{
-max-width:900px;
-margin:auto;
+/* Background ပုံကို fixed အလွှာသီးသန့်ခွဲထုတ်ပြီး PC/Mobile ခွဲခြားပေးထားသည် */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
 }
 
-.back{
-display:inline-block;
-margin-bottom:20px;
-color:white;
-text-decoration:none;
+/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
+@media (min-width: 769px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
+    }
 }
 
-h1{
-margin-bottom:25px;
+/* ဖုန်း Screen များအတွက် Mobile ပုံ */
+@media (max-width: 768px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
+    }
 }
 
-.order{
-background:rgba(15,23,42,.9);
-border:1px solid rgba(255,255,255,.08);
-border-radius:22px;
-padding:22px;
-margin-bottom:20px;
-box-shadow:0 10px 30px rgba(0,0,0,.25);
+/* အမည်းရောင် ပါးပါးအုပ်ထားသည့် အလွှာ (Blur မပါသောကြောင့် ပုံမဝါးပါ) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 8, 15, 0.65);
+    z-index: -1;
 }
 
-.top{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:18px;
-flex-wrap:wrap;
-gap:10px;
+.container {
+    max-width: 900px;
+    margin: auto;
+    position: relative;
+    z-index: 2;
 }
 
-.id{
-font-size:22px;
-font-weight:700;
+.back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: #94A3B8;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: .25s;
 }
 
-.date{
-color:#94A3B8;
-font-size:13px;
-margin-top:4px;
+.back:hover {
+    color: white;
+    transform: translateX(-4px);
 }
 
-.status{
-padding:8px 14px;
-border-radius:999px;
-font-size:13px;
-font-weight:600;
+h1 {
+    margin-bottom: 25px;
+    font-size: 28px;
 }
 
-.Pending{background:#475569;}
-.Packed{background:#EA580C;}
-.Shipped{background:#2563EB;}
-.Delivered{background:#16A34A;}
-
-.items{
-margin-top:15px;
-border-top:1px solid rgba(255,255,255,.08);
-padding-top:15px;
+.order {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 22px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-.item{
-display:flex;
-justify-content:space-between;
-margin-bottom:10px;
-color:#E2E8F0;
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.total{
-margin-top:15px;
-padding-top:15px;
-border-top:1px solid rgba(255,255,255,.08);
-display:flex;
-justify-content:space-between;
-font-size:18px;
-font-weight:bold;
+.id {
+    font-size: 20px;
+    font-weight: 700;
 }
 
-.address{
-margin-top:12px;
-color:#CBD5E1;
-font-size:14px;
-line-height:1.6;
+.date {
+    color: #94A3B8;
+    font-size: 13px;
+    margin-top: 4px;
 }
 
-.empty{
-text-align:center;
-padding:70px 20px;
-background:rgba(15,23,42,.85);
-border-radius:22px;
+.status {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
 }
 
-.empty a{
-display:inline-block;
-margin-top:20px;
-padding:12px 22px;
-border-radius:12px;
-background:#2563EB;
-color:white;
-text-decoration:none;
+.Pending { background: #475569; }
+.Packed { background: #EA580C; }
+.Shipped { background: #2563EB; }
+.Delivered { background: #16A34A; }
+
+.items {
+    margin-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 15px;
 }
 
-@media(max-width:600px){
-
-.top{
-flex-direction:column;
-align-items:flex-start;
+.item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    color: #E2E8F0;
+    font-size: 15px;
 }
 
-.item{
-font-size:14px;
+.total {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: bold;
 }
 
-.total{
-font-size:16px;
+.address {
+    margin-top: 12px;
+    color: #CBD5E1;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
+.empty {
+    text-align: center;
+    padding: 70px 20px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 22px;
+}
+
+.empty h2 {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.empty p {
+    color: #94A3B8;
+}
+
+.empty a {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 22px;
+    border-radius: 12px;
+    background: #2563EB;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: .25s;
+}
+
+.empty a:hover {
+    background: #1D4ED8;
+    transform: translateY(-2px);
+}
+
+@media(max-width: 600px) {
+    body {
+        padding: 18px 12px;
+    }
+
+    .top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .item {
+        font-size: 14px;
+    }
+
+    .total {
+        font-size: 16px;
+    }
 }
 </style>
 </head>
@@ -168,7 +244,9 @@ font-size:16px;
 
 <div class="container">
 
-<a href="index.html" class="back">← Back to Shop</a>
+<a href="index.html" class="back">
+  <i class="fa-solid fa-arrow-left"></i> Back to Shop
+</a>
 
 <h1>📦 My Orders</h1>
 
@@ -177,124 +255,88 @@ font-size:16px;
 </div>
 
 <script>
-
 async function loadOrders(){
+  try {
+    const res = await fetch("/my-orders");
 
-try{
+    if(res.status === 401){
+      window.location = "login.html";
+      return;
+    }
 
-const res = await fetch("/my-orders");
+    const orders = await res.json();
+    const container = document.getElementById("orders");
+    container.innerHTML = "";
 
-if(res.status===401){
+    if(!orders || orders.length === 0){
+      container.innerHTML = `
+        <div class="empty">
+          <h2>No Orders Yet</h2>
+          <p>You haven't placed any orders.</p>
+          <a href="index.html">Start Shopping</a>
+        </div>
+      `;
+      return;
+    }
 
-window.location="login.html";
-return;
+    orders.forEach(o => {
+      let items = [];
 
-}
+      try {
+        items = typeof o.items === "string" ? JSON.parse(o.items) : o.items;
+      } catch(e) {
+        items = [];
+      }
 
-const orders = await res.json();
+      const itemHTML = items.map(i => `
+        <div class="item">
+          <span>${i.name} × ${i.qty}</span>
+          <span>${Number(i.price * i.qty).toLocaleString()} MMK</span>
+        </div>
+      `).join("");
 
-const container = document.getElementById("orders");
+      container.innerHTML += `
+        <div class="order">
+          <div class="top">
+            <div>
+              <div class="id">Order #${o.id}</div>
+              <div class="date">${o.created_at || ""}</div>
+            </div>
+            <div class="status ${o.status}">${o.status}</div>
+          </div>
 
-container.innerHTML="";
+          <div class="items">
+            ${itemHTML}
+          </div>
 
-if(orders.length===0){
+          <div class="address">
+            <b>Delivery Address</b><br>
+            ${o.address || "N/A"}<br>
+            📞 ${o.phone || "N/A"}
+          </div>
 
-container.innerHTML=`
-<div class="empty">
-<h2>No Orders Yet</h2>
-<p>You haven't placed any orders.</p>
-<a href="index.html">Start Shopping</a>
-</div>
-`;
+          <div class="total">
+            <span>Total</span>
+            <span>${Number(o.total).toLocaleString()} MMK</span>
+          </div>
+        </div>
+      `;
+    });
 
-return;
-
-}
-
-orders.forEach(o=>{
-
-let items=[];
-
-try{
-items=JSON.parse(o.items);
-}catch{}
-
-const itemHTML=items.map(i=>`
-<div class="item">
-<span>${i.name} × ${i.qty}</span>
-<span>${Number(i.price*i.qty).toLocaleString()} MMK</span>
-</div>
-`).join("");
-
-container.innerHTML+=`
-<div class="order">
-
-<div class="top">
-
-<div>
-
-<div class="id">
-Order #${o.id}
-</div>
-
-<div class="date">
-${o.created_at||""}
-</div>
-
-</div>
-
-<div class="status ${o.status}">
-${o.status}
-</div>
-
-</div>
-
-<div class="items">
-
-${itemHTML}
-
-</div>
-
-<div class="address">
-
-<b>Delivery Address</b><br>
-
-${o.address}<br>
-
-📞 ${o.phone}
-
-</div>
-
-<div class="total">
-
-<span>Total</span>
-
-<span>${Number(o.total).toLocaleString()} MMK</span>
-
-</div>
-
-</div>
-`;
-
-});
-
-}catch{
-
-document.getElementById("orders").innerHTML=`
-<div class="empty">
-<h2>Cannot connect to server</h2>
-</div>
-`;
-
-}
-
+  } catch (err) {
+    document.getElementById("orders").innerHTML = `
+      <div class="empty">
+        <h2>Cannot connect to server</h2>
+        <p>Please check your connection and try again.</p>
+      </div>
+    `;
+  }
 }
 
 loadOrders();
 
 // Auto Refresh every 5 seconds
-setInterval(loadOrders,5000);
-
+setInterval(loadOrders, 5000);
 </script>
 
 </body>

@@ -18,399 +18,381 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Poppins,sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Poppins, sans-serif;
 }
 
-body{
-background:url("bg.jpg") center/cover fixed no-repeat;
-color:white;
-min-height:100vh;
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-body::before{
-content:"";
-position:fixed;
-inset:0;
-background:rgba(5,8,15,.58);
-backdrop-filter:blur(4px);
-z-index:-1;
+body {
+    color: white;
+    background-color: #05080f;
 }
 
-
-
-nav{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:18px 6%;
-background:rgba(15,23,42,.82);
-backdrop-filter:blur(18px);
-position:sticky;
-top:0;
-z-index:100;
+/* Background ပုံကို Zoom မဖြစ်အောင် သီးသန့် Fixed အလွှာ ခွဲထုတ်ခြင်း */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
 }
 
-.logo{
-display:flex;
-align-items:center;
-gap:12px;
+/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
+@media (min-width: 769px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
+    }
 }
 
-.logo img{
-width:48px;
-height:48px;
-border-radius:50%;
-background:white;
-padding:4px;
-}
-
-.logo h2{
-font-size:24px;
-}
-
-.nav-right{
-display:flex;
-align-items:center;
-gap:18px;
-}
-
-.icon-btn{
-width:42px;
-height:42px;
-display:flex;
-justify-content:center;
-align-items:center;
-border-radius:50%;
-background:rgba(255,255,255,.08);
-color:white;
-text-decoration:none;
-cursor:pointer;
-transition:.3s;
-}
-
-.icon-btn:hover{
-background:#2563EB;
-}
-
-.sign-btn{
-padding:10px 18px;
-border-radius:12px;
-background:#2563EB;
-color:white;
-text-decoration:none;
-font-weight:500;
-}
-
-#profile-area{
-display:none;
-position:relative;
-}
-
-#profile-menu{
-display:none;
-position:absolute;
-top:55px;
-right:0;
-width:240px;
-background:#111827;
-border-radius:18px;
-padding:16px;
-box-shadow:0 18px 40px rgba(0,0,0,.4);
-}
-
-#profile-menu a{
-display:block;
-padding:10px 0;
-color:white;
-text-decoration:none;
+/* ဖုန်း Screen များအတွက် Mobile ပုံ */
+@media (max-width: 768px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
+    }
 }
 
 
-
-.hero{
-text-align:center;
-padding:70px 6% 40px;
+/* အမည်းရောင် အလွှာ (Blur လုံးဝ ဖြုတ်ထားသည်) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 8, 15, 0.4); /* Blur မပါတော့လို့ အမည်းရောင်လေးပဲ ပါးပါးအုပ်ထားသည် */
+    z-index: -1;
 }
 
-.hero h1{
-font-size:46px;
-margin-bottom:12px;
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 6%;
+    background: rgba(15, 23, 42, .82);
+    backdrop-filter: blur(18px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-.hero p{
-color:#CBD5E1;
-max-width:700px;
-margin:auto auto 30px;
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-
-
-.search{
-max-width:560px;
-margin:auto;
-position:relative;
+.logo img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: white;
+    padding: 4px;
 }
 
-.search input{
-width:100%;
-padding:16px 18px 16px 50px;
-border:none;
-border-radius:18px;
-background:rgba(15,23,42,.82);
-color:white;
+.logo h2 {
+    font-size: 24px;
 }
 
-.search i{
-position:absolute;
-left:18px;
-top:50%;
-transform:translateY(-50%);
-color:#94A3B8;
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
 }
 
-
-
-.categories{
-display:flex;
-justify-content:center;
-gap:12px;
-flex-wrap:wrap;
-padding:25px 6%;
+.icon-btn {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .08);
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    transition: .3s;
 }
 
-.categories button{
-padding:12px 22px;
-border:none;
-border-radius:999px;
-background:rgba(15,23,42,.82);
-color:white;
-cursor:pointer;
-transition:.3s;
+.icon-btn:hover {
+    background: #2563EB;
 }
 
-.categories button:hover{
-background:#2563EB;
+.sign-btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    background: #2563EB;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
 }
 
-
-
-.section{
-padding:10px 6% 30px;
+#profile-area {
+    display: none;
+    position: relative;
 }
 
-.section-title{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:18px;
+#profile-menu {
+    display: none;
+    position: absolute;
+    top: 55px;
+    right: 0;
+    width: 240px;
+    background: #111827;
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .4);
 }
 
-.section-title a{
-color:#60A5FA;
-text-decoration:none;
+#profile-menu a {
+    display: block;
+    padding: 10px 0;
+    color: white;
+    text-decoration: none;
 }
 
-.products{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:24px;
+.hero {
+    text-align: center;
+    padding: 70px 6% 40px;
 }
 
-.card{
-background:rgba(15,23,42,.82);
-border-radius:22px;
-overflow:hidden;
-border:1px solid rgba(255,255,255,.08);
-transition:.3s;
+.hero h1 {
+    font-size: 46px;
+    margin-bottom: 12px;
 }
 
-.card:hover{
-transform:translateY(-6px);
-box-shadow:0 20px 40px rgba(0,0,0,.35);
+.hero p {
+    color: #CBD5E1;
+    max-width: 700px;
+    margin: auto auto 30px;
 }
 
-.card img{
-width:100%;
-height:240px;
-object-fit:cover;
+.search {
+    max-width: 560px;
+    margin: auto;
+    position: relative;
 }
 
-.card-content{
-padding:18px;
+.search input {
+    width: 100%;
+    padding: 16px 18px 16px 50px;
+    border: none;
+    border-radius: 18px;
+    background: rgba(15, 23, 42, .82);
+    color: white;
 }
 
-.price{
-color:#60A5FA;
-font-weight:bold;
-font-size:18px;
-margin:10px 0;
+.search i {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
 }
 
-.stock{
-color:#94A3B8;
-font-size:13px;
-margin-bottom:10px;
+.categories {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 25px 6%;
 }
 
-.buy-btn{
-width:100%;
-padding:12px;
-border:none;
-border-radius:12px;
-background:#2563EB;
-color:white;
-cursor:pointer;
-font-weight:600;
-transition:.3s;
+.categories button {
+    padding: 12px 22px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .82);
+    color: white;
+    cursor: pointer;
+    transition: .3s;
 }
 
-.buy-btn:hover{
-background:#1D4ED8;
+.categories button:hover {
+    background: #2563EB;
 }
 
-.buy-btn:disabled{
-background:#475569;
-cursor:not-allowed;
+.section {
+    padding: 10px 6% 30px;
 }
 
-
-
-.banner{
-margin:35px 6%;
-padding:35px;
-background:linear-gradient(135deg,#2563EB,#111827);
-border-radius:26px;
-text-align:center;
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
 }
 
-.banner h2{
-font-size:32px;
-margin-bottom:10px;
+.section-title a {
+    color: #60A5FA;
+    text-decoration: none;
 }
 
-.banner p{
-color:#E2E8F0;
-margin-bottom:18px;
+.products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
 }
 
-.banner button{
-padding:12px 28px;
-border:none;
-border-radius:12px;
-background:white;
-color:#2563EB;
-font-weight:bold;
-cursor:pointer;
+.card {
+    background: rgba(15, 23, 42, .82);
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .08);
+    transition: .3s;
 }
 
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, .35);
+}
 
+.card img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+}
 
-footer{
-margin-top:50px;
-padding:35px 6%;
-background:rgba(15,23,42,.75);
-text-align:center;
-color:#94A3B8;
+.card-content {
+    padding: 18px;
+}
+
+.price {
+    color: #60A5FA;
+    font-weight: bold;
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.stock {
+    color: #94A3B8;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.buy-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: #2563EB;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: .3s;
+}
+
+.buy-btn:hover {
+    background: #1D4ED8;
+}
+
+.buy-btn:disabled {
+    background: #475569;
+    cursor: not-allowed;
+}
+
+.banner {
+    margin: 35px 6%;
+    padding: 35px;
+    background: linear-gradient(135deg, #2563EB, #111827);
+    border-radius: 26px;
+    text-align: center;
+}
+
+.banner h2 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.banner p {
+    color: #E2E8F0;
+    margin-bottom: 18px;
+}
+
+.banner button {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    background: white;
+    color: #2563EB;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+footer {
+    margin-top: 50px;
+    padding: 35px 6%;
+    background: rgba(15, 23, 42, .75);
+    text-align: center;
+    color: #94A3B8;
 }
 
 @media(max-width:768px){
-
-.hero h1{
-font-size:34px;
-}
-
-.logo h2{
-display:none;
-}
-
+    .hero h1 {
+        font-size: 34px;
+    }
+    .logo h2 {
+        display: none;
+    }
 }
 </style>
 </head>
 <body>
 
 <nav>
-
 <div class="logo">
 <img src="logo.jpg" alt="Acai Shop">
 <h2>Acai Shop</h2>
 </div>
-
 <div class="nav-right">
-
 <div class="icon-btn">
 <i class="fa-regular fa-heart"></i>
 </div>
-
 <a href="cart.html" class="icon-btn" style="position:relative;">
 <i class="fa-solid fa-cart-shopping"></i>
-
-<span id="cart-count"
-style="position:absolute;top:-6px;right:-6px;background:red;width:18px;height:18px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:11px;">
-0
-</span>
-
+<span id="cart-count" style="position:absolute;top:-6px;right:-6px;background:red;width:18px;height:18px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:11px;">0</span>
 </a>
-
 <div id="guest-area">
 <a href="login.html" class="sign-btn">Sign In</a>
 </div>
-
 <div id="profile-area">
-
 <div class="icon-btn" id="profile-btn">
 <i class="fa-solid fa-user"></i>
 </div>
-
 <div id="profile-menu">
-
 <p id="user-email">Loading...</p>
-
 <hr style="margin:10px 0;border-color:#334155;">
-
 <a href="profile.html">👤 My Profile</a>
 <a href="my-orders.html">📦 My Orders</a>
 <a href="#" id="logout-btn" style="color:#EF4444;">🚪 Logout</a>
-
 </div>
-
 </div>
-
 </div>
-
 </nav>
 
-
-
 <section class="hero">
-
 <h1>Accessories For Everyone</h1>
-
-<p>
-Discover trendy accessories, keychains, phone accessories,
-wallets, jewelry and more — all in one place.
-</p>
-
+<p>Discover trendy accessories, keychains, phone accessories, wallets, jewelry and more — all in one place.</p>
 <div class="search">
-
 <i class="fa-solid fa-magnifying-glass"></i>
-
-<input
-id="searchInput"
-placeholder="Search products..."
->
-
+<input id="searchInput" placeholder="Search products...">
 </div>
-
 </section>
 
-
-
 <section class="categories">
-
 <button>New</button>
 <button>Keychains</button>
 <button>Phone</button>
@@ -418,67 +400,36 @@ placeholder="Search products..."
 <button>Jewelry</button>
 <button>Bags</button>
 <button>More</button>
-
 </section>
-
-
 
 <section class="section">
-
 <div class="section-title">
-
 <h2>New Arrivals</h2>
-
 <a href="#">See All</a>
-
 </div>
-
 <div class="products" id="productList"></div>
-
 </section>
-
-
 
 <section class="banner">
-
 <h2>Shop The Latest Collection</h2>
-
-<p>
-Premium quality accessories with affordable prices.
-</p>
-
-<button onclick="window.scrollTo({top:0,behavior:'smooth'})">
-Shop Now
-</button>
-
+<p>Premium quality accessories with affordable prices.</p>
+<button onclick="window.scrollTo({top:0,behavior:'smooth'})">Shop Now</button>
 </section>
 
-
-
 <footer>
-
 <p>© 2026 Acai Shop</p>
-
 <p>Accessories • Quality • Style</p>
-
 </footer>
-<script>
 
+<script>
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-
-
 function updateCartCount(){
-
   const count = cart.reduce((t,i)=>t+i.qty,0);
-
   document.getElementById("cart-count").innerText = count;
-
 }
 
-
 function addToCart(name, price, stock){
-
   const item = cart.find(i=>i.name===name);
   const currentQty = item ? item.qty : 0;
 
@@ -498,37 +449,19 @@ function addToCart(name, price, stock){
   }
 
   localStorage.setItem("cart",JSON.stringify(cart));
-
   updateCartCount();
-
   alert(name + " added to cart!");
-
 }
-
-
 
 document.getElementById("searchInput")
 .addEventListener("input",function(){
-
   const keyword=this.value.toLowerCase();
-
   document.querySelectorAll(".card")
   .forEach(card=>{
-
-    const name=card.querySelector("h3")
-    .innerText
-    .toLowerCase();
-
-    card.style.display=
-      name.includes(keyword)
-      ? ""
-      : "none";
-
+    const name=card.querySelector("h3").innerText.toLowerCase();
+    card.style.display=name.includes(keyword)?"":"none";
   });
-
 });
-
-
 
 const guestArea=document.getElementById("guest-area");
 const profileArea=document.getElementById("profile-area");
@@ -537,119 +470,61 @@ const profileMenu=document.getElementById("profile-menu");
 const userEmail=document.getElementById("user-email");
 
 async function loadUser(){
-
   try{
-
     const res=await fetch("/me");
     const data=await res.json();
-
     if(data.loggedIn){
-
       guestArea.style.display="none";
       profileArea.style.display="block";
       userEmail.innerText=data.user.email;
-
     }
-
   }catch{}
-
 }
 
 profileBtn.addEventListener("click",function(e){
-
   e.stopPropagation();
-
-  profileMenu.style.display=
-    profileMenu.style.display==="block"
-    ? "none"
-    : "block";
-
+  profileMenu.style.display=profileMenu.style.display==="block"?"none":"block";
 });
 
 document.addEventListener("click",function(){
-
   profileMenu.style.display="none";
-
 });
 
 document.getElementById("logout-btn")
 .addEventListener("click",async function(e){
-
   e.preventDefault();
-
-  await fetch("/logout",{
-    method:"POST"
-  });
-
+  await fetch("/logout",{method:"POST"});
   window.location="login.html";
-
 });
 
-
-
 async function loadProducts(){
-
   try{
-
-    const products=
-      await fetch("/products")
-      .then(r=>r.json());
-
+    const products=await fetch("/products").then(r=>r.json());
     const list=document.getElementById("productList");
-
     list.innerHTML="";
-
     products.forEach(p=>{
-
       list.innerHTML += `
       <div class="card">
-
         <img src="${p.image?'/uploads/'+p.image:'logo.jpg'}">
-
         <div class="card-content">
-
           <h3>${p.name}</h3>
-
-          <div class="price">
-            ${Number(p.price).toLocaleString()} MMK
-          </div>
-
-          <div class="stock">
-            Stock: ${p.stock}
-          </div>
-
-          <button
-          class="buy-btn"
-          onclick="addToCart('${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})"
-          ${Number(p.stock)<=0?"disabled":""}>
-
-          ${Number(p.stock)<=0
-            ? "Out of Stock"
-            : "Add to Cart"}
-
+          <div class="price">${Number(p.price).toLocaleString()} MMK</div>
+          <div class="stock">Stock: ${p.stock}</div>
+          <button class="buy-btn" onclick="addToCart('${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})" ${Number(p.stock)<=0?"disabled":""}>
+          ${Number(p.stock)<=0?"Out of Stock":"Add to Cart"}
           </button>
-
         </div>
-
       </div>
       `;
-
     });
-
   }catch(err){
-
     console.log(err);
-
   }
-
 }
-
-
 
 updateCartCount();
 loadUser();
 loadProducts();
-
 </script>
 
 </body>

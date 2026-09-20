@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shopping Cart | Acai Shop</title>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
@@ -14,112 +15,303 @@
   gtag('config', 'G-F00XQ96WFJ');
 </script>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
-
-body{
-background:url("bg.jpg") center/cover fixed no-repeat;
-min-height:100vh;
-color:white;
-padding:25px;
-position:relative;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
 }
 
-body::before{
-content:"";
-position:fixed;
-inset:0;
-background:rgba(5,8,15,.65);
-backdrop-filter:blur(6px);
-z-index:-1;
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-.container{
-max-width:700px;
-margin:auto;
+body {
+    background-color: #05080f;
+    min-height: 100vh;
+    color: white;
+    padding: 30px 20px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
 }
 
-.back{
-display:inline-block;
-margin-bottom:20px;
-color:white;
-text-decoration:none;
+/* Background ပုံကို fixed အလွှာသီးသန့်ခွဲထုတ်ပြီး PC/Mobile ခွဲခြားပေးထားသည် */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
 }
 
-h1{
-text-align:center;
-margin-bottom:25px;
+/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
+@media (min-width: 769px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
+    }
 }
 
-.item{
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:rgba(15,23,42,.9);
-padding:18px;
-border-radius:18px;
-margin-bottom:15px;
-border:1px solid rgba(255,255,255,.08);
+/* ဖုန်း Screen များအတွက် Mobile ပုံ */
+@media (max-width: 768px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
+    }
 }
 
-.qty{
-display:flex;
-align-items:center;
-gap:8px;
+/* အမည်းရောင် ပါးပါးအုပ်ထားသည့် အလွှာ (Blur မပါသောကြောင့် ပုံမဝါးပါ) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 8, 15, 0.68);
+    z-index: -1;
 }
 
-.qty button{
-width:32px;
-height:32px;
-border:none;
-border-radius:8px;
-background:#2563EB;
-color:white;
-cursor:pointer;
+.container {
+    max-width: 650px;
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
 }
 
-.qty button:disabled{
-background:#475569;
-cursor:not-allowed;
+.back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 22px;
+    color: #93C5FD;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.25s ease;
 }
 
-.remove{
-background:#DC2626!important;
-width:auto!important;
-padding:0 10px;
+.back:hover {
+    color: white;
+    transform: translateX(-3px);
 }
 
-.total-box{
-margin-top:20px;
-background:rgba(15,23,42,.9);
-padding:20px;
-border-radius:18px;
-display:flex;
-justify-content:space-between;
-font-size:20px;
-font-weight:bold;
+h1 {
+    text-align: center;
+    margin-bottom: 28px;
+    font-size: 30px;
+    font-weight: 700;
 }
 
-.checkout{
-width:100%;
-margin-top:20px;
-padding:16px;
-border:none;
-border-radius:14px;
-background:#2563EB;
-color:white;
-font-size:17px;
-font-weight:600;
-cursor:pointer;
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    gap: 15px;
 }
 
-.empty{
-text-align:center;
-padding:60px 20px;
-background:rgba(15,23,42,.9);
-border-radius:20px;
+.item-details h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.item-details .price {
+    color: #93C5FD;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.item-details .stock-info {
+    color: #94A3B8;
+    font-size: 12.5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.qty {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.qty-controls {
+    display: flex;
+    align-items: center;
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 3px;
+}
+
+.qty-controls .btn-qty {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 9px;
+    background: #2563EB;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qty-controls .btn-qty:hover:not(:disabled) {
+    background: #1D4ED8;
+}
+
+.qty-controls .btn-qty:disabled {
+    background: #475569;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.qty-val {
+    padding: 0 12px;
+    font-size: 15px;
+    font-weight: 600;
+    min-width: 30px;
+    text-align: center;
+}
+
+.remove {
+    background: rgba(220, 38, 38, 0.15) !important;
+    color: #FCA5A5 !important;
+    border: 1px solid rgba(220, 38, 38, 0.3) !important;
+    padding: 8px 14px !important;
+    border-radius: 12px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.remove:hover {
+    background: rgba(220, 38, 38, 0.8) !important;
+    color: white !important;
+}
+
+.total-box {
+    margin-top: 24px;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    padding: 22px 25px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.total-box #total {
+    color: #60A5FA;
+    font-size: 22px;
+}
+
+.checkout {
+    width: 100%;
+    margin-top: 20px;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    color: white;
+    font-family: "Poppins", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.checkout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35);
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+}
+
+.empty {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.empty i {
+    font-size: 48px;
+    color: #64748B;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.empty h2 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+@media (max-width: 580px) {
+    body {
+        padding: 20px 15px;
+    }
+
+    .item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .qty {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
 }
 </style>
 </head>
@@ -128,19 +320,21 @@ border-radius:20px;
 
 <div class="container">
 
-<a href="index.html" class="back">← Continue Shopping</a>
+<a href="index.html" class="back">
+    <i class="fa-solid fa-arrow-left"></i> Continue Shopping
+</a>
 
 <h1>Shopping Cart</h1>
 
 <div id="cartItems"></div>
 
 <div class="total-box">
-<span>Total</span>
-<span id="total">0 MMK</span>
+    <span>Total</span>
+    <span id="total">0 MMK</span>
 </div>
 
 <button id="checkoutBtn" class="checkout">
-Proceed to Checkout
+    <i class="fa-solid fa-credit-card"></i> Proceed to Checkout
 </button>
 
 </div>
@@ -151,124 +345,130 @@ let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let products = [];
 
 async function loadProducts(){
-  products = await fetch("/products").then(r=>r.json());
+    try {
+        products = await fetch("/products").then(r=>r.json());
+    } catch (e) {
+        console.error("Error loading products:", e);
+    }
 }
 
 function getStock(name){
-  const p = products.find(x=>x.name===name);
-  return p ? Number(p.stock) : 0;
+    const p = products.find(x=>x.name===name);
+    return p ? Number(p.stock) : 0;
 }
 
 function saveCart(){
-  localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem("cart", JSON.stringify(cart));
 }
 
 function renderCart(){
 
-  const list = document.getElementById("cartItems");
-  const totalBox = document.getElementById("total");
+    const list = document.getElementById("cartItems");
+    const totalBox = document.getElementById("total");
 
-  list.innerHTML = "";
+    list.innerHTML = "";
 
-  let total = 0;
+    let total = 0;
 
-  if(cart.length===0){
+    if(cart.length===0){
 
-    list.innerHTML = `
-      <div class="empty">
-        <h2>Your cart is empty</h2>
-      </div>
-    `;
+        list.innerHTML = `
+            <div class="empty">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <h2>Your cart is empty</h2>
+            </div>
+        `;
 
-    totalBox.innerText="0 MMK";
-    return;
-  }
+        totalBox.innerText="0 MMK";
+        return;
+    }
 
-  cart.forEach((item,index)=>{
+    cart.forEach((item,index)=>{
 
-    total += item.price * item.qty;
-    const stock = getStock(item.name);
+        total += item.price * item.qty;
+        const stock = getStock(item.name);
 
-    list.innerHTML += `
-      <div class="item">
+        list.innerHTML += `
+            <div class="item">
 
-        <div>
-          <h3>${item.name}</h3>
-          <p>${Number(item.price).toLocaleString()} MMK</p>
-          <small>Stock: ${stock}</small>
-        </div>
+                <div class="item-details">
+                    <h3>${item.name}</h3>
+                    <p class="price">${Number(item.price).toLocaleString()} MMK</p>
+                    <small class="stock-info"><i class="fa-solid fa-box-archive"></i> Stock: ${stock}</small>
+                </div>
 
-        <div class="qty">
+                <div class="qty">
 
-          <button onclick="changeQty(${index},-1)">-</button>
+                    <div class="qty-controls">
+                        <button onclick="changeQty(${index},-1)" class="btn-qty">-</button>
+                        <span class="qty-val">${item.qty}</span>
+                        <button
+                            onclick="changeQty(${index},1)"
+                            class="btn-qty"
+                            ${item.qty>=stock?"disabled":""}
+                        >
+                            +
+                        </button>
+                    </div>
 
-          <span>${item.qty}</span>
+                    <button
+                        class="remove"
+                        onclick="removeItem(${index})"
+                    >
+                        <i class="fa-solid fa-trash-can"></i> Remove
+                    </button>
 
-          <button
-            onclick="changeQty(${index},1)"
-            ${item.qty>=stock?"disabled":""}
-          >
-            +
-          </button>
+                </div>
 
-          <button
-            class="remove"
-            onclick="removeItem(${index})"
-          >
-            Remove
-          </button>
+            </div>
+        `;
+    });
 
-        </div>
-
-      </div>
-    `;
-  });
-
-  totalBox.innerText =
-    Number(total).toLocaleString()+" MMK";
+    totalBox.innerText =
+        Number(total).toLocaleString()+" MMK";
 }
 
 function changeQty(index,change){
 
-  const stock = getStock(cart[index].name);
+    const stock = getStock(cart[index].name);
 
-  if(change===1 && cart[index].qty>=stock){
+    if(change===1 && cart[index].qty>=stock){
 
-    alert("Only "+stock+" items left.");
-    return;
-  }
+        alert("Only "+stock+" items left.");
+        return;
+    }
 
-  cart[index].qty += change;
+    cart[index].qty += change;
 
-  if(cart[index].qty<=0){
-    cart.splice(index,1);
-  }
+    if(cart[index].qty<=0){
+        cart.splice(index,1);
+    }
 
-  saveCart();
-  renderCart();
+    saveCart();
+    renderCart();
 }
 
 function removeItem(index){
-  cart.splice(index,1);
-  saveCart();
-  renderCart();
+    cart.splice(index,1);
+    saveCart();
+    renderCart();
 }
 
 document.getElementById("checkoutBtn")
 .addEventListener("click",()=>{
 
-  if(cart.length===0){
-    alert("Your cart is empty.");
-    return;
-  }
+    if(cart.length===0){
+        alert("Your cart is empty.");
+        return;
+    }
 
-  window.location="checkout.html";
+    window.location="checkout.html";
 });
 
 (async()=>{
 
-  await loadProducts();
-  renderCart();
+    await loadProducts();
+    renderCart();
 
 })();
 </script>

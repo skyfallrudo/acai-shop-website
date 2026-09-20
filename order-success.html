@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Order Successful | Acai Shop</title>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
@@ -15,93 +16,170 @@
 </script>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
-
-body{
-background:url("bg.jpg") center/cover fixed no-repeat;
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:25px;
-position:relative;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
 }
 
-body::before{
-content:"";
-position:fixed;
-inset:0;
-background:rgba(5,8,15,.65);
-backdrop-filter:blur(6px);
-z-index:-1;
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-.card{
-max-width:500px;
-width:100%;
-background:rgba(15,23,42,.9);
-border:1px solid rgba(255,255,255,.08);
-border-radius:28px;
-padding:40px 30px;
-text-align:center;
-color:white;
-box-shadow:0 25px 60px rgba(0,0,0,.45);
+body {
+    background-color: #05080f;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 25px 20px;
+    position: relative;
+    color: white;
 }
 
-.icon{
-width:90px;
-height:90px;
-margin:0 auto 20px;
-border-radius:50%;
-background:#16A34A;
-display:flex;
-justify-content:center;
-align-items:center;
-font-size:45px;
+/* Background ပုံကို fixed အလွှာသီးသန့်ခွဲထုတ်ပြီး PC/Mobile ခွဲခြားပေးထားသည် */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
 }
 
-h1{
-font-size:32px;
-margin-bottom:10px;
+/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
+@media (min-width: 769px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
+    }
 }
 
-p{
-color:#CBD5E1;
-line-height:1.6;
-margin-bottom:30px;
+/* ဖုန်း Screen များအတွက် Mobile ပုံ */
+@media (max-width: 768px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
+    }
 }
 
-.buttons{
-display:grid;
-gap:12px;
+/* အမည်းရောင် ပါးပါးအုပ်ထားသည့် အလွှာ (Blur မပါသောကြောင့် ပုံမဝါးပါ) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 8, 15, 0.65);
+    z-index: -1;
 }
 
-.btn{
-padding:15px;
-border:none;
-border-radius:14px;
-font-size:16px;
-font-weight:600;
-cursor:pointer;
-text-decoration:none;
-display:block;
+.card {
+    max-width: 480px;
+    width: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+    position: relative;
+    z-index: 2;
 }
 
-.primary{
-background:#2563EB;
-color:white;
+.icon {
+    width: 85px;
+    height: 85px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    background: #16A34A;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 38px;
+    color: white;
+    box-shadow: 0 10px 25px rgba(22, 163, 74, 0.35);
 }
 
-.secondary{
-background:#1E293B;
-color:white;
+h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
 }
 
-.primary:hover,
-.secondary:hover{
-opacity:.95;
+p {
+    color: #CBD5E1;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.buttons {
+    display: grid;
+    gap: 12px;
+}
+
+.btn {
+    padding: 14px 20px;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+}
+
+.primary {
+    background: #2563EB;
+    color: white;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+}
+
+.secondary {
+    background: rgba(30, 41, 59, 0.8);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.primary:hover {
+    background: #1D4ED8;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35);
+}
+
+.secondary:hover {
+    background: rgba(51, 65, 85, 0.9);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+    .card {
+        padding: 32px 22px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    p {
+        font-size: 14px;
+    }
 }
 </style>
 </head>
@@ -110,7 +188,9 @@ opacity:.95;
 
 <div class="card">
 
-<div class="icon">✓</div>
+<div class="icon">
+  <i class="fa-solid fa-check"></i>
+</div>
 
 <h1>Order Successful!</h1>
 
@@ -122,11 +202,11 @@ Your order has been received successfully and we will process it soon.
 <div class="buttons">
 
 <a href="my-orders.html" class="btn primary">
-📦 View My Orders
+  <i class="fa-solid fa-box"></i> View My Orders
 </a>
 
 <a href="index.html" class="btn secondary">
-🛍 Continue Shopping
+  <i class="fa-solid fa-bag-shopping"></i> Continue Shopping
 </a>
 
 </div>

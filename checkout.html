@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checkout | Acai Shop</title>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
@@ -14,119 +15,242 @@
   gtag('config', 'G-F00XQ96WFJ');
 </script>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:"Poppins",sans-serif;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
 }
 
-body{
-background:url("bg.jpg") center/cover fixed no-repeat;
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:30px;
-position:relative;
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-body::before{
-content:"";
-position:fixed;
-inset:0;
-background:rgba(5,8,15,.65);
-backdrop-filter:blur(6px);
-z-index:-1;
+body {
+    background-color: #05080f;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 20px;
+    position: relative;
+    color: white;
 }
 
-.card{
-width:100%;
-max-width:560px;
-background:rgba(15,23,42,.88);
-border:1px solid rgba(255,255,255,.08);
-border-radius:28px;
-padding:35px;
-box-shadow:0 25px 60px rgba(0,0,0,.45);
-color:white;
+/* Background အလွှာသီးသန့်ခွဲထုတ်မှု (PC/Mobile ခွဲခြားပေးသည်) */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
 }
 
-.back{
-display:inline-block;
-margin-bottom:18px;
-color:white;
-text-decoration:none;
+/* PC Screen များအတွက် Desktop Background */
+@media (min-width: 769px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
+    }
 }
 
-h1{
-text-align:center;
-margin-bottom:8px;
-font-size:32px;
+/* Mobile Screen များအတွက် Mobile Background */
+@media (max-width: 768px) {
+    body::after {
+        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
+    }
 }
 
-.subtitle{
-text-align:center;
-color:#94A3B8;
-margin-bottom:28px;
+/* အမည်းရောင် Overlayer (Blur မပါသောကြောင့် စာမျက်နှာပုံမဝါးပါ) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 8, 15, 0.68);
+    z-index: -1;
 }
 
-label{
-display:block;
-margin-bottom:8px;
-color:#CBD5E1;
-font-size:14px;
+.card {
+    width: 100%;
+    max-width: 580px;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    padding: 38px 32px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+    color: white;
+    position: relative;
+    z-index: 2;
 }
 
-input,select,textarea{
-width:100%;
-padding:15px;
-margin-bottom:16px;
-border:none;
-outline:none;
-border-radius:14px;
-background:#1E293B;
-color:white;
-font-size:15px;
+.back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: #93C5FD;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.back:hover {
+    color: white;
+    transform: translateX(-3px);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 6px;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.subtitle {
+    text-align: center;
+    color: #CBD5E1;
+    font-size: 14px;
+    margin-bottom: 28px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #CBD5E1;
+    font-size: 13.5px;
+    font-weight: 500;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-wrapper i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+    font-size: 15px;
+    pointer-events: none;
+}
+
+.input-wrapper.textarea-wrapper i {
+    top: 20px;
+    transform: none;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 14px 16px 14px 45px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    outline: none;
+    border-radius: 14px;
+    background: rgba(30, 41, 59, 0.6);
+    color: white;
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    transition: all 0.25s ease;
+}
+
+textarea {
+    resize: vertical;
+    padding-top: 14px;
+}
+
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    cursor: pointer;
+}
+
+select option {
+    background: #0F172A;
+    color: white;
 }
 
 input::placeholder,
-textarea::placeholder{
-color:#64748B;
+textarea::placeholder {
+    color: #64748B;
 }
 
-button{
-width:100%;
-padding:16px;
-border:none;
-border-radius:14px;
-background:linear-gradient(135deg,#3B82F6,#2563EB);
-color:white;
-font-size:17px;
-font-weight:600;
-cursor:pointer;
+input:focus, select:focus, textarea:focus {
+    border-color: #3B82F6;
+    background: rgba(30, 41, 59, 0.9);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
 }
 
-button:hover{
-opacity:.95;
+#paymentInfo {
+    display: none;
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    padding: 16px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    color: #CBD5E1;
+    line-height: 1.6;
 }
 
-#paymentInfo{
-display:none;
-background:#1E293B;
-padding:15px;
-border-radius:14px;
-margin-bottom:16px;
-font-size:14px;
-color:#CBD5E1;
+#paymentInfo b {
+    color: #93C5FD;
 }
 
-@media(max-width:600px){
-.card{
-padding:25px;
+button[type="submit"] {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    color: white;
+    font-family: "Poppins", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    margin-top: 10px;
 }
+
+button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35);
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+}
+
+@media(max-width: 600px) {
+    .card {
+        padding: 28px 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
 }
 </style>
 </head>
@@ -135,7 +259,9 @@ padding:25px;
 
 <div class="card">
 
-<a href="cart.html" class="back">← Back to Cart</a>
+<a href="cart.html" class="back">
+    <i class="fa-solid fa-arrow-left"></i> Back to Cart
+</a>
 
 <h1>Checkout</h1>
 
@@ -145,65 +271,97 @@ Enter your delivery information.
 
 <form id="checkoutForm">
 
-<label>Full Name</label>
-<input id="name" required placeholder="Enter your full name">
+<div class="form-group">
+    <label for="name">Full Name</label>
+    <div class="input-wrapper">
+        <i class="fa-solid fa-user"></i>
+        <input id="name" required placeholder="Enter your full name">
+    </div>
+</div>
 
-<label>Phone Number</label>
-<input id="phone" required placeholder="09xxxxxxxxx">
+<div class="form-group">
+    <label for="phone">Phone Number</label>
+    <div class="input-wrapper">
+        <i class="fa-solid fa-phone"></i>
+        <input id="phone" required placeholder="09xxxxxxxxx">
+    </div>
+</div>
 
-<label>City</label>
+<div class="form-group">
+    <label for="city">City</label>
+    <div class="input-wrapper">
+        <i class="fa-solid fa-city"></i>
+        <select id="city" required onchange="updateTownships()">
+            <option value="">Select City</option>
+            <option value="Yangon">Yangon</option>
+            <option value="Mandalay">Mandalay</option>
+            <option value="Naypyidaw">Naypyidaw</option>
+            <option value="Bago">Bago</option>
+            <option value="Pathein">Pathein</option>
+            <option value="Mawlamyine">Mawlamyine</option>
+            <option value="Taunggyi">Taunggyi</option>
+            <option value="Sittwe">Sittwe</option>
+            <option value="Myitkyina">Myitkyina</option>
+            <option value="Hpa-An">Hpa-An</option>
+            <option value="Loikaw">Loikaw</option>
+            <option value="Dawei">Dawei</option>
+            <option value="Magway">Magway</option>
+            <option value="Sagaing">Sagaing</option>
+            <option value="Hakha">Hakha</option>
+        </select>
+    </div>
+</div>
 
-<select id="city" required onchange="updateTownships()">
+<div class="form-group">
+    <label for="township">Township</label>
+    <div class="input-wrapper">
+        <i class="fa-solid fa-location-dot"></i>
+        <select id="township" required>
+            <option value="">Select Township</option>
+        </select>
+    </div>
+</div>
 
-<option value="">Select City</option>
+<div class="form-group">
+    <label for="road">Road / Street</label>
+    <div class="input-wrapper">
+        <i class="fa-solid fa-road"></i>
+        <input id="road" required placeholder="Example: Insein Road">
+    </div>
+</div>
 
-<option value="Yangon">Yangon</option>
-<option value="Mandalay">Mandalay</option>
-<option value="Naypyidaw">Naypyidaw</option>
-<option value="Bago">Bago</option>
-<option value="Pathein">Pathein</option>
-<option value="Mawlamyine">Mawlamyine</option>
-<option value="Taunggyi">Taunggyi</option>
-<option value="Sittwe">Sittwe</option>
-<option value="Myitkyina">Myitkyina</option>
-<option value="Hpa-An">Hpa-An</option>
-<option value="Loikaw">Loikaw</option>
-<option value="Dawei">Dawei</option>
-<option value="Magway">Magway</option>
-<option value="Sagaing">Sagaing</option>
-<option value="Hakha">Hakha</option>
+<div class="form-group">
+    <label for="building">Building / Apartment (Optional)</label>
+    <div class="input-wrapper">
+        <i class="fa-solid fa-building"></i>
+        <input id="building" placeholder="Apartment, Floor, Room">
+    </div>
+</div>
 
-</select>
+<div class="form-group">
+    <label for="address">House No. / Landmark</label>
+    <div class="input-wrapper textarea-wrapper">
+        <i class="fa-solid fa-house"></i>
+        <textarea id="address" rows="3" required placeholder="House No., Landmark"></textarea>
+    </div>
+</div>
 
-<label>Township</label>
-
-<select id="township" required>
-<option value="">Select Township</option>
-</select>
-
-<label>Road / Street</label>
-<input id="road" required placeholder="Example: Insein Road">
-
-<label>Building / Apartment (Optional)</label>
-<input id="building" placeholder="Apartment, Floor, Room">
-
-<label>House No. / Landmark</label>
-<textarea id="address" rows="3" required placeholder="House No., Landmark"></textarea>
-
-<label>Payment Method</label>
-
-<select id="payment" onchange="togglePaymentInfo()">
-
-<option value="Cash on Delivery">🚚 Cash on Delivery (COD)</option>
-<option value="KBZPay">💙 KBZPay</option>
-<option value="WavePay">💚 WavePay</option>
-<option value="Bank Transfer">🏦 Bank Transfer</option>
-
-</select>
+<div class="form-group">
+    <label for="payment">Payment Method</label>
+    <div class="input-wrapper">
+        <i class="fa-solid fa-wallet"></i>
+        <select id="payment" onchange="togglePaymentInfo()">
+            <option value="Cash on Delivery">🚚 Cash on Delivery (COD)</option>
+            <option value="KBZPay">💙 KBZPay</option>
+            <option value="WavePay">💚 WavePay</option>
+            <option value="Bank Transfer">🏦 Bank Transfer</option>
+        </select>
+    </div>
+</div>
 
 <div id="paymentInfo">
-<b>Payment Instructions</b><br><br>
-ငွေလွှဲပြီးပါက Screenshot ကို နောက်အဆင့်မှာ တင်ပေးပါ။
+    <b>Payment Instructions</b><br><br>
+    ငွေလွှဲပြီးပါက Screenshot ကို နောက်အဆင့်မှာ တင်ပေးပါ။
 </div>
 
 <button type="submit">Place Order</button>
@@ -215,137 +373,88 @@ Enter your delivery information.
 <script>
 
 const townshipData={
-
 Yangon:["Hlaing","Kamayut","Mayangone","Insein","Sanchaung","Bahan","Yankin","Thingangyun","Tamwe","Lanmadaw","Latha","Kyauktada","Pabedan","Ahlone","Dagon","North Dagon","South Dagon","East Dagon","Dagon Seikkan","Shwepyitha","Hlaingthaya","Mingaladon","Thaketa","Dawbon","Pazundaung","Botahtaung","Seikkyi Kanaungto","Thanlyin","Twante","Hmawbi","Taikkyi"],
-
 Mandalay:["Aungmyaythazan","Chanayethazan","Chanmyathazi","Maha Aungmyay","Pyigyidagun","Amarapura","Patheingyi","Pyin Oo Lwin","Kyaukse","Meiktila","Myingyan","Yamethin"],
-
 Naypyidaw:["Zabuthiri","Ottarathiri","Pobbathiri","Dekkhinathiri","Pyinmana","Lewe","Tatkon"],
-
 Bago:["Bago","Taungoo","Pyay","Tharrawaddy","Nattalin"],
-
 Pathein:["Pathein","Hinthada","Myaungmya","Maubin","Labutta"],
-
 Mawlamyine:["Mawlamyine","Thaton","Kyaikto","Ye"],
-
 Taunggyi:["Taunggyi","Kalaw","Nyaungshwe","Lashio","Muse","Hsipaw","Kengtung"],
-
 Sittwe:["Sittwe","Kyaukphyu","Thandwe","Mrauk-U"],
-
 Myitkyina:["Myitkyina","Bhamo","Mohnyin","Putao"],
-
 "Hpa-An":["Hpa-An","Myawaddy","Kawkareik","Hlaingbwe"],
-
 Loikaw:["Loikaw","Demoso","Bawlakhe"],
-
 Dawei:["Dawei","Myeik","Kawthaung","Bokpyin"],
-
 Magway:["Magway","Pakokku","Minbu","Thayet","Aunglan"],
-
 Sagaing:["Sagaing","Monywa","Shwebo","Kalay","Tamu"],
-
 Hakha:["Hakha","Falam","Tedim","Mindat"]
-
 };
 
 function updateTownships(){
+    const city=document.getElementById("city").value;
+    const township=document.getElementById("township");
 
-const city=document.getElementById("city").value;
+    township.innerHTML='<option value="">Select Township</option>';
 
-const township=document.getElementById("township");
+    if(!townshipData[city]) return;
 
-township.innerHTML='<option value="">Select Township</option>';
-
-if(!townshipData[city]) return;
-
-townshipData[city].forEach(t=>{
-
-const option=document.createElement("option");
-
-option.value=t;
-
-option.textContent=t;
-
-township.appendChild(option);
-
-});
-
+    townshipData[city].forEach(t=>{
+        const option=document.createElement("option");
+        option.value=t;
+        option.textContent=t;
+        township.appendChild(option);
+    });
 }
 
 function togglePaymentInfo(){
-
-const payment=document.getElementById("payment").value;
-
-const info=document.getElementById("paymentInfo");
-
-info.style.display=payment==="Cash on Delivery"?"none":"block";
-
+    const payment=document.getElementById("payment").value;
+    const info=document.getElementById("paymentInfo");
+    info.style.display=payment==="Cash on Delivery"?"none":"block";
 }
 
 togglePaymentInfo();
 
 document.getElementById("checkoutForm").addEventListener("submit",async function(e){
+    e.preventDefault();
 
-e.preventDefault();
+    const order={
+        name:document.getElementById("name").value,
+        phone:document.getElementById("phone").value,
+        city:document.getElementById("city").value,
+        township:document.getElementById("township").value,
+        road:document.getElementById("road").value,
+        building:document.getElementById("building").value,
+        address:document.getElementById("address").value,
+        payment:document.getElementById("payment").value,
+        cart:JSON.parse(localStorage.getItem("cart"))||[]
+    };
 
-const order={
+    try{
+        const res=await fetch("/place-order",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(order)
+        });
 
-name:document.getElementById("name").value,
-phone:document.getElementById("phone").value,
-city:document.getElementById("city").value,
-township:document.getElementById("township").value,
-road:document.getElementById("road").value,
-building:document.getElementById("building").value,
-address:document.getElementById("address").value,
-payment:document.getElementById("payment").value,
-cart:JSON.parse(localStorage.getItem("cart"))||[]
+        const data=await res.json();
 
-};
+        if(res.status===401){
+            alert("Please sign in first.");
+            window.location="login.html";
+            return;
+        }
 
-try{
-
-const res=await fetch("/place-order",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify(order)
-
-});
-
-const data=await res.json();
-
-if(res.status===401){
-
-alert("Please sign in first.");
-
-window.location="login.html";
-
-return;
-
-}
-
-if(data.success){
-
-localStorage.removeItem("cart");
-
-window.location="order-success.html";
-
-}else{
-
-alert(data.message||"Failed to place order.");
-
-}
-
-}catch{
-
-alert("Cannot connect to server.");
-
-}
-
+        if(data.success){
+            localStorage.removeItem("cart");
+            window.location="order-success.html";
+        }else{
+            alert(data.message||"Failed to place order.");
+        }
+    }catch{
+        alert("Cannot connect to server.");
+    }
 });
 </script>
 
