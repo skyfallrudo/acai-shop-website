@@ -5,238 +5,146 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Orders | Acai Shop</title>
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-F00XQ96WFJ');
-</script>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{
+background:#05080f;
+color:#fff;
+padding:20px;
+min-height:100vh;
+position:relative;
+overflow-x:hidden;
 }
-
-html, body {
-    width: 100%;
-    min-height: 100vh;
-    overflow-x: hidden;
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg") center/cover no-repeat;
+z-index:-2;
 }
-
-body {
-    background-color: #05080f;
-    min-height: 100vh;
-    color: white;
-    padding: 25px 20px;
-    position: relative;
+@media(max-width:768px){
+body::after{
+background-image:url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
 }
-
-/* Background ပုံကို fixed အလွှာသီးသန့်ခွဲထုတ်ပြီး PC/Mobile ခွဲခြားပေးထားသည် */
-body::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: -2;
 }
-
-/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
-@media (min-width: 769px) {
-    body::after {
-        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
-    }
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(5,8,15,.65);
+z-index:-1;
 }
-
-/* ဖုန်း Screen များအတွက် Mobile ပုံ */
-@media (max-width: 768px) {
-    body::after {
-        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
-    }
+.container{max-width:950px;margin:auto}
+.back{
+display:inline-flex;
+align-items:center;
+gap:8px;
+color:#CBD5E1;
+text-decoration:none;
+margin-bottom:22px;
+font-weight:500;
 }
-
-/* အမည်းရောင် ပါးပါးအုပ်ထားသည့် အလွှာ (Blur မပါသောကြောင့် ပုံမဝါးပါ) */
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(5, 8, 15, 0.65);
-    z-index: -1;
+h1{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:22px;
+font-size:34px;
 }
-
-.container {
-    max-width: 900px;
-    margin: auto;
-    position: relative;
-    z-index: 2;
+.card{
+background:rgba(15,23,42,.86);
+backdrop-filter:blur(18px);
+border:1px solid rgba(255,255,255,.08);
+border-radius:26px;
+padding:24px;
+margin-bottom:22px;
+box-shadow:0 12px 35px rgba(0,0,0,.35);
 }
-
-.back {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 20px;
-    color: #94A3B8;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    transition: .25s;
+.top{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+gap:20px;
+flex-wrap:wrap;
 }
-
-.back:hover {
-    color: white;
-    transform: translateX(-4px);
+.order-id{
+font-size:30px;
+font-weight:700;
 }
-
-h1 {
-    margin-bottom: 25px;
-    font-size: 28px;
+.time{
+color:#94A3B8;
+font-size:14px;
+margin-top:6px;
 }
-
-.order {
-    background: rgba(15, 23, 42, 0.85);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 22px;
-    padding: 22px;
-    margin-bottom: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+.badge{
+padding:8px 18px;
+border-radius:999px;
+font-size:14px;
+font-weight:700;
 }
-
-.top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-    gap: 10px;
+.Pending{background:#64748B}
+.Confirmed{background:#2563EB}
+.Processing{background:#EA580C}
+.Shipped{background:#2563EB}
+.Delivered{background:#16A34A}
+.Cancelled{background:#DC2626}
+.items{
+margin:18px 0;
+padding:16px;
+background:rgba(30,41,59,.45);
+border-radius:16px;
 }
-
-.id {
-    font-size: 20px;
-    font-weight: 700;
+.item{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid rgba(255,255,255,.08);
 }
-
-.date {
-    color: #94A3B8;
-    font-size: 13px;
-    margin-top: 4px;
+.item:last-child{border:none}
+.info{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:12px;
+margin:18px 0;
 }
-
-.status {
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 600;
+.info div{
+background:rgba(30,41,59,.35);
+padding:12px 14px;
+border-radius:12px;
+font-size:14px;
 }
-
-.Pending { background: #475569; }
-.Packed { background: #EA580C; }
-.Shipped { background: #2563EB; }
-.Delivered { background: #16A34A; }
-
-.items {
-    margin-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding-top: 15px;
+.info i{
+width:20px;
+color:#60A5FA;
 }
-
-.item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    color: #E2E8F0;
-    font-size: 15px;
+.summary{
+margin-top:18px;
+border-top:1px solid rgba(255,255,255,.08);
+padding-top:16px;
+display:flex;
+flex-direction:column;
+gap:10px;
 }
-
-.total {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    justify-content: space-between;
-    font-size: 18px;
-    font-weight: bold;
+.row{
+display:flex;
+justify-content:space-between;
 }
-
-.address {
-    margin-top: 12px;
-    color: #CBD5E1;
-    font-size: 14px;
-    line-height: 1.6;
+.final{
+border-top:1px solid rgba(255,255,255,.08);
+padding-top:12px;
+font-size:20px;
+font-weight:700;
 }
-
-.empty {
-    text-align: center;
-    padding: 70px 20px;
-    background: rgba(15, 23, 42, 0.85);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 22px;
+.empty{
+text-align:center;
+padding:70px 20px;
+background:rgba(15,23,42,.86);
+border-radius:24px;
 }
-
-.empty h2 {
-    font-size: 22px;
-    margin-bottom: 8px;
-}
-
-.empty p {
-    color: #94A3B8;
-}
-
-.empty a {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 12px 22px;
-    border-radius: 12px;
-    background: #2563EB;
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    transition: .25s;
-}
-
-.empty a:hover {
-    background: #1D4ED8;
-    transform: translateY(-2px);
-}
-
-@media(max-width: 600px) {
-    body {
-        padding: 18px 12px;
-    }
-
-    .top {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .item {
-        font-size: 14px;
-    }
-
-    .total {
-        font-size: 16px;
-    }
-}
+.empty p{color:#94A3B8;margin-top:8px}
 </style>
 </head>
 
@@ -245,7 +153,8 @@ h1 {
 <div class="container">
 
 <a href="index.html" class="back">
-  <i class="fa-solid fa-arrow-left"></i> Back to Shop
+<i class="fa-solid fa-arrow-left"></i>
+Back to Shop
 </a>
 
 <h1>📦 My Orders</h1>
@@ -255,88 +164,124 @@ h1 {
 </div>
 
 <script>
-async function loadOrders(){
-  try {
-    const res = await fetch("/my-orders");
+fetch("/my-orders")
+.then(r=>r.json())
+.then(orders=>{
 
-    if(res.status === 401){
-      window.location = "login.html";
-      return;
-    }
+const container=document.getElementById("orders");
 
-    const orders = await res.json();
-    const container = document.getElementById("orders");
-    container.innerHTML = "";
-
-    if(!orders || orders.length === 0){
-      container.innerHTML = `
-        <div class="empty">
-          <h2>No Orders Yet</h2>
-          <p>You haven't placed any orders.</p>
-          <a href="index.html">Start Shopping</a>
-        </div>
-      `;
-      return;
-    }
-
-    orders.forEach(o => {
-      let items = [];
-
-      try {
-        items = typeof o.items === "string" ? JSON.parse(o.items) : o.items;
-      } catch(e) {
-        items = [];
-      }
-
-      const itemHTML = items.map(i => `
-        <div class="item">
-          <span>${i.name} × ${i.qty}</span>
-          <span>${Number(i.price * i.qty).toLocaleString()} MMK</span>
-        </div>
-      `).join("");
-
-      container.innerHTML += `
-        <div class="order">
-          <div class="top">
-            <div>
-              <div class="id">Order #${o.id}</div>
-              <div class="date">${o.created_at || ""}</div>
-            </div>
-            <div class="status ${o.status}">${o.status}</div>
-          </div>
-
-          <div class="items">
-            ${itemHTML}
-          </div>
-
-          <div class="address">
-            <b>Delivery Address</b><br>
-            ${o.address || "N/A"}<br>
-            📞 ${o.phone || "N/A"}
-          </div>
-
-          <div class="total">
-            <span>Total</span>
-            <span>${Number(o.total).toLocaleString()} MMK</span>
-          </div>
-        </div>
-      `;
-    });
-
-  } catch (err) {
-    document.getElementById("orders").innerHTML = `
-      <div class="empty">
-        <h2>Cannot connect to server</h2>
-        <p>Please check your connection and try again.</p>
-      </div>
-    `;
-  }
+if(!orders||orders.length===0){
+container.innerHTML=`
+<div class="empty">
+<h2>No Orders Yet</h2>
+<p>Your orders will appear here.</p>
+</div>`;
+return;
 }
 
-loadOrders();
+container.innerHTML="";
 
-// Auto Refresh every 5 seconds
-setInterval(loadOrders, 5000);
+orders.forEach(order=>{
+
+let items=[];
+
+try{
+items=typeof order.items==="string"
+?JSON.parse(order.items)
+:order.items;
+}catch{
+items=[];
+}
+
+let itemHTML="";
+
+items.forEach(item=>{
+itemHTML+=`
+<div class="item">
+<span>${item.name} × ${item.qty}</span>
+<span>${Number(item.price*(item.qty||1)).toLocaleString()} MMK</span>
+</div>`;
+});
+
+const productTotal=(Number(order.total)||0)-(Number(order.deli_fee)||0);
+
+container.innerHTML+=`
+<div class="card">
+
+<div class="top">
+
+<div>
+<div class="order-id">Order #${order.id}</div>
+<div class="time">${order.created_at||""}</div>
+</div>
+
+<div class="badge ${order.status||"Pending"}">
+${order.status||"Pending"}
+</div>
+
+</div>
+
+<div class="items">
+${itemHTML}
+</div>
+
+<div class="info">
+
+<div><i class="fa-solid fa-user"></i> <b>Customer:</b> ${order.customer||"-"}</div>
+
+<div><i class="fa-solid fa-phone"></i> <b>Phone:</b> ${order.phone||"-"}</div>
+
+<div><i class="fa-brands fa-telegram"></i> <b>Telegram:</b> ${order.telegram||"-"}</div>
+
+<div><i class="fa-solid fa-comment"></i> <b>Alt Social:</b> ${order.alt_social||"-"}</div>
+
+<div><i class="fa-solid fa-city"></i> <b>City:</b> ${order.city||"-"}</div>
+
+<div><i class="fa-solid fa-map-location-dot"></i> <b>Township:</b> ${order.township||"-"}</div>
+
+<div><i class="fa-solid fa-road"></i> <b>Road:</b> ${order.road||"-"}</div>
+
+<div><i class="fa-solid fa-building"></i> <b>Building:</b> ${order.building||"-"}</div>
+
+<div style="grid-column:1/-1">
+<i class="fa-solid fa-location-dot"></i>
+<b>Address:</b> ${order.address||"-"}
+</div>
+
+<div><i class="fa-solid fa-wallet"></i> <b>Payment:</b> ${order.payment_method||"-"}</div>
+
+</div>
+
+<div class="summary">
+
+<div class="row">
+<span>Products</span>
+<span>${productTotal.toLocaleString()} MMK</span>
+</div>
+
+<div class="row">
+<span>Delivery Fee</span>
+<span>${Number(order.deli_fee||0).toLocaleString()} MMK</span>
+</div>
+
+<div class="row final">
+<span>Total</span>
+<span>${Number(order.total||0).toLocaleString()} MMK</span>
+</div>
+
+</div>
+
+</div>`;
+});
+
+})
+.catch(()=>{
+document.getElementById("orders").innerHTML=`
+<div class="empty">
+<h2>Cannot Load Orders</h2>
+<p>Please check your server connection.</p>
+</div>`;
+});
 </script>
 
 </body>

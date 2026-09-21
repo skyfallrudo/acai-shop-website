@@ -3,259 +3,148 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Acai Shop - Orders Admin</title>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-F00XQ96WFJ');
-</script>
+<title>My Orders | Acai Shop</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{
+background:#05080f;
+color:#fff;
+padding:20px;
+min-height:100vh;
+position:relative;
+overflow-x:hidden;
 }
-
-html, body {
-    width: 100%;
-    min-height: 100vh;
-    overflow-x: hidden;
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg") center/cover no-repeat;
+z-index:-2;
 }
-
-body {
-    background-color: #05080f;
-    min-height: 100vh;
-    color: white;
-    padding: 25px 20px;
-    position: relative;
+@media(max-width:768px){
+body::after{
+background-image:url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
 }
-
-/* Background ပုံကို fixed အလွှာသီးသန့်ခွဲထုတ်ပြီး PC/Mobile ခွဲခြားပေးထားသည် */
-body::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: -2;
 }
-
-/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
-@media (min-width: 769px) {
-    body::after {
-        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
-    }
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(5,8,15,.65);
+z-index:-1;
 }
-
-/* ဖုန်း Screen များအတွက် Mobile ပုံ */
-@media (max-width: 768px) {
-    body::after {
-        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
-    }
+.container{max-width:950px;margin:auto}
+.back{
+display:inline-flex;
+align-items:center;
+gap:8px;
+color:#CBD5E1;
+text-decoration:none;
+margin-bottom:22px;
+font-weight:500;
 }
-
-/* အမည်းရောင် ပါးပါးအုပ်ထားသည့် အလွှာ (Blur မပါသောကြောင့် ပုံမဝါးပါ) */
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(5, 8, 15, 0.65);
-    z-index: -1;
+h1{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:22px;
+font-size:34px;
 }
-
-.container {
-    max-width: 900px;
-    margin: auto;
-    position: relative;
-    z-index: 2;
+.card{
+background:rgba(15,23,42,.86);
+backdrop-filter:blur(18px);
+border:1px solid rgba(255,255,255,.08);
+border-radius:26px;
+padding:24px;
+margin-bottom:22px;
+box-shadow:0 12px 35px rgba(0,0,0,.35);
 }
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-    gap: 15px;
+.top{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+gap:20px;
+flex-wrap:wrap;
 }
-
-h1 {
-    font-size: 28px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.order-id{
+font-size:30px;
+font-weight:700;
 }
-
-.back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #94A3B8;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    transition: .25s;
-    background: rgba(15, 23, 42, 0.6);
-    padding: 8px 16px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+.time{
+color:#94A3B8;
+font-size:14px;
+margin-top:6px;
 }
-
-.back-btn:hover {
-    color: white;
-    background: rgba(30, 41, 59, 0.8);
-    transform: translateX(-3px);
+.badge{
+padding:8px 18px;
+border-radius:999px;
+font-size:14px;
+font-weight:700;
 }
-
-.order {
-    background: rgba(15, 23, 42, 0.85);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 22px;
-    padding: 24px;
-    margin-bottom: 22px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+.Pending{background:#64748B}
+.Confirmed{background:#2563EB}
+.Processing{background:#EA580C}
+.Shipped{background:#2563EB}
+.Delivered{background:#16A34A}
+.Cancelled{background:#DC2626}
+.items{
+margin:18px 0;
+padding:16px;
+background:rgba(30,41,59,.45);
+border-radius:16px;
 }
-
-.top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-    gap: 12px;
+.item{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid rgba(255,255,255,.08);
 }
-
-.order-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #F8FAFC;
+.item:last-child{border:none}
+.info{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:12px;
+margin:18px 0;
 }
-
-.customer-info {
-    margin-top: 10px;
-    font-size: 14px;
-    color: #CBD5E1;
-    line-height: 1.7;
+.info div{
+background:rgba(30,41,59,.35);
+padding:12px 14px;
+border-radius:12px;
+font-size:14px;
 }
-
-.customer-info i {
-    width: 20px;
-    color: #3B82F6;
+.info i{
+width:20px;
+color:#60A5FA;
 }
-
-.status {
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 600;
-    display: inline-block;
+.summary{
+margin-top:18px;
+border-top:1px solid rgba(255,255,255,.08);
+padding-top:16px;
+display:flex;
+flex-direction:column;
+gap:10px;
 }
-
-.Pending { background: #475569; color: white; }
-.Packed { background: #EA580C; color: white; }
-.Shipped { background: #2563EB; color: white; }
-.Delivered { background: #16A34A; color: white; }
-
-.items {
-    background: rgba(30, 41, 59, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 16px;
-    border-radius: 14px;
-    margin-top: 16px;
+.row{
+display:flex;
+justify-content:space-between;
 }
-
-.items-header {
-    font-weight: 600;
-    font-size: 14px;
-    color: #94A3B8;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.final{
+border-top:1px solid rgba(255,255,255,.08);
+padding-top:12px;
+font-size:20px;
+font-weight:700;
 }
-
-.item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    font-size: 15px;
-    color: #E2E8F0;
+.empty{
+text-align:center;
+padding:70px 20px;
+background:rgba(15,23,42,.86);
+border-radius:24px;
 }
-
-.item:last-child {
-    border-bottom: none;
-}
-
-.total {
-    margin-top: 18px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.total-amount {
-    color: #60A5FA;
-}
-
-.empty {
-    text-align: center;
-    padding: 70px 20px;
-    background: rgba(15, 23, 42, 0.85);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 22px;
-}
-
-.empty h2 {
-    font-size: 22px;
-    margin-bottom: 8px;
-}
-
-.empty p {
-    color: #94A3B8;
-}
-
-@media(max-width: 600px) {
-    body {
-        padding: 18px 12px;
-    }
-
-    .top-bar {
-        flex-direction: column;
-    }
-
-    .item {
-        font-size: 14px;
-    }
-
-    .total {
-        font-size: 16px;
-    }
-}
+.empty p{color:#94A3B8;margin-top:8px}
 </style>
 </head>
 
@@ -263,94 +152,136 @@ h1 {
 
 <div class="container">
 
-<div class="header">
-  <h1>📦 Acai Shop Orders</h1>
-  <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Home</a>
-</div>
+<a href="index.html" class="back">
+<i class="fa-solid fa-arrow-left"></i>
+Back to Shop
+</a>
+
+<h1>📦 My Orders</h1>
 
 <div id="orders"></div>
 
 </div>
 
 <script>
-fetch("/orders")
-  .then(response => response.json())
-  .then(orders => {
-    const container = document.getElementById("orders");
+fetch("/my-orders")
+.then(r=>r.json())
+.then(orders=>{
 
-    if (!orders || orders.length === 0) {
-      container.innerHTML = `
-        <div class="empty">
-          <h2>No Orders Found</h2>
-          <p>There are no customer orders yet.</p>
-        </div>
-      `;
-      return;
-    }
+const container=document.getElementById("orders");
 
-    container.innerHTML = "";
+if(!orders||orders.length===0){
+container.innerHTML=`
+<div class="empty">
+<h2>No Orders Yet</h2>
+<p>Your orders will appear here.</p>
+</div>`;
+return;
+}
 
-    orders.forEach(order => {
-      let items = [];
+container.innerHTML="";
 
-      try {
-        items = typeof order.items === "string" ? JSON.parse(order.items) : order.items;
-      } catch (e) {
-        items = [];
-      }
+orders.forEach(order=>{
 
-      let itemHTML = "";
+let items=[];
 
-      items.forEach(item => {
-        itemHTML += `
-          <div class="item">
-            <span>${item.name} × ${item.qty}</span>
-            <span>${Number(item.price * (item.qty || 1)).toLocaleString()} MMK</span>
-          </div>
-        `;
-      });
+try{
+items=typeof order.items==="string"
+?JSON.parse(order.items)
+:order.items;
+}catch{
+items=[];
+}
 
-      const statusClass = order.status || "Pending";
+let itemHTML="";
 
-      container.innerHTML += `
-        <div class="order">
-          <div class="top-bar">
-            <div>
-              <div class="order-title">Order #${order.id}</div>
-              <div class="customer-info">
-                <div><i class="fa-solid fa-user"></i> <strong>Customer:</strong> ${order.customer || "N/A"}</div>
-                <div><i class="fa-solid fa-phone"></i> <strong>Phone:</strong> ${order.phone || "N/A"}</div>
-                <div><i class="fa-solid fa-location-dot"></i> <strong>Address:</strong> ${order.address || "N/A"}</div>
-              </div>
-            </div>
+items.forEach(item=>{
+itemHTML+=`
+<div class="item">
+<span>${item.name} × ${item.qty}</span>
+<span>${Number(item.price*(item.qty||1)).toLocaleString()} MMK</span>
+</div>`;
+});
 
-            <div>
-              <span class="status ${statusClass}">${statusClass}</span>
-            </div>
-          </div>
+const productTotal=(Number(order.total)||0)-(Number(order.deli_fee)||0);
 
-          <div class="items">
-            <div class="items-header">Ordered Items</div>
-            ${itemHTML}
-          </div>
+container.innerHTML+=`
+<div class="card">
 
-          <div class="total">
-            <span>Total Amount</span>
-            <span class="total-amount">${Number(order.total).toLocaleString()} MMK</span>
-          </div>
-        </div>
-      `;
-    });
-  })
-  .catch(error => {
-    console.error(error);
-    document.getElementById("orders").innerHTML = `
-      <div class="empty">
-        <h2>Cannot Load Orders</h2>
-        <p>Please check your server connection.</p>
-      </div>
-    `;
-  });
+<div class="top">
+
+<div>
+<div class="order-id">Order #${order.id}</div>
+<div class="time">${order.created_at||""}</div>
+</div>
+
+<div class="badge ${order.status||"Pending"}">
+${order.status||"Pending"}
+</div>
+
+</div>
+
+<div class="items">
+${itemHTML}
+</div>
+
+<div class="info">
+
+<div><i class="fa-solid fa-user"></i> <b>Customer:</b> ${order.customer||"-"}</div>
+
+<div><i class="fa-solid fa-phone"></i> <b>Phone:</b> ${order.phone||"-"}</div>
+
+<div><i class="fa-brands fa-telegram"></i> <b>Telegram:</b> ${order.telegram||"-"}</div>
+
+<div><i class="fa-solid fa-comment"></i> <b>Alt Social:</b> ${order.alt_social||"-"}</div>
+
+<div><i class="fa-solid fa-city"></i> <b>City:</b> ${order.city||"-"}</div>
+
+<div><i class="fa-solid fa-map-location-dot"></i> <b>Township:</b> ${order.township||"-"}</div>
+
+<div><i class="fa-solid fa-road"></i> <b>Road:</b> ${order.road||"-"}</div>
+
+<div><i class="fa-solid fa-building"></i> <b>Building:</b> ${order.building||"-"}</div>
+
+<div style="grid-column:1/-1">
+<i class="fa-solid fa-location-dot"></i>
+<b>Address:</b> ${order.address||"-"}
+</div>
+
+<div><i class="fa-solid fa-wallet"></i> <b>Payment:</b> ${order.payment_method||"-"}</div>
+
+</div>
+
+<div class="summary">
+
+<div class="row">
+<span>Products</span>
+<span>${productTotal.toLocaleString()} MMK</span>
+</div>
+
+<div class="row">
+<span>Delivery Fee</span>
+<span>${Number(order.deli_fee||0).toLocaleString()} MMK</span>
+</div>
+
+<div class="row final">
+<span>Total</span>
+<span>${Number(order.total||0).toLocaleString()} MMK</span>
+</div>
+
+</div>
+
+</div>`;
+});
+
+})
+.catch(()=>{
+document.getElementById("orders").innerHTML=`
+<div class="empty">
+<h2>Cannot Load Orders</h2>
+<p>Please check your server connection.</p>
+</div>`;
+});
 </script>
 
 </body>

@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const express = require("express");
-const { createClient } = require("@libsql/client"); 
+const { createClient } = require("@libsql/client");
 const session = require("express-session");
 const bcrypt = require("bcrypt");
 const { Resend } = require("resend");
@@ -10,21 +10,21 @@ const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-app.set("trust proxy", 1); 
+app.set("trust proxy", 1);
 
-// Turso Client Setup
+// ---------------- Turso Client ----------------
 const tursoClient = createClient({
   url: process.env.TURSO_DATABASE_URL,
   authToken: process.env.TURSO_AUTH_TOKEN
 });
 
-// Resend Email Client Setup
+// ---------------- Resend ----------------
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Turso SQLite Wrapper
+// ---------------- Turso Wrapper ----------------
 const db = {
   get: (sql, params = [], callback) => {
-    if (typeof params === 'function') {
+    if (typeof params === "function") {
       callback = params;
       params = [];
     }
@@ -33,18 +33,17 @@ const db = {
     return tursoClient.execute({ sql, args: params })
       .then(res => {
         const row = res.rows[0] ? { ...res.rows[0] } : null;
-        if (callback) callback(null, row);
+        callback && callback(null, row);
         return row;
       })
       .catch(err => {
-        console.error("Turso DB Get Error:", err);
-        if (callback) callback(err, null);
-        else throw err;
+        console.log(err);
+        callback && callback(err, null);
       });
   },
 
   all: (sql, params = [], callback) => {
-    if (typeof params === 'function') {
+    if (typeof params === "function") {
       callback = params;
       params = [];
     }
@@ -53,18 +52,17 @@ const db = {
     return tursoClient.execute({ sql, args: params })
       .then(res => {
         const rows = res.rows.map(r => ({ ...r }));
-        if (callback) callback(null, rows);
+        callback && callback(null, rows);
         return rows;
       })
       .catch(err => {
-        console.error("Turso DB All Error:", err);
-        if (callback) callback(err, null);
-        else throw err;
+        console.log(err);
+        callback && callback(err, []);
       });
   },
 
   run: (sql, params = [], callback) => {
-    if (typeof params === 'function') {
+    if (typeof params === "function") {
       callback = params;
       params = [];
     }
@@ -73,35 +71,30 @@ const db = {
     return tursoClient.execute({ sql, args: params })
       .then(res => {
         const info = {
-          lastID: res.lastInsertRowid !== undefined ? Number(res.lastInsertRowid) : null,
+          lastID: Number(res.lastInsertRowid),
           changes: Number(res.rowsAffected)
         };
-        if (callback) callback.call(info, null);
+        callback && callback.call(info, null);
         return info;
       })
       .catch(err => {
-        console.error("Turso DB Run Error:", err);
-        if (callback) callback(err);
-        else throw err;
+        console.log(err);
+        callback && callback(err);
       });
   },
 
   exec: (sql, callback) => {
     return tursoClient.executeMultiple(sql)
-      .then(() => {
-        if (callback) callback(null);
-      })
+      .then(() => callback && callback(null))
       .catch(err => {
-        console.error("Turso DB Exec Error:", err);
-        if (callback) callback(err);
-        else throw err;
+        console.log(err);
+        callback && callback(err);
       });
   }
 };
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static(__dirname));
 
 app.use(session({
@@ -116,18 +109,17 @@ app.use(session({
   }
 }));
 
+// ---------------- Multer ----------------
 const storage = multer.diskStorage({
   destination: "uploads/",
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname)
 });
-
 const upload = multer({ storage });
 
 const otpStore = {};
 const resetOtpStore = {};
 
+// ---------------- Auth ----------------
 function auth(req, res, next) {
   if (!req.session.userId) {
     return res.status(401).json({
@@ -148,21 +140,21 @@ function adminAuth(req, res, next) {
   next();
 }
 
-// ---------------- OTP Send ----------------
-
+// ---------------- Send OTP ----------------
 app.post("/send-otp", (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.json({ success: false, message: "Email is required" });
+    return res.json({
+      success: false,
+      message: "Email is required"
+    });
   }
 
   db.get(
     "SELECT id FROM customers WHERE email=?",
     [email],
     async (err, user) => {
-      if (err) return res.json({ success: false });
-
       if (user) {
         return res.json({
           success: false,
@@ -174,48 +166,19 @@ app.post("/send-otp", (req, res) => {
       otpStore[email] = otp;
 
       setTimeout(() => {
-        if (otpStore[email] === otp) {
-          delete otpStore[email];
-        }
+        if (otpStore[email] === otp) delete otpStore[email];
       }, 5 * 60 * 1000);
 
       try {
         await resend.emails.send({
-          from: 'Acai Shop <support@acaishopmm.store>',
+          from: "Acai Shop <support@acaishopmm.store>",
           to: email,
           subject: "Verify your Acai Shop account",
-          html: `
-<div style="margin:0;padding:40px;background:url('https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg.jpg.jpg') center/cover no-repeat;font-family:Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center">
-        <table width="420" cellpadding="0" cellspacing="0" style="background:rgba(17,24,39,.82);backdrop-filter:blur(12px);border-radius:30px;padding:34px;text-align:center;border:1px solid rgba(255,255,255,.15);">
-          <tr>
-            <td>
-              <div style="width:90px;height:90px;border-radius:50%;background:white;border:8px solid #E8ECFF;margin:0 auto 18px;display:flex;justify-content:center;align-items:center;overflow:hidden;">
-                <img src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">
-              </div>
-              <h1 style="margin:0;color:white;font-size:34px;font-weight:700;">Acai Shop</h1>
-              <p style="color:#CBD5E1;font-size:17px;margin:14px 0 28px;">Verify your email address</p>
-              <div style="background:#1F2937;border:2px solid #3B82F6;border-radius:24px;padding:22px;">
-                <div style="font-size:14px;letter-spacing:4px;color:#6C8CFF;margin-bottom:10px;">VERIFICATION CODE</div>
-                <div style="font-size:58px;font-weight:800;letter-spacing:12px;color:white;">${otp}</div>
-              </div>
-              <p style="color:#CBD5E1;font-size:18px;line-height:1.6;margin:34px 0 26px;">Enter this code in <b style="color:white;">Acai Shop</b> to finish creating your account.</p>
-              <div style="display:inline-block;background:#1E3A8A;border-radius:999px;padding:14px 26px;font-size:18px;color:#FDE68A;">⏱ Expires in 5 minutes</div>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</div>
-`
+          html: `<h2>Your OTP is ${otp}</h2><p>Expires in 5 minutes.</p>`
         });
 
         res.json({ success: true });
-      } catch (e) {
-        console.log(e);
+      } catch {
         res.json({ success: false });
       }
     }
@@ -223,7 +186,6 @@ app.post("/send-otp", (req, res) => {
 });
 
 // ---------------- Verify OTP ----------------
-
 app.post("/verify-otp", (req, res) => {
   const { email, otp } = req.body;
 
@@ -235,7 +197,6 @@ app.post("/verify-otp", (req, res) => {
 });
 
 // ---------------- Register ----------------
-
 app.post("/register", async (req, res) => {
   const { username, email, password, otp } = req.body;
 
@@ -268,33 +229,17 @@ app.post("/register", async (req, res) => {
 });
 
 // ---------------- Forgot Password ----------------
-
 app.post("/forgot-password", (req, res) => {
   const { email } = req.body;
-
-  if (!email) {
-    return res.json({
-      success: false,
-      message: "Email is required."
-    });
-  }
 
   db.get(
     "SELECT id FROM customers WHERE email=?",
     [email],
     async (err, user) => {
-      if (err) {
-        console.log(err);
-        return res.json({
-          success: false,
-          message: "Database error."
-        });
-      }
-
       if (!user) {
         return res.json({
           success: false,
-          message: "Account not found. Please create an account first."
+          message: "Account not found."
         });
       }
 
@@ -302,51 +247,19 @@ app.post("/forgot-password", (req, res) => {
       resetOtpStore[email] = otp;
 
       setTimeout(() => {
-        if (resetOtpStore[email] === otp) {
-          delete resetOtpStore[email];
-        }
+        if (resetOtpStore[email] === otp) delete resetOtpStore[email];
       }, 5 * 60 * 1000);
 
       try {
         await resend.emails.send({
-          from: 'Acai Shop <onboarding@resend.dev>',
+          from: "Acai Shop <onboarding@resend.dev>",
           to: email,
-          subject: "Reset Your Acai Shop Password",
-          html: `
-<div style="margin:0;padding:40px;background:url('https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg.jpg.jpg') center/cover no-repeat;font-family:Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center">
-        <table width="420" cellpadding="0" cellspacing="0" style="background:#111827;border-radius:30px;padding:34px;text-align:center;border:1px solid rgba(255,255,255,.15);">
-          <tr>
-            <td>
-              <div style="width:90px;height:90px;border-radius:50%;background:white;border:8px solid #E8ECFF;margin:0 auto 18px;overflow:hidden;">
-                <img src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">
-              </div>
-              <h1 style="margin:0;color:white;font-size:34px;font-weight:700;">Acai Shop</h1>
-              <p style="color:#CBD5E1;font-size:17px;margin:14px 0 28px;">Reset your password</p>
-              <div style="background:#1F2937;border:2px solid #3B82F6;border-radius:24px;padding:22px;">
-                <div style="font-size:14px;letter-spacing:4px;color:#6C8CFF;margin-bottom:10px;">VERIFICATION CODE</div>
-                <div style="font-size:58px;font-weight:800;letter-spacing:12px;color:white;">${otp}</div>
-              </div>
-              <p style="color:#CBD5E1;font-size:18px;line-height:1.6;margin:34px 0 26px;">Enter this code in <b style="color:white;">Acai Shop</b> to reset your password.</p>
-              <div style="display:inline-block;background:#1E3A8A;border-radius:999px;padding:14px 26px;font-size:18px;color:#FDE68A;">⏱ Expires in 5 minutes</div>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</div>
-`
+          subject: "Reset Password",
+          html: `<h2>Your OTP is ${otp}</h2>`
         });
 
         res.json({ success: true });
-      } catch (error) {
-        console.log("Forgot password email error:", error);
-        if (resetOtpStore[email] === otp) {
-          delete resetOtpStore[email];
-        }
+      } catch {
         res.json({
           success: false,
           message: "Failed to send OTP."
@@ -357,79 +270,35 @@ app.post("/forgot-password", (req, res) => {
 });
 
 // ---------------- Reset Password ----------------
-
 app.post("/reset-password", async (req, res) => {
   const { email, otp, password } = req.body;
 
-  if (!email || !otp) {
+  if (!resetOtpStore[email] || resetOtpStore[email] !== otp) {
     return res.json({
       success: false,
-      message: "Please fill all fields."
+      message: "Wrong or expired OTP."
     });
   }
 
-  if (!resetOtpStore[email]) {
-    return res.json({
-      success: false,
-      message: "OTP expired. Please request a new OTP."
-    });
-  }
+  const hash = await bcrypt.hash(password, 10);
 
-  if (password === "__VERIFY__") {
-    if (resetOtpStore[email] !== otp) {
-      return res.json({
-        success: false,
-        verified: false,
-        message: "Wrong OTP."
+  db.run(
+    "UPDATE customers SET password=? WHERE email=?",
+    [hash, email],
+    function (err) {
+      if (err) return res.json({ success: false });
+
+      delete resetOtpStore[email];
+
+      res.json({
+        success: true,
+        message: "Password updated successfully."
       });
     }
-
-    return res.json({
-      success: true,
-      verified: true,
-      message: "OTP verified."
-    });
-  }
-
-  if (resetOtpStore[email] !== otp) {
-    return res.json({
-      success: false,
-      message: "Wrong OTP."
-    });
-  }
-
-  try {
-    const hash = await bcrypt.hash(password, 10);
-
-    db.run(
-      "UPDATE customers SET password=? WHERE email=?",
-      [hash, email],
-      function (err) {
-        if (err) {
-          return res.json({
-            success: false,
-            message: "Database error."
-          });
-        }
-
-        delete resetOtpStore[email];
-
-        res.json({
-          success: true,
-          message: "Password updated successfully."
-        });
-      }
-    );
-  } catch {
-    res.json({
-      success: false,
-      message: "Server error."
-    });
-  }
+  );
 });
 
 // ---------------- Login ----------------
-
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -437,7 +306,7 @@ app.post("/login", (req, res) => {
     "SELECT * FROM customers WHERE email=?",
     [email],
     async (err, user) => {
-      if (err || !user) {
+      if (!user) {
         return res.json({
           success: false,
           message: "Invalid email or password"
@@ -454,47 +323,32 @@ app.post("/login", (req, res) => {
       }
 
       req.session.userId = user.id;
-
       res.json({ success: true });
     }
   );
 });
 
 // ---------------- Current User ----------------
-
 app.get("/me", auth, (req, res) => {
   db.get(
     "SELECT id,username,email,phone,address FROM customers WHERE id=?",
     [req.session.userId],
     (err, user) => {
-      if (err || !user) {
-        return res.status(401).json({
-          loggedIn: false
-        });
-      }
-
-      res.json({
-        loggedIn: true,
-        user
-      });
+      if (!user) return res.json({ loggedIn: false });
+      res.json({ loggedIn: true, user });
     }
   );
 });
 
 // ---------------- Logout ----------------
-
 app.post("/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.json({ success: true });
-  });
+  req.session.destroy(() => res.json({ success: true }));
 });
 
 // ---------------- Products ----------------
-
 app.get("/products", (req, res) => {
   db.all("SELECT * FROM products ORDER BY id DESC", [], (err, rows) => {
-    if (err) return res.json([]);
-    res.json(rows);
+    res.json(rows || []);
   });
 });
 
@@ -503,7 +357,8 @@ app.post("/add-product", upload.single("image"), (req, res) => {
   const image = req.file ? req.file.filename : "";
 
   db.run(
-    `INSERT INTO products(name,price,stock,image,description) VALUES(?,?,?,?,?)`,
+    `INSERT INTO products(name,price,stock,image,description)
+     VALUES(?,?,?,?,?)`,
     [name, Number(price), Number(stock), image, description],
     function (err) {
       if (err) return res.json({ success: false });
@@ -516,164 +371,150 @@ app.put("/update-product/:id", (req, res) => {
   const { name, price, stock, description } = req.body;
 
   db.run(
-    `UPDATE products SET name=?,price=?,stock=?,description=? WHERE id=?`,
+    `UPDATE products
+     SET name=?,price=?,stock=?,description=?
+     WHERE id=?`,
     [name, Number(price), Number(stock), description, req.params.id],
-    function (err) {
-      if (err) return res.json({ success: false });
+    function () {
       res.json({ success: true });
     }
   );
 });
 
 app.delete("/delete-product/:id", (req, res) => {
-  db.run("DELETE FROM products WHERE id=?", [req.params.id], function (err) {
-    if (err) return res.json({ success: false });
-    res.json({ success: true });
-  });
+  db.run(
+    "DELETE FROM products WHERE id=?",
+    [req.params.id],
+    function () {
+      res.json({ success: true });
+    }
+  );
 });
 
 // ---------------- Checkout ----------------
+app.post("/place-order", auth, async (req, res) => {
+    try {
+    const {
+      name,
+      phone,
+      telegram,
+      altSocial,
+      city,
+      township,
+      road,
+      building,
+      address,
+      payment_method,
+      deliFee,
+      cart
+    } = req.body;
 
-app.post("/place-order", auth, (req, res) => {
-  const {
-    name,
-    phone,
-    telegram,     // <-- Telegram ထည့်ရန်
-    altSocial,    // <-- Alt Social ထည့်ရန်
-    city,
-    township,
-    road,
-    building,
-    address,
-    payment,
-    cart
-  } = req.body;
+    if (!cart || cart.length === 0) {
+      return res.json({ success: false, message: "Cart is empty" });
+    }
 
-  if (!cart || cart.length === 0) {
-    return res.json({
+    let subtotal = 0;
+    cart.forEach(item => {
+      subtotal += Number(item.price) * Number(item.qty);
+    });
+
+    const deliveryFee = Number(deliFee) || 0;
+    const total = subtotal + deliveryFee;
+    const fullAddress = `${road || ""}, ${building || ""}, ${address || ""}`.trim();
+
+    const userResult = await tursoClient.execute({
+      sql: "SELECT email FROM customers WHERE id=?",
+      args: [req.session.userId]
+    });
+
+    if (userResult.rows.length === 0) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    const userEmail = userResult.rows[0].email;
+
+    for (const item of cart) {
+      const p = await tursoClient.execute({
+        sql: "SELECT stock FROM products WHERE name=?",
+        args: [item.name]
+      });
+
+      if (p.rows.length === 0 || p.rows[0].stock < item.qty) {
+        return res.json({
+          success: false,
+          message: `${item.name} out of stock`
+        });
+      }
+    }
+
+    const insert = await tursoClient.execute({
+      sql: `INSERT INTO orders(
+        customer,email,phone,telegram,alt_social,address,
+        items,total,status,city,township,road,building,
+        deli_fee,payment_method
+      ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      args: [
+        name,
+        userEmail,
+        phone,
+        telegram || "",
+        altSocial || "",
+        fullAddress,
+        JSON.stringify(cart),
+        total,
+        "Pending",
+        city || "",
+        township || "",
+        road || "",
+        building || "",
+        deliveryFee,
+        payment_method || "COD"
+      ]
+    });
+
+    for (const item of cart) {
+      await tursoClient.execute({
+        sql: "UPDATE products SET stock=stock-? WHERE name=?",
+        args: [item.qty, item.name]
+      });
+    }
+
+    res.json({
+      success: true,
+      orderId: Number(insert.lastInsertRowid)
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.json({
       success: false,
-      message: "Cart is empty"
+      message: "Failed to place order"
     });
   }
-
-  let total = 0;
-  for (const item of cart) {
-    total += Number(item.price) * Number(item.qty);
-  }
-
-  const fullAddress = `${city}, ${township}, ${road}, ${building || ""}, ${address}`;
-  const ids = cart.map(() => "?").join(",");
-
-  db.all(
-    `SELECT id,name,stock FROM products WHERE name IN (${ids})`,
-    cart.map(i => i.name),
-    async (err, products) => {
-      if (err) {
-        return res.json({ success: false });
-      }
-
-      for (const item of cart) {
-        const p = products.find(x => x.name === item.name);
-        if (!p || p.stock < item.qty) {
-          return res.json({
-            success: false,
-            message: `${item.name} out of stock`
-          });
-        }
-      }
-
-      db.get(
-        "SELECT email FROM customers WHERE id=?",
-        [req.session.userId],
-        async (err2, user) => {
-          if (err2 || !user) return res.json({ success: false });
-
-          // database orders table ထဲသို့ telegram နှင့် alt_social ပါ ထည့်သွင်းခြင်း
-          db.run(
-            `INSERT INTO orders(customer, email, phone, telegram, alt_social, address, items, total, status) VALUES(?,?,?,?,?,?,?,?,?)`,
-            [
-              name,
-              user.email,
-              phone,
-              telegram || "",
-              altSocial || "",
-              fullAddress,
-              JSON.stringify(cart),
-              total,
-              "Pending"
-            ],
-            async function (err3) {
-              if (err3) {
-                console.error("Order Insert Error:", err3);
-                return res.json({ success: false });
-              }
-
-              const orderId = this.lastID;
-
-              try {
-                for (const item of cart) {
-                  await db.run(
-                    `UPDATE products SET stock = stock - ? WHERE name=?`,
-                    [item.qty, item.name]
-                  );
-                }
-                res.json({ success: true, orderId });
-              } catch (stockErr) {
-                console.error("Stock update error:", stockErr);
-                res.json({ success: false, message: "Error updating stock" });
-              }
-            }
-          );
-        }
-      );
-    }
-  );
 });
-// ---------------- Admin: Orders ----------------
+
+// ---------------- Admin Orders ----------------
 
 app.get("/admin/orders", adminAuth, (req, res) => {
   db.all("SELECT * FROM orders ORDER BY id DESC", [], (err, rows) => {
-    if (err) {
-      console.log(err);
-      return res.json([]);
-    }
-    res.json(rows);
+    res.json(rows || []);
   });
 });
 
-// ---------------- Admin: Customers ----------------
+app.get("/admin/orders/:id", adminAuth, (req, res) => {
+  db.get(
+    "SELECT * FROM orders WHERE id=?",
+    [req.params.id],
+    (err, row) => {
+      if (!row) return res.status(404).json({ success: false });
 
-app.get("/admin/customers", adminAuth, (req, res) => {
-  db.all(
-    `SELECT id, username, email, phone, address, created_at FROM customers ORDER BY id DESC`,
-    [],
-    (err, rows) => {
-      if (err) {
-        console.log(err);
-        return res.json([]);
-      }
-      res.json(rows);
+      res.json({
+        ...row,
+        items: JSON.parse(row.items || "[]")
+      });
     }
   );
 });
-// Public API (same data as admin)
-app.get("/api/customers", async (req, res) => {
-  db.all(
-    `SELECT id, username, email, phone, address, created_at
-     FROM customers
-     ORDER BY id DESC`,
-    [],
-    (err, rows) => {
-      if (err) {
-        console.log(err);
-        return res.json([]);
-      }
-      res.json(rows);
-    }
-  );
-});
-
-// ---------------- Admin: Update Order Status ----------------
 
 app.put("/admin/orders/:id/status", adminAuth, (req, res) => {
   const { status } = req.body;
@@ -695,65 +536,59 @@ app.put("/admin/orders/:id/status", adminAuth, (req, res) => {
   }
 
   db.run(
-    `UPDATE orders SET status=? WHERE id=?`,
+    "UPDATE orders SET status=? WHERE id=?",
     [status, req.params.id],
-    function (err) {
-      if (err) {
-        console.log(err);
-        return res.json({ success: false });
-      }
+    function () {
       res.json({ success: true });
     }
   );
 });
 
-// ---------------- Admin: Order Details ----------------
-
-app.get("/admin/orders/:id", adminAuth, (req, res) => {
-  db.get("SELECT * FROM orders WHERE id=?", [req.params.id], (err, row) => {
-    if (err || !row) {
-      return res.status(404).json({ success: false });
-    }
-
-    res.json({
-      ...row,
-      items: JSON.parse(row.items || "[]")
-    });
-  });
-});
-
-// ---------------- Admin: Delete Order ----------------
-
 app.delete("/admin/orders/:id", adminAuth, (req, res) => {
-  db.run("DELETE FROM orders WHERE id=?", [req.params.id], function (err) {
-    if (err) {
-      console.log(err);
-      return res.json({ success: false });
+  db.run(
+    "DELETE FROM orders WHERE id=?",
+    [req.params.id],
+    function () {
+      res.json({ success: true });
     }
-    res.json({ success: true });
-  });
+  );
 });
 
-// ---------------- Admin: Delete Customer ----------------
+// ---------------- Customers ----------------
+
+app.get("/admin/customers", adminAuth, (req, res) => {
+  db.all(
+    `SELECT id,username,email,phone,address,created_at
+     FROM customers
+     ORDER BY id DESC`,
+    [],
+    (err, rows) => {
+      res.json(rows || []);
+    }
+  );
+});
 
 app.delete("/admin/customers/:id", adminAuth, (req, res) => {
-  db.run("DELETE FROM customers WHERE id=?", [req.params.id], function (err) {
-    if (err) {
-      return res.json({ success: false });
+  db.run(
+    "DELETE FROM customers WHERE id=?",
+    [req.params.id],
+    function () {
+      res.json({ success: true });
     }
-    res.json({ success: true });
-  });
+  );
 });
 
 // ---------------- Profile ----------------
 
 app.get("/profile", auth, (req, res) => {
   db.get(
-    `SELECT id, username, email, phone, address FROM customers WHERE id=?`,
+    `SELECT id,username,email,phone,address
+     FROM customers
+     WHERE id=?`,
     [req.session.userId],
     (err, user) => {
-      if (err || !user) {
-        return res.status(404).json({ success: false });
+      if (!user) {
+        return res.json({ success: false });
       }
 
       res.json({
@@ -764,19 +599,15 @@ app.get("/profile", auth, (req, res) => {
   );
 });
 
-// ---------------- Update Profile ----------------
-
 app.put("/profile", auth, (req, res) => {
   const { username, phone, address } = req.body;
 
   db.run(
-    `UPDATE customers SET username=?, phone=?, address=? WHERE id=?`,
+    `UPDATE customers
+     SET username=?,phone=?,address=?
+     WHERE id=?`,
     [username || "", phone || "", address || "", req.session.userId],
-    function (err) {
-      if (err) {
-        console.log(err);
-        return res.json({ success: false });
-      }
+    function () {
       res.json({ success: true });
     }
   );
@@ -789,71 +620,108 @@ app.get("/my-orders", auth, (req, res) => {
     "SELECT email FROM customers WHERE id=?",
     [req.session.userId],
     (err, user) => {
-      if (err || !user) {
-        return res.json([]);
-      }
+      if (!user) return res.json([]);
 
       db.all(
-        `SELECT * FROM orders WHERE email=? ORDER BY id DESC`,
+        `SELECT *
+         FROM orders
+         WHERE email=?
+         ORDER BY id DESC`,
         [user.email],
-        (err2, orders) => {
-          if (err2) {
-            console.log(err2);
-            return res.json([]);
-          }
-          res.json(orders);
+        (err2, rows) => {
+          res.json(rows || []);
         }
       );
     }
   );
 });
 
-// ---------------- Dashboard Stats ----------------
+// ---------------- Dashboard (Delivery Fee Separated) ----------------
 
 app.get("/admin/dashboard", adminAuth, (req, res) => {
-  db.get(`SELECT COUNT(*) AS totalOrders FROM orders`, [], (err, orders) => {
-    db.get(`SELECT COUNT(*) AS totalCustomers FROM customers`, [], (err2, customers) => {
-      db.get(`SELECT COUNT(*) AS totalProducts FROM products`, [], (err3, products) => {
+
+  db.get("SELECT COUNT(*) AS totalOrders FROM orders", [], (e1, orders) => {
+
+    db.get("SELECT COUNT(*) AS totalCustomers FROM customers", [], (e2, customers) => {
+
+      db.get("SELECT COUNT(*) AS totalProducts FROM products", [], (e3, products) => {
+
         db.get(
-          `SELECT COALESCE(SUM(total),0) AS revenue FROM orders WHERE status!='Cancelled'`,
+          `SELECT
+             COALESCE(SUM(total-COALESCE(deli_fee,0)),0)
+             AS productRevenue
+           FROM orders
+           WHERE status!='Cancelled'`,
           [],
-          (err4, revenue) => {
-            db.all(
-              `SELECT items,total,created_at FROM orders WHERE status!='Cancelled'`,
+          (e4, revenue) => {
+
+            db.get(
+              `SELECT
+                 COALESCE(SUM(deli_fee),0)
+                 AS deliveryRevenue
+               FROM orders
+               WHERE status!='Cancelled'`,
               [],
-              (err5, allOrders) => {
-                const seller = {};
-                const weekly = {};
+              (e5, delivery) => {
 
-                (allOrders || []).forEach(o => {
-                  const day = (o.created_at || "").split(" ")[0];
-                  weekly[day] = (weekly[day] || 0) + Number(o.total || 0);
+                db.get(
+                  `SELECT
+                     COALESCE(SUM(total-COALESCE(deli_fee,0)),0)
+                     AS todayRevenue
+                   FROM orders
+                   WHERE status!='Cancelled'
+                     AND DATE(created_at)=DATE('now','localtime')`,
+                  [],
+                  (e6, today) => {
 
-                  try {
-                    JSON.parse(o.items || "[]").forEach(i => {
-                      seller[i.name] = (seller[i.name] || 0) + Number(i.qty || 0);
-                    });
-                  } catch {}
-                });
+                    db.all(
+                      `SELECT items,total,created_at
+                       FROM orders
+                       WHERE status!='Cancelled'`,
+                      [],
+                      (e7, allOrders) => {
 
-                let bestProduct = "-";
-                let max = 0;
+                        const seller = {};
+                        const weekly = {};
 
-                Object.entries(seller).forEach(([name, qty]) => {
-                  if (qty > max) {
-                    max = qty;
-                    bestProduct = name;
+                        (allOrders || []).forEach(o => {
+
+                          const day = (o.created_at || "").split(" ")[0];
+                          weekly[day] = (weekly[day] || 0) + Number(o.total || 0);
+
+                          try {
+                            JSON.parse(o.items || "[]").forEach(i => {
+                              seller[i.name] = (seller[i.name] || 0) + Number(i.qty || 0);
+                            });
+                          } catch {}
+                        });
+
+                        let bestProduct = "-";
+                        let max = 0;
+
+                        Object.entries(seller).forEach(([name, qty]) => {
+                          if (qty > max) {
+                            max = qty;
+                            bestProduct = name;
+                          }
+                        });
+
+                        res.json({
+                          totalOrders: orders?.totalOrders || 0,
+                          totalCustomers: customers?.totalCustomers || 0,
+                          totalProducts: products?.totalProducts || 0,
+
+                          todayRevenue: today?.todayRevenue || 0,
+                          productRevenue: revenue?.productRevenue || 0,
+                          deliveryRevenue: delivery?.deliveryRevenue || 0,
+
+                          bestProduct,
+                          weekly
+                        });
+                      }
+                    );
                   }
-                });
-
-                res.json({
-                  totalOrders: orders?.totalOrders || 0,
-                  totalCustomers: customers?.totalCustomers || 0,
-                  totalProducts: products?.totalProducts || 0,
-                  revenue: revenue?.revenue || 0,
-                  bestProduct,
-                  weekly
-                });
+                );
               }
             );
           }
@@ -867,42 +735,47 @@ app.get("/admin/dashboard", adminAuth, (req, res) => {
 
 app.get("/admin/revenue", adminAuth, (req, res) => {
   db.all(
-    `SELECT DATE(created_at) AS date, COALESCE(SUM(total),0) AS revenue FROM orders WHERE status != 'Cancelled' GROUP BY DATE(created_at) ORDER BY DATE(created_at) ASC`,
+    `SELECT
+       DATE(created_at) AS date,
+       COALESCE(SUM(total),0) AS revenue
+     FROM orders
+     WHERE status!='Cancelled'
+     GROUP BY DATE(created_at)
+     ORDER BY DATE(created_at) ASC`,
     [],
     (err, rows) => {
-      if (err) {
-        console.log(err);
-        return res.json([]);
-      }
-      res.json(rows);
+      res.json(rows || []);
     }
   );
 });
 
-// ---------------- New Order Notification ----------------
+// ---------------- Pending Orders ----------------
 
 app.get("/admin/new-orders", adminAuth, (req, res) => {
   db.get(
-    `SELECT COUNT(*) AS count FROM orders WHERE status='Pending'`,
+    "SELECT COUNT(*) AS count FROM orders WHERE status='Pending'",
     [],
     (err, row) => {
-      if (err) {
-        return res.json({ count: 0 });
-      }
-      res.json({ count: row.count || 0 });
+      res.json({
+        count: row?.count || 0
+      });
     }
   );
 });
 
-// ---------------- Admin Auth Routes ----------------
+// ---------------- Admin Login ----------------
 
 app.post("/admin-login", (req, res) => {
+
   const { username, password } = req.body;
 
-  const adminUsername = process.env.ADMIN_USER || "admin";
-  const adminPassword = process.env.ADMIN_PASSWORD || process.env.ADMIN_PASS || "admin123";
+  const adminUser = process.env.ADMIN_USER || "admin";
+  const adminPass =
+    process.env.ADMIN_PASSWORD ||
+    process.env.ADMIN_PASS ||
+    "admin123";
 
-  if (username === adminUsername && password === adminPassword) {
+  if (username === adminUser && password === adminPass) {
     req.session.admin = true;
     return res.json({ success: true });
   }
@@ -923,6 +796,8 @@ app.post("/admin-logout", (req, res) => {
   req.session.admin = false;
   res.json({ success: true });
 });
+
+// ---------------- Start Server ----------------
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

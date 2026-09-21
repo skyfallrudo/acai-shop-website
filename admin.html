@@ -4,279 +4,80 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Acai Admin Dashboard</title>
-<!-- Google tag (gtag.js) -->
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-F00XQ96WFJ');
+window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());
+gtag('config','G-F00XQ96WFJ');
 </script>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Poppins,sans-serif;
-}
-
-body{
-background:#0F172A;
-color:white;
-display:flex;
-min-height:100vh;
-}
-
-#loginOverlay{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.85);
-display:flex;
-justify-content:center;
-align-items:center;
-z-index:9999;
-}
-
-.loginBox{
-width:360px;
-background:#111827;
-padding:30px;
-border-radius:24px;
-box-shadow:0 20px 60px rgba(0,0,0,.5);
-}
-
-.loginBox h1{
-text-align:center;
-margin-bottom:20px;
-color:#60A5FA;
-}
-
-.loginBox input{
-width:100%;
-padding:14px;
-margin-bottom:15px;
-border:none;
-border-radius:12px;
-background:#1E293B;
-color:white;
-}
-
-.loginBox button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:12px;
-background:#2563EB;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
-
-.sidebar{
-width:220px;
-background:#111827;
-padding:25px;
-position:fixed;
-top:0;
-bottom:0;
-left:0;
-}
-
-.sidebar h2{
-color:#60A5FA;
-margin-bottom:25px;
-}
-
-.sidebar a{
-display:block;
-padding:12px;
-margin-bottom:8px;
-border-radius:12px;
-color:white;
-text-decoration:none;
-}
-
-.sidebar a:hover{
-background:#1E293B;
-}
-
-.main{
-margin-left:220px;
-padding:25px;
-width:100%;
-}
-
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:18px;
-margin-bottom:30px;
-}
-
-.card{
-background:#111827;
-padding:20px;
-border-radius:20px;
-}
-
-.card h3{
-color:#94A3B8;
-margin-bottom:10px;
-}
-
-.card h2{
-font-size:30px;
-}
-
-.section{
-margin-top:35px;
-}
-
-.search{
-width:100%;
-padding:12px;
-border:none;
-border-radius:12px;
-background:#1E293B;
-color:white;
-margin-bottom:15px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-}
-
-th,td{
-padding:12px;
-border-bottom:1px solid rgba(255,255,255,.08);
-text-align:left;
-}
-
-th{
-background:#1E293B;
-}
-
-.btn{
-padding:8px 12px;
-border:none;
-border-radius:10px;
-color:white;
-cursor:pointer;
-}
-
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
+body{background:#0F172A;color:white;display:flex;min-height:100vh;}
+#loginOverlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;justify-content:center;align-items:center;z-index:9999;}
+.loginBox{width:360px;background:#111827;padding:30px;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.loginBox h1{text-align:center;margin-bottom:20px;color:#60A5FA;}
+.loginBox input{width:100%;padding:14px;margin-bottom:15px;border:none;border-radius:12px;background:#1E293B;color:white;}
+.loginBox button{width:100%;padding:14px;border:none;border-radius:12px;background:#2563EB;color:white;font-weight:bold;cursor:pointer;}
+.sidebar{width:220px;background:#111827;padding:25px;position:fixed;top:0;bottom:0;left:0;}
+.sidebar h2{color:#60A5FA;margin-bottom:25px;}
+.sidebar a{display:block;padding:12px;margin-bottom:8px;border-radius:12px;color:white;text-decoration:none;}
+.sidebar a:hover{background:#1E293B;}
+.main{margin-left:220px;padding:25px;width:100%;}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-bottom:30px;}
+.card{background:#111827;padding:20px;border-radius:20px;}
+.card h3{color:#94A3B8;margin-bottom:10px;}
+.card h2{font-size:30px;}
+.section{margin-top:35px;}
+.search{width:100%;padding:12px;border:none;border-radius:12px;background:#1E293B;color:white;margin-bottom:15px;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:12px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;}
+th{background:#1E293B;}
+.btn{padding:8px 12px;border:none;border-radius:10px;color:white;cursor:pointer;}
 .edit{background:#2563EB;}
 .delete{background:#DC2626;}
-
-.status{
-padding:8px;
-border:none;
-border-radius:8px;
-background:#1E293B;
-color:white;
-}
-
-#productForm{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:10px;
-margin-bottom:20px;
-}
-
-#productForm input,
-#productForm button{
-padding:12px;
-border:none;
-border-radius:12px;
-}
-
-#productForm input{
-background:#1E293B;
-color:white;
-}
-
-#productForm button{
-background:#16A34A;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
-
+.status{padding:8px;border:none;border-radius:8px;background:#1E293B;color:white;}
+#productForm{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:20px;}
+#productForm input,#productForm button{padding:12px;border:none;border-radius:12px;}
+#productForm input{background:#1E293B;color:white;}
+#productForm button{background:#16A34A;color:white;font-weight:bold;cursor:pointer;}
 @media(max-width:900px){
-
-body{
-flex-direction:column;
-}
-
-.sidebar{
-position:relative;
-width:100%;
-display:flex;
-overflow:auto;
-}
-
-.sidebar h2{
-display:none;
-}
-
-.main{
-margin-left:0;
-}
-
-table{
-display:block;
-overflow-x:auto;
-}
-
+body{flex-direction:column;}
+.sidebar{position:relative;width:100%;display:flex;overflow:auto;}
+.sidebar h2{display:none;}
+.main{margin-left:0;}
+table{display:block;overflow-x:auto;}
 }
 </style>
 </head>
 
 <body>
 
-
-
 <div id="loginOverlay">
-
 <div class="loginBox">
-
 <h1>Admin Login</h1>
-
 <input id="adminUsername" type="text" placeholder="Username">
-
 <input id="adminPassword" type="password" placeholder="Password">
-
-<button onclick="adminLogin()">
-Login
-</button>
-
+<button onclick="adminLogin()">Login</button>
 </div>
-
 </div>
-
-
 
 <div class="sidebar">
-
 <h2>Acai Admin</h2>
-
 <a href="#dashboard">📊 Dashboard</a>
 <a href="#products">🛍 Products</a>
 <a href="#orders">📦 Orders</a>
 <a href="#customers">👥 Customers</a>
 <a href="#" onclick="adminLogout()">🚪 Logout</a>
-
 </div>
 
 <div class="main">
 
-
-
 <div id="dashboard">
-
 <div class="cards">
 
 <div class="card">
@@ -295,6 +96,11 @@ Login
 </div>
 
 <div class="card">
+<h3>Delivery Fee</h3>
+<h2 id="deliveryRevenue">0</h2>
+</div>
+
+<div class="card">
 <h3>Best Seller</h3>
 <h2 id="bestProduct">-</h2>
 </div>
@@ -302,40 +108,26 @@ Login
 </div>
 
 <div class="card">
-
 <h3>Weekly Sales</h3>
-
 <svg id="chart" width="100%" height="180"></svg>
-
 </div>
-
 </div>
-
 
 <div class="section" id="products">
-
 <h2>Products</h2>
 
 <form id="productForm" enctype="multipart/form-data">
-
 <input name="name" placeholder="Product Name" required>
-
 <input name="price" type="number" placeholder="Price" required>
-
 <input name="stock" type="number" placeholder="Stock" required>
-
 <input name="description" placeholder="Description">
-
 <input name="image" type="file" accept="image/*">
-
 <button type="submit">+ Add Product</button>
-
 </form>
 
 <input class="search" id="productSearch" placeholder="Search products...">
 
 <table>
-
 <thead>
 <tr>
 <th>ID</th>
@@ -345,23 +137,14 @@ Login
 <th>Action</th>
 </tr>
 </thead>
-
 <tbody id="productTable"></tbody>
-
 </table>
-
 </div>
 
-
-
 <div class="section" id="orders">
-
 <h2>Orders</h2>
-
 <input class="search" id="orderSearch" placeholder="Search customer or order...">
-
 <table>
-
 <thead>
 <tr>
 <th>ID</th>
@@ -371,21 +154,13 @@ Login
 <th>Action</th>
 </tr>
 </thead>
-
 <tbody id="orderTable"></tbody>
-
 </table>
-
 </div>
 
-
-
 <div class="section" id="customers">
-
 <h2>Customers</h2>
-
 <table>
-
 <thead>
 <tr>
 <th>Email</th>
@@ -395,165 +170,109 @@ Login
 <th>Action</th>
 </tr>
 </thead>
-
 <tbody id="customerTable"></tbody>
-
 </table>
-
 </div>
 
 </div>
 
 <script>
-
-let lastOrderCount = 0;
-
-
+let lastOrderCount=0;
 
 (async function(){
-
-  const res = await fetch("/admin-check");
-  const data = await res.json();
-
-  if(data.loggedIn){
-    document.getElementById("loginOverlay").style.display = "none";
-    startAdmin();
-  }
-
+const res=await fetch("/admin-check");
+const data=await res.json();
+if(data.loggedIn){
+document.getElementById("loginOverlay").style.display="none";
+startAdmin();
+}
 })();
 
 function startAdmin(){
-  loadDashboard();
-  setInterval(loadDashboard,5000);
+loadDashboard();
+setInterval(loadDashboard,5000);
 }
-
-
 
 async function adminLogin(){
+const username=document.getElementById("adminUsername").value.trim();
+const password=document.getElementById("adminPassword").value;
 
-  const username =
-    document.getElementById("adminUsername").value.trim();
+const res=await fetch("/admin-login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({username,password})
+});
 
-  const password =
-    document.getElementById("adminPassword").value;
+const data=await res.json();
 
-  const res = await fetch("/admin-login",{
-
-    method:"POST",
-
-    headers:{
-      "Content-Type":"application/json"
-    },
-
-    body:JSON.stringify({username,password})
-
-  });
-
-  const data = await res.json();
-
-  if(data.success){
-
-    document.getElementById("loginOverlay").style.display="none";
-
-    startAdmin();
-
-  }else{
-
-    alert(data.message || "Wrong username or password");
-
-  }
-
+if(data.success){
+document.getElementById("loginOverlay").style.display="none";
+startAdmin();
+}else{
+alert(data.message||"Wrong username or password");
 }
-
-
+}
 
 async function adminLogout(){
-
-  await fetch("/admin-logout",{
-    method:"POST"
-  });
-
-  location.reload();
-
+await fetch("/admin-logout",{method:"POST"});
+location.reload();
 }
+
 function drawChart(data){
-
-  const svg = document.getElementById("chart");
-  svg.innerHTML = "";
-
-  const entries = Object.entries(data);
-
-  if(entries.length === 0){
-    svg.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="#94A3B8" font-size="16">No Data</text>`;
-    return;
-  }
-
-  const values = entries.map(e => e[1]);
-  const max = Math.max(...values, 1);
-
-  entries.forEach(([day,val], i) => {
-
-    const h = (val/max)*120;
-    const x = 20+i*55;
-    const y = 150-h;
-
-    svg.innerHTML += `
-      <rect x="${x}" y="${y}" width="40" height="${h}" rx="8" fill="#3B82F6"></rect>
-      <text x="${x+20}" y="170" fill="white" text-anchor="middle" font-size="10">${day.slice(5)}</text>
-    `;
-
-  });
-
+const svg=document.getElementById("chart");
+svg.innerHTML="";
+const entries=Object.entries(data);
+if(entries.length===0){
+svg.innerHTML='<text x="50%" y="50%" text-anchor="middle" fill="#94A3B8" font-size="16">No Data</text>';
+return;
+}
+const values=entries.map(e=>e[1]);
+const max=Math.max(...values,1);
+entries.forEach(([day,val],i)=>{
+const h=(val/max)*120;
+const x=20+i*55;
+const y=150-h;
+svg.innerHTML+=`
+<rect x="${x}" y="${y}" width="40" height="${h}" rx="8" fill="#3B82F6"></rect>
+<text x="${x+20}" y="170" fill="white" text-anchor="middle" font-size="10">${day.slice(5)}</text>`;
+});
 }
 
 async function loadDashboard(){
+const a=await fetch("/admin/dashboard").then(r=>r.json());
 
-  const a =
-    await fetch("/admin/dashboard").then(r=>r.json());
+document.getElementById("todayRevenue").innerText=
+Number(a.todayRevenue||0).toLocaleString()+" MMK";
 
-  document.getElementById("todayRevenue").innerText =
-    Number(a.revenue||0).toLocaleString()+" MMK";
+document.getElementById("totalRevenue").innerText=
+Number(a.productRevenue||0).toLocaleString()+" MMK";
 
-  document.getElementById("totalRevenue").innerText =
-    Number(a.revenue||0).toLocaleString()+" MMK";
+document.getElementById("deliveryRevenue").innerText=
+Number(a.deliveryRevenue||0).toLocaleString()+" MMK";
 
-  document.getElementById("todayOrders").innerText =
-    a.totalOrders||0;
+document.getElementById("todayOrders").innerText=
+a.totalOrders||0;
 
-  document.getElementById("bestProduct").innerText =
-    a.bestProduct||"-";
+document.getElementById("bestProduct").innerText=
+a.bestProduct||"-";
 
-  drawChart(a.weekly||{});
-
-  await loadProducts();
-  await loadOrders();
-  await loadCustomers();
-
+drawChart(a.weekly||{});
+await loadProducts();
+await loadOrders();
+await loadCustomers();
 }
-
 async function loadProducts(){
-
 const products=await fetch("/products").then(r=>r.json());
-
 const table=document.getElementById("productTable");
-
 table.innerHTML="";
-
 products.forEach(p=>{
-
 table.innerHTML+=`
 <tr>
-
 <td>${p.id}</td>
-
 <td>${p.name}</td>
-
 <td>${Number(p.price).toLocaleString()} MMK</td>
-
 <td>${p.stock}</td>
-
 <td>
-
 <button class="btn edit"
 onclick="editProduct(${p.id},'${String(p.name).replace(/'/g,"\\'")}',${p.price},${p.stock},'${String(p.description||"").replace(/'/g,"\\'")}')">
 Edit
@@ -563,20 +282,13 @@ Edit
 onclick="deleteProduct(${p.id})">
 Delete
 </button>
-
 </td>
-
-</tr>
-`;
-
+</tr>`;
 });
-
 }
 
 document.getElementById("productForm").addEventListener("submit",async function(e){
-
 e.preventDefault();
-
 const formData=new FormData(this);
 
 const res=await fetch("/add-product",{
@@ -587,31 +299,20 @@ body:formData
 const data=await res.json();
 
 if(data.success){
-
 alert("Product Added!");
-
 this.reset();
-
 loadProducts();
-
 }else{
-
 alert("Failed to add product.");
-
 }
-
 });
 
 async function editProduct(id,name,price,stock,description){
-
 const newName=prompt("Product Name",name);
-
 if(newName===null) return;
 
 const newPrice=prompt("Price",price);
-
 const newStock=prompt("Stock",stock);
-
 const newDesc=prompt("Description",description);
 
 await fetch("/update-product/"+id,{
@@ -626,11 +327,9 @@ description:newDesc
 });
 
 loadProducts();
-
 }
 
 async function deleteProduct(id){
-
 if(!confirm("Delete product?")) return;
 
 await fetch("/delete-product/"+id,{
@@ -638,48 +337,31 @@ method:"DELETE"
 });
 
 loadProducts();
-
 }
 
-
-
 async function loadOrders(){
-
 const orders=await fetch("/admin/orders").then(r=>r.json());
-
 const table=document.getElementById("orderTable");
-
 table.innerHTML="";
 
 orders.forEach(o=>{
-
 table.innerHTML+=`
 <tr>
-
 <td>#${o.id}</td>
-
 <td>${o.customer}</td>
-
 <td>${Number(o.total).toLocaleString()} MMK</td>
-
 <td>
-
 <select class="status"
 onchange="changeStatus(${o.id},this.value)">
-
 <option ${o.status==="Pending"?"selected":""}>Pending</option>
 <option ${o.status==="Confirmed"?"selected":""}>Confirmed</option>
 <option ${o.status==="Processing"?"selected":""}>Processing</option>
 <option ${o.status==="Shipped"?"selected":""}>Shipped</option>
 <option ${o.status==="Delivered"?"selected":""}>Delivered</option>
 <option ${o.status==="Cancelled"?"selected":""}>Cancelled</option>
-
 </select>
-
 </td>
-
 <td>
-
 <button class="btn edit"
 onclick="viewOrder(${o.id})">
 Details
@@ -689,28 +371,20 @@ Details
 onclick="deleteOrder(${o.id})">
 Delete
 </button>
-
 </td>
-
-</tr>
-`;
-
+</tr>`;
 });
-
 }
 
 async function changeStatus(id,status){
-
 await fetch("/admin/orders/"+id+"/status",{
 method:"PUT",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({status})
 });
-
 }
 
 async function deleteOrder(id){
-
 if(!confirm("Delete order?")) return;
 
 await fetch("/admin/orders/"+id,{
@@ -718,81 +392,68 @@ method:"DELETE"
 });
 
 loadOrders();
-
 }
-
 async function viewOrder(id){
 
 const order=await fetch("/admin/orders/"+id).then(r=>r.json());
 
 document.getElementById("dCustomer").textContent=order.customer||"-";
 document.getElementById("dPhone").textContent=order.phone||"-";
+document.getElementById("dTelegram").textContent=order.telegram||"-";
+document.getElementById("dAltSocial").textContent=order.alt_social||"-";
+
+document.getElementById("dCity").textContent=order.city||"-";
+document.getElementById("dTownship").textContent=order.township||"-";
+document.getElementById("dRoad").textContent=order.road||"-";
+document.getElementById("dBuilding").textContent=order.building||"-";
 document.getElementById("dAddress").textContent=order.address||"-";
+
+document.getElementById("dPayment").textContent=order.payment_method||"-";
+document.getElementById("dDeliFee").textContent=
+Number(order.deli_fee||0).toLocaleString()+" MMK";
+
 document.getElementById("dTotal").textContent=
 Number(order.total||0).toLocaleString()+" MMK";
 
 const box=document.getElementById("dItems");
-
 box.innerHTML="";
 
 (order.items||[]).forEach(item=>{
-
 box.innerHTML+=`
 <div style="display:flex;justify-content:space-between;padding:10px;background:#1E293B;border-radius:10px;margin-bottom:8px;">
 <span>${item.name}</span>
 <span>x${item.qty}</span>
-</div>
-`;
-
+</div>`;
 });
 
 document.getElementById("orderPopup").style.display="flex";
-
 }
-
 function closeOrderPopup(){
-
 document.getElementById("orderPopup").style.display="none";
-
 }
-
 
 async function loadCustomers(){
-
 const customers=await fetch("/admin/customers").then(r=>r.json());
-
 const table=document.getElementById("customerTable");
-
 table.innerHTML="";
 
 customers.forEach(c=>{
-
 table.innerHTML+=`
 <tr>
-
 <td>${c.email}</td>
-
 <td>${c.phone||"-"}</td>
-
 <td>${c.address||"-"}</td>
-
 <td>${c.created_at||"-"}</td>
-
 <td>
 <button class="btn delete" onclick="deleteCustomer(${c.id})">
 Delete
 </button>
 </td>
-
-</tr>
-`;
-
+</tr>`;
 });
-
 }
 
 async function deleteCustomer(id){
-
 if(!confirm("Delete customer?")) return;
 
 const res=await fetch("/admin/customers/"+id,{
@@ -806,79 +467,73 @@ loadCustomers();
 }else{
 alert("Delete failed");
 }
-
 }
-
-
 
 document.getElementById("productSearch")
 .addEventListener("input",function(){
-
 const k=this.value.toLowerCase();
 
 document.querySelectorAll("#productTable tr")
 .forEach(r=>{
-
 r.style.display=
 r.innerText.toLowerCase().includes(k)
 ?"":"none";
-
 });
-
 });
 
 document.getElementById("orderSearch")
 .addEventListener("input",function(){
-
 const k=this.value.toLowerCase();
 
 document.querySelectorAll("#orderTable tr")
 .forEach(r=>{
-
 r.style.display=
 r.innerText.toLowerCase().includes(k)
 ?"":"none";
-
 });
-
 });
-
 </script>
-
-
 
 <div id="orderPopup"
 style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);justify-content:center;align-items:center;z-index:9999;">
 
-  <div style="width:90%;max-width:520px;background:#111827;padding:25px;border-radius:20px;max-height:80vh;overflow:auto;">
+<div style="width:90%;max-width:520px;background:#111827;padding:25px;border-radius:20px;max-height:80vh;overflow:auto;">
 
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+<h2>Order Details</h2>
 
-      <h2>Order Details</h2>
+<button onclick="closeOrderPopup()"
+style="background:#DC2626;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;">
+✕
+</button>
+</div>
+<p><strong>Customer:</strong> <span id="dCustomer"></span></p>
+<p><strong>Phone:</strong> <span id="dPhone"></span></p>
+<p><strong>Telegram:</strong> <span id="dTelegram"></span></p>
+<p><strong>Alt Social:</strong> <span id="dAltSocial"></span></p>
 
-      <button onclick="closeOrderPopup()"
-      style="background:#DC2626;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;">
-        ✕
-      </button>
+<hr style="margin:18px 0;border-color:#334155;">
 
-    </div>
+<p><strong>City:</strong> <span id="dCity"></span></p>
+<p><strong>Township:</strong> <span id="dTownship"></span></p>
+<p><strong>Road:</strong> <span id="dRoad"></span></p>
+<p><strong>Building:</strong> <span id="dBuilding"></span></p>
+<p><strong>Address:</strong> <span id="dAddress"></span></p>
 
-    <p><strong>Customer:</strong> <span id="dCustomer"></span></p>
-    <p><strong>Phone:</strong> <span id="dPhone"></span></p>
-    <p><strong>Address:</strong> <span id="dAddress"></span></p>
+<hr style="margin:18px 0;border-color:#334155;">
 
-    <hr style="margin:18px 0;border-color:#334155;">
+<p><strong>Payment:</strong> <span id="dPayment"></span></p>
+<p><strong>Delivery Fee:</strong> <span id="dDeliFee"></span></p>
 
-    <h3>Items</h3>
+<hr style="margin:18px 0;border-color:#334155;">
 
-    <div id="dItems"></div>
+<h3>Items</h3>
+<div id="dItems"></div>
 
-    <hr style="margin:18px 0;border-color:#334155;">
+<hr style="margin:18px 0;border-color:#334155;">
 
-    <h3>Total: <span id="dTotal"></span></h3>
-
-  </div>
-
+<h3>Total: <span id="dTotal"></span></h3>
+</div>
 </div>
 
 </body>

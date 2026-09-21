@@ -55,7 +55,7 @@ async function initDb() {
       )
     `);
 
-    // သာမန်အဟောင်း Table ရှိနေပါက Column များ အလိုအလျောက် ပေါင်းထည့်ပေးမည့် စနစ်
+    // Column များ မရှိသေးပါက အလိုအလျောက် ပေါင်းထည့်ပေးမည့် စနစ်
     const alterQueries = [
       "ALTER TABLE orders ADD COLUMN telegram TEXT;",
       "ALTER TABLE orders ADD COLUMN alt_social TEXT;",
@@ -71,7 +71,7 @@ async function initDb() {
       try {
         await db.execute(q);
       } catch (e) {
-        // Column ရှိပြီးသားဆိုရင် Error တက်တာကို ကျော်သွားမည်
+        // Column ရှိပြီးသားဆိုရင် Error များကို ကျော်သွားမည်
       }
     }
 
