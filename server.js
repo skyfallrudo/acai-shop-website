@@ -141,50 +141,65 @@ function adminAuth(req, res, next) {
 }
 
 // ---------------- Send OTP ----------------
-app.post("/send-otp", (req, res) => {
-  const { email } = req.body;
+html: `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 
-  if (!email) {
-    return res.json({
-      success: false,
-      message: "Email is required"
-    });
-  }
+<body style="margin:0;padding:0;background:#0b1220;font-family:Arial,sans-serif;">
 
-  db.get(
-    "SELECT id FROM customers WHERE email=?",
-    [email],
-    async (err, user) => {
-      if (user) {
-        return res.json({
-          success: false,
-          message: "Email already exists. Please Sign In."
-        });
-      }
+<div style="max-width:500px;margin:40px auto;padding:20px;">
 
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      otpStore[email] = otp;
+  <div style="background:#111827;border:1px solid #263449;border-radius:18px;
+              padding:35px 25px;text-align:center;color:#fff;">
 
-      setTimeout(() => {
-        if (otpStore[email] === otp) delete otpStore[email];
-      }, 5 * 60 * 1000);
+    <h1 style="margin:0 0 8px;font-size:28px;color:#ffffff;">
+      Acai Shop
+    </h1>
 
-      try {
-        await resend.emails.send({
-          from: "Acai Shop <support@acaishopmm.store>",
-          to: email,
-          subject: "Verify your Acai Shop account",
-          html: `<h2>Your OTP is ${otp}</h2><p>Expires in 5 minutes.</p>`
-        });
+    <p style="margin:0 0 30px;color:#94a3b8;font-size:14px;">
+      Account Verification
+    </p>
 
-        res.json({ success: true });
-      } catch {
-        res.json({ success: false });
-      }
-    }
-  );
-});
+    <p style="font-size:16px;color:#e5e7eb;margin-bottom:25px;">
+      Your verification code is:
+    </p>
 
+    <div style="display:inline-block;background:#1e293b;
+                border:1px solid #334155;border-radius:14px;
+                padding:18px 30px;margin-bottom:25px;">
+
+      <span style="font-size:36px;font-weight:700;
+                   letter-spacing:8px;color:#ffffff;">
+        ${otp}
+      </span>
+
+    </div>
+
+    <p style="font-size:14px;color:#94a3b8;line-height:1.6;">
+      Enter this code in Acai Shop to finish creating your account.
+    </p>
+
+    <div style="margin-top:25px;padding:12px;
+                background:#172033;border-radius:10px;
+                color:#fbbf24;font-size:13px;">
+      ⏱ Expires in 5 minutes
+    </div>
+
+    <p style="margin-top:30px;font-size:12px;color:#64748b;">
+      If you did not request this code, you can safely ignore this email.
+    </p>
+
+  </div>
+
+</div>
+
+</body>
+</html>
+`
 // ---------------- Verify OTP ----------------
 app.post("/verify-otp", (req, res) => {
   const { email, otp } = req.body;
@@ -229,45 +244,65 @@ app.post("/register", async (req, res) => {
 });
 
 // ---------------- Forgot Password ----------------
-app.post("/forgot-password", (req, res) => {
-  const { email } = req.body;
+html: `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 
-  db.get(
-    "SELECT id FROM customers WHERE email=?",
-    [email],
-    async (err, user) => {
-      if (!user) {
-        return res.json({
-          success: false,
-          message: "Account not found."
-        });
-      }
+<body style="margin:0;padding:0;background:#0b1220;font-family:Arial,sans-serif;">
 
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      resetOtpStore[email] = otp;
+<div style="max-width:500px;margin:40px auto;padding:20px;">
 
-      setTimeout(() => {
-        if (resetOtpStore[email] === otp) delete resetOtpStore[email];
-      }, 5 * 60 * 1000);
+  <div style="background:#111827;border:1px solid #263449;border-radius:18px;
+              padding:35px 25px;text-align:center;color:#fff;">
 
-      try {
-        await resend.emails.send({
-          from: "Acai Shop <onboarding@resend.dev>",
-          to: email,
-          subject: "Reset Password",
-          html: `<h2>Your OTP is ${otp}</h2>`
-        });
+    <h1 style="margin:0 0 8px;font-size:28px;color:#ffffff;">
+      Acai Shop
+    </h1>
 
-        res.json({ success: true });
-      } catch {
-        res.json({
-          success: false,
-          message: "Failed to send OTP."
-        });
-      }
-    }
-  );
-});
+    <p style="margin:0 0 30px;color:#94a3b8;font-size:14px;">
+     Password Resets
+    </p>
+
+    <p style="font-size:16px;color:#e5e7eb;margin-bottom:25px;">
+      Your verification code is:
+    </p>
+
+    <div style="display:inline-block;background:#1e293b;
+                border:1px solid #334155;border-radius:14px;
+                padding:18px 30px;margin-bottom:25px;">
+
+      <span style="font-size:36px;font-weight:700;
+                   letter-spacing:8px;color:#ffffff;">
+        ${otp}
+      </span>
+
+    </div>
+
+    <p style="font-size:14px;color:#94a3b8;line-height:1.6;">
+      Enter this code in Acai Shop to reset your password.
+    </p>
+
+    <div style="margin-top:25px;padding:12px;
+                background:#172033;border-radius:10px;
+                color:#fbbf24;font-size:13px;">
+      ⏱ Expires in 5 minutes
+    </div>
+
+    <p style="margin-top:30px;font-size:12px;color:#64748b;">
+      If you did not request this code, you can safely ignore this email.
+    </p>
+
+  </div>
+
+</div>
+
+</body>
+</html>
+`
 
 // ---------------- Reset Password ----------------
 app.post("/reset-password", async (req, res) => {
@@ -801,4 +836,4 @@ app.post("/admin-logout", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-});
+});s
