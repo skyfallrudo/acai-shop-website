@@ -42,7 +42,6 @@ body {
     padding: 20px;
 }
 
-/* Background ပုံကို fixed အလွှာသီးသန့်ခွဲထုတ်ပြီး PC/Mobile ခွဲခြားပေးထားသည် */
 body::after {
     content: "";
     position: fixed;
@@ -56,21 +55,21 @@ body::after {
     z-index: -2;
 }
 
-/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
+
 @media (min-width: 769px) {
     body::after {
         background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
     }
 }
 
-/* ဖုန်း Screen များအတွက် Mobile ပုံ */
+
 @media (max-width: 768px) {
     body::after {
         background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
     }
 }
 
-/* အမည်းရောင် ပါးပါးအုပ်ထားသည့် အလွှာ (Blur မပါသောကြောင့် ပုံမဝါးပါ) */
+
 body::before {
     content: "";
     position: fixed;
@@ -209,7 +208,7 @@ button:hover {
     color: #CBD5E1;
 }
 
-/* Mobile */
+
 @media (max-width: 430px){
     .card {
         padding: 28px 18px;

@@ -45,7 +45,7 @@ body {
     align-items: flex-start;
 }
 
-/* Background ပုံကို fixed အလွှာသီးသန့်ခွဲထုတ်ပြီး PC/Mobile ခွဲခြားပေးထားသည် */
+
 body::after {
     content: "";
     position: fixed;
@@ -59,21 +59,20 @@ body::after {
     z-index: -2;
 }
 
-/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
+
 @media (min-width: 769px) {
     body::after {
         background-image: url("bg-desktop.jpg");
     }
 }
 
-/* ဖုန်း Screen များအတွက် Mobile ပုံ */
+
 @media (max-width: 768px) {
     body::after {
         background-image: url("bg-mobile.jpg");
     }
 }
 
-/* အမည်းရောင် ပါးပါးအုပ်ထားသည့် အလွှာ (Blur မပါသောကြောင့် ပုံမဝါးပါ) */
 body::before {
     content: "";
     position: fixed;

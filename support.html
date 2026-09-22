@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Support | Acai Shop</title>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-F00XQ96WFJ');
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-color: #05080f;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Background ပုံများကို local ဖိုင်များ (`bg-desktop.jpg` နှင့် `bg-mobile.jpg`) မှ ခေါ်သုံးခြင်း */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
+}
+
+@media (min-width: 769px) {
+    body::after {
+        background-image: url("bg-desktop.jpg");
+    }
+}
+
+@media (max-width: 768px) {
+    body::after {
+        background-image: url("bg-mobile.jpg");
+    }
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 8, 15, 0.65);
+    z-index: -1;
+}
+
+.card {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 430px);
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    padding: 35px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+    text-align: center;
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: white;
+    padding: 6px;
+    margin: 0 auto 18px auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    display: block;
+}
+
+h1 {
+    color: white;
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #94A3B8;
+    margin-bottom: 28px;
+    font-size: 14px;
+}
+
+.support-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 15px;
+    border-radius: 14px;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    transition: .3s;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.support-btn.telegram {
+    background: linear-gradient(135deg, #2AABEE, #229ED9);
+}
+
+.support-btn.viber {
+    background: linear-gradient(135deg, #7360F2, #5C45EE);
+}
+
+.support-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.3);
+}
+
+.back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: #334155;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: .3s;
+    margin-top: 10px;
+}
+
+.back-btn:hover {
+    transform: translateY(-2px);
+    background: #475569;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<img src="logo.jpg" class="logo" alt="Acai Shop">
+
+<h1>Customer Support</h1>
+<p class="subtitle">Need help with your order? Contact us directly via Telegram or Viber.</p>
+
+<!-- Telegram Link: @r_ud0x -->
+<a href="https://t.me/acaishopsupport" target="_blank" class="support-btn telegram">
+    <i class="fa-brands fa-telegram fa-lg"></i> Telegram for support
+</a>
+
+<!-- Viber Link: 09885411280 -->
+<a href="viber://chat?number=%2B959885411280" class="support-btn viber">
+    <i class="fa-brands fa-viber fa-lg"></i> Viber for support
+</a>
+
+<a href="index.html" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back to Home
+</a>
+
+</div>
+
+</body>
+</html>

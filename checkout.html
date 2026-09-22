@@ -45,7 +45,7 @@ body {
     color: white;
 }
 
-/* Background အလွှာသီးသန့်ခွဲထုတ်မှု (PC/Mobile ခွဲခြားပေးသည်) */
+
 body::after {
     content: "";
     position: fixed;
@@ -59,21 +59,21 @@ body::after {
     z-index: -2;
 }
 
-/* PC Screen များအတွက် Desktop Background */
+
 @media (min-width: 769px) {
     body::after {
         background-image: url("bg-desktop.jpg");
     }
 }
 
-/* ဖုန်း Screen များအတွက် Mobile ပုံ */
+
 @media (max-width: 768px) {
     body::after {
         background-image: url("bg-mobile.jpg");
     }
 }
 
-/* အမည်းရောင် Overlayer (Blur မပါသောကြောင့် စာမျက်နှာပုံမဝါးပါ) */
+
 body::before {
     content: "";
     position: fixed;
@@ -472,13 +472,13 @@ Enter your delivery information.
 
 <script>
 
-// မြို့နယ်အလိုက် ပို့ဆောင်ခ သတ်မှတ်ချက်များ (SAFE Delivery Rates)
+
 const deliRates = {
   // ရန်ကုန် - ၃,၅၀၀ ကျပ်
   "Lanmadaw": 3500, "Latha": 3500, "Pabedan": 3500, "Kyauktada": 3500,
   "Pazundaung": 3500, "Botahtaung": 3500, "Kyimyindaing": 3500, "Ahlone": 3500,
   "Sanchaung": 3500, "Insein": 3500, "Mayangone": 3500, "Hlaing": 3500,
-  "Kamayut": 3500, "South Okkalapa": 3500, "Thamaing": 3500, "Yankin": 3500,
+  "Kamayut": 3500, "South Okkalapa": 3500, "Thingangyun": 3500, "Yankin": 3500,
   "Dawbon": 3500, "Thaketa": 3500, "Tamwe": 3500, "Bahan": 3500,
   "Mingalar Taungnyunt": 3500, "Dagon": 3500,
 
@@ -504,8 +504,8 @@ const deliRates = {
   "Bago": 5000, "Taungoo": 5000, "Pyay": 5000, "Phyu": 5000, "Shwedaung": 5000, "Myanaung": 5000, "Shwegyin": 5000,
 
   // ဧရာဝတီ - ၅,၀၀၀ ကျပ်
-  "Pathein": 5000, "Hinthada": 5000, "Myaungmya": 5000, "Maubin": 5000, "Labutta": 5000, "Kyonpyaw": 5000, "Wakema": 5000,
-
+  "Pathein": 5000, "Hinthada": 5000, "Myaungmya": 5000, "Maubin": 5000, "Labutta": 5000, "Kyonpyaw": 5000, "Pantanaw": 5000,
+  
   // မွန် - ၅,၀၀၀ ကျပ်
   "Mawlamyine": 5000, "Thaton": 5000,
 
@@ -525,14 +525,14 @@ const deliRates = {
 const townshipData={
 Yangon:[
   "Lanmadaw","Latha","Pabedan","Kyauktada","Pazundaung","Botahtaung","Kyimyindaing","Ahlone","Sanchaung",
-  "Insein","Mayangone","Hlaing","Kamayut","South Okkalapa","Thamaing","Yankin","Dawbon","Thaketa","Tamwe",
+  "Insein","Mayangone","Hlaing","Kamayut","South Okkalapa","Thingangyun","Yankin","Dawbon","Thaketa","Tamwe",
   "Bahan","Mingalar Taungnyunt","Dagon","Hlaingthaya","Shwepyitha","Mingaladon","North Okkalapa","South Dagon",
   "North Dagon","East Dagon","Dagon Seikkan","Dala","Thanlyin","Hmawbi","Hlegu"
 ],
 Mandalay:["Aungmyaythazan","Chanayethazan","Chanmyathazi","Maha Aungmyay","Pyigyidagun","Amarapura","Patheingyi","Pyin Oo Lwin","Kyaukse","Myittha","Kume","Yamethin","Myingyan","Bagan","Nyaung-U","Pyawbwe"],
 Naypyidaw:["Zabuthiri","Ottarathiri","Pobbathiri","Dekkhinathiri","Pyinmana","Lewe","Tatkon","Zeyathiri"],
 Bago:["Bago","Taungoo","Pyay","Phyu","Shwedaung","Myanaung","Shwegyin"],
-Pathein:["Pathein","Hinthada","Myaungmya","Maubin","Labutta","Kyonpyaw","Wakema"],
+Pathein:["Pathein","Hinthada","Myaungmya","Maubin","Labutta","Kyonpyaw","Pantanaw"],
 Mawlamyine:["Mawlamyine","Thaton"],
 Taunggyi:["Taunggyi","Aungban"],
 Magway:["Magway","Chauk","Aunglan","Yenangyaung","Minbu","Taungdwingyi"],
