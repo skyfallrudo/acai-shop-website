@@ -36,7 +36,7 @@ body {
     background-color: #05080f;
 }
 
-/* Background ပုံကို local ဖိုင်များမှ ခေါ်သုံးခြင်း (ဥပမာ: bg-desktop.jpg နှင့် bg-mobile.jpg) */
+/* Background ပုံကို local ဖိုင်များမှ ခေါ်သုံးခြင်း */
 body::after {
     content: "";
     position: fixed;
@@ -50,7 +50,7 @@ body::after {
     z-index: -2;
 }
 
-/* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
+/* PC အတွက် Desktop ပုံ */
 @media (min-width: 769px) {
     body::after {
         background-image: url("bg-desktop.jpg");
@@ -63,7 +63,6 @@ body::after {
         background-image: url("bg-mobile.jpg");
     }
 }
-
 
 /* အမည်းရောင် အလွှာ */
 body::before {
@@ -140,6 +139,61 @@ nav {
     font-weight: 500;
 }
 
+/* Sub Navigation - Modern Card & Pill Style */
+.sub-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 6%;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: sticky;
+    top: 78px;
+    z-index: 99;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.sub-nav::-webkit-scrollbar {
+    display: none; /* Scrollbar ဖျောက်ရန် */
+}
+
+.sub-nav a {
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px; /* လုံးဝန်းသွားအောင် */
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sub-nav a:hover {
+    background: #2563EB;
+    border-color: #2563EB;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+.sub-nav a i {
+    font-size: 12px;
+    color: #60a5fa;
+    transition: 0.3s;
+}
+
+.sub-nav a:hover i {
+    color: white;
+}
+
+/* Profile Section & Dropdown Menu */
 #profile-area {
     display: none;
     position: relative;
@@ -150,18 +204,62 @@ nav {
     position: absolute;
     top: 55px;
     right: 0;
-    width: 240px;
-    background: #111827;
-    border-radius: 18px;
+    width: 210px;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
     padding: 16px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, .4);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+}
+
+.user-email-text {
+    display: block;
+    color: #94A3B8;
+    font-size: 13px;
+    margin-bottom: 10px;
+    word-break: break-all;
+}
+
+#profile-menu hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 10px 0;
 }
 
 #profile-menu a {
-    display: block;
-    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
     color: white;
     text-decoration: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+#profile-menu a:hover {
+    color: #60a5fa;
+}
+
+.logout-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    background: #ef4444;
+    color: white;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    background: #dc2626;
 }
 
 .hero {
@@ -369,19 +467,25 @@ footer {
 <a href="login.html" class="sign-btn">Sign In</a>
 </div>
 <div id="profile-area">
-<div class="icon-btn" id="profile-btn">
+<div class="icon-btn" id="profile-btn" title="My Profile">
 <i class="fa-solid fa-user"></i>
 </div>
 <div id="profile-menu">
-<p id="user-email">Loading...</p>
-<hr style="margin:10px 0;border-color:#334155;">
-<a href="profile.html">👤 My Profile</a>
-<a href="my-orders.html">📦 My Orders</a>
-<a href="#" id="logout-btn" style="color:#EF4444;">🚪 Logout</a>
+  <span id="user-email" class="user-email-text">Loading...</span>
+  <hr>
+  <a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a>
+  <button id="logoutBtn" class="logout-btn">Logout</button>
 </div>
 </div>
 </div>
 </nav>
+
+<!-- Sub Navigation Bar (Modern Pill Buttons with Icons) -->
+<div class="sub-nav">
+  <a href="my-orders.html"><i class="fa-solid fa-box-archive"></i> my orders</a>
+  <a href="waiting.html"><i class="fa-solid fa-clock"></i> waiting time</a>
+  <a href="support.html"><i class="fa-solid fa-headset"></i> customer support</a>
+</div>
 
 <section class="hero">
 <h1>Accessories For Everyone</h1>
@@ -419,6 +523,7 @@ footer {
 <footer>
 <p>© 2026 Acai Shop</p>
 <p>Accessories • Quality • Style</p>
+<p>Developer: Thant Thura</p>
 </footer>
 
 <script>
@@ -468,6 +573,7 @@ const profileArea=document.getElementById("profile-area");
 const profileBtn=document.getElementById("profile-btn");
 const profileMenu=document.getElementById("profile-menu");
 const userEmail=document.getElementById("user-email");
+const logoutBtn=document.getElementById("logoutBtn");
 
 async function loadUser(){
   try{
@@ -490,11 +596,13 @@ document.addEventListener("click",function(){
   profileMenu.style.display="none";
 });
 
-document.getElementById("logout-btn")
-.addEventListener("click",async function(e){
-  e.preventDefault();
-  await fetch("/logout",{method:"POST"});
-  window.location="login.html";
+logoutBtn.addEventListener("click", async function(){
+  try {
+    await fetch("/logout", { method: "POST" });
+    window.location.reload();
+  } catch(err) {
+    console.log(err);
+  }
 });
 
 async function loadProducts(){
