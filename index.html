@@ -338,19 +338,21 @@ nav {
     color: #60A5FA;
     text-decoration: none;
 }
-
 .products {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 280px)); 
+    justify-content: center; 
     gap: 24px;
 }
-
 .card {
     background: rgba(15, 23, 42, .82);
     border-radius: 22px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, .08);
     transition: .3s;
+    width: 100%;
+    max-width: 280px; 
+    margin: 0 auto; 
 }
 
 .card:hover {
