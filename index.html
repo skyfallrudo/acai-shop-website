@@ -36,7 +36,7 @@ body {
     background-color: #05080f;
 }
 
-/* Background ပုံကို Zoom မဖြစ်အောင် သီးသန့် Fixed အလွှာ ခွဲထုတ်ခြင်း */
+/* Background ပုံကို local ဖိုင်များမှ ခေါ်သုံးခြင်း (ဥပမာ: bg-desktop.jpg နှင့် bg-mobile.jpg) */
 body::after {
     content: "";
     position: fixed;
@@ -53,19 +53,19 @@ body::after {
 /* PC (ကွန်ပျူတာ Screen များ) အတွက် Desktop ပုံ */
 @media (min-width: 769px) {
     body::after {
-        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
+        background-image: url("bg-desktop.jpg");
     }
 }
 
 /* ဖုန်း Screen များအတွက် Mobile ပုံ */
 @media (max-width: 768px) {
     body::after {
-        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
+        background-image: url("bg-mobile.jpg");
     }
 }
 
 
-/* အမည်းရောင် အလွှာ (Blur လုံးဝ ဖြုတ်ထားသည်) */
+/* အမည်းရောင် အလွှာ */
 body::before {
     content: "";
     position: fixed;
@@ -73,7 +73,7 @@ body::before {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(5, 8, 15, 0.4); /* Blur မပါတော့လို့ အမည်းရောင်လေးပဲ ပါးပါးအုပ်ထားသည် */
+    background: rgba(5, 8, 15, 0.4); 
     z-index: -1;
 }
 
