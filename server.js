@@ -836,7 +836,108 @@ app.post("/add-product", adminAuth, (req, res) => {
   });
 
 });
+// ---------------- Update Product ----------------
 
+app.put("/update-product/:id", adminAuth, async (req, res) => {
+
+  try {
+
+    const { name, price, stock, description } = req.body;
+    const id = req.params.id;
+
+    if (!name || price === undefined || stock === undefined) {
+      return res.json({
+        success: false,
+        message: "Name, price and stock are required."
+      });
+    }
+
+    const product = await db.get(
+      "SELECT id FROM products WHERE id=?",
+      [id]
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found."
+      });
+    }
+
+    await db.run(
+      `UPDATE products
+       SET name=?, price=?, stock=?, description=?
+       WHERE id=?`,
+      [
+        name.trim(),
+        Number(price),
+        Number(stock),
+        description || "",
+        id
+      ]
+    );
+
+    res.json({
+      success: true,
+      message: "Product updated successfully."
+    });
+
+  } catch (err) {
+
+    console.error("UPDATE PRODUCT ERROR:", err);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to update product."
+    });
+
+  }
+
+});
+
+
+// ---------------- Delete Product ----------------
+
+app.delete("/delete-product/:id", adminAuth, async (req, res) => {
+
+  try {
+
+    const id = req.params.id;
+
+    const product = await db.get(
+      "SELECT id FROM products WHERE id=?",
+      [id]
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found."
+      });
+    }
+
+    await db.run(
+      "DELETE FROM products WHERE id=?",
+      [id]
+    );
+
+    res.json({
+      success: true,
+      message: "Product deleted successfully."
+    });
+
+  } catch (err) {
+
+    console.error("DELETE PRODUCT ERROR:", err);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete product."
+    });
+
+  }
+
+});
 // ---------------- Profile ----------------
 
 app.get("/profile", auth, (req, res) => {
