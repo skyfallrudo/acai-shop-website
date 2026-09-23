@@ -120,16 +120,23 @@ app.use(session({
   }
 }));
 
-// ---------------- Upload ----------------
+// ---------------- Cloudinary Upload ----------------
 
-const storage = multer.diskStorage({
-  destination: "uploads/",
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + "-" + file.originalname)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'acai-shop-products',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp']
+  }
 });
 
 const upload = multer({ storage });
-
 // ---------------- Stores ----------------
 
 const otpStore = {};
@@ -780,67 +787,53 @@ app.get("/products", (req, res) => {
   );
 
 });
+app.post("/add-product", adminAuth, (req, res) => {
 
-app.post("/add-product", upload.single("image"), (req, res) => {
+  upload.single("image")(req, res, async (err) => {
 
-  const { name, price, stock, description } = req.body;
-  const image = req.file ? req.file.filename : "";
+    if (err) {
+      console.error("UPLOAD ERROR:", err);
 
-  db.run(
-    `INSERT INTO products(name,price,stock,image,description)
-     VALUES(?,?,?,?,?)`,
-    [name, Number(price), Number(stock), image, description],
-    function (err) {
+      return res.json({
+        success: false,
+        message: err.message
+      });
+    }
 
-      if (err) {
-        return res.json({
-          success: false
-        });
-      }
+    try {
+
+      console.log("REQ.FILE:", req.file);
+
+      const { name, price, stock, description } = req.body;
+
+      const image = req.file?.secure_url || req.file?.path || "";
+
+      console.log("IMAGE SAVED:", image);
+
+      const result = await db.run(
+        `INSERT INTO products(name,price,stock,image,description)
+         VALUES(?,?,?,?,?)`,
+        [name, Number(price), Number(stock), image, description]
+      );
 
       res.json({
         success: true,
-        id: this.lastID
+        id: result.lastID,
+        image
       });
 
-    }
-  );
+    } catch (e) {
 
-});
-
-app.put("/update-product/:id", (req, res) => {
-
-  const { name, price, stock, description } = req.body;
-
-  db.run(
-    `UPDATE products
-     SET name=?,price=?,stock=?,description=?
-     WHERE id=?`,
-    [name, Number(price), Number(stock), description, req.params.id],
-    function () {
+      console.error("DB ERROR:", e);
 
       res.json({
-        success: true
+        success: false,
+        message: "Database error"
       });
 
     }
-  );
 
-});
-
-app.delete("/delete-product/:id", (req, res) => {
-
-  db.run(
-    "DELETE FROM products WHERE id=?",
-    [req.params.id],
-    function () {
-
-      res.json({
-        success: true
-      });
-
-    }
-  );
+  });
 
 });
 
