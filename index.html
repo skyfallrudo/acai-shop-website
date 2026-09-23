@@ -6,6 +6,26 @@
 <link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
 
 <title>Acai Shop</title>
+<script src="language.js"></script>
+<style>
+.language-select {
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.15);
+    background: rgba(255,255,255,.08);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    font-family: Poppins, sans-serif;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.language-select option {
+    background: #111827;
+    color: white;
+}
+</style>
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
@@ -461,12 +481,16 @@ footer {
 <h2>Acai Shop</h2>
 </div>
 <div class="nav-right">
-<a href="cart.html" class="icon-btn" style="position:relative;">
+    <select class="language-select" onchange="changeLanguage(this.value)">
+    <option value="en">English</option>
+    <option value="mm">မြန်မာ</option>
+</select>
+ <a href="cart.html" class="icon-btn" style="position:relative;">
 <i class="fa-solid fa-cart-shopping"></i>
 <span id="cart-count" style="position:absolute;top:-6px;right:-6px;background:red;width:18px;height:18px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:11px;">0</span>
 </a>
 <div id="guest-area">
-<a href="login.html" class="sign-btn">Sign In</a>
+<a href="login.html" class="sign-btn" data-lang="signIn">Sign In</a>
 </div>
 <div id="profile-area">
 <div class="icon-btn" id="profile-btn" title="My Profile">
@@ -484,14 +508,26 @@ footer {
 
 <!-- Sub Navigation Bar (Modern Pill Buttons with Icons) -->
 <div class="sub-nav">
-  <a href="my-orders.html"><i class="fa-solid fa-box-archive"></i> My Orders</a>
-  <a href="waiting.html"><i class="fa-solid fa-clock"></i> Waiting Time</a>
-  <a href="support.html"><i class="fa-solid fa-headset"></i> Customer Support</a>
+<a href="my-orders.html">
+    <i class="fa-solid fa-box-archive"></i>
+    <span data-lang="myOrders">My Orders</span>
+</a>
+<a href="waiting.html">
+    <i class="fa-solid fa-clock"></i>
+    <span data-lang="waitingTime">Waiting Time</span>
+</a>
+<a href="support.html">
+    <i class="fa-solid fa-headset"></i>
+    <span data-lang="customerSupport">Customer Support</span>
+</a>
 </div>
 
 <section class="hero">
-<h1>Accessories For Everyone</h1>
-<p>Discover trendy accessories, keychains, phone accessories, wallets, jewelry and more — all in one place.</p>
+<h1 data-lang="heroTitle">Accessories For Everyone</h1>
+
+<p data-lang="heroDescription">
+    Discover trendy accessories, keychains, phone accessories, wallets, jewelry and more — all in one place.
+</p>
 <div class="search">
 <i class="fa-solid fa-magnifying-glass"></i>
 <input id="searchInput" placeholder="Search products...">
@@ -525,9 +561,11 @@ footer {
 <footer>
 <p>© 2026 Acai Shop</p>
 <p>Accessories • Quality • Style</p>
-<p>Developer: Thant Thura</p>
+<div style="border: 2px solid #6cc2f3; padding: 10px 15px; display: inline-block; border-radius: 6px; margin-top: 10px;">
+    <p style="margin: 0 0 5px 0;">Developer and Founder: Rudox</p>
+    <p style="margin: 0;">Creative lead and Co-founder: Valrqx</p>
+</div>
 </footer>
-
 <script>
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
