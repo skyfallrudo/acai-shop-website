@@ -203,7 +203,7 @@ table{display:block;overflow-x:auto;}
 let lastOrderCount=0;
 
 (async function(){
-const res=await fetch("/admin-check");
+const res=await fetch("/admin-check", { credentials: 'include' });
 const data=await res.json();
 if(data.loggedIn){
 document.getElementById("loginOverlay").style.display="none";
@@ -223,7 +223,8 @@ const password=document.getElementById("adminPassword").value;
 const res=await fetch("/admin-login",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({username,password})
+body:JSON.stringify({username,password}),
+credentials: 'include'
 });
 
 const data=await res.json();
@@ -237,7 +238,7 @@ alert(data.message||"Wrong username or password");
 }
 
 async function adminLogout(){
-await fetch("/admin-logout",{method:"POST"});
+await fetch("/admin-logout",{method:"POST", credentials: 'include'});
 location.reload();
 }
 
@@ -262,7 +263,13 @@ svg.innerHTML+=`
 }
 
 async function loadDashboard(){
-const a=await fetch("/admin/dashboard").then(r=>r.json());
+try {
+const res=await fetch("/admin/dashboard", { credentials: 'include' });
+if(res.status === 401) {
+    document.getElementById("loginOverlay").style.display="flex";
+    return;
+}
+const a=await res.json();
 
 document.getElementById("todayRevenue").innerText=
 Number(a.todayRevenue||0).toLocaleString()+" MMK";
@@ -283,11 +290,18 @@ drawChart(a.weekly||{});
 await loadProducts();
 await loadOrders();
 await loadCustomers();
+} catch(err) {
+console.error("Dashboard load error:", err);
 }
+}
+
 async function loadProducts(){
-const products=await fetch("/products").then(r=>r.json());
+try {
+const res=await fetch("/products", { credentials: 'include' });
+const products=await res.json();
 const table=document.getElementById("productTable");
 table.innerHTML="";
+if(!Array.isArray(products)) return;
 products.forEach(p=>{
 table.innerHTML+=`
 <tr>
@@ -308,6 +322,9 @@ Delete
 </td>
 </tr>`;
 });
+} catch(err) {
+console.error("Products load error:", err);
+}
 }
 
 document.getElementById("productForm").addEventListener("submit",async function(e){
@@ -316,7 +333,8 @@ const formData=new FormData(this);
 
 const res=await fetch("/add-product",{
 method:"POST",
-body:formData
+body:formData,
+credentials: 'include'
 });
 
 const data=await res.json();
@@ -346,7 +364,8 @@ name:newName,
 price:Number(newPrice),
 stock:Number(newStock),
 description:newDesc
-})
+}),
+credentials: 'include'
 });
 
 loadProducts();
@@ -356,16 +375,21 @@ async function deleteProduct(id){
 if(!confirm("Delete product?")) return;
 
 await fetch("/delete-product/"+id,{
-method:"DELETE"
+method:"DELETE",
+credentials: 'include'
 });
 
 loadProducts();
 }
 
 async function loadOrders(){
-const orders=await fetch("/admin/orders").then(r=>r.json());
+try {
+const res=await fetch("/admin/orders", { credentials: 'include' });
+const orders=await res.json();
 const table=document.getElementById("orderTable");
 table.innerHTML="";
+
+if(!Array.isArray(orders)) return;
 
 orders.forEach(o=>{
 table.innerHTML+=`
@@ -397,13 +421,17 @@ Delete
 </td>
 </tr>`;
 });
+} catch(err) {
+console.error("Orders load error:", err);
+}
 }
 
 async function changeStatus(id,status){
 await fetch("/admin/orders/"+id+"/status",{
 method:"PUT",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({status})
+body:JSON.stringify({status}),
+credentials: 'include'
 });
 }
 
@@ -411,14 +439,15 @@ async function deleteOrder(id){
 if(!confirm("Delete order?")) return;
 
 await fetch("/admin/orders/"+id,{
-method:"DELETE"
+method:"DELETE",
+credentials: 'include'
 });
 
 loadOrders();
 }
-async function viewOrder(id){
 
-const order=await fetch("/admin/orders/"+id).then(r=>r.json());
+async function viewOrder(id){
+const order=await fetch("/admin/orders/"+id, { credentials: 'include' }).then(r=>r.json());
 
 document.getElementById("dCustomer").textContent=order.customer||"-";
 document.getElementById("dPhone").textContent=order.phone||"-";
@@ -451,14 +480,19 @@ box.innerHTML+=`
 
 document.getElementById("orderPopup").style.display="flex";
 }
+
 function closeOrderPopup(){
 document.getElementById("orderPopup").style.display="none";
 }
 
 async function loadCustomers(){
-const customers=await fetch("/admin/customers").then(r=>r.json());
+try {
+const res=await fetch("/admin/customers", { credentials: 'include' });
+const customers=await res.json();
 const table=document.getElementById("customerTable");
 table.innerHTML="";
+
+if(!Array.isArray(customers)) return;
 
 customers.forEach(c=>{
 table.innerHTML+=`
@@ -474,13 +508,17 @@ Delete
 </td>
 </tr>`;
 });
+} catch(err) {
+console.error("Customers load error:", err);
+}
 }
 
 async function deleteCustomer(id){
 if(!confirm("Delete customer?")) return;
 
 const res=await fetch("/admin/customers/"+id,{
-method:"DELETE"
+method:"DELETE",
+credentials: 'include'
 });
 
 const data=await res.json();
