@@ -27,6 +27,7 @@
 }
 </style>
 
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
@@ -349,15 +350,16 @@ nav {
 .section {
     padding: 10px 6% 30px;
 }
-
-.section-title {
+.section-title{
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
     margin-bottom: 18px;
+    padding: 0 8px;
 }
 
-.section-title a {
+.section-title a{
     color: #60A5FA;
     text-decoration: none;
 }
@@ -530,41 +532,42 @@ footer {
 </p>
 <div class="search">
 <i class="fa-solid fa-magnifying-glass"></i>
-<input id="searchInput" placeholder="Search products...">
+<input id="searchInput" placeholder="Search products" data-lang-placeholder="searchPlaceholder">
 </div>
 </section>
 
 <section class="categories">
-<button>New</button>
-<button>Keychains</button>
-<button>Phone</button>
-<button>Wallets</button>
-<button>Jewelry</button>
-<button>Bags</button>
-<button>More</button>
+<button data-lang="new">New</button>
+<button data-lang="keychains">Keychains</button>
+<button data-lang="phone">Phone</button>
+<button data-lang="wallets">Wallets</button>
+<button data-lang="jewelry">Jewelry</button>
+<button data-lang="bags">Bags</button>
+<button data-lang="more">More</button>
 </section>
-
 <section class="section">
-<div class="section-title">
-<h2>New Arrivals</h2>
-<a href="#">See All</a>
-</div>
-<div class="products" id="productList"></div>
+  <div class="section-title">
+    <h2 data-lang="newArrivals">New Arrivals</h2>
+    <a href="#" data-lang="seeAll">See All</a>
+  </div>
+
+  <div class="products" id="productList"></div>
 </section>
 
 <section class="banner">
-<h2>Shop The Latest Collection</h2>
-<p>Premium quality accessories with affordable prices.</p>
-<button onclick="window.scrollTo({top:0,behavior:'smooth'})">Shop Now</button>
+    <h2 data-lang="shopLatestTitle">Shop The Latest Collection</h2>
+    <p data-lang="shopLatestDesc">Premium quality accessories with affordable prices.</p>
+    <button data-lang="shopNow" onclick="window.scrollTo({top:0,behavior:'smooth'})">Shop Now</button>
 </section>
 
 <footer>
-<p>© 2026 Acai Shop</p>
-<p>Accessories • Quality • Style</p>
-<div style="border: 2px solid #6cc2f3; padding: 10px 15px; display: inline-block; border-radius: 6px; margin-top: 10px;">
-    <p style="margin: 0 0 5px 0;">Developer and Founder: Rudox</p>
-    <p style="margin: 0;">Creative lead and Co-founder: Valrqx</p>
-</div>
+    <p>© 2026 Acai Shop</p>
+    <p data-lang="footerTagline">Accessories • Quality • Style</p>
+
+    <div style="border:2px solid #6cc2f3;padding:10px 15px;display:inline-block;border-radius:6px;margin-top:10px;">
+        <p style="margin:0 0 5px 0;" data-lang="developer">Developer and Founder: Rudox</p>
+        <p style="margin:0;" data-lang="creativeLead">Creative lead and Co-founder: Valrqx</p>
+    </div>
 </footer>
 <script>
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
