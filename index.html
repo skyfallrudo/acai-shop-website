@@ -603,27 +603,34 @@ logoutBtn.addEventListener("click", async function(){
     console.log(err);
   }
 });
-
 async function loadProducts(){
   try{
-    const products=await fetch("/products").then(r=>r.json());
-    const list=document.getElementById("productList");
-    list.innerHTML="";
-    products.forEach(p=>{
+    const products = await fetch("/products").then(r => r.json());
+    const list = document.getElementById("productList");
+    list.innerHTML = "";
+
+    products.forEach(p => {
+
+      const imageUrl = p.image
+        ? (p.image.startsWith("http") ? p.image : "/uploads/" + p.image)
+        : "logo.jpg";
+
       list.innerHTML += `
       <div class="card">
-        <img src="${p.image?'/uploads/'+p.image:'logo.jpg'}">
+        <img src="${imageUrl}" alt="${p.name}">
         <div class="card-content">
           <h3>${p.name}</h3>
           <div class="price">${Number(p.price).toLocaleString()} MMK</div>
           <div class="stock">Stock: ${p.stock}</div>
-          <button class="buy-btn" onclick="addToCart('${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})" ${Number(p.stock)<=0?"disabled":""}>
-          ${Number(p.stock)<=0?"Out of Stock":"Add to Cart"}
+          <button class="buy-btn"
+            onclick="addToCart('${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})"
+            ${Number(p.stock)<=0?"disabled":""}>
+            ${Number(p.stock)<=0?"Out of Stock":"Add to Cart"}
           </button>
         </div>
-      </div>
-      `;
+      </div>`;
     });
+
   }catch(err){
     console.log(err);
   }
