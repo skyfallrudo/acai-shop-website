@@ -654,6 +654,7 @@ async function loadProducts(){
     list.innerHTML = ""; 
 
     const lang = localStorage.getItem("language") || "en";
+    const t = translations[lang] || translations.en;
 
     products.forEach(p => { 
 
@@ -661,21 +662,30 @@ async function loadProducts(){
         ? (p.image.startsWith("http") ? p.image : "/uploads/" + p.image) 
         : "logo.jpg"; 
 
+      const stockText = t.stock || "Stock";
+      const addText = t.addToCart || "Add to Cart";
+      const outText = t.outOfStock || "Out of Stock";
+
       list.innerHTML += ` 
       <div class="card"> 
         <img src="${imageUrl}" alt="${p.name}"> 
+
         <div class="card-content"> 
           <h3>${p.name}</h3> 
-          <div class="price">${Number(p.price).toLocaleString()} MMK</div> 
-          <div class="stock">${translations[lang].stock}: ${p.stock}</div> 
+
+          <div class="price">
+            ${Number(p.price).toLocaleString()} MMK
+          </div> 
+
+          <div class="stock">
+            ${stockText}: ${p.stock}
+          </div> 
 
           <button class="buy-btn" 
             onclick="addToCart('${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})" 
-            ${Number(p.stock)<=0 ? "disabled" : ""}> 
-
-            ${Number(p.stock)<=0 
-              ? translations[lang].outOfStock 
-              : translations[lang].addToCart}
+            ${Number(p.stock) <= 0 ? "disabled" : ""}>
+            
+            ${Number(p.stock) <= 0 ? outText : addText}
 
           </button> 
         </div> 
@@ -686,7 +696,6 @@ async function loadProducts(){
     console.log(err); 
   } 
 }
-
 updateCartCount();
 loadUser();
 loadProducts();
