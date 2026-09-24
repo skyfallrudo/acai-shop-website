@@ -61,7 +61,6 @@ addToCart: "ခြင်းတောင်းထဲထည့်ရန်",
 outOfStock: "ပစ္စည်းပြတ်နေသည်",
   }
 };
-
 function changeLanguage(lang) {
   localStorage.setItem("language", lang);
 
@@ -80,4 +79,13 @@ function changeLanguage(lang) {
       element.placeholder = translations[lang][key];
     }
   });
+
+  if (typeof loadProducts === "function") {
+    loadProducts();
+  }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const language = localStorage.getItem("language") || "en";
+  changeLanguage(language);
+});
