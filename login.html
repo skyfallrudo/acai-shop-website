@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign In | Acai Shop</title>
+<script src="language.js"></script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
@@ -40,7 +41,6 @@ body {
     padding: 20px;
 }
 
-
 body::after {
     content: "";
     position: fixed;
@@ -54,20 +54,17 @@ body::after {
     z-index: -2;
 }
 
-
 @media (min-width: 769px) {
     body::after {
         background-image: url("bg-desktop.jpg");
     }
 }
 
-
 @media (max-width: 768px) {
     body::after {
         background-image: url("bg-mobile.jpg");
     }
 }
-
 
 body::before {
     content: "";
@@ -78,6 +75,32 @@ body::before {
     height: 100vh;
     background: rgba(5, 8, 15, 0.45);
     z-index: -1;
+}
+
+.lang-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+}
+
+.language-select {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.15);
+    background: rgba(15, 23, 42, 0.85);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    font-family: Poppins, sans-serif;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: 13px;
+}
+
+.language-select option {
+    background: #111827;
+    color: white;
 }
 
 .card {
@@ -210,91 +233,85 @@ button:hover {
 
 <body>
 
+<div class="lang-container">
+    <select class="language-select" onchange="changeLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="mm">မြန်မာ</option>
+    </select>
+</div>
+
 <div class="card">
+    <img class="logo" src="logo.jpg" alt="Logo">
 
-<img class="logo" src="logo.jpg" alt="Logo">
+    <h1 data-lang="welcomeBack">Welcome Back</h1>
+    <p class="subtitle" data-lang="signInSubtitle">Sign in to continue shopping.</p>
 
-<h1>Welcome Back</h1>
+    <form id="loginForm">
+        <div class="input-box">
+            <i class="fa-solid fa-envelope"></i>
+            <input id="email" type="email" placeholder="Email" data-lang-placeholder="emailPlaceholder" required>
+        </div>
 
-<p class="subtitle">
-Sign in to continue shopping.
-</p>
+        <div class="input-box">
+            <i class="fa-solid fa-lock"></i>
+            <input id="password" type="password" placeholder="Password" data-lang-placeholder="passwordPlaceholder" required>
+        </div>
 
-<form id="loginForm">
+        <div style="text-align:right; margin:-8px 0 18px;">
+            <a href="forgot-password.html" style="color:#60A5FA; text-decoration:none; font-size:14px; font-weight:500;" data-lang="forgotPassword">Forgot Password?</a>
+        </div>
 
-<div class="input-box">
-<i class="fa-solid fa-envelope"></i>
-<input id="email" type="email" placeholder="Email" required>
-</div>
+        <button type="submit" id="loginBtn">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            <span data-lang="signInBtnText">Sign In</span>
+        </button>
 
-<div class="input-box">
-<i class="fa-solid fa-lock"></i>
-<input id="password" type="password" placeholder="Password" required>
-</div>
+        <div class="loading" id="loading" data-lang="signingInText">Signing in...</div>
+    </form>
 
-<div style="text-align:right; margin:-8px 0 18px;">
-  <a href="forgot-password.html" style="color:#60A5FA; text-decoration:none; font-size:14px; font-weight:500;">
-    Forgot Password?
-  </a>
-</div>
-
-<button type="submit" id="loginBtn">
-<i class="fa-solid fa-arrow-right-to-bracket"></i>
-Sign In
-</button>
-
-<div class="loading" id="loading">
-Signing in...
-</div>
-
-</form>
-
-<div class="link">
-Don't have an account?
-<a href="register.html">Register</a>
-</div>
-
+    <div class="link">
+        <span data-lang="noAccountText">Don't have an account?</span>
+        <a href="register.html" data-lang="registerLink">Register</a>
+    </div>
 </div>
 
 <script>
 document.getElementById("loginForm").addEventListener("submit", async function(e){
+    e.preventDefault();
 
-e.preventDefault();
+    const btn = document.getElementById("loginBtn");
+    const loading = document.getElementById("loading");
 
-const btn = document.getElementById("loginBtn");
-const loading = document.getElementById("loading");
+    btn.disabled = true;
+    loading.style.display = "block";
 
-btn.disabled = true;
-loading.style.display = "block";
+    try {
+        const res = await fetch("/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: document.getElementById("email").value,
+                password: document.getElementById("password").value
+            })
+        });
 
-try {
-  const res = await fetch("/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      email: document.getElementById("email").value,
-      password: document.getElementById("password").value
-    })
-  });
+        const data = await res.json();
 
-  const data = await res.json();
+        loading.style.display = "none";
+        btn.disabled = false;
 
-  loading.style.display = "none";
-  btn.disabled = false;
-
-  if(data.success){
-    window.location = "index.html";
-  } else {
-    alert(data.message || "Wrong email or password");
-  }
-} catch (err) {
-  loading.style.display = "none";
-  btn.disabled = false;
-  alert("Cannot connect to server.");
-}
-
+        if(data.success){
+            window.location = "index.html";
+        } else {
+            alert(data.message || "Wrong email or password");
+        }
+    } catch (err) {
+        loading.style.display = "none";
+        btn.disabled = false;
+        alert("Cannot connect to server.");
+    }
 });
 </script>
 

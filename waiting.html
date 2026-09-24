@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Waiting Time & Delivery Policy | Acai Shop</title>
+<script src="language.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
@@ -85,6 +86,25 @@ nav {
 
 .logo h2 {
     font-size: 24px;
+}
+
+/* Language Selector Style */
+.language-select {
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.15);
+    background: rgba(255,255,255,.08);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    font-family: Poppins, sans-serif;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.language-select option {
+    background: #111827;
+    color: white;
 }
 
 .sub-nav {
@@ -240,115 +260,116 @@ footer {
 <img src="logo.jpg" alt="Acai Shop">
 <h2>Acai Shop</h2>
 </div>
+<div>
+    <select class="language-select" onchange="changeLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="mm">မြန်မာ</option>
+    </select>
+</div>
 </nav>
 
 <div class="sub-nav">
-  <a href="index.html"><i class="fa-solid fa-house"></i> Homepage</a>
-  <a href="cart.html"><i class="fa-solid fa-bag-shopping"></i> Checkout</a>
-  <a href="my-orders.html"><i class="fa-solid fa-box-archive"></i> My Orders</a>
-  <a href="waiting.html" class="active"><i class="fa-solid fa-clock"></i> Waiting Time</a>
-  <a href="support.html"><i class="fa-solid fa-headset"></i> Customer Support</a>
+  <a href="index.html"><i class="fa-solid fa-house"></i> <span data-lang="home">Homepage</span></a>
+  <a href="cart.html"><i class="fa-solid fa-bag-shopping"></i> <span data-lang="checkout">Checkout</span></a>
+  <a href="my-orders.html"><i class="fa-solid fa-box-archive"></i> <span data-lang="myOrders">My Orders</span></a>
+  <a href="waiting.html" class="active"><i class="fa-solid fa-clock"></i> <span data-lang="waitingTime">Waiting Time</span></a>
+  <a href="support.html"><i class="fa-solid fa-headset"></i> <span data-lang="customerSupport">Customer Support</span></a>
 </div>
 
 <div class="container">
     <div class="policy-card">
-        <h1><i class="fa-solid fa-truck-fast"></i> Safe Delivery & Waiting Time Policy</h1>
+        <h1><i class="fa-solid fa-truck-fast"></i> <span data-lang="waitingTitlePolicy">Safe Delivery & Waiting Time Policy</span></h1>
         
-        <p>At Acai Shop, we work alongside <strong>Safe Delivery</strong> to ensure your packages reach you securely. Below are our regional delivery fees and waiting times. You can comfortably shop using our **Cash on Delivery (COD)** system with no prepayment required.</p>
+        <p data-lang="waitingDesc1">At Acai Shop, we work alongside <strong>Safe Delivery</strong> to ensure your packages reach you securely. Below are our regional delivery fees and waiting times. You can comfortably shop using our <strong>Cash on Delivery (COD)</strong> system with no prepayment required.</p>
 
         <div class="highlight-box">
-            <h3><i class="fa-solid fa-circle-info"></i> Delivery Policy & Timeframe</h3>
-            <p>Orders are typically delivered within <strong>3 days</strong> depending on transportation and regional logistics conditions.</p>
+            <h3><i class="fa-solid fa-circle-info"></i> <span data-lang="deliveryPolicyTitle">Delivery Policy & Timeframe</span></h3>
+            <p data-lang="deliveryPolicyDesc">Orders are typically delivered within <strong>3 days</strong> depending on transportation and regional logistics conditions.</p>
         </div>
 
         <h3 style="color: #38bdf8; margin-top: 30px; margin-bottom: 15px;">
-            <i class="fa-solid fa-map-location-dot"></i> Delivery Fee & Region Table
+            <i class="fa-solid fa-map-location-dot"></i> <span data-lang="feeTableTitle">Delivery Fee & Region Table</span>
         </h3>
 
         <table class="pricing-table">
             <thead>
                 <tr>
-                    <th>Region / Township Details</th>
-                    <th>Delivery Fee</th>
-                    <th>Waiting Time</th>
+                    <th data-lang="tableColRegion">Region / Township Details</th>
+                    <th data-lang="tableColFee">Delivery Fee</th>
+                    <th data-lang="tableColTime">Waiting Time</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Yangon 3,500 MMK Tier -->
                 <tr>
-                    <td><strong>Yangon (3,500 MMK Townships)</strong><br><small>Lanmadaw, Latha, Pabedan, Kyauktada, Pazundaung, Botahtaung, Kyimyindaing, Ahlone, Sanchaung, Insein, Mayangone, Hlaing, Kamayut, South Okkalapa, Thingangyun, Yankin, Dawbon, Thaketa, Tamwe, Bahan, Mingalar Taung Nyunt, Dagon</small></td>
+                    <td><strong><span data-lang="yangonT1Title">Yangon (3,500 MMK Townships)</span></strong><br><small data-lang="yangonT1Sub">Lanmadaw, Latha, Pabedan, Kyauktada, Pazundaung, Botahtaung, Kyimyindaing, Ahlone, Sanchaung, Insein, Mayangone, Hlaing, Kamayut, South Okkalapa, Thingangyun, Yankin, Dawbon, Thaketa, Tamwe, Bahan, Mingalar Taung Nyunt, Dagon</small></td>
                     <td>3,500 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
-                <!-- Yangon 4,000 MMK Tier -->
                 <tr>
-                    <td><strong>Yangon (4,000 MMK Townships)</strong><br><small>Hlaingtharyar, Shwepyithar, North Okkalapa, South Dagon, North Dagon, East Dagon, Dagon Seikkan, Dala, Thanlyin (Up to Kyaik Khauk Pagoda) </small></td>
+                    <td><strong><span data-lang="yangonT2Title">Yangon (4,000 MMK Townships)</span></strong><br><small data-lang="yangonT2Sub">Hlaingtharyar, Shwepyithar, North Okkalapa, South Dagon, North Dagon, East Dagon, Dagon Seikkan, Dala, Thanlyin (Up to Kyaik Khauk Pagoda)</small></td>
                     <td>4,000 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
-                <!-- Yangon 4,500 MMK Tier -->
                 <tr>
-                    <td><strong>Yangon (4,500 MMK Townships)</strong><br><small>Hmawbi (Up to City Market), Hlegu (Up to City Market)</small></td>
+                    <td><strong><span data-lang="yangonT3Title">Yangon (4,500 MMK Townships)</span></strong><br><small data-lang="yangonT3Sub">Hmawbi (Up to City Market), Hlegu (Up to City Market)</small></td>
                     <td>4,500 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
-                <!-- Other Regions/States -->
                 <tr>
-                    <td><strong>Mandalay</strong></td>
+                    <td><strong><span data-lang="mandalay">Mandalay</span></strong></td>
                     <td>5,000 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
                 <tr>
-                    <td><strong>Naypyitaw</strong></td>
+                    <td><strong><span data-lang="naypyitaw">Naypyitaw</span></strong></td>
                     <td>5,000 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
                 <tr>
-                    <td><strong>Sagaing Region</strong></td>
+                    <td><strong><span data-lang="sagaing">Sagaing Region</span></strong></td>
                     <td>5,000 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
                 <tr>
-                    <td><strong>Bago Region</strong></td>
+                    <td><strong><span data-lang="bago">Bago Region</span></strong></td>
                     <td>5,000 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
                 <tr>
-                    <td><strong>Magway Region</strong></td>
+                    <td><strong><span data-lang="magway">Magway Region</span></strong></td>
                     <td>5,000 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
                 <tr>
-                    <td><strong>Ayeyarwady Region</strong></td>
+                    <td><strong><span data-lang="ayeyarwady">Ayeyarwady Region</span></strong></td>
                     <td>5,000 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
                 <tr>
-                    <td><strong>Mon State</strong></td>
+                    <td><strong><span data-lang="mon">Mon State</span></strong></td>
                     <td>5,000 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
                 <tr>
-                    <td><strong>Shan State</strong></td>
+                    <td><strong><span data-lang="shan">Shan State</span></strong></td>
                     <td>5,000 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
-                <!-- Myawaddy -->
                 <tr>
-                    <td><strong>Myawaddy</strong></td>
+                    <td><strong><span data-lang="myawaddy">Myawaddy</span></strong></td>
                     <td>7,000 MMK</td>
-                    <td><span class="badge-time">Within 3 Days</span></td>
+                    <td><span class="badge-time" data-lang="within3Days">Within 3 Days</span></td>
                 </tr>
             </tbody>
         </table>
 
-        <p style="margin-top: 25px;"><strong>Important Note:</strong> Since we use **Cash on Delivery (COD)**, please keep your phone reachable for the delivery rider and ensure your delivery address details are accurate.</p>
+        <p style="margin-top: 25px;"><strong data-lang="importantNoteHeading">Important Note:</strong> <span data-lang="importantNoteDesc">Since we use **Cash on Delivery (COD)**, please keep your phone reachable for the delivery rider and ensure your delivery address details are accurate.</span></p>
     </div>
 </div>
 
 <footer>
     <p>© 2026 Acai Shop • All Rights Reserved</p>
-    <p>Safe Delivery Partner • Quality • Speed • Trust</p>
+    <p data-lang="footerPartner">Safe Delivery Partner • Quality • Speed • Trust</p>
 </footer>
 
 </body>

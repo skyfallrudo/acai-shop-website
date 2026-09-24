@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Create Account | Acai Shop</title>
+<script src="language.js"></script>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
@@ -41,7 +43,6 @@ body {
     padding: 20px 0;
 }
 
-
 body::after {
     content: "";
     position: fixed;
@@ -55,20 +56,17 @@ body::after {
     z-index: -2;
 }
 
-
 @media (min-width: 769px) {
     body::after {
         background-image: url("bg-desktop.jpg");
     }
 }
 
-
 @media (max-width: 768px) {
     body::after {
         background-image: url("bg-mobile.jpg");
     }
 }
-
 
 body::before {
     content: "";
@@ -79,6 +77,33 @@ body::before {
     height: 100vh;
     background: rgba(5, 8, 15, 0.4);
     z-index: -1;
+}
+
+/* Language Switcher Styling */
+.lang-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+}
+
+.language-select {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.15);
+    background: rgba(15, 23, 42, 0.85);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    font-family: Poppins, sans-serif;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: 13px;
+}
+
+.language-select option {
+    background: #111827;
+    color: white;
 }
 
 .glow {
@@ -187,6 +212,10 @@ button {
     font-weight: 600;
     cursor: pointer;
     transition: .3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
 }
 
 button:hover {
@@ -268,59 +297,58 @@ button:hover {
 
 <body>
 
+<!-- Language Switcher Dropdown -->
+<div class="lang-container">
+    <select class="language-select" onchange="changeLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="mm">မြန်မာ</option>
+    </select>
+</div>
+
 <div class="glow"></div>
 
 <div class="card">
+    <div class="logo">
+        <img src="logo.jpg" alt="Logo">
+    </div>
 
-<div class="logo">
-<img src="logo.jpg" alt="Logo">
-</div>
+    <h1 data-lang="createAccountTitle">Create Account</h1>
 
-<h1>Create Account</h1>
+    <p data-lang="createAccountSubtitle">Enter your email and password to receive a verification code.</p>
 
-<p>Enter your email and password to receive a verification code.</p>
+    <form onsubmit="event.preventDefault(); sendOTP();">
+        <div class="input">
+            <i class="fa-regular fa-envelope"></i>
+            <input type="email" id="email" placeholder="Email Address" data-lang-placeholder="emailPlaceholder" required>
+        </div>
 
-<form onsubmit="event.preventDefault(); sendOTP();">
+        <div class="input">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="password" placeholder="Password" data-lang-placeholder="passwordPlaceholder" required>
+        </div>
 
-<div class="input">
-<i class="fa-regular fa-envelope"></i>
-<input type="email" id="email" placeholder="Email Address" required>
-</div>
+        <button type="submit">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span data-lang="sendOtpBtnText">Send OTP</span>
+        </button>
+    </form>
 
-<div class="input">
-<i class="fa-solid fa-lock"></i>
-<input type="password" id="password" placeholder="Password" required>
-</div>
-
-<button type="submit">
-<i class="fa-solid fa-paper-plane"></i>
- Send OTP
-</button>
-
-</form>
-
-<div class="footer">
-Already have an account?
-<a href="login.html">Sign In</a>
-</div>
-
+    <div class="footer">
+        <span data-lang="alreadyHaveAccount">Already have an account?</span>
+        <a href="login.html" data-lang="signInLink">Sign In</a>
+    </div>
 </div>
 
 <div id="loadingOverlay" class="loading-overlay">
-<div class="loading-box">
-
-<div class="spinner"></div>
-
-<h3>Sending verification code...</h3>
-
-<p>Please wait a moment.</p>
-
-</div>
+    <div class="loading-box">
+        <div class="spinner"></div>
+        <h3 data-lang="sendingCodeTitle">Sending verification code...</h3>
+        <p data-lang="pleaseWaitText">Please wait a moment.</p>
+    </div>
 </div>
 
 <script>
 async function sendOTP(){
-
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const loading = document.getElementById("loadingOverlay");
@@ -328,7 +356,6 @@ async function sendOTP(){
   loading.style.display = "flex";
 
   try {
-
     const res = await fetch("/send-otp", {
       method: "POST",
       headers: {
@@ -340,27 +367,19 @@ async function sendOTP(){
     const data = await res.json();
 
     if(data.success){
-
       window.location =
         "verify.html?email=" +
         encodeURIComponent(email) +
         "&password=" +
         encodeURIComponent(password);
-
     } else {
-
       loading.style.display = "none";
       alert(data.message || "Failed to send OTP.");
-
     }
-
   } catch(err) {
-
     loading.style.display = "none";
     alert("Cannot connect to server.");
-
   }
-
 }
 </script>
 

@@ -15,6 +15,8 @@
   gtag('config', 'G-F00XQ96WFJ');
 </script>
 
+<script src="language.js"></script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -45,7 +47,6 @@ body {
     align-items: flex-start;
 }
 
-
 body::after {
     content: "";
     position: fixed;
@@ -59,13 +60,11 @@ body::after {
     z-index: -2;
 }
 
-
 @media (min-width: 769px) {
     body::after {
         background-image: url("bg-desktop.jpg");
     }
 }
-
 
 @media (max-width: 768px) {
     body::after {
@@ -82,6 +81,32 @@ body::before {
     height: 100vh;
     background: rgba(5, 8, 15, 0.68);
     z-index: -1;
+}
+
+.lang-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+}
+
+.language-select {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.15);
+    background: rgba(15, 23, 42, 0.85);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    font-family: Poppins, sans-serif;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: 13px;
+}
+
+.language-select option {
+    background: #111827;
+    color: white;
 }
 
 .container {
@@ -317,23 +342,30 @@ h1 {
 
 <body>
 
+<div class="lang-container">
+    <select class="language-select" onchange="changeLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="mm">မြန်မာ</option>
+    </select>
+</div>
+
 <div class="container">
 
 <a href="index.html" class="back">
-    <i class="fa-solid fa-arrow-left"></i> Continue Shopping
+    <i class="fa-solid fa-arrow-left"></i> <span data-lang="continueShopping">Continue Shopping</span>
 </a>
 
-<h1>Shopping Cart</h1>
+<h1 data-lang="shoppingCartTitle">Shopping Cart</h1>
 
 <div id="cartItems"></div>
 
 <div class="total-box">
-    <span>Total</span>
+    <span data-lang="totalText">Total</span>
     <span id="total">0 MMK</span>
 </div>
 
 <button id="checkoutBtn" class="checkout">
-    <i class="fa-solid fa-credit-card"></i> Proceed to Checkout
+    <i class="fa-solid fa-credit-card"></i> <span data-lang="proceedCheckout">Proceed to Checkout</span>
 </button>
 
 </div>
@@ -369,12 +401,19 @@ function renderCart(){
 
     let total = 0;
 
+    const currentLang = localStorage.getItem("language") || "en";
+    const t = translations[currentLang] || translations.en;
+
+    const stockLabel = t.stock || "Stock";
+    const removeLabel = t.remove || "Remove";
+    const emptyText = t.cartEmpty || "Your cart is empty";
+
     if(cart.length===0){
 
         list.innerHTML = `
             <div class="empty">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <h2>Your cart is empty</h2>
+                <h2>${emptyText}</h2>
             </div>
         `;
 
@@ -393,7 +432,7 @@ function renderCart(){
                 <div class="item-details">
                     <h3>${item.name}</h3>
                     <p class="price">${Number(item.price).toLocaleString()} MMK</p>
-                    <small class="stock-info"><i class="fa-solid fa-box-archive"></i> Stock: ${stock}</small>
+                    <small class="stock-info"><i class="fa-solid fa-box-archive"></i> ${stockLabel}: ${stock}</small>
                 </div>
 
                 <div class="qty">
@@ -414,7 +453,7 @@ function renderCart(){
                         class="remove"
                         onclick="removeItem(${index})"
                     >
-                        <i class="fa-solid fa-trash-can"></i> Remove
+                        <i class="fa-solid fa-trash-can"></i> ${removeLabel}
                     </button>
 
                 </div>
@@ -432,7 +471,6 @@ function changeQty(index,change){
     const stock = getStock(cart[index].name);
 
     if(change===1 && cart[index].qty>=stock){
-
         alert("Only "+stock+" items left.");
         return;
     }

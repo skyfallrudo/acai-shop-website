@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checkout | Acai Shop</title>
+<script src="language.js"></script>
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
@@ -11,7 +12,6 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-F00XQ96WFJ');
 </script>
 
@@ -45,7 +45,6 @@ body {
     color: white;
 }
 
-
 body::after {
     content: "";
     position: fixed;
@@ -59,20 +58,17 @@ body::after {
     z-index: -2;
 }
 
-
 @media (min-width: 769px) {
     body::after {
         background-image: url("bg-desktop.jpg");
     }
 }
 
-
 @media (max-width: 768px) {
     body::after {
         background-image: url("bg-mobile.jpg");
     }
 }
-
 
 body::before {
     content: "";
@@ -83,6 +79,33 @@ body::before {
     height: 100vh;
     background: rgba(5, 8, 15, 0.68);
     z-index: -1;
+}
+
+/* Language Switcher Styling */
+.lang-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+}
+
+.language-select {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.15);
+    background: rgba(15, 23, 42, 0.85);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    font-family: Poppins, sans-serif;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: 13px;
+}
+
+.language-select option {
+    background: #111827;
+    color: white;
 }
 
 .card {
@@ -205,7 +228,6 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
 }
 
-/* Telegram Checkbox & Alt Social Box Styling */
 .checkbox-label {
     display: flex;
     align-items: center;
@@ -240,7 +262,6 @@ input:focus, select:focus, textarea:focus {
     word-break: break-word;
 }
 
-/* Order Summary Box */
 .summary-box {
     background: rgba(30, 41, 59, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -309,7 +330,6 @@ button[type="submit"]:hover {
     .card {
         padding: 28px 20px;
     }
-
     h1 {
         font-size: 24px;
     }
@@ -319,30 +339,38 @@ button[type="submit"]:hover {
 
 <body>
 
+<!-- Language Switcher Dropdown -->
+<div class="lang-container">
+    <select class="language-select" onchange="changeLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="mm">မြန်မာ</option>
+    </select>
+</div>
+
 <div class="card">
 
 <a href="cart.html" class="back">
-    <i class="fa-solid fa-arrow-left"></i> Back to Cart
+    <i class="fa-solid fa-arrow-left"></i> <span data-lang="backToCart">Back to Cart</span>
 </a>
 
-<h1>Checkout</h1>
+<h1 data-lang="checkoutTitle">Checkout</h1>
 
-<p class="subtitle">
+<p class="subtitle" data-lang="checkoutSubtitle">
 Enter your delivery information.
 </p>
 
 <form id="checkoutForm">
 
 <div class="form-group">
-    <label for="name">Full Name *</label>
+    <label for="name" data-lang="fullName">Full Name *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-user"></i>
-        <input id="name" required placeholder="Enter your full name">
+        <input id="name" required placeholder="Enter your full name" data-lang-placeholder="fullNamePlaceholder">
     </div>
 </div>
 
 <div class="form-group">
-    <label for="phone">Phone Number *</label>
+    <label for="phone" data-lang="phoneNumber">Phone Number *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-phone"></i>
         <input id="phone" required placeholder="09xxxxxxxxx">
@@ -351,10 +379,10 @@ Enter your delivery information.
 
 <!-- Telegram Account Section -->
 <div class="form-group" id="telegramGroup">
-    <label for="telegram">Telegram Account / Username *</label>
+    <label for="telegram" data-lang="telegramAcc">Telegram Account / Username *</label>
     <div class="input-wrapper">
         <i class="fa-brands fa-telegram"></i>
-        <input id="telegram" placeholder="@username or Phone Number">
+        <input id="telegram" placeholder="@username or Phone Number" data-lang-placeholder="telegramPlaceholder">
     </div>
 </div>
 
@@ -362,80 +390,80 @@ Enter your delivery information.
 <div class="form-group">
     <label class="checkbox-label">
         <input type="checkbox" id="noTelegram" onchange="toggleTelegramInput()">
-        <i>I don't have Telegram</i>
+        <i data-lang="noTelegram">I don't have Telegram</i>
     </label>
 </div>
 
-<!-- Alternative Social Media Section (Show when Checkbox is checked) -->
+<!-- Alternative Social Media Section -->
 <div class="alt-social-box" id="altSocialGroup" style="display: none;">
     <div class="form-group" style="margin-bottom: 0;">
-        <label for="altSocial" style="color: #93C5FD;">Where else can we reach you? *</label>
+        <label for="altSocial" style="color: #93C5FD;" data-lang="altSocialLabel">Where else can we reach you? *</label>
         <div class="input-wrapper">
             <i class="fa-solid fa-share-nodes"></i>
-            <input id="altSocial" placeholder="e.g., Viber, Instagram, Snapchat, Discord">
+            <input id="altSocial" placeholder="e.g., Viber, Instagram, Snapchat, Discord" data-lang-placeholder="altSocialPlaceholder">
         </div>
-        <div class="helper-text">
+        <div class="helper-text" data-lang="altSocialHelper">
             e.g., Viber: Your phone number / Instagram: @username / Snapchat: @username / Discord: @username
         </div>
     </div>
 </div>
 
 <div class="form-group">
-    <label for="city">City *</label>
+    <label for="city" data-lang="city">City *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-city"></i>
         <select id="city" required onchange="updateTownships()">
-            <option value="">Select City</option>
-            <option value="Yangon">Yangon</option>
-            <option value="Mandalay">Mandalay</option>
-            <option value="Naypyidaw">Naypyidaw</option>
-            <option value="Bago">Bago</option>
-            <option value="Pathein">Pathein</option>
-            <option value="Mawlamyine">Mawlamyine</option>
-            <option value="Taunggyi">Taunggyi</option>
-            <option value="Magway">Magway</option>
-            <option value="Sagaing">Sagaing</option>
-            <option value="Hpa-An">Hpa-An (Myawaddy)</option>
+            <option value="" data-lang="selectCity">Select City</option>
+            <option value="Yangon / ရန်ကုန်">Yangon / ရန်ကုန်</option>
+            <option value="Mandalay / မန္တလေး">Mandalay / မန္တလေး</option>
+            <option value="Naypyidaw / နေပြည်တော်">Naypyidaw / နေပြည်တော်</option>
+            <option value="Bago / ပဲခူး">Bago / ပဲခူး</option>
+            <option value="Pathein / ပုသိမ်">Pathein / ပုသိမ်</option>
+            <option value="Mawlamyine / မော်လမြိုင်">Mawlamyine / မော်လမြိုင်</option>
+            <option value="Taunggyi / တောင်ကြီး">Taunggyi / တောင်ကြီး</option>
+            <option value="Magway / မကွေး">Magway / မကွေး</option>
+            <option value="Sagaing / စစ်ကိုင်း">Sagaing / စစ်ကိုင်း</option>
+            <option value="Hpa-An / ဘားအံ">Hpa-An / ဘားအံ</option>
         </select>
     </div>
 </div>
 
 <div class="form-group">
-    <label for="township">Township *</label>
+    <label for="township" data-lang="township">Township *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-location-dot"></i>
         <select id="township" required onchange="calculateTotals()">
-            <option value="">Select Township</option>
+            <option value="" data-lang="selectTownship">Select Township</option>
         </select>
     </div>
 </div>
 
 <div class="form-group">
-    <label for="road">Road / Street *</label>
+    <label for="road" data-lang="road">Road / Street *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-road"></i>
-        <input id="road" required placeholder="Example: Insein Road">
+        <input id="road" required placeholder="Example: Insein Road" data-lang-placeholder="roadPlaceholder">
     </div>
 </div>
 
 <div class="form-group">
-    <label for="building">Building / Apartment (Optional)</label>
+    <label for="building" data-lang="building">Building / Apartment (Optional)</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-building"></i>
-        <input id="building" placeholder="Apartment, Floor, Room">
+        <input id="building" placeholder="Apartment, Floor, Room" data-lang-placeholder="buildingPlaceholder">
     </div>
 </div>
 
 <div class="form-group">
-    <label for="address">House No. / Landmark *</label>
+    <label for="address" data-lang="address">House No. / Landmark *</label>
     <div class="input-wrapper textarea-wrapper">
         <i class="fa-solid fa-house"></i>
-        <textarea id="address" rows="3" required placeholder="House No., Landmark"></textarea>
+        <textarea id="address" rows="3" required placeholder="House No., Landmark" data-lang-placeholder="addressPlaceholder"></textarea>
     </div>
 </div>
 
 <div class="form-group">
-    <label for="payment">Payment Method *</label>
+    <label for="payment" data-lang="paymentMethod">Payment Method *</label>
     <div class="input-wrapper">
         <i class="fa-solid fa-wallet"></i>
         <select id="payment" onchange="togglePaymentInfo()">
@@ -451,96 +479,115 @@ Enter your delivery information.
 <!-- Order Summary Box -->
 <div class="summary-box">
     <div class="summary-row">
-        <span>Subtotal</span>
+        <span data-lang="subtotal">Subtotal</span>
         <span id="subtotalDisplay">0 MMK</span>
     </div>
     <div class="summary-row">
-        <span>Delivery Fee</span>
+        <span data-lang="deliFee">Delivery Fee</span>
         <span id="deliDisplay">0 MMK</span>
     </div>
     <div class="summary-row total">
-        <span>Total Amount</span>
+        <span data-lang="totalAmount">Total Amount</span>
         <span id="totalDisplay">0 MMK</span>
     </div>
 </div>
 
-<button type="submit">Place Order</button>
+<button type="submit" data-lang="placeOrder">Place Order</button>
 
 </form>
 
 </div>
 
 <script>
+// မြို့နယ်အမည်များကို English / Myanmar ပုံစံဖြင့် တစ်ခါတည်း ထည့်သွင်းထားသည်
+const townshipData = {
+    Yangon: [
+        "Lanmadaw / လမ်းမတော်", "Latha / လသာ", "Pabedan / ပန်းဘဲတန်း", "Kyauktada / ကျောက်တံတား",
+        "Pazundaung / ပုဇွန်တောင်", "Botahtaung / ဗိုလ်တထောင်", "Kyimyindaing / ကြည်မြင်တိုင်", "Ahlone / အလုံ",
+        "Sanchaung / စမ်းချောင်း", "Insein / အင်းစိန်", "Mayangone / မရမ်းကုန်း", "Hlaing / လှိုင်",
+        "Kamayut / ကမာရွတ်", "South Okkalapa / တောင်ဥက္ကလာပ", "Thingangyun / သင်ဃန်းကျွန်း", "Yankin / ရန်ကင်း",
+        "Dawbon / ဒေါပုံ", "Thaketa / သာကေတ", "Tamwe / တမွေ", "Bahan / ဗဟန်း",
+        "Mingalar Taungnyunt / မင်္ဂလာတောင်ညွန့်", "Dagon / ဒဂုံ", "Hlaingthaya / လှိုင်သာယာ", "Shwepyitha / ရွှေပြည်သာ",
+        "Mingaladon / မင်္ဂလာဒုံ", "North Okkalapa / မြောက်ဥက္ကလာပ", "South Dagon / တောင်ဒဂုံ", "North Dagon / မြောက်ဒဂုံ",
+        "East Dagon / အရှေ့ဒဂုံ", "Dagon Seikkan / ဒဂုံဆိပ်ကမ်း", "Dala / ဒလ", "Thanlyin / သန်လျင်",
+        "Hmawbi / မှော်ဘီ", "Hlegu / လှည်းကူး"
+    ],
+    Mandalay: [
+        "Aungmyaythazan / အောင်မြေသာစံ", "Chanayethazan / ချမ်းအေးသာစံ", "Chanmyathazi / ချမ်းမြသာစည်",
+        "Maha Aungmyay / မဟာအောင်မြေ", "Pyigyidagun / ပြည်ကြီးတံခွန်", "Amarapura / အမရပူရ",
+        "Patheingyi / ပုသိမ်ကြီး", "Pyin Oo Lwin / ပြင်ဦးလွင်", "Kyaukse / ကျောက်ဆည်",
+        "Myittha / မြစ်သား", "Kume / ကုမု", "Yamethin / ရမည်းသင်း", "Myingyan / မြင်းခြံ",
+        "Bagan / ပုဂံ", "Nyaung-U / ညောင်ဦး", "Pyawbwe / ပျော်ဘွယ်"
+    ],
+    Naypyidaw: [
+        "Zabuthiri / ဇဗ္ဗူသီရိ", "Ottarathiri / ဥတ္တရသီရိ", "Pobbathiri / ပုဗ္ဗသီရိ",
+        "Dekkhinathiri / ဒက္ခိဏသီရိ", "Pyinmana / ပြည်ကြီးမဏ္ဍိုင် (ပြည်မနား)", "Lewe / လယ်ဝေး",
+        "Tatkon / တပ်ကုန်း", "Zeyathiri / ဇေယျာသီရိ"
+    ],
+    Bago: [
+        "Bago / ပဲခူး", "Taungoo / တောင်ငူ", "Pyay / ပြည်", "Phyu / ဖြူး",
+        "Shwedaung / ရွှေတောင်", "Myanaung / မြန်အောင်", "Shwegyin / ရွှေကျင်"
+    ],
+    Pathein: [
+        "Pathein / ပုသိမ်", "Hinthada / ဟင်္သာတ", "Myaungmya / မြောင်းမြ",
+        "Maubin / မအူပင်", "Labutta / လပွတ္တာ", "Kyonpyaw / ကျုံပျော်", "Pantanaw / ပန်းတနော်"
+    ],
+    Mawlamyine: [
+        "Mawlamyine / မော်လမြိုင်", "Thaton / သထုံ"
+    ],
+    Taunggyi: [
+        "Taunggyi / တောင်ကြီး", "Aungban / အောင်ပန်း"
+    ],
+    Magway: [
+        "Magway / မကွေး", "Chauk / ချောက်", "Aunglan / အောင်လံ",
+        "Yenangyaung / ရေနံချောင်း", "Minbu / မင်းဘူး", "Taungdwingyi / တောင်တွင်းကြီး"
+    ],
+    Sagaing: [
+        "Monywa / မုံရွာ"
+    ],
+    "Hpa-An": [
+        "Myawaddy / မြဝတီ"
+    ]
+};
 
-
+// မြို့နယ်အမည်ပေါ်မူတည်ပြီး ပို့ခနှုန်းထားတွက်ရန် Delivery Rates
 const deliRates = {
-  // ရန်ကုန် - ၃,၅၀၀ ကျပ်
-  "Lanmadaw": 3500, "Latha": 3500, "Pabedan": 3500, "Kyauktada": 3500,
-  "Pazundaung": 3500, "Botahtaung": 3500, "Kyimyindaing": 3500, "Ahlone": 3500,
-  "Sanchaung": 3500, "Insein": 3500, "Mayangone": 3500, "Hlaing": 3500,
-  "Kamayut": 3500, "South Okkalapa": 3500, "Thingangyun": 3500, "Yankin": 3500,
-  "Dawbon": 3500, "Thaketa": 3500, "Tamwe": 3500, "Bahan": 3500,
-  "Mingalar Taungnyunt": 3500, "Dagon": 3500,
+  "Lanmadaw / လမ်းမတော်": 3500, "Latha / လသာ": 3500, "Pabedan / ပန်းဘဲတန်း": 3500, "Kyauktada / ကျောက်တံတား": 3500,
+  "Pazundaung / ပုဇွန်တောင်": 3500, "Botahtaung / ဗိုလ်တထောင်": 3500, "Kyimyindaing / ကြည်မြင်တိုင်": 3500, "Ahlone / အလုံ": 3500,
+  "Sanchaung / စမ်းချောင်း": 3500, "Insein / အင်းစိန်": 3500, "Mayangone / မရမ်းကုန်း": 3500, "Hlaing / လှိုင်": 3500,
+  "Kamayut / ကမာရွတ်": 3500, "South Okkalapa / တောင်ဥက္ကလာပ": 3500, "Thingangyun / သင်ဃန်းကျွန်း": 3500, "Yankin / ရန်ကင်း": 3500,
+  "Dawbon / ဒေါပုံ": 3500, "Thaketa / သာကေတ": 3500, "Tamwe / တမွေ": 3500, "Bahan / ဗဟန်း": 3500,
+  "Mingalar Taungnyunt / မင်္ဂလာတောင်ညွန့်": 3500, "Dagon / ဒဂုံ": 3500,
 
-  // ရန်ကုန် - ၄,၀၀၀ ကျပ်
-  "Hlaingthaya": 4000, "Shwepyitha": 4000, "Mingaladon": 4000, "North Okkalapa": 4000,
-  "South Dagon": 4000, "North Dagon": 4000, "East Dagon": 4000, "Dagon Seikkan": 4000,
-  "Dala": 4000, "Thanlyin": 4000,
+  "Hlaingthaya / လှိုင်သာယာ": 4000, "Shwepyitha / ရွှေပြည်သာ": 4000, "Mingaladon / မင်္ဂလာဒုံ": 4000, "North Okkalapa / မြောက်ဥက္ကလာပ": 4000,
+  "South Dagon / တောင်ဒဂုံ": 4000, "North Dagon / မြောက်ဒဂုံ": 4000, "East Dagon / အရှေ့ဒဂုံ": 4000, "Dagon Seikkan / ဒဂုံဆိပ်ကမ်း": 4000,
+  "Dala / ဒလ": 4000, "Thanlyin / သန်လျင်": 4000,
 
-  // ရန်ကုန် - ၄,၅၀၀ ကျပ်
-  "Hmawbi": 4500, "Hlegu": 4500,
+  "Hmawbi / မှော်ဘီ": 4500, "Hlegu / လှည်းကူး": 4500,
 
-  // မန္တလေး - ၅,၀၀၀ ကျပ်
-  "Aungmyaythazan": 5000, "Chanayethazan": 5000, "Chanmyathazi": 5000, "Maha Aungmyay": 5000,
-  "Pyigyidagun": 5000, "Amarapura": 5000, "Patheingyi": 5000, "Pyin Oo Lwin": 5000,
-  "Myittha": 5000, "Kume": 5000, "Kyaukse": 5000, "Yamethin": 5000, "Myingyan": 5000,
-  "Bagan": 5000, "Nyaung-U": 5000, "Pyawbwe": 5000,
+  "Aungmyaythazan / အောင်မြေသာစံ": 5000, "Chanayethazan / ချမ်းအေးသာစံ": 5000, "Chanmyathazi / ချမ်းမြသာစည်": 5000, "Maha Aungmyay / မဟာအောင်မြေ": 5000,
+  "Pyigyidagun / ပြည်ကြီးတံခွန်": 5000, "Amarapura / အမရပူရ": 5000, "Patheingyi / ပုသိမ်ကြီး": 5000, "Pyin Oo Lwin / ပြင်ဦးလွင်": 5000,
+  "Myittha / မြစ်သား": 5000, "Kume / ကုမု": 5000, "Kyaukse / ကျောက်ဆည်": 5000, "Yamethin / ရမည်းသင်း": 5000, "Myingyan / မြင်းခြံ": 5000,
+  "Bagan / ပုဂံ": 5000, "Nyaung-U / ညောင်ဦး": 5000, "Pyawbwe / ပျော်ဘွယ်": 5000,
 
-  // နေပြည်တော် - ၅,၀၀၀ ကျပ်
-  "Zabuthiri": 5000, "Ottarathiri": 5000, "Pobbathiri": 5000, "Dekkhinathiri": 5000,
-  "Pyinmana": 5000, "Lewe": 5000, "Tatkon": 5000, "Zeyathiri": 5000,
+  "Zabuthiri / ဇဗ္ဗူသီရိ": 5000, "Ottarathiri / ဥတ္တရသီရိ": 5000, "Pobbathiri / ပုဗ္ဗသီရိ": 5000, "Dekkhinathiri / ဒက္ခိဏသီရိ": 5000,
+  "Pyinmana / ပြည်ကြီးမဏ္ဍိုင် (ပြည်မနား)": 5000, "Lewe / လယ်ဝေး": 5000, "Tatkon / တပ်ကုန်း": 5000, "Zeyathiri / ဇေယျာသီရိ": 5000,
 
-  // ပဲခူး - ၅,၀၀၀ ကျပ်
-  "Bago": 5000, "Taungoo": 5000, "Pyay": 5000, "Phyu": 5000, "Shwedaung": 5000, "Myanaung": 5000, "Shwegyin": 5000,
+  "Bago / ပဲခူး": 5000, "Taungoo / တောင်ငူ": 5000, "Pyay / ပြည်": 5000, "Phyu / ဖြူး": 5000, "Shwedaung / ရွှေတောင်": 5000, "Myanaung / မြန်အောင်": 5000, "Shwegyin / ရွှေကျင်": 5000,
 
-  // ဧရာဝတီ - ၅,၀၀၀ ကျပ်
-  "Pathein": 5000, "Hinthada": 5000, "Myaungmya": 5000, "Maubin": 5000, "Labutta": 5000, "Kyonpyaw": 5000, "Pantanaw": 5000,
+  "Pathein / ပုသိမ်": 5000, "Hinthada / ဟင်္သာတ": 5000, "Myaungmya / မြောင်းမြ": 5000, "Maubin / မအူပင်": 5000, "Labutta / လပွတ္တာ": 5000, "Kyonpyaw / ကျုံပျော်": 5000, "Pantanaw / ပန်းတနော်": 5000,
   
-  // မွန် - ၅,၀၀၀ ကျပ်
-  "Mawlamyine": 5000, "Thaton": 5000,
+  "Mawlamyine / မော်လမြိုင်": 5000, "Thaton / သထုံ": 5000,
 
-  // ရှမ်း - ၅,၀၀၀ ကျပ်
-  "Taunggyi": 5000, "Aungban": 5000,
+  "Taunggyi / တောင်ကြီး": 5000, "Aungban / အောင်ပန်း": 5000,
 
-  // စစ်ကိုင်း - ၅,၀၀၀ ကျပ်
-  "Monywa": 5000,
+  "Monywa / မုံရွာ": 5000,
 
-  // မကွေး - ၅,၀၀၀ ကျပ်
-  "Magway": 5000, "Chauk": 5000, "Aunglan": 5000, "Yenangyaung": 5000, "Minbu": 5000, "Taungdwingyi": 5000,
+  "Magway / မကွေး": 5000, "Chauk / ချောက်": 5000, "Aunglan / အောင်လံ": 5000, "Yenangyaung / ရေနံချောင်း": 5000, "Minbu / မင်းဘူး": 5000, "Taungdwingyi / တောင်တွင်းကြီး": 5000,
 
-  // ကရင် - ၇,၀၀၀ ကျပ်
-  "Myawaddy": 7000
+  "Myawaddy / မြဝတီ": 7000
 };
 
-const townshipData={
-Yangon:[
-  "Lanmadaw","Latha","Pabedan","Kyauktada","Pazundaung","Botahtaung","Kyimyindaing","Ahlone","Sanchaung",
-  "Insein","Mayangone","Hlaing","Kamayut","South Okkalapa","Thingangyun","Yankin","Dawbon","Thaketa","Tamwe",
-  "Bahan","Mingalar Taungnyunt","Dagon","Hlaingthaya","Shwepyitha","Mingaladon","North Okkalapa","South Dagon",
-  "North Dagon","East Dagon","Dagon Seikkan","Dala","Thanlyin","Hmawbi","Hlegu"
-],
-Mandalay:["Aungmyaythazan","Chanayethazan","Chanmyathazi","Maha Aungmyay","Pyigyidagun","Amarapura","Patheingyi","Pyin Oo Lwin","Kyaukse","Myittha","Kume","Yamethin","Myingyan","Bagan","Nyaung-U","Pyawbwe"],
-Naypyidaw:["Zabuthiri","Ottarathiri","Pobbathiri","Dekkhinathiri","Pyinmana","Lewe","Tatkon","Zeyathiri"],
-Bago:["Bago","Taungoo","Pyay","Phyu","Shwedaung","Myanaung","Shwegyin"],
-Pathein:["Pathein","Hinthada","Myaungmya","Maubin","Labutta","Kyonpyaw","Pantanaw"],
-Mawlamyine:["Mawlamyine","Thaton"],
-Taunggyi:["Taunggyi","Aungban"],
-Magway:["Magway","Chauk","Aunglan","Yenangyaung","Minbu","Taungdwingyi"],
-Sagaing:["Monywa"],
-"Hpa-An":["Myawaddy"]
-};
-
-// Telegram & Alternative Social Toggle Function
 function toggleTelegramInput() {
     const noTelegram = document.getElementById("noTelegram").checked;
     const telegramGroup = document.getElementById("telegramGroup");
@@ -552,13 +599,11 @@ function toggleTelegramInput() {
         telegramGroup.style.display = "none";
         telegramInput.required = false;
         telegramInput.value = "";
-
         altSocialGroup.style.display = "block";
         altSocialInput.required = true;
     } else {
         telegramGroup.style.display = "block";
         telegramInput.required = true;
-
         altSocialGroup.style.display = "none";
         altSocialInput.required = false;
         altSocialInput.value = "";
@@ -566,21 +611,46 @@ function toggleTelegramInput() {
 }
 
 function updateTownships(){
-    const city=document.getElementById("city").value;
-    const township=document.getElementById("township");
+    const city = document.getElementById("city").value;
+    const townshipSelect = document.getElementById("township");
+    const currentLang = localStorage.getItem("language") || "en";
+    
+    townshipSelect.innerHTML = `<option value="">${currentLang === "mm" ? "မြို့နယ်ကို ရွေးပါ" : "Select Township"}</option>`;
 
-    township.innerHTML='<option value="">Select Township</option>';
-
-    if(!townshipData[city]) {
-      calculateTotals();
-      return;
+    let selectedTownships = [];
+    
+    if (city.includes("Yangon")) {
+        selectedTownships = townshipData.Yangon;
+    } else if (city.includes("Mandalay")) {
+        selectedTownships = townshipData.Mandalay;
+    } else if (city.includes("Naypyidaw")) {
+        selectedTownships = townshipData.Naypyidaw;
+    } else if (city.includes("Bago")) {
+        selectedTownships = townshipData.Bago;
+    } else if (city.includes("Pathein")) {
+        selectedTownships = townshipData.Pathein;
+    } else if (city.includes("Mawlamyine")) {
+        selectedTownships = townshipData.Mawlamyine;
+    } else if (city.includes("Taunggyi")) {
+        selectedTownships = townshipData.Taunggyi;
+    } else if (city.includes("Magway")) {
+        selectedTownships = townshipData.Magway;
+    } else if (city.includes("Sagaing")) {
+        selectedTownships = townshipData.Sagaing;
+    } else if (city.includes("Hpa-An")) {
+        selectedTownships = townshipData["Hpa-An"];
     }
 
-    townshipData[city].forEach(t=>{
-        const option=document.createElement("option");
-        option.value=t;
-        option.textContent=t;
-        township.appendChild(option);
+    if(!selectedTownships) {
+        calculateTotals();
+        return;
+    }
+
+    selectedTownships.forEach((townshipName) => {
+        const option = document.createElement("option");
+        option.value = townshipName; 
+        option.textContent = townshipName; 
+        townshipSelect.appendChild(option);
     });
     
     calculateTotals();
@@ -589,7 +659,6 @@ function updateTownships(){
 function calculateTotals(){
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
-    
     const township = document.getElementById("township").value;
     const deliFee = deliRates[township] || 0;
     const total = subtotal + deliFee;
@@ -600,25 +669,29 @@ function calculateTotals(){
 }
 
 function togglePaymentInfo(){
-    const payment=document.getElementById("payment").value;
-    const info=document.getElementById("paymentInfo");
+    const payment = document.getElementById("payment").value;
+    const info = document.getElementById("paymentInfo");
+    const currentLang = localStorage.getItem("language") || "en";
     
     if(payment === "KBZPay"){
         info.style.display = "block";
-        info.innerHTML = "<b>KBZPay Info</b><br>Pay to: 09xxxxxxxxx (Acai Shop)<br>ငွေလွှဲပြီးပါက Transaction Screenshot သိမ်းထားပေးပါ။";
+        info.innerHTML = currentLang === "mm" 
+            ? "<b>KBZPay အချက်အလက်</b><br>ငွေလွှဲရန်: 09xxxxxxxxx (Acai Shop)<br>ငွေလွှဲပြီးပါက Transaction Screenshot သိမ်းထားပေးပါ။"
+            : "<b>KBZPay Info</b><br>Pay to: 09xxxxxxxxx (Acai Shop)<br>Please save your transaction screenshot after payment.";
     } else if(payment === "WavePay"){
         info.style.display = "block";
-        info.innerHTML = "<b>WavePay Info</b><br>Pay to: 09xxxxxxxxx (Acai Shop)<br>ငွေလွှဲပြီးပါက Transaction Screenshot သိမ်းထားပေးပါ။";
+        info.innerHTML = currentLang === "mm" 
+            ? "<b>WavePay အချက်အလက်</b><br>ငွေလွှဲရန်: 09xxxxxxxxx (Acai Shop)<br>ငွေလွှဲပြီးပါက Transaction Screenshot သိမ်းထားပေးပါ။"
+            : "<b>WavePay Info</b><br>Pay to: 09xxxxxxxxx (Acai Shop)<br>Please save your transaction screenshot after payment.";
     } else {
         info.style.display = "none";
     }
 }
 
-// စတင်ဖွင့်ချိန်တွင် Telegram Control ပုံမှန်အတိုင်း အလုပ်လုပ်စေမည်
 toggleTelegramInput();
 calculateTotals();
 
-document.getElementById("checkoutForm").addEventListener("submit",async function(e){
+document.getElementById("checkoutForm").addEventListener("submit", async function(e){
     e.preventDefault();
 
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -627,7 +700,7 @@ document.getElementById("checkoutForm").addEventListener("submit",async function
     const deliFee = deliRates[selectedTownship] || 0;
     const noTelegram = document.getElementById("noTelegram").checked;
 
-    const order={
+    const order = {
         name: document.getElementById("name").value,
         phone: document.getElementById("phone").value,
         telegram: noTelegram ? "No Telegram" : document.getElementById("telegram").value,
@@ -644,27 +717,27 @@ document.getElementById("checkoutForm").addEventListener("submit",async function
     };
 
     try{
-        const res=await fetch("/place-order",{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
+        const res = await fetch("/place-order",{
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
             },
-            body:JSON.stringify(order)
+            body: JSON.stringify(order)
         });
 
-        const data=await res.json();
+        const data = await res.json();
 
-        if(res.status===401){
+        if(res.status === 401){
             alert("Please sign in first.");
-            window.location="login.html";
+            window.location = "login.html";
             return;
         }
 
         if(data.success){
             localStorage.removeItem("cart");
-            window.location="order-success.html";
+            window.location = "order-success.html";
         }else{
-            alert(data.message||"Failed to place order.");
+            alert(data.message || "Failed to place order.");
         }
     }catch{
         alert("Cannot connect to server.");
