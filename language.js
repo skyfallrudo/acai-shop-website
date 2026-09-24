@@ -25,6 +25,9 @@ shopNow: "Shop Now",
 footerTagline: "Accessories • Quality • Style",
 developer: "Developer and Founder: Rudox",
 creativeLead: "Creative lead and Co-founder: Valrqx",
+stock: "Stock",
+addToCart: "Add to Cart",
+outOfStock: "Out of Stock",
   },
 
   mm: {
@@ -53,6 +56,9 @@ shopNow: "ယခုဝယ်ယူရန်",
 footerTagline: "အသုံးအဆောင် • အရည်အသွေး • စတိုင်",
 developer: "တည်ထောင်သူနှင့် ဝဘ်ဆိုက်ဖန်တီးသူ: Rudox",
 creativeLead: "ဖန်တီးမှုဦးဆောင်သူနှင့် ပူးတွဲတည်ထောင်သူ: Valrqx",
+stock: "လက်ကျန်",
+addToCart: "ခြင်းတောင်းထဲထည့်ရန်",
+outOfStock: "ပစ္စည်းပြတ်နေသည်",
   }
 };
 

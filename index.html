@@ -563,7 +563,7 @@ footer {
 <footer>
     <p>© 2026 Acai Shop</p>
     <p data-lang="footerTagline">Accessories • Quality • Style</p>
-
+ 
     <div style="border:2px solid #6cc2f3;padding:10px 15px;display:inline-block;border-radius:6px;margin-top:10px;">
         <p style="margin:0 0 5px 0;" data-lang="developer">Developer and Founder: Rudox</p>
         <p style="margin:0;" data-lang="creativeLead">Creative lead and Co-founder: Valrqx</p>
@@ -647,37 +647,44 @@ logoutBtn.addEventListener("click", async function(){
     console.log(err);
   }
 });
-async function loadProducts(){
-  try{
-    const products = await fetch("/products").then(r => r.json());
-    const list = document.getElementById("productList");
-    list.innerHTML = "";
+async function loadProducts(){ 
+  try{ 
+    const products = await fetch("/products").then(r => r.json()); 
+    const list = document.getElementById("productList"); 
+    list.innerHTML = ""; 
 
-    products.forEach(p => {
+    const lang = localStorage.getItem("language") || "en";
 
-      const imageUrl = p.image
-        ? (p.image.startsWith("http") ? p.image : "/uploads/" + p.image)
-        : "logo.jpg";
+    products.forEach(p => { 
 
-      list.innerHTML += `
-      <div class="card">
-        <img src="${imageUrl}" alt="${p.name}">
-        <div class="card-content">
-          <h3>${p.name}</h3>
-          <div class="price">${Number(p.price).toLocaleString()} MMK</div>
-          <div class="stock">Stock: ${p.stock}</div>
-          <button class="buy-btn"
-            onclick="addToCart('${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})"
-            ${Number(p.stock)<=0?"disabled":""}>
-            ${Number(p.stock)<=0?"Out of Stock":"Add to Cart"}
-          </button>
-        </div>
-      </div>`;
-    });
+      const imageUrl = p.image 
+        ? (p.image.startsWith("http") ? p.image : "/uploads/" + p.image) 
+        : "logo.jpg"; 
 
-  }catch(err){
-    console.log(err);
-  }
+      list.innerHTML += ` 
+      <div class="card"> 
+        <img src="${imageUrl}" alt="${p.name}"> 
+        <div class="card-content"> 
+          <h3>${p.name}</h3> 
+          <div class="price">${Number(p.price).toLocaleString()} MMK</div> 
+          <div class="stock">${translations[lang].stock}: ${p.stock}</div> 
+
+          <button class="buy-btn" 
+            onclick="addToCart('${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})" 
+            ${Number(p.stock)<=0 ? "disabled" : ""}> 
+
+            ${Number(p.stock)<=0 
+              ? translations[lang].outOfStock 
+              : translations[lang].addToCart}
+
+          </button> 
+        </div> 
+      </div>`; 
+    }); 
+
+  }catch(err){ 
+    console.log(err); 
+  } 
 }
 
 updateCartCount();
