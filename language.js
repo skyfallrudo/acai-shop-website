@@ -66,7 +66,6 @@ function changeLanguage(lang) {
 
   document.querySelectorAll("[data-lang]").forEach(element => {
     const key = element.dataset.lang;
-
     if (translations[lang]?.[key]) {
       element.textContent = translations[lang][key];
     }
@@ -74,12 +73,12 @@ function changeLanguage(lang) {
 
   document.querySelectorAll("[data-lang-placeholder]").forEach(element => {
     const key = element.dataset.langPlaceholder;
-
     if (translations[lang]?.[key]) {
       element.placeholder = translations[lang][key];
     }
   });
 
+  // Product တွေထဲက Add to Cart နဲ့ Out of Stock ကို Language အလိုက် ပြောင်းပေးရန်
   if (typeof loadProducts === "function") {
     loadProducts();
   }
@@ -87,5 +86,11 @@ function changeLanguage(lang) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const language = localStorage.getItem("language") || "en";
+  
+  const selectBox = document.querySelector(".language-select");
+  if (selectBox) {
+    selectBox.value = language;
+  }
+
   changeLanguage(language);
 });
