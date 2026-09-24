@@ -649,15 +649,16 @@ logoutBtn.addEventListener("click", async function(){
 });
 async function loadProducts(){ 
   try{ 
-    const products = await fetch("/products").then(r => r.json()); 
+    const response = await fetch("/products"); 
+    const products = await response.json(); 
     const list = document.getElementById("productList"); 
     list.innerHTML = ""; 
 
+    // လက်ရှိ Language ကို ယူပြီး Translation ကို ညှိခြင်း
     const lang = localStorage.getItem("language") || "en";
     const t = translations[lang] || translations.en;
 
     products.forEach(p => { 
-
       const imageUrl = p.image 
         ? (p.image.startsWith("http") ? p.image : "/uploads/" + p.image) 
         : "logo.jpg"; 
@@ -693,9 +694,10 @@ async function loadProducts(){
     }); 
 
   }catch(err){ 
-    console.log(err); 
+    console.log("Error loading products:", err); 
   } 
 }
+
 updateCartCount();
 loadUser();
 loadProducts();
