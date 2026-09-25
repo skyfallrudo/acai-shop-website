@@ -2,8 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Customer Support | Acai Shop</title>
+
+<!-- CDN Server နှင့် ကြိုတင် ချိတ်ဆက်ခြင်း -->
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+<!-- Font Awesome CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<!-- Icon ဖိုင်များ (.woff2) ကို ကြိုတင် Download ဆွဲခိုင်းခြင်း -->
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
@@ -14,8 +24,9 @@
   gtag('config', 'G-F00XQ96WFJ');
 </script>
 
+<!-- Google Fonts & Language Script -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<script src="language.js"></script>
 
 <style>
 * {
@@ -23,6 +34,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
@@ -38,9 +50,8 @@ body {
     position: relative;
     background-color: #05080f;
     min-height: 100vh;
-    padding: 20px;
+    padding: 16px;
 }
-
 
 body::after {
     content: "";
@@ -74,76 +85,152 @@ body::before {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(5, 8, 15, 0.65);
+    background: rgba(5, 8, 15, 0.75);
     z-index: -1;
 }
 
+/* Main Card Style */
 .card {
     position: relative;
     z-index: 2;
-    width: min(100%, 430px);
+    width: min(100%, 420px);
     background: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 28px;
-    padding: 35px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 26px;
+    padding: 28px 22px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     text-align: center;
 }
 
+/* Language Selector Box */
+.lang-box {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+.language-select {
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    font-size: 13px;
+    backdrop-filter: blur(10px);
+}
+
+.language-select option {
+    background: #111827;
+    color: white;
+}
+
+/* Logo Style */
 .logo {
-    width: 80px;
-    height: 80px;
+    width: 76px;
+    height: 76px;
     border-radius: 50%;
     background: white;
-    padding: 6px;
-    margin: 0 auto 18px auto;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    padding: 5px;
+    margin: 0 auto 16px auto;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
     object-fit: cover;
     display: block;
 }
 
 h1 {
     color: white;
-    font-size: 28px;
+    font-size: 24px;
+    font-weight: 600;
     margin-bottom: 8px;
+    line-height: 1.3;
 }
 
 .subtitle {
     color: #94A3B8;
-    margin-bottom: 28px;
-    font-size: 14px;
+    margin-bottom: 24px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    padding: 0 5px;
 }
 
+/* ------------------------------------ */
+/* Purple & Light Blue RGB Border Effect */
+/* ------------------------------------ */
+
+.rgb-wrapper {
+    position: relative;
+    border-radius: 16px;
+    padding: 2px; /* ဘောင်အထူ */
+    overflow: hidden;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* တပတ်လည် ပြေးနေမယ့် Light Blue & Purple Gradient */
+.rgb-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+        from 0deg,
+        #38bdf8, /* Light Blue */
+        #a855f7, /* Purple */
+        #00d2ff, /* Cyan / Light Blue */
+        #c084fc, /* Light Purple */
+        #38bdf8  /* Light Blue */
+    );
+    animation: rotateRgb 3s linear infinite;
+}
+
+@keyframes rotateRgb {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Buttons Style inside RGB Box */
 .support-btn {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
     width: 100%;
-    padding: 15px;
+    min-height: 50px;
+    padding: 12px 18px;
     border-radius: 14px;
     color: white;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
-    margin-bottom: 15px;
-    transition: .3s;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    background: rgba(15, 23, 42, 0.92); /* အတွင်းဘက် နောက်ခံအမဲ */
+    backdrop-filter: blur(10px);
 }
 
 .support-btn.telegram {
-    background: linear-gradient(135deg, #2AABEE, #229ED9);
+    color: #38bdf8; /* Telegram စာသားနှင့် Icon အရောင် */
 }
 
 .support-btn.viber {
-    background: linear-gradient(135deg, #7360F2, #5C45EE);
+    color: #c084fc; /* Viber စာသားနှင့် Icon အရောင် */
 }
 
-.support-btn:hover {
+/* Hover & Touch Animation */
+.rgb-wrapper:hover,
+.rgb-wrapper:active {
     transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.45);
 }
 
 .back-btn {
@@ -152,22 +239,46 @@ h1 {
     justify-content: center;
     gap: 8px;
     width: 100%;
-    padding: 14px;
+    min-height: 48px;
+    padding: 12px 18px;
     border: none;
     border-radius: 14px;
-    background: #334155;
+    background: rgba(51, 65, 85, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: white;
-    font-size: 15px;
+    font-size: 14.5px;
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
-    transition: .3s;
-    margin-top: 10px;
+    transition: all 0.2s ease;
+    margin-top: 6px;
 }
 
-.back-btn:hover {
+.back-btn:hover,
+.back-btn:active {
     transform: translateY(-2px);
     background: #475569;
+}
+
+/* Mobile Screen Small Optimizations (<= 380px) */
+@media (max-width: 380px) {
+    .card {
+        padding: 22px 16px;
+        border-radius: 20px;
+    }
+
+    h1 {
+        font-size: 21px;
+    }
+
+    .subtitle {
+        font-size: 12.5px;
+    }
+
+    .support-btn, .back-btn {
+        font-size: 14px;
+        min-height: 46px;
+    }
 }
 </style>
 </head>
@@ -176,26 +287,67 @@ h1 {
 
 <div class="card">
 
-<img src="logo.jpg" class="logo" alt="Acai Shop">
+  <!-- Language Selection Dropdown -->
+  <div class="lang-box">
+    <select class="language-select" onchange="changeLanguage(this.value)">
+      <option value="en">English</option>
+      <option value="mm">မြန်မာ</option>
+    </select>
+  </div>
 
-<h1>Customer Support</h1>
-<p class="subtitle">Need help with your order? Contact us directly via Telegram or Viber.</p>
+  <!-- Logo -->
+  <img src="logo.jpg" class="logo" alt="Acai Shop">
 
-<!-- Telegram Link: @r_ud0x -->
-<a href="https://t.me/acaishopsupport" target="_blank" class="support-btn telegram">
-    <i class="fa-brands fa-telegram fa-lg"></i> Telegram for support
-</a>
+  <!-- Translated Titles -->
+  <h1 data-lang="customerSupport">Customer Support</h1>
+  <p class="subtitle" data-lang="supportSubtitle">Need help with your order? Contact us directly via Telegram or Viber.</p>
 
-<!-- Viber Link: 09885411280 -->
-<a href="viber://chat?number=%2B959885411280" class="support-btn viber">
-    <i class="fa-brands fa-viber fa-lg"></i> Viber for support
-</a>
+  <!-- Telegram Button with Purple & Light Blue RGB Border -->
+  <div class="rgb-wrapper">
+    <a href="https://t.me/acaishopsupport" target="_blank" class="support-btn telegram">
+        <i class="fa-brands fa-telegram fa-lg"></i>
+        <span data-lang="telegramSupport">Telegram Support</span>
+    </a>
+  </div>
 
-<a href="index.html" class="back-btn">
-    <i class="fa-solid fa-arrow-left"></i> Back to Home
-</a>
+  <!-- Viber Button with Purple & Light Blue RGB Border -->
+  <div class="rgb-wrapper">
+    <a href="viber://chat?number=%2B959885411280" class="support-btn viber">
+        <i class="fa-brands fa-viber fa-lg"></i>
+        <span data-lang="viberSupport">Viber Support</span>
+    </a>
+  </div>
+
+  <!-- Back to Home Button -->
+  <a href="index.html" class="back-btn">
+      <i class="fa-solid fa-arrow-left"></i>
+      <span data-lang="backToHome">Back to Home</span>
+  </a>
 
 </div>
+
+<script>
+// Customer Support စာမျက်နှာအတွက် သီးသန့် ဘာသာပြန်စာသားများ ထည့်သွင်းခြင်း
+if (typeof translations !== 'undefined') {
+  translations.en.supportSubtitle = "Need help with your order? Contact us directly via Telegram or Viber.";
+  translations.en.telegramSupport = "Telegram Support";
+  translations.en.viberSupport = "Viber Support";
+  translations.en.backToHome = "Back to Home";
+
+  translations.mm.supportSubtitle = "အော်ဒါနှင့် ပတ်သက်၍ အကူအညီလိုပါက Telegram သို့မဟုတ် Viber မှတဆင့် တိုက်ရိုက်ဆက်သွယ်နိုင်ပါသည်။";
+  translations.mm.telegramSupport = "Telegram မှ ဆက်သွယ်ရန်";
+  translations.mm.viberSupport = "Viber မှ ဆက်သွယ်ရန်";
+  translations.mm.backToHome = "ပင်မစာမျက်နှာသို့ ပြန်ရန်";
+}
+
+// Page Load သည့်အခါ သိမ်းဆည်းထားသော ဘာသာစကားကို ရွေးပေးခြင်း
+document.addEventListener("DOMContentLoaded", () => {
+  const currentLang = localStorage.getItem("language") || "en";
+  if (typeof changeLanguage === "function") {
+    changeLanguage(currentLang);
+  }
+});
+</script>
 
 </body>
 </html>
