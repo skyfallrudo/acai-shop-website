@@ -162,14 +162,17 @@ nav {
     text-decoration: none;
     font-weight: 500;
 }
+/* ==========================================
+   SUB NAVIGATION (Computer မှာ အလယ်ကျ / ဖုန်းမှာ ဘေးဆွဲ)
+   ========================================== */
 
-/* Sub Navigation - Modern Card & Pill Style */
+/* ၁။ Container (Computer အတွက် အလယ်ကျအောင် ထားသည်) */
 .sub-nav {
     display: flex;
-    justify-content: center;
+    justify-content: center; /* Computer မှာ အလယ်ကျအောင် */
     align-items: center;
-    gap: 16px;
-    padding: 18px 6%;
+    gap: 12px;
+    padding: 12px 6%;
     background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -178,33 +181,62 @@ nav {
     z-index: 99;
     overflow-x: auto;
     white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
 }
 
+/* Scrollbar မပေါ်စေရန် */
 .sub-nav::-webkit-scrollbar {
-    display: none; /* Scrollbar ဖျောက်ရန် */
+    display: none;
 }
 
+/* ၂။ Sub Nav ခလုတ်များ (အရောင်ပြေး မီးရောင် Style) */
 .sub-nav a {
-    color: #e2e8f0;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    position: relative;
+    color: #ffffff;
     text-decoration: none;
     font-size: 13px;
     font-weight: 500;
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 999px; /* လုံးဝန်းသွားအောင် */
-    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 999px;
     display: flex;
     align-items: center;
     gap: 8px;
+    overflow: hidden;
+    background: transparent;
+    transition: transform 0.3s ease;
 }
 
-.sub-nav a:hover {
-    background: #2563EB;
-    border-color: #2563EB;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+/* ခလုတ် အနောက်မှ အရောင်ပြေး Animation */
+.sub-nav a::before {
+    content: '';
+    position: absolute;
+    top: -200%;
+    left: -50%;
+    width: 200%;
+    height: 500%;
+    background: conic-gradient(#00d2ff, #00f5a0, #ff007f, #7928ca, #00d2ff);
+    animation: spin 3s linear infinite;
+    z-index: 1;
+}
+
+/* ခလုတ် အထဲက အမည်းရောင် အလွှာ */
+.sub-nav a::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: #0f172a;
+    border-radius: 999px;
+    z-index: 2;
+}
+
+/* စာလုံးနှင့် Icon များကို အပေါ်သို့ တင်ခြင်း */
+.sub-nav a span,
+.sub-nav a i {
+    position: relative;
+    z-index: 3;
 }
 
 .sub-nav a i {
@@ -213,10 +245,23 @@ nav {
     transition: 0.3s;
 }
 
-.sub-nav a:hover i {
-    color: white;
+.sub-nav a:hover {
+    transform: translateY(-2px);
 }
 
+.sub-nav a:hover i {
+    color: #ffffff;
+}
+
+/* ၃။ ဖုန်း (Mobile) Screen အတွက် သီးသန့် ပြင်ဆင်ခြင်း */
+@media (max-width: 768px) {
+    .sub-nav {
+        top: 64px;
+        padding: 10px 4%;
+        justify-content: flex-start; /* ဖုန်းမှာ ဘေးဆွဲရအောင် ဘေးက စပေးသည် */
+        gap: 8px;
+    }
+}
 /* Profile Section & Dropdown Menu */
 #profile-area {
     display: none;
@@ -301,30 +346,60 @@ nav {
     max-width: 700px;
     margin: auto auto 30px;
 }
-
+/* Search Box အပြင်ဘက်အရာ (အရောင်ပြေးမယ့် ပတ်လမ်း) */
 .search {
-    max-width: 560px;
-    margin: auto;
-    position: relative;
+  position: relative;
+  max-width: 500px;
+  margin: 0 auto;
+  border-radius: 18px;
+  overflow: hidden;
+  padding: 2px; /* အနားသတ် အထူ */
+  display: flex;
+  align-items: center;
 }
 
+/* အရောင်ပြေးနေမယ့် Animation Effect */
+.search::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 500%;
+  top: -200%;
+  left: -50%;
+  background: conic-gradient(#00d2ff, #00f5a0, #ff007f, #7928ca, #00d2ff);
+  animation: spin 3s linear infinite;
+}
+
+/* အထဲက စာရိုက်ကွက် (Input Box) */
 .search input {
-    width: 100%;
-    padding: 16px 18px 16px 50px;
-    border: none;
-    border-radius: 18px;
-    background: rgba(15, 23, 42, .82);
-    color: white;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 16px 18px 16px 50px;
+  border: none;
+  outline: none;
+  border-radius: 16px;
+  background: #0f172a; /* Shop ရဲ့ dark background အရောင် */
+  color: white;
+  font-size: 15px;
 }
 
+/* မှန်ဘီလူး Icon လေး အပေါ်ရောက်အောင် z-index ထည့်ထားတာ */
 .search i {
-    position: absolute;
-    left: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94A3B8;
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94A3B8;
+  z-index: 2;
 }
 
+/* အရောင်လည်စေမယ့် Keyframe */
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
 .categories {
     display: flex;
     justify-content: center;
@@ -764,7 +839,7 @@ footer {
     font-size:24px !important;
   }
 
-}
+}s
 </style>
 </head>
 <body>
@@ -813,6 +888,15 @@ footer {
 <a href="support.html">
     <i class="fa-solid fa-headset"></i>
     <span data-lang="customerSupport">Customer Support</span>
+</a>
+<a href="faq.html">
+  <i class="fa-solid fa-circle-question"></i>
+  <span data-lang="faq">FAQ</span>
+</a>
+
+<a href="reviews.html">
+  <i class="fa-solid fa-star"></i>
+  <span data-lang="customerReviews">Customer Reviews</span>
 </a>
 </div>
 

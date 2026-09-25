@@ -109,7 +109,9 @@ const translations = {
     subtotal: "Subtotal",
     deliFee: "Delivery Fee",
     totalAmount: "Total Amount",
-    placeOrder: "Place Order"
+    placeOrder: "Place Order",
+     faq: "FAQ",
+    customerReviews: "Customer Reviews",
   },
   mm: {
     signIn: "အကောင့်ဝင်ရန်",
@@ -220,7 +222,9 @@ const translations = {
     subtotal: "ပစ္စည်းတန်ဖိုးစုစုပေါင်း",
     deliFee: "ပို့ခ",
     totalAmount: "စုစုပေါင်း ကျသင့်ငွေ",
-    placeOrder: "အော်ဒါတင်မည်"
+    placeOrder: "အော်ဒါတင်မည်",
+      faq: "မေးလေ့ရှိသောမေးခွန်းများ",
+    customerReviews: "ဝယ်ယူသူများ၏ သုံးသပ်ချက်များ",
   }
 };
 function changeLanguage(lang) {
