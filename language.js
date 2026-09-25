@@ -227,33 +227,42 @@ const translations = {
     customerReviews: "ဝယ်ယူသူများ၏ သုံးသပ်ချက်များ",
   }
 };
+// ၂။ ဘာသာစကား ပြောင်းလဲပေးသည့် Function
 function changeLanguage(lang) {
+  // ရွေးလိုက်တဲ့ ဘာသာစကားကို LocalStorage ထဲ သိမ်းမည်
   localStorage.setItem("language", lang);
 
+  // စာမျက်နှာပေါ်မှာ Dropdown ရှိရင် တန်ဖိုး တူအောင် လိုက်ပြောင်းပေးမည်
+  const langSelect = document.querySelector(".language-select");
+  if (langSelect) {
+    langSelect.value = lang;
+  }
+
+  // data-lang ပါတဲ့ စာလုံးများကို ဘာသာစကား လိုက်ပြောင်းပေးမည်
   document.querySelectorAll("[data-lang]").forEach(el => {
-    const key = el.dataset.lang;
+    const key = el.getAttribute("data-lang");
     if (translations[lang] && translations[lang][key]) {
-      el.textContent = translations[lang][key];
+      el.innerText = translations[lang][key];
     }
   });
 
+  // Placeholder စာလုံးများ ပြောင်းပေးမည်
   document.querySelectorAll("[data-lang-placeholder]").forEach(el => {
-    const key = el.dataset.langPlaceholder;
+    const key = el.getAttribute("data-lang-placeholder");
     if (translations[lang] && translations[lang][key]) {
       el.placeholder = translations[lang][key];
     }
   });
 
-  const city = document.getElementById("city");
-  if (city && typeof updateTownships === "function") {
-    updateTownships();
-  }
-
-  if (typeof togglePaymentInfo === "function") {
-    togglePaymentInfo();
-  }
-
+  // index.html လိုနေရာမျိုးမှာ loadProducts() ရှိရင် ပြန်ခေါ်ပေးမည်
   if (typeof loadProducts === "function") {
     loadProducts();
   }
 }
+
+// ၃။ ဘယ် စာမျက်နှာပဲ ပွင့်ပွင့် (waiting.html / index.html စသဖြင့်)
+// LocalStorage ထဲက ဘာသာစကားကို အော်တို ဆွဲယူပြီး Sync လုပ်ပေးမယ့် အပိုင်း
+document.addEventListener("DOMContentLoaded", function () {
+  const savedLang = localStorage.getItem("language") || "en";
+  changeLanguage(savedLang);
+});

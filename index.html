@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
 
 <title>Acai Shop</title>
 <script src="language.js"></script>
@@ -1023,25 +1027,40 @@ logoutBtn.addEventListener("click", async function(){
     console.log(err);
   }
 });
+// ၁။ စဖွင့်ချိန်မှာ Dropdown တန်ဖိုးနဲ့ LocalStorage ဘာသာစကားကို Sync လုပ်ပေးခြင်း
+function initLanguage() {
+  const savedLang = localStorage.getItem("language") || "en";
+  const langSelect = document.querySelector(".language-select");
+  if (langSelect) {
+    langSelect.value = savedLang; // Dropdown မှာ မှန်ကန်တဲ့ ဘာသာစကား ရွေးထားပေးရန်
+  }
+  if (typeof changeLanguage === "function") {
+    changeLanguage(savedLang); // HTML စာလုံးများ ပြောင်းပေးမည် (ထဲတွင် loadProducts() ပါပြီးသားဖြစ်သည်)
+  }
+}
+
+// ၂။ Products Load လုပ်သည့် Function
 async function loadProducts(){ 
   try{ 
     const response = await fetch("/products"); 
     const products = await response.json(); 
     const list = document.getElementById("productList"); 
+    if (!list) return; // list element မရှိပါက error မတက်စေရန်
+    
     list.innerHTML = ""; 
 
-  
     const lang = localStorage.getItem("language") || "en";
-    const t = translations[lang] || translations.en;
+    const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : {};
 
     products.forEach(p => { 
       const imageUrl = p.image 
         ? (p.image.startsWith("http") ? p.image : "/uploads/" + p.image) 
         : "logo.jpg"; 
 
-      const stockText = t.stock || "Stock";
-      const addText = t.addToCart || "Add to Cart";
-      const outText = t.outOfStock || "Out of Stock";
+      // ဘာသာစကား မရှိရင် သုံးမယ့် Default စာလုံးများ
+      const stockText = t.stock || (lang === 'mm' ? "လက်ကျန်" : "Stock");
+      const addText = t.addToCart || (lang === 'mm' ? "ခြင်းတောင်းထဲထည့်ရန်" : "Add to Cart");
+      const outText = t.outOfStock || (lang === 'mm' ? "ပစ္စည်းပြတ်နေသည်" : "Out of Stock");
 
       list.innerHTML += ` 
       <div class="card"> 
@@ -1074,9 +1093,10 @@ async function loadProducts(){
   } 
 }
 
+// စဖွင့်ချိန်မှာ အစဉ်လိုက် ခေါ်ယူခြင်း
+initLanguage(); // initLanguage() က changeLanguage() ကနေတစ်ဆင့် loadProducts() ကို ခေါ်ပေးပြီးသားဖြစ်သည်
 updateCartCount();
 loadUser();
-loadProducts();
 </script>
 
 </body>
