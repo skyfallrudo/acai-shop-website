@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
 <title>Sign In | Acai Shop</title>
 <script src="language.js"></script>
 <!-- Google tag (gtag.js) -->
@@ -227,6 +228,108 @@ button:hover {
     margin-top: 15px;
     color: #CBD5E1;
     font-size: 14px;
+}
+/* ===== Mobile Responsive Fix ===== */
+@media (max-width:768px){
+
+  body{
+    padding:16px !important;
+    align-items:flex-start !important;
+  }
+
+  .lang-container{
+    top:12px !important;
+    right:12px !important;
+  }
+
+  .language-select{
+    font-size:12px !important;
+    padding:7px 10px !important;
+  }
+
+  .card{
+    width:100% !important;
+    max-width:420px !important;
+    margin:60px auto 20px !important;
+    padding:24px 18px !important;
+    border-radius:22px !important;
+  }
+
+  .logo{
+    width:68px !important;
+    height:68px !important;
+    padding:5px !important;
+    margin-bottom:14px !important;
+  }
+
+  h1{
+    font-size:24px !important;
+    line-height:1.2 !important;
+    margin-bottom:6px !important;
+  }
+
+  .subtitle{
+    font-size:13px !important;
+    line-height:1.5 !important;
+    margin-bottom:22px !important;
+  }
+
+  .input-box{
+    margin-bottom:16px !important;
+  }
+
+  .input-box i{
+    left:14px !important;
+    font-size:15px !important;
+  }
+
+  .input-box input{
+    height:50px !important;
+    padding:0 14px 0 42px !important;
+    font-size:16px !important;
+    border-radius:12px !important;
+  }
+
+  button{
+    height:50px !important;
+    padding:0 !important;
+    font-size:15px !important;
+    border-radius:12px !important;
+  }
+
+  .link{
+    margin-top:18px !important;
+    font-size:13px !important;
+    line-height:1.5 !important;
+  }
+
+  .loading{
+    font-size:13px !important;
+  }
+}
+
+@media (max-width:360px){
+
+  .card{
+    padding:20px 15px !important;
+  }
+
+  .logo{
+    width:60px !important;
+    height:60px !important;
+  }
+
+  h1{
+    font-size:21px !important;
+  }
+
+  .subtitle{
+    font-size:12px !important;
+  }
+
+  .input-box input{
+    font-size:15px !important;
+  }
 }
 </style>
 </head>

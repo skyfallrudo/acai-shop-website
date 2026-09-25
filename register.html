@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
 <title>Create Account | Acai Shop</title>
 <script src="language.js"></script>
 
@@ -56,18 +57,117 @@ body::after {
     z-index: -2;
 }
 
-@media (min-width: 769px) {
-    body::after {
-        background-image: url("bg-desktop.jpg");
+/* ---------- Mobile Responsive ---------- */
+@media (max-width: 768px){
+
+    body{
+        padding:16px;
+        align-items:flex-start;
     }
+
+    .lang-container{
+        top:14px;
+        right:14px;
+    }
+
+    .language-select{
+        font-size:12px;
+        padding:7px 10px;
+    }
+
+    .glow{
+        width:300px;
+        height:120px;
+        top:0;
+    }
+
+    .card{
+        width:100%;
+        max-width:430px;
+        margin:55px auto 20px;
+        padding:26px 20px;
+        border-radius:22px;
+        animation:none;
+    }
+
+    .logo img{
+        width:70px;
+        height:70px;
+    }
+
+    h1{
+        font-size:24px;
+        line-height:1.2;
+    }
+
+    p{
+        font-size:13px;
+        margin-bottom:22px;
+        line-height:1.5;
+    }
+
+    .input{
+        margin-bottom:16px;
+    }
+
+    .input i{
+        left:14px;
+        font-size:15px;
+    }
+
+    .input input{
+        height:50px;
+        padding:0 16px 0 44px;
+        font-size:16px;
+        border-radius:12px;
+    }
+
+    button{
+        height:50px;
+        font-size:15px;
+        border-radius:12px;
+    }
+
+    .footer{
+        font-size:13px;
+        margin-top:18px;
+        line-height:1.6;
+    }
+
+    .loading-box{
+        width:90%;
+        max-width:320px;
+        min-width:auto;
+        padding:28px 22px;
+    }
+
+    .spinner{
+        width:50px;
+        height:50px;
+    }
+
 }
 
-@media (max-width: 768px) {
-    body::after {
-        background-image: url("bg-mobile.jpg");
-    }
-}
+@media (max-width: 360px){
 
+    .card{
+        padding:22px 16px;
+    }
+
+    h1{
+        font-size:22px;
+    }
+
+    .logo img{
+        width:64px;
+        height:64px;
+    }
+
+    .input input{
+        font-size:15px;
+    }
+
+}
 body::before {
     content: "";
     position: fixed;
@@ -291,6 +391,118 @@ button:hover {
         width: 92%;
         padding: 30px;
     }
+}
+/* ===== Final Mobile Fix ===== */
+@media (max-width: 768px) {
+
+  body{
+    padding:16px !important;
+    align-items:flex-start !important;
+  }
+
+  body::after{
+    background-image:url("bg-mobile.jpg") !important;
+  }
+
+  .lang-container{
+    top:12px !important;
+    right:12px !important;
+  }
+
+  .language-select{
+    padding:6px 10px !important;
+    font-size:12px !important;
+  }
+
+  .glow{
+    width:260px !important;
+    height:100px !important;
+    top:8px !important;
+  }
+
+  .card{
+    width:100% !important;
+    max-width:420px !important;
+    margin:58px auto 18px !important;
+    padding:24px 18px !important;
+    border-radius:22px !important;
+    animation:none !important;
+  }
+
+  .logo img{
+    width:68px !important;
+    height:68px !important;
+    padding:5px !important;
+  }
+
+  h1{
+    font-size:24px !important;
+    line-height:1.2 !important;
+  }
+
+  p{
+    font-size:13px !important;
+    line-height:1.5 !important;
+    margin-bottom:20px !important;
+  }
+
+  .input{
+    margin-bottom:15px !important;
+  }
+
+  .input i{
+    left:14px !important;
+    font-size:15px !important;
+  }
+
+  .input input{
+    height:50px !important;
+    padding:0 14px 0 42px !important;
+    font-size:16px !important;
+    border-radius:12px !important;
+  }
+
+  button{
+    height:50px !important;
+    padding:0 !important;
+    font-size:15px !important;
+    border-radius:12px !important;
+  }
+
+  .footer{
+    margin-top:18px !important;
+    font-size:13px !important;
+    line-height:1.5 !important;
+  }
+
+  .loading-box{
+    width:90% !important;
+    max-width:310px !important;
+    min-width:auto !important;
+    padding:26px 20px !important;
+  }
+
+  .spinner{
+    width:48px !important;
+    height:48px !important;
+  }
+}
+
+@media (max-width:360px){
+
+  .card{
+    padding:20px 15px !important;
+  }
+
+  h1{
+    font-size:21px !important;
+  }
+
+  .logo img{
+    width:60px !important;
+    height:60px !important;
+  }
+
 }
 </style>
 </head>

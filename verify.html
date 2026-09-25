@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
 <title>Verify OTP | Acai Shop</title>
 
 <!-- Google tag (gtag.js) -->
@@ -58,14 +59,14 @@ body::after {
 
 @media (min-width: 769px) {
     body::after {
-        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-desktop.jpg");
+        background-image: url("bg-desktop.jpg");
     }
 }
 
 
 @media (max-width: 768px) {
     body::after {
-        background-image: url("https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/bg-mobile.jpg");
+        background-image: url("bg-mobile.jpg");
     }
 }
 
@@ -226,6 +227,112 @@ button:hover {
         min-width: 34px;
         font-size: 22px;
     }
+}
+/* ===== Final Mobile Responsive Fix ===== */
+@media (max-width:768px){
+
+  body{
+    padding:16px !important;
+    align-items:flex-start !important;
+  }
+
+  .card{
+    width:100% !important;
+    max-width:420px !important;
+    margin:55px auto 18px !important;
+    padding:24px 18px !important;
+    border-radius:22px !important;
+  }
+
+  .logo{
+    width:68px !important;
+    height:68px !important;
+    padding:5px !important;
+    margin-bottom:14px !important;
+  }
+
+  h1{
+    font-size:24px !important;
+    line-height:1.2 !important;
+    margin-bottom:8px !important;
+  }
+
+  p{
+    font-size:13px !important;
+    line-height:1.5 !important;
+    margin-bottom:20px !important;
+  }
+
+  .email{
+    font-size:12px !important;
+    margin-bottom:16px !important;
+  }
+
+  .otp-boxes{
+    gap:6px !important;
+    margin-bottom:20px !important;
+  }
+
+  .otp{
+    width:44px !important;
+    min-width:44px !important;
+    max-width:44px !important;
+    height:50px !important;
+    aspect-ratio:auto !important;
+    font-size:20px !important;
+    border-radius:12px !important;
+  }
+
+  button{
+    height:50px !important;
+    padding:0 !important;
+    font-size:15px !important;
+    border-radius:12px !important;
+  }
+
+  .loading{
+    font-size:13px !important;
+  }
+
+  #message{
+    font-size:13px !important;
+  }
+
+  .resend{
+    font-size:13px !important;
+    line-height:1.6 !important;
+  }
+}
+
+@media (max-width:360px){
+
+  .card{
+    padding:20px 15px !important;
+  }
+
+  h1{
+    font-size:22px !important;
+  }
+
+  .logo{
+    width:60px !important;
+    height:60px !important;
+  }
+
+  .otp{
+    width:38px !important;
+    min-width:38px !important;
+    max-width:38px !important;
+    height:46px !important;
+    font-size:18px !important;
+  }
+
+  p,
+  .resend,
+  .loading,
+  #message{
+    font-size:12px !important;
+  }
 }
 </style>
 </head>

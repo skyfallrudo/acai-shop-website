@@ -223,76 +223,25 @@ const translations = {
     placeOrder: "အော်ဒါတင်မည်"
   }
 };
-
-// မြို့နယ်အမည်များ (EN နှင့် MM)
-const townshipData = {
-    Yangon: {
-        en: ["Lanmadaw","Latha","Pabedan","Kyauktada","Pazundaung","Botahtaung","Kyimyindaing","Ahlone","Sanchaung","Insein","Mayangone","Hlaing","Kamayut","South Okkalapa","Thingangyun","Yankin","Dawbon","Thaketa","Tamwe","Bahan","Mingalar Taungnyunt","Dagon","Hlaingthaya","Shwepyitha","Mingaladon","North Okkalapa","South Dagon","North Dagon","East Dagon","Dagon Seikkan","Dala","Thanlyin","Hmawbi","Hlegu"],
-        mm: ["လသာ", "ပန်းဘဲတန်း", "ကျောက်တံတား", "လသာ", "ပုဇွန်တောင်", "ဗိုလ်တထောင်", "ကြည့်မြင်တိုင်", "အလုံ", "စမ်းချောင်း", "အင်းစိန်", "မရမ်းကုန်း", "လှိုင်", "ကမာရွတ်", "တောင်ဥက္ကလာပ", "သင်ဃန်းကျွန်း", "ရန်ကင်း", "ဒေါပုံ", "သာကေတ", "တမွေ", "ဗဟန်း", "မင်္ဂလာတောင်ညွန့်", "ဒဂုံ", "လှိုင်သာယာ", "ရွှေပြည်သာ", "မင်္ဂလာဒုံ", "မြောက်ဥက္ကလာပ", "တောင်ဒဂုံ", "မြောက်ဒဂုံ", "အရှေ့ဒဂုံ", "ဒဂုံဆိပ်ကမ်း", "ဒလ", "သန်လျင်", "မှော်ဘီ", "လှည်းကူး"]
-    },
-    Mandalay: {
-        en: ["Aungmyaythazan","Chanayethazan","Chanmyathazi","Maha Aungmyay","Pyigyidagun","Amarapura","Patheingyi","Pyin Oo Lwin","Kyaukse","Myittha","Kume","Yamethin","Myingyan","Bagan","Nyaung-U","Pyawbwe"],
-        mm: ["အောင်မြေသာစံ", "ချမ်းအေးသာစံ", "ချမ်းမြသာစည်", "မဟာအောင်မြောက်", "ပြည်ကြီးတံခွန်", "အမရပူရ", "ပုသိမ်ကြီး", "ပြင်ဦးလွင်", "ကျောက်ဆည်", "မြစ်သား", "ကူမဲ", "ရမည်းသင်း", "မြင်းခြံ", "ပုဂံ", "ညောင်ဦး", "ပျော်ဘွယ်"]
-    },
-    Naypyidaw: {
-        en: ["Zabuthiri","Ottarathiri","Pobbathiri","Dekkhinathiri","Pyinmana","Lewe","Tatkon","Zeyathiri"],
-        mm: ["ဇမ္ဗူသီရိ", "ဥတ္တရသီရိ", "ပုဗ္ဗသီရိ", "ဒက္ခိဏသီရိ", "ပျဉ်မနား", "လယ်ဝေး", "တပ်ကုန်း", "ဇေယျာသီရိ"]
-    },
-    Bago: {
-        en: ["Bago","Taungoo","Pyay","Phyu","Shwedaung","Myanaung","Shwegyin"],
-        mm: ["ပဲခူး", "တောင်ငူ", "ပြည်", "ဖြူး", "ရွှေတောင်", "မြန်အောင်", "ရွှေကျင်"]
-    },
-    Pathein: {
-        en: ["Pathein","Hinthada","Myaungmya","Maubin","Labutta","Kyonpyaw","Pantanaw"],
-        mm: ["ပုသိမ်", "ဟင်္သာတ", "မြောင်းမြ", "မအူပင်", "လပွတ္တာ", "ကျုံပျော်", "ပန်းတနော်"]
-    },
-    Mawlamyine: {
-        en: ["Mawlamyine","Thaton"],
-        mm: ["မော်လမြိုင်", "သထုံ"]
-    },
-    Taunggyi: {
-        en: ["Taunggyi","Aungban"],
-        mm: ["တောင်ကြီး", "အောင်ပန်း"]
-    },
-    Magway: {
-        en: ["Magway","Chauk","Aunglan","Yenangyaung","Minbu","Taungdwingyi"],
-        mm: ["မကွေး", "ချောက်", "အောင်လံ", "ရေနံချောင်း", "မင်းဘူး", "တောင်တွင်းကြီး"]
-    },
-    Sagaing: {
-        en: ["Monywa"],
-        mm: ["မုံရွာ"]
-    },
-    "Hpa-An": {
-        en: ["Myawaddy"],
-        mm: ["မြဝတီ"]
-    }
-};
-
 function changeLanguage(lang) {
   localStorage.setItem("language", lang);
 
-  document.querySelectorAll("[data-lang]").forEach(element => {
-    const key = element.dataset.lang;
-    if (translations[lang]?.[key]) {
-      element.textContent = translations[lang][key];
+  document.querySelectorAll("[data-lang]").forEach(el => {
+    const key = el.dataset.lang;
+    if (translations[lang] && translations[lang][key]) {
+      el.textContent = translations[lang][key];
     }
   });
 
-  document.querySelectorAll("[data-lang-placeholder]").forEach(element => {
-    const key = element.dataset.langPlaceholder;
-    if (translations[lang]?.[key]) {
-      element.placeholder = translations[lang][key];
+  document.querySelectorAll("[data-lang-placeholder]").forEach(el => {
+    const key = el.dataset.langPlaceholder;
+    if (translations[lang] && translations[lang][key]) {
+      el.placeholder = translations[lang][key];
     }
   });
 
-  // မြို့နယ် Select Box ရဲ့ Default စာသားကို ဘာသာစကားအလိုက် ပြောင်းရန်
-  const selectTownshipEl = document.getElementById("township");
-  if (selectTownshipEl && selectTownshipEl.options.length > 0) {
-    selectTownshipEl.options[0].textContent = (lang === "mm") ? "မြို့နယ်ကို ရွေးပါ" : "Select Township";
-  }
-
-  // မြို့နယ်စာရင်းများကို ဘာသာစကားအလိုက် အလိုအလျောက် Update လုပ်ရန်
-  if (typeof updateTownships === "function") {
+  const city = document.getElementById("city");
+  if (city && typeof updateTownships === "function") {
     updateTownships();
   }
 
@@ -304,14 +253,3 @@ function changeLanguage(lang) {
     loadProducts();
   }
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  const language = localStorage.getItem("language") || "en";
-  
-  const selectBox = document.querySelector(".language-select");
-  if (selectBox) {
-    selectBox.value = language;
-  }
-
-  changeLanguage(language);
-});

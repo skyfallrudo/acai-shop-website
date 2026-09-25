@@ -3,343 +3,372 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
+
 <title>Checkout | Acai Shop</title>
+
 <script src="language.js"></script>
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-F00XQ96WFJ');
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag("js", new Date());
+gtag("config","G-F00XQ96WFJ");
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: "Poppins", sans-serif;
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+font-family:"Poppins",sans-serif;
 }
 
-html, body {
-    width: 100%;
-    min-height: 100vh;
-    overflow-x: hidden;
+html,body{
+width:100%;
+min-height:100vh;
+overflow-x:hidden;
 }
 
-body {
-    background-color: #05080f;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px 20px;
-    position: relative;
-    color: white;
+body{
+background:#05080f;
+color:#fff;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+position:relative;
 }
 
-body::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: -2;
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background-size:cover;
+background-position:center;
+background-repeat:no-repeat;
+z-index:-2;
 }
 
-@media (min-width: 769px) {
-    body::after {
-        background-image: url("bg-desktop.jpg");
-    }
+@media(min-width:769px){
+body::after{
+background-image:url("bg-desktop.jpg");
+}
 }
 
-@media (max-width: 768px) {
-    body::after {
-        background-image: url("bg-mobile.jpg");
-    }
+@media(max-width:768px){
+body::after{
+background-image:url("bg-mobile.jpg");
+}
 }
 
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(5, 8, 15, 0.68);
-    z-index: -1;
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(5,8,15,.70);
+z-index:-1;
 }
 
-/* Language Switcher Styling */
-.lang-container {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 10;
+.lang-container{
+position:absolute;
+top:18px;
+right:18px;
+z-index:10;
 }
 
-.language-select {
-    padding: 8px 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.15);
-    background: rgba(15, 23, 42, 0.85);
-    color: white;
-    outline: none;
-    cursor: pointer;
-    font-family: Poppins, sans-serif;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    font-size: 13px;
+.language-select{
+padding:8px 12px;
+border-radius:10px;
+border:1px solid rgba(255,255,255,.15);
+background:rgba(15,23,42,.85);
+color:white;
+cursor:pointer;
+backdrop-filter:blur(12px);
+-webkit-backdrop-filter:blur(12px);
+font-size:13px;
 }
 
-.language-select option {
-    background: #111827;
-    color: white;
+.language-select option{
+background:#111827;
+color:white;
 }
 
-.card {
-    width: 100%;
-    max-width: 580px;
-    background: rgba(15, 23, 42, 0.88);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 28px;
-    padding: 38px 32px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
-    color: white;
-    position: relative;
-    z-index: 2;
+.card{
+width:100%;
+max-width:580px;
+background:rgba(15,23,42,.88);
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+border:1px solid rgba(255,255,255,.08);
+border-radius:28px;
+padding:34px 30px;
+box-shadow:0 25px 60px rgba(0,0,0,.45);
+position:relative;
+z-index:2;
 }
 
-.back {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 20px;
-    color: #93C5FD;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.25s ease;
+.back{
+display:inline-flex;
+align-items:center;
+gap:8px;
+text-decoration:none;
+color:#93C5FD;
+margin-bottom:20px;
+font-size:14px;
+font-weight:500;
+transition:.25s;
 }
 
-.back:hover {
-    color: white;
-    transform: translateX(-3px);
+.back:hover{
+color:white;
+transform:translateX(-3px);
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 6px;
-    font-size: 30px;
-    font-weight: 700;
+h1{
+text-align:center;
+font-size:30px;
+font-weight:700;
+margin-bottom:6px;
 }
 
-.subtitle {
-    text-align: center;
-    color: #CBD5E1;
-    font-size: 14px;
-    margin-bottom: 28px;
+.subtitle{
+text-align:center;
+color:#CBD5E1;
+margin-bottom:26px;
+font-size:14px;
 }
 
-.form-group {
-    margin-bottom: 18px;
+.form-group{
+margin-bottom:18px;
 }
 
-label {
-    display: block;
-    margin-bottom: 8px;
-    color: #CBD5E1;
-    font-size: 13.5px;
-    font-weight: 500;
+label{
+display:block;
+margin-bottom:8px;
+font-size:13px;
+color:#CBD5E1;
+font-weight:500;
 }
 
-.input-wrapper {
-    position: relative;
+.input-wrapper{
+position:relative;
 }
 
-.input-wrapper i {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94A3B8;
-    font-size: 15px;
-    pointer-events: none;
+.input-wrapper i{
+position:absolute;
+left:16px;
+top:50%;
+transform:translateY(-50%);
+color:#94A3B8;
+font-size:15px;
+pointer-events:none;
 }
 
-.input-wrapper.textarea-wrapper i {
-    top: 20px;
-    transform: none;
+.textarea-wrapper i{
+top:20px;
+transform:none;
 }
 
-input, select, textarea {
-    width: 100%;
-    padding: 14px 16px 14px 45px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    outline: none;
-    border-radius: 14px;
-    background: rgba(30, 41, 59, 0.6);
-    color: white;
-    font-family: "Poppins", sans-serif;
-    font-size: 14px;
-    transition: all 0.25s ease;
+input,
+select,
+textarea{
+width:100%;
+padding:14px 16px 14px 45px;
+border-radius:14px;
+border:1px solid rgba(255,255,255,.12);
+background:rgba(30,41,59,.60);
+color:white;
+outline:none;
+font-size:14px;
+transition:.25s;
 }
 
-textarea {
-    resize: vertical;
-    padding-top: 14px;
-}
-
-select {
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    cursor: pointer;
-}
-
-select option {
-    background: #0F172A;
-    color: white;
+textarea{
+resize:vertical;
+padding-top:14px;
 }
 
 input::placeholder,
-textarea::placeholder {
-    color: #64748B;
+textarea::placeholder{
+color:#64748B;
 }
 
-input:focus, select:focus, textarea:focus {
-    border-color: #3B82F6;
-    background: rgba(30, 41, 59, 0.9);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+input:focus,
+select:focus,
+textarea:focus{
+border-color:#3B82F6;
+box-shadow:0 0 0 4px rgba(59,130,246,.15);
+background:rgba(30,41,59,.9);
 }
 
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    font-size: 13.5px;
-    color: #E2E8F0;
-    user-select: none;
-    margin-bottom: 12px;
+select{
+appearance:none;
+-webkit-appearance:none;
+background-image:url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+background-repeat:no-repeat;
+background-position:right 14px center;
+cursor:pointer;
 }
 
-.checkbox-label input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #2563EB;
-    cursor: pointer;
+select option{
+background:#0F172A;
+color:white;
 }
 
-.alt-social-box {
-    border: 1px dashed rgba(255, 255, 255, 0.25);
-    padding: 18px;
-    border-radius: 16px;
-    background: rgba(15, 23, 42, 0.5);
-    margin-bottom: 18px;
+.checkbox-label{
+display:flex;
+align-items:center;
+gap:10px;
+cursor:pointer;
+color:#E2E8F0;
+font-size:13px;
 }
 
-.helper-text {
-    color: #94A3B8;
-    font-size: 12px;
-    margin-top: 8px;
-    line-height: 1.5;
-    word-break: break-word;
+.checkbox-label input{
+width:18px;
+height:18px;
+accent-color:#2563EB;
+cursor:pointer;
 }
 
-.summary-box {
-    background: rgba(30, 41, 59, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 20px;
+.alt-social-box{
+display:none;
+padding:18px;
+border-radius:16px;
+border:1px dashed rgba(255,255,255,.25);
+background:rgba(15,23,42,.5);
+margin-bottom:18px;
 }
 
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 14px;
-    color: #CBD5E1;
+.helper-text{
+font-size:12px;
+color:#94A3B8;
+margin-top:8px;
+line-height:1.5;
+word-break:break-word;
 }
 
-.summary-row.total {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 10px;
-    margin-top: 10px;
-    margin-bottom: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: #93C5FD;
+.summary-box{
+background:rgba(30,41,59,.6);
+border:1px solid rgba(255,255,255,.12);
+border-radius:14px;
+padding:18px;
+margin-bottom:20px;
 }
 
-#paymentInfo {
-    display: none;
-    background: rgba(30, 41, 59, 0.7);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    padding: 16px;
-    border-radius: 14px;
-    margin-bottom: 20px;
-    font-size: 13.5px;
-    color: #CBD5E1;
-    line-height: 1.6;
+.summary-row{
+display:flex;
+justify-content:space-between;
+margin-bottom:8px;
+font-size:14px;
+color:#CBD5E1;
 }
 
-#paymentInfo b {
-    color: #93C5FD;
+.summary-row.total{
+border-top:1px solid rgba(255,255,255,.1);
+padding-top:10px;
+margin-top:10px;
+margin-bottom:0;
+font-size:16px;
+font-weight:600;
+color:#93C5FD;
 }
 
-button[type="submit"] {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #3B82F6, #2563EB);
-    color: white;
-    font-family: "Poppins", sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
-    margin-top: 10px;
+#paymentInfo{
+display:none;
+padding:16px;
+border-radius:14px;
+border:1px solid rgba(59,130,246,.3);
+background:rgba(30,41,59,.7);
+margin-bottom:20px;
+font-size:13px;
+line-height:1.6;
+color:#CBD5E1;
 }
 
-button[type="submit"]:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35);
-    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+#paymentInfo b{
+color:#93C5FD;
 }
 
-@media(max-width: 600px) {
-    .card {
-        padding: 28px 20px;
-    }
-    h1 {
-        font-size: 24px;
-    }
+button[type="submit"]{
+width:100%;
+padding:16px;
+border:none;
+border-radius:14px;
+background:linear-gradient(135deg,#3B82F6,#2563EB);
+color:white;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+transition:.25s;
+box-shadow:0 8px 20px rgba(37,99,235,.25);
 }
+
+button[type="submit"]:hover{
+transform:translateY(-2px);
+box-shadow:0 12px 25px rgba(37,99,235,.35);
+}
+
+@media(max-width:600px){
+
+body{
+padding:14px;
+align-items:flex-start;
+}
+
+.card{
+margin-top:52px;
+padding:24px 18px;
+border-radius:22px;
+}
+
+h1{
+font-size:24px;
+}
+
+input,
+select,
+textarea{
+padding:13px 14px 13px 42px;
+font-size:15px;
+}
+
+button[type="submit"]{
+padding:15px;
+}
+
+.summary-row{
+font-size:13px;
+}
+
+.summary-row.total{
+font-size:15px;
+}
+
+.language-select{
+font-size:12px;
+padding:7px 10px;
+}
+
+}
+
 </style>
 </head>
-
 <body>
 
-<!-- Language Switcher Dropdown -->
+<!-- Language Switcher -->
 <div class="lang-container">
     <select class="language-select" onchange="changeLanguage(this.value)">
         <option value="en">English</option>
@@ -349,245 +378,464 @@ button[type="submit"]:hover {
 
 <div class="card">
 
-<a href="cart.html" class="back">
-    <i class="fa-solid fa-arrow-left"></i> <span data-lang="backToCart">Back to Cart</span>
-</a>
+    <a href="cart.html" class="back">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span data-lang="backToCart">Back to Cart</span>
+    </a>
 
-<h1 data-lang="checkoutTitle">Checkout</h1>
+    <h1 data-lang="checkoutTitle">Checkout</h1>
 
-<p class="subtitle" data-lang="checkoutSubtitle">
-Enter your delivery information.
-</p>
+    <p class="subtitle" data-lang="checkoutSubtitle">
+        Enter your delivery information.
+    </p>
 
-<form id="checkoutForm">
+    <form id="checkoutForm">
 
-<div class="form-group">
-    <label for="name" data-lang="fullName">Full Name *</label>
-    <div class="input-wrapper">
-        <i class="fa-solid fa-user"></i>
-        <input id="name" required placeholder="Enter your full name" data-lang-placeholder="fullNamePlaceholder">
-    </div>
-</div>
-
-<div class="form-group">
-    <label for="phone" data-lang="phoneNumber">Phone Number *</label>
-    <div class="input-wrapper">
-        <i class="fa-solid fa-phone"></i>
-        <input id="phone" required placeholder="09xxxxxxxxx">
-    </div>
-</div>
-
-<!-- Telegram Account Section -->
-<div class="form-group" id="telegramGroup">
-    <label for="telegram" data-lang="telegramAcc">Telegram Account / Username *</label>
-    <div class="input-wrapper">
-        <i class="fa-brands fa-telegram"></i>
-        <input id="telegram" placeholder="@username or Phone Number" data-lang-placeholder="telegramPlaceholder">
-    </div>
-</div>
-
-<!-- Checkbox: I don't have Telegram -->
-<div class="form-group">
-    <label class="checkbox-label">
-        <input type="checkbox" id="noTelegram" onchange="toggleTelegramInput()">
-        <i data-lang="noTelegram">I don't have Telegram</i>
-    </label>
-</div>
-
-<!-- Alternative Social Media Section -->
-<div class="alt-social-box" id="altSocialGroup" style="display: none;">
-    <div class="form-group" style="margin-bottom: 0;">
-        <label for="altSocial" style="color: #93C5FD;" data-lang="altSocialLabel">Where else can we reach you? *</label>
-        <div class="input-wrapper">
-            <i class="fa-solid fa-share-nodes"></i>
-            <input id="altSocial" placeholder="e.g., Viber, Instagram, Snapchat, Discord" data-lang-placeholder="altSocialPlaceholder">
+        <div class="form-group">
+            <label for="name" data-lang="fullName">Full Name *</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-user"></i>
+                <input id="name" required
+                    placeholder="Enter your full name"
+                    data-lang-placeholder="fullNamePlaceholder">
+            </div>
         </div>
-        <div class="helper-text" data-lang="altSocialHelper">
-            e.g., Viber: Your phone number / Instagram: @username / Snapchat: @username / Discord: @username
+
+        <div class="form-group">
+            <label for="phone" data-lang="phoneNumber">Phone Number *</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-phone"></i>
+                <input id="phone"
+                    required
+                    pattern="^09[0-9]{7,9}$"
+                    placeholder="09xxxxxxxxx">
+            </div>
         </div>
-    </div>
-</div>
 
-<div class="form-group">
-    <label for="city" data-lang="city">City *</label>
-    <div class="input-wrapper">
-        <i class="fa-solid fa-city"></i>
-        <select id="city" required onchange="updateTownships()">
-            <option value="" data-lang="selectCity">Select City</option>
-            <option value="Yangon / ရန်ကုန်">Yangon / ရန်ကုန်</option>
-            <option value="Mandalay / မန္တလေး">Mandalay / မန္တလေး</option>
-            <option value="Naypyidaw / နေပြည်တော်">Naypyidaw / နေပြည်တော်</option>
-            <option value="Bago / ပဲခူး">Bago / ပဲခူး</option>
-            <option value="Pathein / ပုသိမ်">Pathein / ပုသိမ်</option>
-            <option value="Mawlamyine / မော်လမြိုင်">Mawlamyine / မော်လမြိုင်</option>
-            <option value="Taunggyi / တောင်ကြီး">Taunggyi / တောင်ကြီး</option>
-            <option value="Magway / မကွေး">Magway / မကွေး</option>
-            <option value="Sagaing / စစ်ကိုင်း">Sagaing / စစ်ကိုင်း</option>
-            <option value="Hpa-An / ဘားအံ">Hpa-An / ဘားအံ</option>
-        </select>
-    </div>
-</div>
+        <!-- Telegram -->
+        <div class="form-group" id="telegramGroup">
+            <label for="telegram" data-lang="telegramAcc">
+                Telegram Account / Username *
+            </label>
 
-<div class="form-group">
-    <label for="township" data-lang="township">Township *</label>
-    <div class="input-wrapper">
-        <i class="fa-solid fa-location-dot"></i>
-        <select id="township" required onchange="calculateTotals()">
-            <option value="" data-lang="selectTownship">Select Township</option>
-        </select>
-    </div>
-</div>
+            <div class="input-wrapper">
+                <i class="fa-brands fa-telegram"></i>
+                <input id="telegram"
+                    placeholder="@username or Phone Number"
+                    data-lang-placeholder="telegramPlaceholder">
+            </div>
+        </div>
 
-<div class="form-group">
-    <label for="road" data-lang="road">Road / Street *</label>
-    <div class="input-wrapper">
-        <i class="fa-solid fa-road"></i>
-        <input id="road" required placeholder="Example: Insein Road" data-lang-placeholder="roadPlaceholder">
-    </div>
-</div>
+        <!-- No Telegram -->
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox"
+                    id="noTelegram"
+                    onchange="toggleTelegramInput()">
 
-<div class="form-group">
-    <label for="building" data-lang="building">Building / Apartment (Optional)</label>
-    <div class="input-wrapper">
-        <i class="fa-solid fa-building"></i>
-        <input id="building" placeholder="Apartment, Floor, Room" data-lang-placeholder="buildingPlaceholder">
-    </div>
-</div>
+                <i data-lang="noTelegram">
+                    I don't have Telegram
+                </i>
+            </label>
+        </div>
 
-<div class="form-group">
-    <label for="address" data-lang="address">House No. / Landmark *</label>
-    <div class="input-wrapper textarea-wrapper">
-        <i class="fa-solid fa-house"></i>
-        <textarea id="address" rows="3" required placeholder="House No., Landmark" data-lang-placeholder="addressPlaceholder"></textarea>
-    </div>
-</div>
+        <!-- Alternative Social -->
+        <div class="alt-social-box" id="altSocialGroup">
 
-<div class="form-group">
-    <label for="payment" data-lang="paymentMethod">Payment Method *</label>
-    <div class="input-wrapper">
-        <i class="fa-solid fa-wallet"></i>
-        <select id="payment" onchange="togglePaymentInfo()">
-            <option value="Cash on Delivery">🚚 Cash on Delivery (COD)</option>
-            <option value="KBZPay">💙 KBZPay</option>
-            <option value="WavePay">🟡 WavePay</option>
-        </select>
-    </div>
-</div>
+            <div class="form-group" style="margin-bottom:0;">
 
-<div id="paymentInfo"></div>
+                <label for="altSocial"
+                    style="color:#93C5FD;"
+                    data-lang="altSocialLabel">
 
-<!-- Order Summary Box -->
-<div class="summary-box">
-    <div class="summary-row">
-        <span data-lang="subtotal">Subtotal</span>
-        <span id="subtotalDisplay">0 MMK</span>
-    </div>
-    <div class="summary-row">
-        <span data-lang="deliFee">Delivery Fee</span>
-        <span id="deliDisplay">0 MMK</span>
-    </div>
-    <div class="summary-row total">
-        <span data-lang="totalAmount">Total Amount</span>
-        <span id="totalDisplay">0 MMK</span>
-    </div>
-</div>
+                    Where else can we reach you? *
 
-<button type="submit" data-lang="placeOrder">Place Order</button>
+                </label>
 
-</form>
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-share-nodes"></i>
+
+                    <input id="altSocial"
+                        placeholder="Viber, Instagram, Discord..."
+                        data-lang-placeholder="altSocialPlaceholder">
+
+                </div>
+
+                <div class="helper-text" data-lang="altSocialHelper">
+
+                    Example:
+                    Viber - Phone Number
+                    Instagram - @username
+                    Discord - @username
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- City -->
+
+        <div class="form-group">
+
+            <label for="city" data-lang="city">City *</label>
+
+            <div class="input-wrapper">
+
+                <i class="fa-solid fa-city"></i>
+
+                <select id="city"
+                    required
+                    onchange="updateTownships()">
+
+                    <option value="" data-lang="selectCity">
+                        Select City
+                    </option>
+
+                    <option value="yangon">Yangon / ရန်ကုန်</option>
+                    <option value="mandalay">Mandalay / မန္တလေး</option>
+                    <option value="naypyidaw">Naypyidaw / နေပြည်တော်</option>
+                    <option value="bago">Bago / ပဲခူး</option>
+                    <option value="pathein">Pathein / ပုသိမ်</option>
+                    <option value="mawlamyine">Mawlamyine / မော်လမြိုင်</option>
+                    <option value="taunggyi">Taunggyi / တောင်ကြီး</option>
+                    <option value="magway">Magway / မကွေး</option>
+                    <option value="sagaing">Sagaing / စစ်ကိုင်း</option>
+                    <option value="hpa-an">Hpa-An / ဘားအံ</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <!-- Township -->
+
+        <div class="form-group">
+
+            <label for="township" data-lang="township">
+                Township *
+            </label>
+
+            <div class="input-wrapper">
+
+                <i class="fa-solid fa-location-dot"></i>
+
+                <select id="township"
+                    required
+                    onchange="calculateTotals()">
+
+                    <option value=""
+                        data-lang="selectTownship">
+
+                        Select Township
+
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <!-- Road -->
+
+        <div class="form-group">
+
+            <label for="road" data-lang="road">
+                Road / Street *
+            </label>
+
+            <div class="input-wrapper">
+
+                <i class="fa-solid fa-road"></i>
+
+                <input id="road"
+                    required
+                    placeholder="Example: Insein Road"
+                    data-lang-placeholder="roadPlaceholder">
+
+            </div>
+
+        </div>
+
+        <!-- Building -->
+
+        <div class="form-group">
+
+            <label for="building" data-lang="building">
+                Building / Apartment (Optional)
+            </label>
+
+            <div class="input-wrapper">
+
+                <i class="fa-solid fa-building"></i>
+
+                <input id="building"
+                    placeholder="Apartment, Floor, Room"
+                    data-lang-placeholder="buildingPlaceholder">
+
+            </div>
+
+        </div>
+
+        <!-- House -->
+
+        <div class="form-group">
+
+            <label for="address" data-lang="address">
+                House No. / Landmark *
+            </label>
+
+            <div class="input-wrapper textarea-wrapper">
+
+                <i class="fa-solid fa-house"></i>
+
+                <textarea id="address"
+                    rows="3"
+                    required
+                    placeholder="House No., Landmark"
+                    data-lang-placeholder="addressPlaceholder"></textarea>
+
+            </div>
+
+        </div>
+
+        <!-- Payment -->
+
+        <div class="form-group">
+
+            <label for="payment" data-lang="paymentMethod">
+                Payment Method *
+            </label>
+
+            <div class="input-wrapper">
+
+                <i class="fa-solid fa-wallet"></i>
+
+                <select id="payment"
+                    required
+                    onchange="togglePaymentInfo()">
+
+                    <option value="Cash on Delivery">
+                        🚚 Cash on Delivery (COD)
+                    </option>
+
+                    <option value="KBZPay">
+                        💙 KBZPay
+                    </option>
+
+                    <option value="WavePay">
+                        🟡 WavePay
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <div id="paymentInfo"></div>
+
+        <!-- Order Summary -->
+
+        <div class="summary-box">
+
+            <div class="summary-row">
+
+                <span data-lang="subtotal">Subtotal</span>
+
+                <span id="subtotalDisplay">0 MMK</span>
+
+            </div>
+
+            <div class="summary-row">
+
+                <span data-lang="deliFee">Delivery Fee</span>
+
+                <span id="deliDisplay">0 MMK</span>
+
+            </div>
+
+            <div class="summary-row total">
+
+                <span data-lang="totalAmount">Total Amount</span>
+
+                <span id="totalDisplay">0 MMK</span>
+
+            </div>
+
+        </div>
+
+        <button type="submit" data-lang="placeOrder">
+            Place Order
+        </button>
+
+    </form>
 
 </div>
 
 <script>
-// မြို့နယ်အမည်များကို English / Myanmar ပုံစံဖြင့် တစ်ခါတည်း ထည့်သွင်းထားသည်
+    // ===== Township Data =====
 const townshipData = {
-    Yangon: [
-        "Lanmadaw / လမ်းမတော်", "Latha / လသာ", "Pabedan / ပန်းဘဲတန်း", "Kyauktada / ကျောက်တံတား",
-        "Pazundaung / ပုဇွန်တောင်", "Botahtaung / ဗိုလ်တထောင်", "Kyimyindaing / ကြည်မြင်တိုင်", "Ahlone / အလုံ",
-        "Sanchaung / စမ်းချောင်း", "Insein / အင်းစိန်", "Mayangone / မရမ်းကုန်း", "Hlaing / လှိုင်",
-        "Kamayut / ကမာရွတ်", "South Okkalapa / တောင်ဥက္ကလာပ", "Thingangyun / သင်ဃန်းကျွန်း", "Yankin / ရန်ကင်း",
-        "Dawbon / ဒေါပုံ", "Thaketa / သာကေတ", "Tamwe / တမွေ", "Bahan / ဗဟန်း",
-        "Mingalar Taungnyunt / မင်္ဂလာတောင်ညွန့်", "Dagon / ဒဂုံ", "Hlaingthaya / လှိုင်သာယာ", "Shwepyitha / ရွှေပြည်သာ",
-        "Mingaladon / မင်္ဂလာဒုံ", "North Okkalapa / မြောက်ဥက္ကလာပ", "South Dagon / တောင်ဒဂုံ", "North Dagon / မြောက်ဒဂုံ",
-        "East Dagon / အရှေ့ဒဂုံ", "Dagon Seikkan / ဒဂုံဆိပ်ကမ်း", "Dala / ဒလ", "Thanlyin / သန်လျင်",
-        "Hmawbi / မှော်ဘီ", "Hlegu / လှည်းကူး"
+    yangon: [
+        "Lanmadaw / လမ်းမတော်","Latha / လသာ","Pabedan / ပန်းဘဲတန်း","Kyauktada / ကျောက်တံတား",
+        "Pazundaung / ပုဇွန်တောင်","Botahtaung / ဗိုလ်တထောင်","Kyimyindaing / ကြည်မြင်တိုင်","Ahlone / အလုံ",
+        "Sanchaung / စမ်းချောင်း","Insein / အင်းစိန်","Mayangone / မရမ်းကုန်း","Hlaing / လှိုင်",
+        "Kamayut / ကမာရွတ်","South Okkalapa / တောင်ဥက္ကလာပ","Thingangyun / သင်ဃန်းကျွန်း","Yankin / ရန်ကင်း",
+        "Dawbon / ဒေါပုံ","Thaketa / သာကေတ","Tamwe / တမွေ","Bahan / ဗဟန်း",
+        "Mingalar Taungnyunt / မင်္ဂလာတောင်ညွန့်","Dagon / ဒဂုံ","Hlaingthaya / လှိုင်သာယာ","Shwepyitha / ရွှေပြည်သာ",
+        "Mingaladon / မင်္ဂလာဒုံ","North Okkalapa / မြောက်ဥက္ကလာပ","South Dagon / တောင်ဒဂုံ","North Dagon / မြောက်ဒဂုံ",
+        "East Dagon / အရှေ့ဒဂုံ","Dagon Seikkan / ဒဂုံဆိပ်ကမ်း","Dala / ဒလ","Thanlyin / သန်လျင်",
+        "Hmawbi / မှော်ဘီ","Hlegu / လှည်းကူး"
     ],
-    Mandalay: [
-        "Aungmyaythazan / အောင်မြေသာစံ", "Chanayethazan / ချမ်းအေးသာစံ", "Chanmyathazi / ချမ်းမြသာစည်",
-        "Maha Aungmyay / မဟာအောင်မြေ", "Pyigyidagun / ပြည်ကြီးတံခွန်", "Amarapura / အမရပူရ",
-        "Patheingyi / ပုသိမ်ကြီး", "Pyin Oo Lwin / ပြင်ဦးလွင်", "Kyaukse / ကျောက်ဆည်",
-        "Myittha / မြစ်သား", "Kume / ကုမု", "Yamethin / ရမည်းသင်း", "Myingyan / မြင်းခြံ",
-        "Bagan / ပုဂံ", "Nyaung-U / ညောင်ဦး", "Pyawbwe / ပျော်ဘွယ်"
+
+    mandalay: [
+        "Aungmyaythazan / အောင်မြေသာစံ","Chanayethazan / ချမ်းအေးသာစံ","Chanmyathazi / ချမ်းမြသာစည်",
+        "Maha Aungmyay / မဟာအောင်မြေ","Pyigyidagun / ပြည်ကြီးတံခွန်","Amarapura / အမရပူရ",
+        "Patheingyi / ပုသိမ်ကြီး","Pyin Oo Lwin / ပြင်ဦးလွင်","Kyaukse / ကျောက်ဆည်",
+        "Myittha / မြစ်သား","Kume / ကုမု","Yamethin / ရမည်းသင်း","Myingyan / မြင်းခြံ",
+        "Bagan / ပုဂံ","Nyaung-U / ညောင်ဦး","Pyawbwe / ပျော်ဘွယ်"
     ],
-    Naypyidaw: [
-        "Zabuthiri / ဇဗ္ဗူသီရိ", "Ottarathiri / ဥတ္တရသီရိ", "Pobbathiri / ပုဗ္ဗသီရိ",
-        "Dekkhinathiri / ဒက္ခိဏသီရိ", "Pyinmana / ပြည်ကြီးမဏ္ဍိုင် (ပြည်မနား)", "Lewe / လယ်ဝေး",
-        "Tatkon / တပ်ကုန်း", "Zeyathiri / ဇေယျာသီရိ"
+
+    naypyidaw: [
+        "Zabuthiri / ဇဗ္ဗူသီရိ","Ottarathiri / ဥတ္တရသီရိ","Pobbathiri / ပုဗ္ဗသီရိ",
+        "Dekkhinathiri / ဒက္ခိဏသီရိ","Pyinmana / ပြည်ကြီးမဏ္ဍိုင် (ပြည်မနား)","Lewe / လယ်ဝေး",
+        "Tatkon / တပ်ကုန်း","Zeyathiri / ဇေယျာသီရိ"
     ],
-    Bago: [
-        "Bago / ပဲခူး", "Taungoo / တောင်ငူ", "Pyay / ပြည်", "Phyu / ဖြူး",
-        "Shwedaung / ရွှေတောင်", "Myanaung / မြန်အောင်", "Shwegyin / ရွှေကျင်"
+
+    bago: [
+        "Bago / ပဲခူး","Taungoo / တောင်ငူ","Pyay / ပြည်","Phyu / ဖြူး",
+        "Shwedaung / ရွှေတောင်","Myanaung / မြန်အောင်","Shwegyin / ရွှေကျင်"
     ],
-    Pathein: [
-        "Pathein / ပုသိမ်", "Hinthada / ဟင်္သာတ", "Myaungmya / မြောင်းမြ",
-        "Maubin / မအူပင်", "Labutta / လပွတ္တာ", "Kyonpyaw / ကျုံပျော်", "Pantanaw / ပန်းတနော်"
+
+    pathein: [
+        "Pathein / ပုသိမ်","Hinthada / ဟင်္သာတ","Myaungmya / မြောင်းမြ",
+        "Maubin / မအူပင်","Labutta / လပွတ္တာ","Kyonpyaw / ကျုံပျော်","Pantanaw / ပန်းတနော်"
     ],
-    Mawlamyine: [
-        "Mawlamyine / မော်လမြိုင်", "Thaton / သထုံ"
+
+    mawlamyine: [
+        "Mawlamyine / မော်လမြိုင်","Thaton / သထုံ"
     ],
-    Taunggyi: [
-        "Taunggyi / တောင်ကြီး", "Aungban / အောင်ပန်း"
+
+    taunggyi: [
+        "Taunggyi / တောင်ကြီး","Aungban / အောင်ပန်း"
     ],
-    Magway: [
-        "Magway / မကွေး", "Chauk / ချောက်", "Aunglan / အောင်လံ",
-        "Yenangyaung / ရေနံချောင်း", "Minbu / မင်းဘူး", "Taungdwingyi / တောင်တွင်းကြီး"
+
+    magway: [
+        "Magway / မကွေး","Chauk / ချောက်","Aunglan / အောင်လံ",
+        "Yenangyaung / ရေနံချောင်း","Minbu / မင်းဘူး","Taungdwingyi / တောင်တွင်းကြီး"
     ],
-    Sagaing: [
+
+    sagaing: [
         "Monywa / မုံရွာ"
     ],
-    "Hpa-An": [
+
+    "hpa-an": [
         "Myawaddy / မြဝတီ"
     ]
 };
 
-// မြို့နယ်အမည်ပေါ်မူတည်ပြီး ပို့ခနှုန်းထားတွက်ရန် Delivery Rates
+// ===== Delivery Rates =====
 const deliRates = {
-  "Lanmadaw / လမ်းမတော်": 3500, "Latha / လသာ": 3500, "Pabedan / ပန်းဘဲတန်း": 3500, "Kyauktada / ကျောက်တံတား": 3500,
-  "Pazundaung / ပုဇွန်တောင်": 3500, "Botahtaung / ဗိုလ်တထောင်": 3500, "Kyimyindaing / ကြည်မြင်တိုင်": 3500, "Ahlone / အလုံ": 3500,
-  "Sanchaung / စမ်းချောင်း": 3500, "Insein / အင်းစိန်": 3500, "Mayangone / မရမ်းကုန်း": 3500, "Hlaing / လှိုင်": 3500,
-  "Kamayut / ကမာရွတ်": 3500, "South Okkalapa / တောင်ဥက္ကလာပ": 3500, "Thingangyun / သင်ဃန်းကျွန်း": 3500, "Yankin / ရန်ကင်း": 3500,
-  "Dawbon / ဒေါပုံ": 3500, "Thaketa / သာကေတ": 3500, "Tamwe / တမွေ": 3500, "Bahan / ဗဟန်း": 3500,
-  "Mingalar Taungnyunt / မင်္ဂလာတောင်ညွန့်": 3500, "Dagon / ဒဂုံ": 3500,
 
-  "Hlaingthaya / လှိုင်သာယာ": 4000, "Shwepyitha / ရွှေပြည်သာ": 4000, "Mingaladon / မင်္ဂလာဒုံ": 4000, "North Okkalapa / မြောက်ဥက္ကလာပ": 4000,
-  "South Dagon / တောင်ဒဂုံ": 4000, "North Dagon / မြောက်ဒဂုံ": 4000, "East Dagon / အရှေ့ဒဂုံ": 4000, "Dagon Seikkan / ဒဂုံဆိပ်ကမ်း": 4000,
-  "Dala / ဒလ": 4000, "Thanlyin / သန်လျင်": 4000,
+"Lanmadaw / လမ်းမတော်":3500,
+"Latha / လသာ":3500,
+"Pabedan / ပန်းဘဲတန်း":3500,
+"Kyauktada / ကျောက်တံတား":3500,
+"Pazundaung / ပုဇွန်တောင်":3500,
+"Botahtaung / ဗိုလ်တထောင်":3500,
+"Kyimyindaing / ကြည်မြင်တိုင်":3500,
+"Ahlone / အလုံ":3500,
+"Sanchaung / စမ်းချောင်း":3500,
+"Insein / အင်းစိန်":3500,
+"Mayangone / မရမ်းကုန်း":3500,
+"Hlaing / လှိုင်":3500,
+"Kamayut / ကမာရွတ်":3500,
+"South Okkalapa / တောင်ဥက္ကလာပ":3500,
+"Thingangyun / သင်ဃန်းကျွန်း":3500,
+"Yankin / ရန်ကင်း":3500,
+"Dawbon / ဒေါပုံ":3500,
+"Thaketa / သာကေတ":3500,
+"Tamwe / တမွေ":3500,
+"Bahan / ဗဟန်း":3500,
+"Mingalar Taungnyunt / မင်္ဂလာတောင်ညွန့်":3500,
+"Dagon / ဒဂုံ":3500,
 
-  "Hmawbi / မှော်ဘီ": 4500, "Hlegu / လှည်းကူး": 4500,
+"Hlaingthaya / လှိုင်သာယာ":4000,
+"Shwepyitha / ရွှေပြည်သာ":4000,
+"Mingaladon / မင်္ဂလာဒုံ":4000,
+"North Okkalapa / မြောက်ဥက္ကလာပ":4000,
+"South Dagon / တောင်ဒဂုံ":4000,
+"North Dagon / မြောက်ဒဂုံ":4000,
+"East Dagon / အရှေ့ဒဂုံ":4000,
+"Dagon Seikkan / ဒဂုံဆိပ်ကမ်း":4000,
+"Dala / ဒလ":4000,
+"Thanlyin / သန်လျင်":4000,
 
-  "Aungmyaythazan / အောင်မြေသာစံ": 5000, "Chanayethazan / ချမ်းအေးသာစံ": 5000, "Chanmyathazi / ချမ်းမြသာစည်": 5000, "Maha Aungmyay / မဟာအောင်မြေ": 5000,
-  "Pyigyidagun / ပြည်ကြီးတံခွန်": 5000, "Amarapura / အမရပူရ": 5000, "Patheingyi / ပုသိမ်ကြီး": 5000, "Pyin Oo Lwin / ပြင်ဦးလွင်": 5000,
-  "Myittha / မြစ်သား": 5000, "Kume / ကုမု": 5000, "Kyaukse / ကျောက်ဆည်": 5000, "Yamethin / ရမည်းသင်း": 5000, "Myingyan / မြင်းခြံ": 5000,
-  "Bagan / ပုဂံ": 5000, "Nyaung-U / ညောင်ဦး": 5000, "Pyawbwe / ပျော်ဘွယ်": 5000,
+"Hmawbi / မှော်ဘီ":4500,
+"Hlegu / လှည်းကူး":4500,
 
-  "Zabuthiri / ဇဗ္ဗူသီရိ": 5000, "Ottarathiri / ဥတ္တရသီရိ": 5000, "Pobbathiri / ပုဗ္ဗသီရိ": 5000, "Dekkhinathiri / ဒက္ခိဏသီရိ": 5000,
-  "Pyinmana / ပြည်ကြီးမဏ္ဍိုင် (ပြည်မနား)": 5000, "Lewe / လယ်ဝေး": 5000, "Tatkon / တပ်ကုန်း": 5000, "Zeyathiri / ဇေယျာသီရိ": 5000,
+"Aungmyaythazan / အောင်မြေသာစံ":5000,
+"Chanayethazan / ချမ်းအေးသာစံ":5000,
+"Chanmyathazi / ချမ်းမြသာစည်":5000,
+"Maha Aungmyay / မဟာအောင်မြေ":5000,
+"Pyigyidagun / ပြည်ကြီးတံခွန်":5000,
+"Amarapura / အမရပူရ":5000,
+"Patheingyi / ပုသိမ်ကြီး":5000,
+"Pyin Oo Lwin / ပြင်ဦးလွင်":5000,
+"Myittha / မြစ်သား":5000,
+"Kume / ကုမု":5000,
+"Kyaukse / ကျောက်ဆည်":5000,
+"Yamethin / ရမည်းသင်း":5000,
+"Myingyan / မြင်းခြံ":5000,
+"Bagan / ပုဂံ":5000,
+"Nyaung-U / ညောင်ဦး":5000,
+"Pyawbwe / ပျော်ဘွယ်":5000,
 
-  "Bago / ပဲခူး": 5000, "Taungoo / တောင်ငူ": 5000, "Pyay / ပြည်": 5000, "Phyu / ဖြူး": 5000, "Shwedaung / ရွှေတောင်": 5000, "Myanaung / မြန်အောင်": 5000, "Shwegyin / ရွှေကျင်": 5000,
+"Zabuthiri / ဇဗ္ဗူသီရိ":5000,
+"Ottarathiri / ဥတ္တရသီရိ":5000,
+"Pobbathiri / ပုဗ္ဗသီရိ":5000,
+"Dekkhinathiri / ဒက္ခိဏသီရိ":5000,
+"Pyinmana / ပြည်ကြီးမဏ္ဍိုင် (ပြည်မနား)":5000,
+"Lewe / လယ်ဝေး":5000,
+"Tatkon / တပ်ကုန်း":5000,
+"Zeyathiri / ဇေယျာသီရိ":5000,
 
-  "Pathein / ပုသိမ်": 5000, "Hinthada / ဟင်္သာတ": 5000, "Myaungmya / မြောင်းမြ": 5000, "Maubin / မအူပင်": 5000, "Labutta / လပွတ္တာ": 5000, "Kyonpyaw / ကျုံပျော်": 5000, "Pantanaw / ပန်းတနော်": 5000,
-  
-  "Mawlamyine / မော်လမြိုင်": 5000, "Thaton / သထုံ": 5000,
+"Bago / ပဲခူး":5000,
+"Taungoo / တောင်ငူ":5000,
+"Pyay / ပြည်":5000,
+"Phyu / ဖြူး":5000,
+"Shwedaung / ရွှေတောင်":5000,
+"Myanaung / မြန်အောင်":5000,
+"Shwegyin / ရွှေကျင်":5000,
 
-  "Taunggyi / တောင်ကြီး": 5000, "Aungban / အောင်ပန်း": 5000,
+"Pathein / ပုသိမ်":5000,
+"Hinthada / ဟင်္သာတ":5000,
+"Myaungmya / မြောင်းမြ":5000,
+"Maubin / မအူပင်":5000,
+"Labutta / လပွတ္တာ":5000,
+"Kyonpyaw / ကျုံပျော်":5000,
+"Pantanaw / ပန်းတနော်":5000,
 
-  "Monywa / မုံရွာ": 5000,
+"Mawlamyine / မော်လမြိုင်":5000,
+"Thaton / သထုံ":5000,
 
-  "Magway / မကွေး": 5000, "Chauk / ချောက်": 5000, "Aunglan / အောင်လံ": 5000, "Yenangyaung / ရေနံချောင်း": 5000, "Minbu / မင်းဘူး": 5000, "Taungdwingyi / တောင်တွင်းကြီး": 5000,
+"Taunggyi / တောင်ကြီး":5000,
+"Aungban / အောင်ပန်း":5000,
 
-  "Myawaddy / မြဝတီ": 7000
+"Monywa / မုံရွာ":5000,
+
+"Magway / မကွေး":5000,
+"Chauk / ချောက်":5000,
+"Aunglan / အောင်လံ":5000,
+"Yenangyaung / ရေနံချောင်း":5000,
+"Minbu / မင်းဘူး":5000,
+"Taungdwingyi / တောင်တွင်းကြီး":5000,
+
+"Myawaddy / မြဝတီ":7000
 };
-
 function toggleTelegramInput() {
     const noTelegram = document.getElementById("noTelegram").checked;
     const telegramGroup = document.getElementById("telegramGroup");
@@ -610,139 +858,184 @@ function toggleTelegramInput() {
     }
 }
 
-function updateTownships(){
-    const city = document.getElementById("city").value;
+function updateTownships() {
+    const city = document.getElementById("city").value.toLowerCase();
     const townshipSelect = document.getElementById("township");
     const currentLang = localStorage.getItem("language") || "en";
-    
-    townshipSelect.innerHTML = `<option value="">${currentLang === "mm" ? "မြို့နယ်ကို ရွေးပါ" : "Select Township"}</option>`;
 
-    let selectedTownships = [];
-    
-    if (city.includes("Yangon")) {
-        selectedTownships = townshipData.Yangon;
-    } else if (city.includes("Mandalay")) {
-        selectedTownships = townshipData.Mandalay;
-    } else if (city.includes("Naypyidaw")) {
-        selectedTownships = townshipData.Naypyidaw;
-    } else if (city.includes("Bago")) {
-        selectedTownships = townshipData.Bago;
-    } else if (city.includes("Pathein")) {
-        selectedTownships = townshipData.Pathein;
-    } else if (city.includes("Mawlamyine")) {
-        selectedTownships = townshipData.Mawlamyine;
-    } else if (city.includes("Taunggyi")) {
-        selectedTownships = townshipData.Taunggyi;
-    } else if (city.includes("Magway")) {
-        selectedTownships = townshipData.Magway;
-    } else if (city.includes("Sagaing")) {
-        selectedTownships = townshipData.Sagaing;
-    } else if (city.includes("Hpa-An")) {
-        selectedTownships = townshipData["Hpa-An"];
-    }
+    townshipSelect.innerHTML =
+        `<option value="">${currentLang==="mm"?"မြို့နယ်ကို ရွေးပါ":"Select Township"}</option>`;
 
-    if(!selectedTownships) {
-        calculateTotals();
-        return;
-    }
-
-    selectedTownships.forEach((townshipName) => {
+    (townshipData[city] || []).forEach(name=>{
         const option = document.createElement("option");
-        option.value = townshipName; 
-        option.textContent = townshipName; 
+        option.value = name;
+        option.textContent = name;
         townshipSelect.appendChild(option);
     });
-    
+
     calculateTotals();
 }
 
-function calculateTotals(){
+function calculateTotals() {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
+    const subtotal = cart.reduce((s,i)=>s+Number(i.price)*Number(i.qty),0);
     const township = document.getElementById("township").value;
     const deliFee = deliRates[township] || 0;
     const total = subtotal + deliFee;
 
-    document.getElementById("subtotalDisplay").textContent = subtotal.toLocaleString() + " MMK";
-    document.getElementById("deliDisplay").textContent = deliFee.toLocaleString() + " MMK";
-    document.getElementById("totalDisplay").textContent = total.toLocaleString() + " MMK";
+    document.getElementById("subtotalDisplay").textContent =
+        subtotal.toLocaleString()+" MMK";
+
+    document.getElementById("deliDisplay").textContent =
+        deliFee.toLocaleString()+" MMK";
+
+    document.getElementById("totalDisplay").textContent =
+        total.toLocaleString()+" MMK";
 }
 
-function togglePaymentInfo(){
+function togglePaymentInfo() {
     const payment = document.getElementById("payment").value;
     const info = document.getElementById("paymentInfo");
-    const currentLang = localStorage.getItem("language") || "en";
-    
-    if(payment === "KBZPay"){
-        info.style.display = "block";
-        info.innerHTML = currentLang === "mm" 
-            ? "<b>KBZPay အချက်အလက်</b><br>ငွေလွှဲရန်: 09xxxxxxxxx (Acai Shop)<br>ငွေလွှဲပြီးပါက Transaction Screenshot သိမ်းထားပေးပါ။"
-            : "<b>KBZPay Info</b><br>Pay to: 09xxxxxxxxx (Acai Shop)<br>Please save your transaction screenshot after payment.";
-    } else if(payment === "WavePay"){
-        info.style.display = "block";
-        info.innerHTML = currentLang === "mm" 
-            ? "<b>WavePay အချက်အလက်</b><br>ငွေလွှဲရန်: 09xxxxxxxxx (Acai Shop)<br>ငွေလွှဲပြီးပါက Transaction Screenshot သိမ်းထားပေးပါ။"
-            : "<b>WavePay Info</b><br>Pay to: 09xxxxxxxxx (Acai Shop)<br>Please save your transaction screenshot after payment.";
-    } else {
-        info.style.display = "none";
+    const lang = localStorage.getItem("language") || "en";
+
+    if(payment==="KBZPay"){
+        info.style.display="block";
+        info.innerHTML=lang==="mm"
+        ?"<b>KBZPay အချက်အလက်</b><br>ငွေလွှဲရန်: 09xxxxxxxxx (Acai Shop)<br>Screenshot သိမ်းထားပါ။"
+        :"<b>KBZPay Info</b><br>Pay to: 09xxxxxxxxx (Acai Shop)<br>Please save your screenshot.";
+
+    }else if(payment==="WavePay"){
+
+        info.style.display="block";
+
+        info.innerHTML=lang==="mm"
+        ?"<b>WavePay အချက်အလက်</b><br>ငွေလွှဲရန်: 09xxxxxxxxx (Acai Shop)<br>Screenshot သိမ်းထားပါ။"
+        :"<b>WavePay Info</b><br>Pay to: 09xxxxxxxxx (Acai Shop)<br>Please save your screenshot.";
+
+    }else{
+
+        info.style.display="none";
+
     }
 }
 
-toggleTelegramInput();
-calculateTotals();
-
-document.getElementById("checkoutForm").addEventListener("submit", async function(e){
-    e.preventDefault();
+document.addEventListener("DOMContentLoaded",()=>{
 
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
-    const selectedTownship = document.getElementById("township").value;
-    const deliFee = deliRates[selectedTownship] || 0;
-    const noTelegram = document.getElementById("noTelegram").checked;
 
-    const order = {
-        name: document.getElementById("name").value,
-        phone: document.getElementById("phone").value,
-        telegram: noTelegram ? "No Telegram" : document.getElementById("telegram").value,
-        altSocial: noTelegram ? document.getElementById("altSocial").value : "",
-        city: document.getElementById("city").value,
-        township: selectedTownship,
-        road: document.getElementById("road").value,
-        building: document.getElementById("building").value,
-        address: document.getElementById("address").value,
-        payment: document.getElementById("payment").value,
-        deliFee: deliFee,
-        totalPrice: subtotal + deliFee,
-        cart: cart
+    if(cart.length===0){
+        window.location="cart.html";
+        return;
+    }
+
+    const picker=document.querySelector(".language-select");
+
+    if(picker){
+        picker.value=localStorage.getItem("language")||"en";
+    }
+
+    toggleTelegramInput();
+    calculateTotals();
+    togglePaymentInfo();
+
+});
+
+document.getElementById("checkoutForm").addEventListener("submit",async function(e){
+
+    e.preventDefault();
+
+    const cart=JSON.parse(localStorage.getItem("cart"))||[];
+
+    const subtotal=cart.reduce((s,i)=>s+Number(i.price)*Number(i.qty),0);
+
+    const township=document.getElementById("township").value;
+
+    const deliFee=deliRates[township]||0;
+
+    const noTelegram=document.getElementById("noTelegram").checked;
+
+    const order={
+
+        name:document.getElementById("name").value.trim(),
+
+        phone:document.getElementById("phone").value.trim(),
+
+        telegram:noTelegram
+            ?"No Telegram"
+            :document.getElementById("telegram").value.trim(),
+
+        altSocial:noTelegram
+            ?document.getElementById("altSocial").value.trim()
+            :"",
+
+        city:document.getElementById("city").value,
+
+        township,
+
+        road:document.getElementById("road").value.trim(),
+
+        building:document.getElementById("building").value.trim(),
+
+        address:document.getElementById("address").value.trim(),
+
+        payment:document.getElementById("payment").value,
+
+        deliFee,
+
+        totalPrice:subtotal+deliFee,
+
+        cart
+
     };
 
     try{
-        const res = await fetch("/place-order",{
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
+
+        const res=await fetch("/place-order",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
             },
-            body: JSON.stringify(order)
+
+            credentials:"include",
+
+            body:JSON.stringify(order)
+
         });
 
-        const data = await res.json();
+        const data=await res.json();
 
-        if(res.status === 401){
+        if(res.status===401){
+
             alert("Please sign in first.");
-            window.location = "login.html";
+
+            window.location="register.html";
+
             return;
+
         }
 
         if(data.success){
+
             localStorage.removeItem("cart");
-            window.location = "order-success.html";
+
+            window.location="order-success.html";
+
         }else{
-            alert(data.message || "Failed to place order.");
+
+            alert(data.message||"Failed to place order.");
+
         }
+
     }catch{
+
         alert("Cannot connect to server.");
+
     }
+
 });
+
 </script>
 
 </body>
