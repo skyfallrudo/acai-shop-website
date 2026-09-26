@@ -2,149 +2,248 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>My Orders | Acai Shop</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- CDN Preconnect & Font Awesome Speed Preload -->
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
+
+<!-- Google Fonts & Language Script -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="language.js"></script>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
-body{
-background:#05080f;
-color:#fff;
-padding:20px;
-min-height:100vh;
-position:relative;
-overflow-x:hidden;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
-body::after{
-content:"";
-position:fixed;
-inset:0;
-background:url("bg-desktop.jpg") center/cover no-repeat;
-z-index:-2;
+
+body {
+    background: #05080f;
+    color: #fff;
+    padding: 20px 16px;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
 }
-@media(max-width:768px){
-body::after{
-background-image:url("bg-mobile.jpg");
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url("bg-desktop.jpg") center/cover no-repeat;
+    z-index: -2;
 }
+
+@media(max-width: 768px) {
+    body::after {
+        background-image: url("bg-mobile.jpg");
+    }
 }
-body::before{
-content:"";
-position:fixed;
-inset:0;
-background:rgba(5,8,15,.65);
-z-index:-1;
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 15, 0.72);
+    z-index: -1;
 }
-.container{max-width:950px;margin:auto}
-.back{
-display:inline-flex;
-align-items:center;
-gap:8px;
-color:#CBD5E1;
-text-decoration:none;
-margin-bottom:22px;
-font-weight:500;
+
+.container {
+    max-width: 950px;
+    margin: auto;
 }
-h1{
-display:flex;
-align-items:center;
-gap:10px;
-margin-bottom:22px;
-font-size:34px;
+
+/* Header & Nav */
+.header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
-.card{
-background:rgba(15,23,42,.86);
-backdrop-filter:blur(18px);
-border:1px solid rgba(255,255,255,.08);
-border-radius:26px;
-padding:24px;
-margin-bottom:22px;
-box-shadow:0 12px 35px rgba(0,0,0,.35);
+
+.back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #CBD5E1;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    transition: color 0.2s;
 }
-.top{
-display:flex;
-justify-content:space-between;
-align-items:flex-start;
-gap:20px;
-flex-wrap:wrap;
+
+.back:hover {
+    color: #60A5FA;
 }
-.order-id{
-font-size:30px;
-font-weight:700;
+
+.language-select {
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    font-size: 13px;
+    backdrop-filter: blur(10px);
 }
-.time{
-color:#94A3B8;
-font-size:14px;
-margin-top:6px;
+
+.language-select option {
+    background: #111827;
+    color: white;
 }
-.badge{
-padding:8px 18px;
-border-radius:999px;
-font-size:14px;
-font-weight:700;
+
+h1 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    font-size: 28px;
+    font-weight: 600;
 }
-.Pending{background:#64748B}
-.Confirmed{background:#2563EB}
-.Processing{background:#EA580C}
-.Shipped{background:#2563EB}
-.Delivered{background:#16A34A}
-.Cancelled{background:#DC2626}
-.items{
-margin:18px 0;
-padding:16px;
-background:rgba(30,41,59,.45);
-border-radius:16px;
+
+/* Order Card */
+.card {
+    background: rgba(15, 23, 42, 0.86);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 22px;
+    margin-bottom: 22px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
 }
-.item{
-display:flex;
-justify-content:space-between;
-padding:10px 0;
-border-bottom:1px solid rgba(255,255,255,.08);
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
 }
-.item:last-child{border:none}
-.info{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:12px;
-margin:18px 0;
+
+.order-id {
+    font-size: 24px;
+    font-weight: 700;
+    color: #38BDF8;
 }
-.info div{
-background:rgba(30,41,59,.35);
-padding:12px 14px;
-border-radius:12px;
-font-size:14px;
+
+.time {
+    color: #94A3B8;
+    font-size: 13px;
+    margin-top: 4px;
 }
-.info i{
-width:20px;
-color:#60A5FA;
+
+/* Status Badges */
+.badge {
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    display: inline-block;
 }
-.summary{
-margin-top:18px;
-border-top:1px solid rgba(255,255,255,.08);
-padding-top:16px;
-display:flex;
-flex-direction:column;
-gap:10px;
+
+.Pending { background: rgba(100, 116, 139, 0.3); color: #CBD5E1; border: 1px solid rgba(203, 213, 225, 0.3); }
+.Confirmed { background: rgba(37, 99, 235, 0.3); color: #60A5FA; border: 1px solid rgba(96, 165, 250, 0.3); }
+.Processing { background: rgba(234, 88, 12, 0.3); color: #FB923C; border: 1px solid rgba(251, 146, 60, 0.3); }
+.Shipped { background: rgba(147, 51, 234, 0.3); color: #C084FC; border: 1px solid rgba(192, 132, 252, 0.3); }
+.Delivered { background: rgba(22, 163, 74, 0.3); color: #4ADE80; border: 1px solid rgba(74, 222, 128, 0.3); }
+.Cancelled { background: rgba(220, 38, 38, 0.3); color: #F87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+
+/* Items List */
+.items {
+    margin: 18px 0;
+    padding: 14px 16px;
+    background: rgba(30, 41, 59, 0.45);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
-.row{
-display:flex;
-justify-content:space-between;
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 14px;
 }
-.final{
-border-top:1px solid rgba(255,255,255,.08);
-padding-top:12px;
-font-size:20px;
-font-weight:700;
+
+.item:last-child { border: none; }
+
+/* Info Grid */
+.info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin: 18px 0;
 }
-.empty{
-text-align:center;
-padding:70px 20px;
-background:rgba(15,23,42,.86);
-border-radius:24px;
+
+.info div {
+    background: rgba(30, 41, 59, 0.35);
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    color: #E2E8F0;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    word-break: break-word;
 }
-.empty p{color:#94A3B8;margin-top:8px}
+
+.info i {
+    width: 20px;
+    color: #38BDF8;
+}
+
+/* Order Summary */
+.summary {
+    margin-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    color: #CBD5E1;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.final {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFF;
+}
+
+/* Empty State */
+.empty {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(15, 23, 42, 0.86);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.empty h2 { font-size: 20px; margin-bottom: 6px; }
+.empty p { color: #94A3B8; font-size: 14px; }
+
+@media (max-width: 480px) {
+    h1 { font-size: 22px; }
+    .order-id { font-size: 20px; }
+    .card { padding: 18px 14px; border-radius: 20px; }
+    .info { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 
@@ -152,135 +251,204 @@ border-radius:24px;
 
 <div class="container">
 
-<a href="index.html" class="back">
-<i class="fa-solid fa-arrow-left"></i>
-Back to Shop
-</a>
+  <!-- Navigation Bar -->
+  <div class="header-bar">
+    <a href="index.html" class="back">
+      <i class="fa-solid fa-arrow-left"></i>
+      <span data-lang="backToShop">Back to Shop</span>
+    </a>
 
-<h1>📦 My Orders</h1>
+    <select class="language-select" onchange="changeLanguage(this.value)">
+      <option value="en">English</option>
+      <option value="mm">မြန်မာ</option>
+    </select>
+  </div>
 
-<div id="orders"></div>
+  <!-- Page Title -->
+  <h1>
+    <i class="fa-solid fa-box-archive" style="color: #38BDF8;"></i>
+    <span data-lang="myOrders">My Orders</span>
+  </h1>
+
+  <!-- Orders Container -->
+  <div id="orders"></div>
 
 </div>
 
 <script>
-fetch("/my-orders")
-.then(r=>r.json())
-.then(orders=>{
+// Customer Orders Translation Dictionary
+if (typeof translations !== 'undefined') {
+  translations.en.myOrders = "My Orders";
+  translations.en.backToShop = "Back to Shop";
+  translations.en.noOrders = "No Orders Yet";
+  translations.en.noOrdersDesc = "Your placed orders will appear here.";
+  translations.en.lblCustomer = "Customer:";
+  translations.en.lblPhone = "Phone:";
+  translations.en.lblTelegram = "Telegram:";
+  translations.en.lblAltSocial = "Alt Social:";
+  translations.en.lblCity = "City:";
+  translations.en.lblTownship = "Township:";
+  translations.en.lblRoad = "Road:";
+  translations.en.lblBuilding = "Building:";
+  translations.en.lblAddress = "Address:";
+  translations.en.lblPayment = "Payment:";
+  translations.en.lblProducts = "Products";
+  translations.en.lblDeli = "Delivery Fee";
+  translations.en.lblTotal = "Total";
 
-const container=document.getElementById("orders");
-
-if(!orders||orders.length===0){
-container.innerHTML=`
-<div class="empty">
-<h2>No Orders Yet</h2>
-<p>Your orders will appear here.</p>
-</div>`;
-return;
+  translations.mm.myOrders = "ကျွန်ုပ်၏ အော်ဒါများ";
+  translations.mm.backToShop = "ဆိုင်သို့ ပြန်သွားရန်";
+  translations.mm.noOrders = "အော်ဒါ မရှိသေးပါ";
+  translations.mm.noOrdersDesc = "သင်မှာယူထားသော အော်ဒါများကို ဒီနေရာတွင် မြင်တွေ့ရပါမည်။";
+  translations.mm.lblCustomer = "ဝယ်ယူသူ:";
+  translations.mm.lblPhone = "ဖုန်းနံပါတ်:";
+  translations.mm.lblTelegram = "Telegram:";
+  translations.mm.lblAltSocial = "အခြား လူမှုကွန်ရက်:";
+  translations.mm.lblCity = "မြို့:";
+  translations.mm.lblTownship = "မြို့နယ်:";
+  translations.mm.lblRoad = "လမ်း:";
+  translations.mm.lblBuilding = "တိုက်/အိမ်အမှတ်:";
+  translations.mm.lblAddress = "လိပ်စာ:";
+  translations.mm.lblPayment = "ငွေပေးချေမှု:";
+  translations.mm.lblProducts = "ပစ္စည်းတန်ဖိုး";
+  translations.mm.lblDeli = "ပို့ဆောင်ခ";
+  translations.mm.lblTotal = "စုစုပေါင်း";
 }
 
-container.innerHTML="";
-
-orders.forEach(order=>{
-
-let items=[];
-
-try{
-items=typeof order.items==="string"
-?JSON.parse(order.items)
-:order.items;
-}catch{
-items=[];
+// Order Status Translate Helper
+function getStatusText(status, lang) {
+  const statusMap = {
+    Pending: { en: "Pending", mm: "ဆိုင်းငံ့ထားဆဲ" },
+    Confirmed: { en: "Confirmed", mm: "အတည်ပြုပြီး" },
+    Processing: { en: "Processing", mm: "ပြင်ဆင်နေဆဲ" },
+    Shipped: { en: "Shipped", mm: "လမ်းခုလတ်ရောက်" },
+    Delivered: { en: "Delivered", mm: "ပို့ဆောင်ပြီး" },
+    Cancelled: { en: "Cancelled", mm: "ပယ်ဖျက်လိုက်သည်" }
+  };
+  const key = status || "Pending";
+  if (statusMap[key]) {
+    return statusMap[key][lang] || statusMap[key].en;
+  }
+  return key;
 }
 
-let itemHTML="";
+// Fetch and Render Orders
+function loadMyOrders() {
+  const lang = localStorage.getItem("language") || "en";
+  const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : {};
+  const container = document.getElementById("orders");
 
-items.forEach(item=>{
-itemHTML+=`
-<div class="item">
-<span>${item.name} × ${item.qty}</span>
-<span>${Number(item.price*(item.qty||1)).toLocaleString()} MMK</span>
-</div>`;
-});
+  fetch("/my-orders")
+  .then(r => {
+    if (r.status === 404) {
+      return [];
+    }
+    if (!r.ok) {
+      throw new Error("Server error");
+    }
+    return r.json();
+  })
+  .then(orders => {
+    if (!orders || !Array.isArray(orders) || orders.length === 0) {
+      container.innerHTML = `
+      <div class="empty">
+        <h2 data-lang="noOrders">${t.noOrders || "No Orders Yet"}</h2>
+        <p data-lang="noOrdersDesc">${t.noOrdersDesc || "Your placed orders will appear here."}</p>
+      </div>`;
+      return;
+    }
 
-const productTotal=(Number(order.total)||0)-(Number(order.deli_fee)||0);
+    container.innerHTML = "";
 
-container.innerHTML+=`
-<div class="card">
+    orders.forEach(order => {
+      let items = [];
+      try {
+        items = typeof order.items === "string" ? JSON.parse(order.items) : order.items;
+      } catch {
+        items = [];
+      }
 
-<div class="top">
+      let itemHTML = "";
+      if (Array.isArray(items)) {
+        items.forEach(item => {
+          itemHTML += `
+          <div class="item">
+            <span>${item.name || "Item"} × ${item.qty || 1}</span>
+            <span>${Number((item.price || 0) * (item.qty || 1)).toLocaleString()} MMK</span>
+          </div>`;
+        });
+      }
 
-<div>
-<div class="order-id">Order #${order.id}</div>
-<div class="time">${order.created_at||""}</div>
-</div>
+      const productTotal = Math.max(0, (Number(order.total) || 0) - (Number(order.deli_fee) || 0));
+      const statusClass = order.status || "Pending";
+      const statusDisplay = getStatusText(statusClass, lang);
 
-<div class="badge ${order.status||"Pending"}">
-${order.status||"Pending"}
-</div>
+      container.innerHTML += `
+      <div class="card">
+        <div class="top">
+          <div>
+            <div class="order-id">Order #${order.id}</div>
+            <div class="time">${order.created_at || ""}</div>
+          </div>
+          <div class="badge ${statusClass}">
+            ${statusDisplay}
+          </div>
+        </div>
 
-</div>
+        <div class="items">
+          ${itemHTML}
+        </div>
 
-<div class="items">
-${itemHTML}
-</div>
+        <div class="info">
+          <div><i class="fa-solid fa-user"></i> <b>${t.lblCustomer || "Customer:"}</b> ${order.customer || "-"}</div>
+          <div><i class="fa-solid fa-phone"></i> <b>${t.lblPhone || "Phone:"}</b> ${order.phone || "-"}</div>
+          <div><i class="fa-brands fa-telegram"></i> <b>${t.lblTelegram || "Telegram:"}</b> ${order.telegram || "-"}</div>
+          <div><i class="fa-solid fa-comment"></i> <b>${t.lblAltSocial || "Alt Social:"}</b> ${order.alt_social || "-"}</div>
+          <div><i class="fa-solid fa-city"></i> <b>${t.lblCity || "City:"}</b> ${order.city || "-"}</div>
+          <div><i class="fa-solid fa-map-location-dot"></i> <b>${t.lblTownship || "Township:"}</b> ${order.township || "-"}</div>
+          <div><i class="fa-solid fa-road"></i> <b>${t.lblRoad || "Road:"}</b> ${order.road || "-"}</div>
+          <div><i class="fa-solid fa-building"></i> <b>${t.lblBuilding || "Building:"}</b> ${order.building || "-"}</div>
+          <div style="grid-column:1/-1"><i class="fa-solid fa-location-dot"></i> <b>${t.lblAddress || "Address:"}</b> ${order.address || "-"}</div>
+          <div><i class="fa-solid fa-wallet"></i> <b>${t.lblPayment || "Payment:"}</b> ${order.payment_method || "-"}</div>
+        </div>
 
-<div class="info">
+        <div class="summary">
+          <div class="row">
+            <span>${t.lblProducts || "Products"}</span>
+            <span>${productTotal.toLocaleString()} MMK</span>
+          </div>
+          <div class="row">
+            <span>${t.lblDeli || "Delivery Fee"}</span>
+            <span>${Number(order.deli_fee || 0).toLocaleString()} MMK</span>
+          </div>
+          <div class="row final">
+            <span>${t.lblTotal || "Total"}</span>
+            <span>${Number(order.total || 0).toLocaleString()} MMK</span>
+          </div>
+        </div>
+      </div>`;
+    });
 
-<div><i class="fa-solid fa-user"></i> <b>Customer:</b> ${order.customer||"-"}</div>
+  })
+  .catch(() => {
+    container.innerHTML = `
+    <div class="empty">
+      <h2 data-lang="noOrders">${t.noOrders || "No Orders Yet"}</h2>
+      <p data-lang="noOrdersDesc">${t.noOrdersDesc || "Your placed orders will appear here."}</p>
+    </div>`;
+  });
+}
 
-<div><i class="fa-solid fa-phone"></i> <b>Phone:</b> ${order.phone||"-"}</div>
+// Page Initialization
+document.addEventListener("DOMContentLoaded", () => {
+  const savedLang = localStorage.getItem("language") || "en";
+  const langSelect = document.querySelector(".language-select");
+  if (langSelect) langSelect.value = savedLang;
 
-<div><i class="fa-brands fa-telegram"></i> <b>Telegram:</b> ${order.telegram||"-"}</div>
-
-<div><i class="fa-solid fa-comment"></i> <b>Alt Social:</b> ${order.alt_social||"-"}</div>
-
-<div><i class="fa-solid fa-city"></i> <b>City:</b> ${order.city||"-"}</div>
-
-<div><i class="fa-solid fa-map-location-dot"></i> <b>Township:</b> ${order.township||"-"}</div>
-
-<div><i class="fa-solid fa-road"></i> <b>Road:</b> ${order.road||"-"}</div>
-
-<div><i class="fa-solid fa-building"></i> <b>Building:</b> ${order.building||"-"}</div>
-
-<div style="grid-column:1/-1">
-<i class="fa-solid fa-location-dot"></i>
-<b>Address:</b> ${order.address||"-"}
-</div>
-
-<div><i class="fa-solid fa-wallet"></i> <b>Payment:</b> ${order.payment_method||"-"}</div>
-
-</div>
-
-<div class="summary">
-
-<div class="row">
-<span>Products</span>
-<span>${productTotal.toLocaleString()} MMK</span>
-</div>
-
-<div class="row">
-<span>Delivery Fee</span>
-<span>${Number(order.deli_fee||0).toLocaleString()} MMK</span>
-</div>
-
-<div class="row final">
-<span>Total</span>
-<span>${Number(order.total||0).toLocaleString()} MMK</span>
-</div>
-
-</div>
-
-</div>`;
-});
-
-})
-.catch(()=>{
-document.getElementById("orders").innerHTML=`
-<div class="empty">
-<h2>Cannot Load Orders</h2>
-<p>Please check your server connection.</p>
-</div>`;
+  if (typeof changeLanguage === "function") {
+    changeLanguage(savedLang);
+  }
+  loadMyOrders();
 });
 </script>
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
 <title>Verify OTP | Acai Shop</title>
 
@@ -12,12 +12,19 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-F00XQ96WFJ');
 </script>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- CDN Preconnect & Font Awesome Speed Preload -->
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+
+<!-- Google Fonts & Language Script -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="language.js"></script>
 
 <style>
 * {
@@ -25,6 +32,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
@@ -56,20 +64,17 @@ body::after {
     z-index: -2;
 }
 
-
 @media (min-width: 769px) {
     body::after {
         background-image: url("bg-desktop.jpg");
     }
 }
 
-
 @media (max-width: 768px) {
     body::after {
         background-image: url("bg-mobile.jpg");
     }
 }
-
 
 body::before {
     content: "";
@@ -78,15 +83,44 @@ body::before {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(5, 8, 15, 0.5);
+    background: rgba(5, 8, 15, 0.65);
     z-index: -1;
+}
+
+/* ===== Entrance Keyframes ===== */
+@keyframes cardFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(25px) scale(0.96);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes inputPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+@keyframes messageFadeIn {
+    0% { opacity: 0; transform: translateY(-6px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
 .card {
     position: relative;
     z-index: 2;
     width: min(100%, 430px);
-    padding: 38px;
+    padding: 34px 28px;
     background: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -95,35 +129,74 @@ body::before {
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
     text-align: center;
     overflow: hidden;
+
+    /* Card Entrance Animation */
+    animation: cardFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+.language-select {
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    font-size: 12px;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+}
+
+.language-select:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.language-select option {
+    background: #111827;
+    color: white;
 }
 
 .logo {
-    width: 80px;
-    height: 80px;
+    width: 76px;
+    height: 76px;
     border-radius: 50%;
-    padding: 6px;
+    padding: 5px;
     background: white;
-    margin: 0 auto 18px auto;
+    margin: 0 auto 16px auto;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     object-fit: cover;
     display: block;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05) rotate(3deg);
 }
 
 h1 {
     color: white;
-    font-size: 30px;
-    margin-bottom: 10px;
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
 p {
     color: #94A3B8;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     line-height: 1.5;
+    font-size: 13.5px;
 }
 
 .email {
     color: #60A5FA;
     font-size: 13px;
+    font-weight: 500;
     margin-bottom: 18px;
     word-break: break-word;
 }
@@ -136,50 +209,79 @@ p {
     width: 100%;
 }
 
+.otp-boxes.shake {
+    animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
 .otp {
     flex: 1;
-    max-width: 52px;
+    max-width: 48px;
     min-width: 36px;
-    aspect-ratio: 1/1;
-    height: auto;
-    border: 1px solid transparent;
+    height: 52px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     outline: none;
     border-radius: 14px;
     background: #1E293B;
     color: white;
-    font-size: 24px;
+    font-size: 22px;
     text-align: center;
     font-weight: 600;
-    transition: .25s;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
 }
 
 .otp:focus {
-    box-shadow: 0 0 18px rgba(37, 99, 235, .35);
+    box-shadow: 0 0 18px rgba(37, 99, 235, .4);
     border-color: #3B82F6;
+    background: #0F172A;
+    transform: scale(1.04);
+}
+
+.otp.pop {
+    animation: inputPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 button {
     width: 100%;
-    padding: 15px;
+    padding: 14px;
     border: none;
     border-radius: 14px;
     background: linear-gradient(135deg, #3B82F6, #2563EB);
     color: white;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    transition: .3s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(37, 99, 235, .35);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, .4);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 #message {
-    margin-top: 18px;
-    font-size: 14px;
+    margin-top: 16px;
+    font-size: 13.5px;
     min-height: 20px;
+    transition: all 0.3s ease;
+}
+
+#message.success, #message.error {
+    animation: messageFadeIn 0.3s ease-out forwards;
 }
 
 .success { color: #22C55E; }
@@ -188,7 +290,7 @@ button:hover {
 .resend {
     margin-top: 18px;
     color: #94A3B8;
-    font-size: 14px;
+    font-size: 13.5px;
 }
 
 .resend a {
@@ -196,6 +298,8 @@ button:hover {
     text-decoration: none;
     pointer-events: none;
     opacity: .5;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
 .resend a.active {
@@ -203,136 +307,76 @@ button:hover {
     opacity: 1;
 }
 
-.loading {
-    display: none;
-    margin-top: 18px;
-    color: #CBD5E1;
+.resend a.active:hover {
+    text-decoration: underline;
 }
 
+.loading {
+    display: none;
+    margin-top: 16px;
+    color: #CBD5E1;
+    font-size: 13.5px;
+    animation: messageFadeIn 0.3s ease-out forwards;
+}
 
-@media (max-width: 430px){
+/* ===== Responsive Fixes ===== */
+@media (max-width: 768px) {
+    body {
+        padding: 16px !important;
+        align-items: flex-start !important;
+    }
+
     .card {
-        padding: 28px 18px;
+        width: 100% !important;
+        max-width: 420px !important;
+        margin: 40px auto 18px !important;
+        padding: 24px 18px !important;
+        border-radius: 22px !important;
+    }
+
+    .logo {
+        width: 66px !important;
+        height: 66px !important;
+        padding: 4px !important;
+        margin-bottom: 12px !important;
     }
 
     h1 {
-        font-size: 26px;
+        font-size: 22px !important;
+        margin-bottom: 6px !important;
     }
 
-    .otp-boxes {
-        gap: 6px;
+    p {
+        font-size: 12.5px !important;
+        margin-bottom: 18px !important;
     }
 
     .otp {
-        min-width: 34px;
-        font-size: 22px;
+        width: 42px !important;
+        min-width: 36px !important;
+        height: 48px !important;
+        font-size: 20px !important;
+        border-radius: 12px !important;
+    }
+
+    button {
+        height: 48px !important;
+        font-size: 14.5px !important;
+        border-radius: 12px !important;
     }
 }
-/* ===== Final Mobile Responsive Fix ===== */
-@media (max-width:768px){
 
-  body{
-    padding:16px !important;
-    align-items:flex-start !important;
-  }
+@media (max-width: 360px) {
+    .card {
+        padding: 20px 14px !important;
+    }
 
-  .card{
-    width:100% !important;
-    max-width:420px !important;
-    margin:55px auto 18px !important;
-    padding:24px 18px !important;
-    border-radius:22px !important;
-  }
-
-  .logo{
-    width:68px !important;
-    height:68px !important;
-    padding:5px !important;
-    margin-bottom:14px !important;
-  }
-
-  h1{
-    font-size:24px !important;
-    line-height:1.2 !important;
-    margin-bottom:8px !important;
-  }
-
-  p{
-    font-size:13px !important;
-    line-height:1.5 !important;
-    margin-bottom:20px !important;
-  }
-
-  .email{
-    font-size:12px !important;
-    margin-bottom:16px !important;
-  }
-
-  .otp-boxes{
-    gap:6px !important;
-    margin-bottom:20px !important;
-  }
-
-  .otp{
-    width:44px !important;
-    min-width:44px !important;
-    max-width:44px !important;
-    height:50px !important;
-    aspect-ratio:auto !important;
-    font-size:20px !important;
-    border-radius:12px !important;
-  }
-
-  button{
-    height:50px !important;
-    padding:0 !important;
-    font-size:15px !important;
-    border-radius:12px !important;
-  }
-
-  .loading{
-    font-size:13px !important;
-  }
-
-  #message{
-    font-size:13px !important;
-  }
-
-  .resend{
-    font-size:13px !important;
-    line-height:1.6 !important;
-  }
-}
-
-@media (max-width:360px){
-
-  .card{
-    padding:20px 15px !important;
-  }
-
-  h1{
-    font-size:22px !important;
-  }
-
-  .logo{
-    width:60px !important;
-    height:60px !important;
-  }
-
-  .otp{
-    width:38px !important;
-    min-width:38px !important;
-    max-width:38px !important;
-    height:46px !important;
-    font-size:18px !important;
-  }
-
-  p,
-  .resend,
-  .loading,
-  #message{
-    font-size:12px !important;
-  }
+    .otp {
+        width: 36px !important;
+        min-width: 32px !important;
+        height: 44px !important;
+        font-size: 18px !important;
+    }
 }
 </style>
 </head>
@@ -341,149 +385,208 @@ button:hover {
 
 <div class="card">
 
-<img src="logo.jpg" class="logo" alt="Acai Shop">
+  <!-- Language Bar -->
+  <div class="top-bar">
+    <select class="language-select" onchange="changeLanguage(this.value)">
+      <option value="en">English</option>
+      <option value="mm">မြန်မာ</option>
+    </select>
+  </div>
 
-<h1>Verify OTP</h1>
+  <img src="logo.jpg" class="logo" alt="Acai Shop">
 
-<p>Enter the 6-digit verification code sent to your email.</p>
+  <h1 data-lang="verifyOtpTitle">Verify OTP</h1>
 
-<div class="email" id="emailText"></div>
+  <p data-lang="otpDesc">Enter the 6-digit verification code sent to your email.</p>
 
-<div class="otp-boxes">
-  <input class="otp" maxlength="1" inputmode="numeric">
-  <input class="otp" maxlength="1" inputmode="numeric">
-  <input class="otp" maxlength="1" inputmode="numeric">
-  <input class="otp" maxlength="1" inputmode="numeric">
-  <input class="otp" maxlength="1" inputmode="numeric">
-  <input class="otp" maxlength="1" inputmode="numeric">
-</div>
+  <div class="email" id="emailText"></div>
 
-<button id="verifyBtn">
-  <i class="fa-solid fa-check"></i> Verify
-</button>
+  <div class="otp-boxes" id="otpContainer">
+    <input class="otp" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+    <input class="otp" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+    <input class="otp" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+    <input class="otp" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+    <input class="otp" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+    <input class="otp" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+  </div>
 
-<div class="loading" id="loading">Verifying...</div>
+  <button id="verifyBtn">
+    <i class="fa-solid fa-check"></i> 
+    <span data-lang="btnVerify">Verify</span>
+  </button>
 
-<div id="message"></div>
+  <div class="loading" id="loading">
+    <i class="fa-solid fa-circle-notch fa-spin"></i> 
+    <span data-lang="verifying">Verifying...</span>
+  </div>
 
-<div class="resend">
-  Resend OTP in <span id="timer">60</span>s
-  <br><br>
-  <a href="#" id="resendLink">Resend OTP</a>
-</div>
+  <div id="message"></div>
+
+  <div class="resend">
+    <span data-lang="resendText">Resend OTP in</span> <span id="timer">60</span>s
+    <br><br>
+    <a href="#" id="resendLink" data-lang="resendLink">Resend OTP</a>
+  </div>
 
 </div>
 
 <script>
-const params = new URLSearchParams(location.search);
+// Translation Dictionary
+if (typeof translations !== 'undefined') {
+  translations.en.verifyOtpTitle = "Verify OTP";
+  translations.en.otpDesc = "Enter the 6-digit verification code sent to your email.";
+  translations.en.btnVerify = "Verify";
+  translations.en.verifying = "Verifying...";
+  translations.en.resendText = "Resend OTP in";
+  translations.en.resendLink = "Resend OTP";
+  translations.en.enter6Digits = "Enter all 6 digits.";
+  translations.en.accountCreated = "Account created successfully!";
+  translations.en.failedResend = "Failed to resend OTP.";
+  translations.en.serverConnError = "Cannot connect to server.";
+  translations.en.wrongOtp = "Wrong OTP";
 
+  translations.mm.verifyOtpTitle = "OTP စိစစ်ရန်";
+  translations.mm.otpDesc = "သင့် အီးမေးလ်သို့ ပို့ထားသော ဂဏန်း ၆ လုံးပါ စိစစ်ရေးကုဒ်ကို ထည့်ပါ။";
+  translations.mm.btnVerify = "အတည်ပြုမည်";
+  translations.mm.verifying = "စိစစ်နေပါသည်...";
+  translations.mm.resendText = "OTP ပြန်ပို့ရန် ကျန်ချိန်";
+  translations.mm.resendLink = "OTP ထပ်မံတောင်းမည်";
+  translations.mm.enter6Digits = "ဂဏန်း ၆ လုံးစလုံး ဖြည့်သွင်းပါ။";
+  translations.mm.accountCreated = "အကောင့် အောင်မြင်စွာ ဖွင့်ပြီးပါပြီ!";
+  translations.mm.failedResend = "OTP ပြန်လည်ပေးပို့ခြင်း မအောင်မြင်ပါ။";
+  translations.mm.serverConnError = "Server သို့ ချိတ်ဆက်၍ မရပါ။";
+  translations.mm.wrongOtp = "OTP မမှန်ကန်ပါ။";
+}
+
+// Read URL Query Params
+const params = new URLSearchParams(location.search);
 const email = params.get("email");
 const password = params.get("password");
 
 document.getElementById("emailText").innerText = email || "";
 
 const inputs = document.querySelectorAll(".otp");
+const otpContainer = document.getElementById("otpContainer");
 
-inputs[0].focus();
+if (inputs.length > 0) {
+  inputs[0].focus();
+}
 
+// Trigger Shake Animation for Error
+function triggerShake() {
+  otpContainer.classList.remove("shake");
+  void otpContainer.offsetWidth; // Force Reflow
+  otpContainer.classList.add("shake");
+}
+
+// Input navigation logic & Pop Animation
 inputs.forEach((input, index) => {
-
-  input.addEventListener("input", () => {
+  input.addEventListener("input", (e) => {
     input.value = input.value.replace(/\D/g, "");
 
-    if(input.value && index < 5){
-      inputs[index+1].focus();
+    if (input.value) {
+      // Pop Animation when digit entered
+      input.classList.remove("pop");
+      void input.offsetWidth;
+      input.classList.add("pop");
+
+      if (index < 5) {
+        inputs[index + 1].focus();
+      }
     }
   });
 
   input.addEventListener("keydown", (e) => {
-    if(e.key === "Backspace" && !input.value && index > 0){
-      inputs[index-1].focus();
+    if (e.key === "Backspace" && !input.value && index > 0) {
+      inputs[index - 1].focus();
     }
   });
-
 });
 
+// Auto paste handling
 document.addEventListener("paste", (e) => {
-
   const text = (e.clipboardData.getData("text") || "")
     .replace(/\D/g, "")
     .slice(0, 6);
 
-  if(text.length === 6){
+  if (text.length === 6) {
     inputs.forEach((i, n) => {
       i.value = text[n];
+      i.classList.remove("pop");
+      void i.offsetWidth;
+      i.classList.add("pop");
     });
-
     inputs[5].focus();
     e.preventDefault();
   }
-
 });
 
+// Resend Timer Logic
 let time = 60;
-
 const timer = document.getElementById("timer");
 const resend = document.getElementById("resendLink");
 
 const interval = setInterval(() => {
-
   time--;
   timer.innerText = time;
 
-  if(time <= 0){
+  if (time <= 0) {
     clearInterval(interval);
     timer.innerText = "0";
     resend.classList.add("active");
   }
-
 }, 1000);
 
-resend.addEventListener("click", async function(e){
-
+// Resend OTP Action
+resend.addEventListener("click", async function(e) {
   e.preventDefault();
+  const lang = localStorage.getItem("language") || "en";
+  const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : {};
 
-  if(!resend.classList.contains("active")) return;
+  if (!resend.classList.contains("active")) return;
 
   try {
     const res = await fetch("/send-otp", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email })
     });
 
     const data = await res.json();
 
-    if(data.success){
+    if (data.success) {
       location.reload();
     } else {
-      show(data.message || "Failed to resend OTP.", "error");
+      triggerShake();
+      show(data.message || t.failedResend || "Failed to resend OTP.", "error");
     }
   } catch (err) {
-    show("Cannot connect to server.", "error");
+    triggerShake();
+    show(t.serverConnError || "Cannot connect to server.", "error");
   }
-
 });
 
+// Verify OTP Action
 document.getElementById("verifyBtn").addEventListener("click", async () => {
+  const lang = localStorage.getItem("language") || "en";
+  const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : {};
+  const btn = document.getElementById("verifyBtn");
 
   const otp = [...inputs].map(i => i.value).join("");
 
-  if(otp.length !== 6){
-    show("Enter all 6 digits.", "error");
+  if (otp.length !== 6) {
+    triggerShake();
+    show(t.enter6Digits || "Enter all 6 digits.", "error");
     return;
   }
 
+  btn.disabled = true;
   document.getElementById("loading").style.display = "block";
 
   try {
     const res = await fetch("/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
         password,
@@ -495,30 +598,44 @@ document.getElementById("verifyBtn").addEventListener("click", async () => {
 
     document.getElementById("loading").style.display = "none";
 
-    if(data.success){
-      show("Account created successfully!", "success");
+    if (data.success) {
+      show(t.accountCreated || "Account created successfully!", "success");
 
       setTimeout(() => {
         window.location = "login.html";
       }, 1200);
 
     } else {
-      show(data.message || "Wrong OTP", "error");
+      btn.disabled = false;
+      triggerShake();
+      show(data.message || t.wrongOtp || "Wrong OTP", "error");
       inputs.forEach(i => i.value = "");
       inputs[0].focus();
     }
   } catch (err) {
+    btn.disabled = false;
     document.getElementById("loading").style.display = "none";
-    show("Cannot connect to server.", "error");
+    triggerShake();
+    show(t.serverConnError || "Cannot connect to server.", "error");
   }
-
 });
 
-function show(text, type){
+function show(text, type) {
   const m = document.getElementById("message");
   m.innerText = text;
   m.className = type;
 }
+
+// Language Initializer
+document.addEventListener("DOMContentLoaded", () => {
+  const savedLang = localStorage.getItem("language") || "en";
+  const langSelect = document.querySelector(".language-select");
+  if (langSelect) langSelect.value = savedLang;
+
+  if (typeof changeLanguage === "function") {
+    changeLanguage(savedLang);
+  }
+});
 </script>
 
 </body>
