@@ -113,7 +113,13 @@ const translations = {
      faq: "FAQ",
     customerReviews: "Customer Reviews",
     suggestions: "Suggestions",
-    feedback: "Feedback"
+    feedback: "Feedback",
+    botVerificationTitle: "Bot Verification",
+    captchaDesc: "Please enter the security code shown below:",
+    captchaPlaceholder: "CODE",
+    captchaErrorText: "Incorrect code. Please try again.",
+    cancelBtnText: "Cancel",
+    verifySendBtnText: "Verify & Send"
   },
   mm: {
     signIn: "အကောင့်ဝင်ရန်",
@@ -228,22 +234,27 @@ const translations = {
       faq: "မေးလေ့ရှိသောမေးခွန်းများ",
     customerReviews: "ဝယ်ယူသူများ၏ သုံးသပ်ချက်များ",
     suggestions: "အကြံပြုချက်",
-    feedback: "ပြန်လည်တုံ့ပြန်မှု"
+    feedback: "ပြန်လည်တုံ့ပြန်မှု",
+    botVerificationTitle: "Bot စစ်ဆေးခြင်း",
+    captchaDesc: "အောက်ပါ လုံခြုံရေး ကိုဒ်ကို မှန်အောင် ရိုက်ထည့်ပေးပါ -",
+    captchaPlaceholder: "ကိုဒ် ရိုက်ထည့်ပါ",
+    captchaErrorText: "ကိုဒ် မှားယွင်းနေပါသည်။ ပြန်ရိုက်ပါ။",
+    cancelBtnText: "မလုပ်တော့ပါ",
+    verifySendBtnText: "အတည်ပြုပြီး ပို့မည်"
 
   }
 };
-// ၂။ ဘာသာစကား ပြောင်းလဲပေးသည့် Function
+
 function changeLanguage(lang) {
-  // ရွေးလိုက်တဲ့ ဘာသာစကားကို LocalStorage ထဲ သိမ်းမည်
   localStorage.setItem("language", lang);
 
-  // စာမျက်နှာပေါ်မှာ Dropdown ရှိရင် တန်ဖိုး တူအောင် လိုက်ပြောင်းပေးမည်
+  
   const langSelect = document.querySelector(".language-select");
   if (langSelect) {
     langSelect.value = lang;
   }
 
-  // data-lang ပါတဲ့ စာလုံးများကို ဘာသာစကား လိုက်ပြောင်းပေးမည်
+ 
   document.querySelectorAll("[data-lang]").forEach(el => {
     const key = el.getAttribute("data-lang");
     if (translations[lang] && translations[lang][key]) {
@@ -251,7 +262,6 @@ function changeLanguage(lang) {
     }
   });
 
-  // Placeholder စာလုံးများ ပြောင်းပေးမည်
   document.querySelectorAll("[data-lang-placeholder]").forEach(el => {
     const key = el.getAttribute("data-lang-placeholder");
     if (translations[lang] && translations[lang][key]) {
@@ -259,14 +269,12 @@ function changeLanguage(lang) {
     }
   });
 
-  // index.html လိုနေရာမျိုးမှာ loadProducts() ရှိရင် ပြန်ခေါ်ပေးမည်
   if (typeof loadProducts === "function") {
     loadProducts();
   }
 }
 
-// ၃။ ဘယ် စာမျက်နှာပဲ ပွင့်ပွင့် (waiting.html / index.html စသဖြင့်)
-// LocalStorage ထဲက ဘာသာစကားကို အော်တို ဆွဲယူပြီး Sync လုပ်ပေးမယ့် အပိုင်း
+
 document.addEventListener("DOMContentLoaded", function () {
   const savedLang = localStorage.getItem("language") || "en";
   changeLanguage(savedLang);

@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
 <title>Sign In | Acai Shop</title>
 <script src="language.js"></script>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
@@ -15,6 +16,7 @@
 
   gtag('config', 'G-F00XQ96WFJ');
 </script>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
@@ -24,6 +26,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
@@ -39,7 +42,7 @@ body {
     position: relative;
     background-color: #05080f;
     min-height: 100vh;
-    padding: 20px;
+    padding: 20px 0;
 }
 
 body::after {
@@ -63,7 +66,7 @@ body::after {
 
 @media (max-width: 768px) {
     body::after {
-        background-image: url("bg-mobile.jpg");
+        background-image: url("bg-mobile.jpg") !important;
     }
 }
 
@@ -104,20 +107,31 @@ body::before {
     color: white;
 }
 
+.glow {
+    position: fixed;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 550px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(255, 245, 210, 0.15), transparent 75%);
+    filter: blur(22px);
+    pointer-events: none;
+    z-index: 1;
+}
+
 .card {
-    width: 100%;
-    max-width: 420px;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 30px;
-    padding: 35px;
-    text-align: center;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
-    animation: fade .5s ease;
     position: relative;
     z-index: 2;
+    width: 420px;
+    padding: 38px;
+    border-radius: 26px;
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+    animation: fade .5s ease;
 }
 
 @keyframes fade {
@@ -132,27 +146,29 @@ body::before {
 }
 
 .logo {
-    width: 80px;
-    height: 80px;
+    width: 82px;
+    height: 82px;
     border-radius: 50%;
     padding: 6px;
     background: white;
     margin: 0 auto 18px auto;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     object-fit: cover;
     display: block;
 }
 
 h1 {
     color: white;
-    font-size: 32px;
+    text-align: center;
+    font-size: 30px;
     margin-bottom: 8px;
 }
 
 .subtitle {
+    text-align: center;
     color: #94A3B8;
     margin-bottom: 28px;
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .input-box {
@@ -162,22 +178,26 @@ h1 {
 
 .input-box i {
     position: absolute;
-    left: 15px;
+    left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #64748B;
+    color: #94A3B8;
 }
 
 .input-box input {
     width: 100%;
-    padding: 15px 15px 15px 45px;
+    padding: 15px 18px 15px 48px;
+    background: #1E293B;
     border: 1px solid transparent;
     border-radius: 14px;
-    background: #1E293B;
-    color: white;
     outline: none;
+    color: white;
     font-size: 15px;
     transition: .3s;
+}
+
+.input-box input::placeholder {
+    color: #64748B;
 }
 
 .input-box input:focus {
@@ -185,18 +205,29 @@ h1 {
     box-shadow: 0 0 18px rgba(37, 99, 235, .35);
 }
 
-.input-box input::placeholder {
-    color: #64748B;
+.forgot-pass {
+    display: block;
+    text-align: right;
+    margin-top: -8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #60A5FA;
+    text-decoration: none;
+    transition: .2s;
+}
+
+.forgot-pass:hover {
+    text-decoration: underline;
 }
 
 button {
     width: 100%;
-    padding: 16px;
+    padding: 15px;
     border: none;
     border-radius: 14px;
     background: linear-gradient(135deg, #3B82F6, #2563EB);
     color: white;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: .3s;
@@ -208,11 +239,12 @@ button {
 
 button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(37, 99, 235, .35);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, .4);
 }
 
 .link {
-    margin-top: 22px;
+    text-align: center;
+    margin-top: 20px;
     font-size: 14px;
     color: #94A3B8;
 }
@@ -220,116 +252,335 @@ button:hover {
 .link a {
     color: #60A5FA;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 500;
 }
 
-.loading {
+.link a:hover {
+    text-decoration: underline;
+}
+
+
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 10, 20, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     display: none;
-    margin-top: 15px;
-    color: #CBD5E1;
-    font-size: 14px;
-}
-/* ===== Mobile Responsive Fix ===== */
-@media (max-width:768px){
-
-  body{
-    padding:16px !important;
-    align-items:flex-start !important;
-  }
-
-  .lang-container{
-    top:12px !important;
-    right:12px !important;
-  }
-
-  .language-select{
-    font-size:12px !important;
-    padding:7px 10px !important;
-  }
-
-  .card{
-    width:100% !important;
-    max-width:420px !important;
-    margin:60px auto 20px !important;
-    padding:24px 18px !important;
-    border-radius:22px !important;
-  }
-
-  .logo{
-    width:68px !important;
-    height:68px !important;
-    padding:5px !important;
-    margin-bottom:14px !important;
-  }
-
-  h1{
-    font-size:24px !important;
-    line-height:1.2 !important;
-    margin-bottom:6px !important;
-  }
-
-  .subtitle{
-    font-size:13px !important;
-    line-height:1.5 !important;
-    margin-bottom:22px !important;
-  }
-
-  .input-box{
-    margin-bottom:16px !important;
-  }
-
-  .input-box i{
-    left:14px !important;
-    font-size:15px !important;
-  }
-
-  .input-box input{
-    height:50px !important;
-    padding:0 14px 0 42px !important;
-    font-size:16px !important;
-    border-radius:12px !important;
-  }
-
-  button{
-    height:50px !important;
-    padding:0 !important;
-    font-size:15px !important;
-    border-radius:12px !important;
-  }
-
-  .link{
-    margin-top:18px !important;
-    font-size:13px !important;
-    line-height:1.5 !important;
-  }
-
-  .loading{
-    font-size:13px !important;
-  }
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
 }
 
-@media (max-width:360px){
+.loading-box {
+    background: rgba(15, 23, 42, 0.92);
+    padding: 35px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+    min-width: 300px;
+}
 
-  .card{
-    padding:20px 15px !important;
-  }
+.spinner {
+    width: 58px;
+    height: 58px;
+    margin: auto;
+    border: 4px solid rgba(255, 255, 255, 0.12);
+    border-top: 4px solid #3B82F6;
+    border-radius: 50%;
+    animation: spin .9s linear infinite;
+}
 
-  .logo{
-    width:60px !important;
-    height:60px !important;
-  }
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
 
-  h1{
-    font-size:21px !important;
-  }
+.loading-box h3 {
+    color: white;
+    margin: 18px 0 8px;
+}
 
-  .subtitle{
-    font-size:12px !important;
-  }
+.loading-box p {
+    color: #94A3B8;
+    margin: 0;
+}
 
-  .input-box input{
-    font-size:15px !important;
-  }
+
+.captcha-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 10, 20, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9998;
+    padding: 20px;
+}
+
+.captcha-box {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 28px;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    position: relative;
+}
+
+.captcha-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.captcha-header h3 {
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.captcha-header h3 i {
+    color: #3B82F6;
+}
+
+.captcha-close {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    font-size: 18px;
+    cursor: pointer;
+    width: auto;
+    padding: 0;
+}
+
+.captcha-close:hover {
+    color: #ffffff;
+    transform: none;
+    box-shadow: none;
+}
+
+.captcha-desc {
+    color: #94A3B8;
+    font-size: 12.5px;
+    text-align: left;
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+.captcha-canvas-wrap {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    align-items: center;
+}
+
+#captchaCanvas {
+    width: 100%;
+    height: 46px;
+    background: #0F172A;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+}
+
+.btn-refresh {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 12px;
+    background: #1E293B;
+    color: #94A3B8;
+    flex-shrink: 0;
+}
+
+.btn-refresh:hover {
+    color: white;
+    background: #334155;
+    transform: none;
+    box-shadow: none;
+}
+
+.captcha-input-wrap {
+    margin-bottom: 16px;
+}
+
+.captcha-input-wrap input {
+    width: 100%;
+    height: 48px;
+    padding: 0 14px;
+    background: #0F172A;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-align: center;
+    outline: none;
+}
+
+.captcha-input-wrap input:focus {
+    border-color: #3B82F6;
+}
+
+.captcha-error {
+    color: #F87171;
+    font-size: 12px;
+    margin-top: 6px;
+    display: none;
+    text-align: left;
+}
+
+
+.captcha-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.captcha-actions button {
+    flex: 1;
+    height: 44px !important;
+    padding: 0 8px !important;
+    font-size: 12.5px !important;
+    font-weight: 500;
+    white-space: nowrap !important;
+    border-radius: 12px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-cancel {
+    background: #1E293B !important;
+    color: #94A3B8 !important;
+}
+
+.btn-cancel:hover {
+    background: #334155 !important;
+    color: white !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 16px !important;
+        align-items: flex-start !important;
+    }
+
+    .lang-container {
+        top: 12px !important;
+        right: 12px !important;
+    }
+
+    .language-select {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+    }
+
+    .glow {
+        width: 260px !important;
+        height: 100px !important;
+        top: 8px !important;
+    }
+
+    .card {
+        width: 100% !important;
+        max-width: 420px !important;
+        margin: 58px auto 18px !important;
+        padding: 24px 18px !important;
+        border-radius: 22px !important;
+    }
+
+    .logo {
+        width: 68px !important;
+        height: 68px !important;
+        padding: 5px !important;
+        margin-bottom: 14px !important;
+    }
+
+    h1 {
+        font-size: 24px !important;
+        line-height: 1.2 !important;
+    }
+
+    .subtitle {
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+        margin-bottom: 20px !important;
+    }
+
+    .input-box {
+        margin-bottom: 15px !important;
+    }
+
+    .input-box i {
+        left: 14px !important;
+        font-size: 15px !important;
+    }
+
+    .input-box input {
+        height: 50px !important;
+        padding: 0 14px 0 42px !important;
+        font-size: 16px !important;
+        border-radius: 12px !important;
+    }
+
+    button {
+        height: 50px !important;
+        padding: 0 !important;
+        font-size: 15px !important;
+        border-radius: 12px !important;
+    }
+
+    .link {
+        margin-top: 18px !important;
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+    }
+
+    .loading-box {
+        width: 90% !important;
+        max-width: 310px !important;
+        min-width: auto !important;
+        padding: 26px 20px !important;
+    }
+
+    .spinner {
+        width: 48px !important;
+        height: 48px !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .card {
+        padding: 20px 15px !important;
+    }
+
+    h1 {
+        font-size: 21px !important;
+    }
+
+    .logo {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    .subtitle {
+        font-size: 12px !important;
+    }
+
+    .input-box input {
+        font-size: 15px !important;
+    }
 }
 </style>
 </head>
@@ -343,13 +594,16 @@ button:hover {
     </select>
 </div>
 
+<div class="glow"></div>
+
 <div class="card">
     <img class="logo" src="logo.jpg" alt="Logo">
 
     <h1 data-lang="welcomeBack">Welcome Back</h1>
     <p class="subtitle" data-lang="signInSubtitle">Sign in to continue shopping.</p>
 
-    <form id="loginForm">
+   
+    <form id="loginForm" onsubmit="event.preventDefault(); openCaptchaModal();">
         <div class="input-box">
             <i class="fa-solid fa-envelope"></i>
             <input id="email" type="email" placeholder="Email" data-lang-placeholder="emailPlaceholder" required>
@@ -360,16 +614,12 @@ button:hover {
             <input id="password" type="password" placeholder="Password" data-lang-placeholder="passwordPlaceholder" required>
         </div>
 
-        <div style="text-align:right; margin:-8px 0 18px;">
-            <a href="forgot-password.html" style="color:#60A5FA; text-decoration:none; font-size:14px; font-weight:500;" data-lang="forgotPassword">Forgot Password?</a>
-        </div>
+        <a href="forgot-password.html" class="forgot-pass" data-lang="forgotPassword">Forgot Password?</a>
 
         <button type="submit" id="loginBtn">
             <i class="fa-solid fa-arrow-right-to-bracket"></i>
             <span data-lang="signInBtnText">Sign In</span>
         </button>
-
-        <div class="loading" id="loading" data-lang="signingInText">Signing in...</div>
     </form>
 
     <div class="link">
@@ -378,15 +628,130 @@ button:hover {
     </div>
 </div>
 
+
+<div id="captchaOverlay" class="captcha-overlay">
+    <div class="captcha-box">
+        <div class="captcha-header">
+            <h3>
+                <i class="fa-solid fa-shield-halved"></i> 
+                <span data-lang="botVerificationTitle">Bot Verification</span>
+            </h3>
+            <button type="button" class="captcha-close" onclick="closeCaptchaModal()">✕</button>
+        </div>
+
+        <p class="captcha-desc" data-lang="captchaDesc">Please enter the security code shown below:</p>
+
+        <div class="captcha-canvas-wrap">
+            <canvas id="captchaCanvas" width="200" height="46" onclick="generateCaptcha()" title="Click to refresh"></canvas>
+            <button type="button" class="btn-refresh" onclick="generateCaptcha()" title="Refresh Code">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>
+        </div>
+
+        <div class="captcha-input-wrap">
+            <input type="text" id="captchaInput" maxlength="5" placeholder="CODE" data-lang-placeholder="captchaPlaceholder" autocomplete="off">
+            <div id="captchaError" class="captcha-error">
+                <i class="fa-solid fa-circle-exclamation"></i> 
+                <span data-lang="captchaErrorText">Incorrect code. Please try again.</span>
+            </div>
+        </div>
+
+        <div class="captcha-actions">
+            <button type="button" class="btn-cancel" onclick="closeCaptchaModal()" data-lang="cancelBtnText">Cancel</button>
+            <button type="button" onclick="verifyAndLogin()" data-lang="verifyLoginBtnText">Verify & Sign In</button>
+        </div>
+    </div>
+</div>
+
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-box">
+        <div class="spinner"></div>
+        <h3 data-lang="signingInText">Signing in...</h3>
+        <p data-lang="pleaseWaitText">Please wait a moment.</p>
+    </div>
+</div>
+
 <script>
-document.getElementById("loginForm").addEventListener("submit", async function(e){
-    e.preventDefault();
+let generatedCaptcha = "";
 
-    const btn = document.getElementById("loginBtn");
-    const loading = document.getElementById("loading");
 
-    btn.disabled = true;
-    loading.style.display = "block";
+function openCaptchaModal() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!email || !password) return;
+
+    generateCaptcha();
+    document.getElementById("captchaInput").value = "";
+    document.getElementById("captchaError").style.display = "none";
+    document.getElementById("captchaOverlay").style.display = "flex";
+}
+
+
+function closeCaptchaModal() {
+    document.getElementById("captchaOverlay").style.display = "none";
+}
+
+
+function generateCaptcha() {
+    const canvas = document.getElementById("captchaCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    
+    generatedCaptcha = "";
+    for (let i = 0; i < 5; i++) {
+        generatedCaptcha += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+
+    ctx.fillStyle = "#0F172A";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+    for (let i = 0; i < 4; i++) {
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.stroke();
+    }
+
+   
+    ctx.font = "bold 22px 'Poppins', sans-serif";
+    for (let i = 0; i < generatedCaptcha.length; i++) {
+        ctx.fillStyle = ['#60A5FA', '#F472B6', '#34D399', '#FBBF24', '#A78BFA'][i % 5];
+        ctx.save();
+        ctx.translate(25 + i * 35, 32);
+        ctx.rotate((Math.random() - 0.5) * 0.35);
+        ctx.fillText(generatedCaptcha[i], 0, 0);
+        ctx.restore();
+    }
+}
+
+
+function verifyAndLogin() {
+    const userInput = document.getElementById("captchaInput").value.trim().toUpperCase();
+    const errorEl = document.getElementById("captchaError");
+
+    if (userInput === generatedCaptcha) {
+        closeCaptchaModal();
+        login(); 
+    } else {
+        errorEl.style.display = "block";
+        document.getElementById("captchaInput").value = "";
+        generateCaptcha();
+    }
+}
+
+
+async function login(){
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const loading = document.getElementById("loadingOverlay");
+
+    loading.style.display = "flex";
 
     try {
         const res = await fetch("/login", {
@@ -394,26 +759,30 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                email: document.getElementById("email").value,
-                password: document.getElementById("password").value
-            })
+            body: JSON.stringify({ email, password })
         });
 
         const data = await res.json();
 
-        loading.style.display = "none";
-        btn.disabled = false;
-
         if(data.success){
             window.location = "index.html";
         } else {
+            loading.style.display = "none";
             alert(data.message || "Wrong email or password");
         }
     } catch (err) {
         loading.style.display = "none";
-        btn.disabled = false;
         alert("Cannot connect to server.");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const savedLang = localStorage.getItem("language") || "en";
+    const langSelect = document.querySelector(".language-select");
+    if (langSelect) langSelect.value = savedLang;
+
+    if (typeof changeLanguage === "function") {
+        changeLanguage(savedLang);
     }
 });
 </script>

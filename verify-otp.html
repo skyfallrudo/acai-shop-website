@@ -15,14 +15,14 @@
   gtag('config', 'G-F00XQ96WFJ');
 </script>
 
-<!-- CDN Preconnect & Font Awesome Speed Preload -->
+
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
 
-<!-- Google Fonts & Language Script -->
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="language.js"></script>
 
@@ -87,7 +87,7 @@ body::before {
     z-index: -1;
 }
 
-/* ===== Entrance Keyframes ===== */
+
 @keyframes cardFadeIn {
     0% {
         opacity: 0;
@@ -319,7 +319,7 @@ button:disabled {
     animation: messageFadeIn 0.3s ease-out forwards;
 }
 
-/* ===== Responsive Fixes ===== */
+
 @media (max-width: 768px) {
     body {
         padding: 16px !important;
@@ -385,7 +385,7 @@ button:disabled {
 
 <div class="card">
 
-  <!-- Language Bar -->
+  
   <div class="top-bar">
     <select class="language-select" onchange="changeLanguage(this.value)">
       <option value="en">English</option>
@@ -431,7 +431,7 @@ button:disabled {
 </div>
 
 <script>
-// Translation Dictionary
+
 if (typeof translations !== 'undefined') {
   translations.en.verifyOtpTitle = "Verify OTP";
   translations.en.otpDesc = "Enter the 6-digit verification code sent to your email.";
@@ -458,7 +458,7 @@ if (typeof translations !== 'undefined') {
   translations.mm.wrongOtp = "OTP မမှန်ကန်ပါ။";
 }
 
-// Read URL Query Params
+
 const params = new URLSearchParams(location.search);
 const email = params.get("email");
 const password = params.get("password");
@@ -472,20 +472,20 @@ if (inputs.length > 0) {
   inputs[0].focus();
 }
 
-// Trigger Shake Animation for Error
+
 function triggerShake() {
   otpContainer.classList.remove("shake");
   void otpContainer.offsetWidth; // Force Reflow
   otpContainer.classList.add("shake");
 }
 
-// Input navigation logic & Pop Animation
+
 inputs.forEach((input, index) => {
   input.addEventListener("input", (e) => {
     input.value = input.value.replace(/\D/g, "");
 
     if (input.value) {
-      // Pop Animation when digit entered
+    
       input.classList.remove("pop");
       void input.offsetWidth;
       input.classList.add("pop");
@@ -503,7 +503,6 @@ inputs.forEach((input, index) => {
   });
 });
 
-// Auto paste handling
 document.addEventListener("paste", (e) => {
   const text = (e.clipboardData.getData("text") || "")
     .replace(/\D/g, "")
@@ -521,7 +520,6 @@ document.addEventListener("paste", (e) => {
   }
 });
 
-// Resend Timer Logic
 let time = 60;
 const timer = document.getElementById("timer");
 const resend = document.getElementById("resendLink");
@@ -537,7 +535,7 @@ const interval = setInterval(() => {
   }
 }, 1000);
 
-// Resend OTP Action
+
 resend.addEventListener("click", async function(e) {
   e.preventDefault();
   const lang = localStorage.getItem("language") || "en";
@@ -566,7 +564,7 @@ resend.addEventListener("click", async function(e) {
   }
 });
 
-// Verify OTP Action
+
 document.getElementById("verifyBtn").addEventListener("click", async () => {
   const lang = localStorage.getItem("language") || "en";
   const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : {};

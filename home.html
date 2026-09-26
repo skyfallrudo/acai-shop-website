@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Açaí Shop - Welcome</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #080612;
+            --primary-violet: #8b5cf6;
+            --neon-magenta: #d946ef;
+            --neon-cyan: #06b6d4;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text-glow: 0 0 25px rgba(139, 92, 246, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Particle Background Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Top Bar Navigation */
+        header {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1200px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pill-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: #d1d5db;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .pill-btn:hover {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: var(--primary-violet);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Center Main Section */
+        main {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+            margin: auto 0;
+        }
+
+        .badge {
+            background: linear-gradient(90deg, rgba(139,92,246,0.2), rgba(217,70,239,0.2));
+            border: 1px solid rgba(217,70,239,0.4);
+            color: #e9d5ff;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            animation: floatBadge 3s ease-in-out infinite;
+        }
+
+        .brand-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(4rem, 11vw, 8rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #c084fc 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: var(--text-glow);
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        /* Dynamic Wave Lines */
+        .wave-accent {
+            width: clamp(220px, 45vw, 420px);
+            margin: 10px 0 35px 0;
+            filter: drop-shadow(0 0 12px var(--neon-magenta));
+        }
+
+        .wave-path {
+            stroke: url(#wave-grad);
+            stroke-dasharray: 600;
+            stroke-dashoffset: 600;
+            animation: drawWave 3s ease-in-out forwards infinite alternate;
+        }
+
+        /* Glowing SHOP NOW Button */
+        .shop-now-container {
+            position: relative;
+            margin-top: 10px;
+        }
+
+        .shop-btn {
+            position: relative;
+            display: inline-block;
+            padding: 18px 56px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-decoration: none;
+            background: rgba(13, 10, 26, 0.7);
+            border-radius: 50px;
+            border: 2px solid transparent;
+            background-image: linear-gradient(rgba(13, 10, 26, 0.8), rgba(13, 10, 26, 0.8)), 
+                              linear-gradient(90deg, #8b5cf6, #d946ef, #06b6d4);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.35);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+
+        .shop-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .shop-btn:hover::before {
+            left: 100%;
+        }
+
+        .shop-btn:hover {
+            transform: scale(1.08) translateY(-3px);
+            box-shadow: 0 0 45px rgba(217, 70, 239, 0.75), 0 0 15px rgba(6, 182, 212, 0.5);
+            letter-spacing: 4px;
+        }
+
+        /* Categories Bar */
+        .category-bar {
+            display: flex;
+            gap: 12px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cat-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #a1a1aa;
+            transition: all 0.3s;
+        }
+
+        .cat-item:hover {
+            color: #f472b6;
+            border-color: rgba(244, 114, 182, 0.4);
+            background: rgba(244, 114, 182, 0.1);
+        }
+
+        footer {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: #6b7280;
+            letter-spacing: 1px;
+        }
+
+        @keyframes floatBadge {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @keyframes drawWave {
+            0% { stroke-dashoffset: 600; }
+            100% { stroke-dashoffset: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <header>
+        <div class="nav-pills">
+            <a href="#" class="pill-btn">✨ Welcome to Açaí</a>
+            <a href="index.html" class="pill-btn">📦 My Orders</a>
+            <a href="index.html" class="pill-btn">💬 Support</a>
+        </div>
+        <div class="nav-pills">
+            <a href="#" class="pill-btn">🌐 ENG / MYA</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="badge">✦ OFFICIAL STORE LANDING ✦</div>
+        
+        <h1 class="brand-title">Açaí</h1>
+
+        <svg class="wave-accent" viewBox="0 0 300 40" fill="none">
+            <defs>
+                <linearGradient id="wave-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#8b5cf6" />
+                    <stop offset="50%" stop-color="#d946ef" />
+                    <stop offset="100%" stop-color="#06b6d4" />
+                </linearGradient>
+            </defs>
+            <path class="wave-path" d="M 10 20 Q 75 5, 150 20 T 290 20" stroke-width="6" stroke-linecap="round" />
+        </svg>
+
+        <div class="shop-now-container">
+            <a href="index.html" class="shop-btn">SHOP NOW</a>
+        </div>
+
+        <div class="category-bar">
+            <span class="cat-item">Keychains</span>
+            <span class="cat-item">Phone Cases</span>
+            <span class="cat-item">Jewelry</span>
+            <span class="cat-item">Wallets</span>
+            <span class="cat-item">Bags</span>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2026 Açaí Shop. All rights reserved.
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        let mouse = { x: null, y: null };
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = `hsla(${Math.random() * 60 + 260}, 80%, 70%, ${Math.random() * 0.5 + 0.3})`;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+
+                if (mouse.x && mouse.y) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 100) {
+                        this.x -= dx * 0.02;
+                        this.y -= dy * 0.02;
+                    }
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 70; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+    </script>
+</body>
+</html>
