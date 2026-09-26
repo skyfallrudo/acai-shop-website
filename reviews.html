@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acai Shop - Feedback & Suggestions Coming Soon</title>
+    <title>Acai Shop - Coming Soon</title>
     
-    <!-- Tailwind CSS CDN -->
+  
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font Awesome Icons -->
+  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
@@ -24,7 +23,7 @@
             overflow-x: hidden;
         }
 
-        /* Animated Rotating Rainbow Border Container */
+    
         .rainbow-wrap {
             position: relative;
             border-radius: 1.75rem;
@@ -68,12 +67,23 @@
             100% { transform: rotate(360deg); }
         }
 
-        @keyframes float-lightbulb {
+
+        @keyframes float-1 {
             0%, 100% { transform: translateY(0px) rotate(-8deg) scale(1); }
-            50% { transform: translateY(-16px) rotate(6deg) scale(1.08); }
+            50% { transform: translateY(-14px) rotate(6deg) scale(1.08); }
         }
 
-        @keyframes float-comment {
+        @keyframes float-2 {
+            0%, 100% { transform: translateY(0px) rotate(6deg) scale(1); }
+            50% { transform: translateY(12px) rotate(-8deg) scale(1.05); }
+        }
+
+        @keyframes float-3 {
+            0%, 100% { transform: translateY(0px) rotate(-6deg) scale(1); }
+            50% { transform: translateY(-16px) rotate(8deg) scale(1.08); }
+        }
+
+        @keyframes float-4 {
             0%, 100% { transform: translateY(0px) rotate(8deg) scale(1); }
             50% { transform: translateY(14px) rotate(-6deg) scale(1.05); }
         }
@@ -94,13 +104,10 @@
             50% { transform: translate(30px, -30px) scale(1.15); }
         }
 
-        .animate-float-bulb {
-            animation: float-lightbulb 5s ease-in-out infinite;
-        }
-
-        .animate-float-comment {
-            animation: float-comment 6s ease-in-out infinite;
-        }
+        .animate-float-1 { animation: float-1 4.5s ease-in-out infinite; }
+        .animate-float-2 { animation: float-2 5.5s ease-in-out infinite; }
+        .animate-float-3 { animation: float-3 5.0s ease-in-out infinite; }
+        .animate-float-4 { animation: float-4 6.0s ease-in-out infinite; }
 
         .pulse-text-glow {
             animation: pulse-glow 3.5s ease-in-out infinite;
@@ -114,14 +121,14 @@
             animation: ambient-drift 14s ease-in-out infinite alternate-reverse;
         }
 
-        /* Glowing text gradient fill */
+       
         .text-gradient-rainbow {
             background: linear-gradient(135deg, #00dfd8 0%, #7928ca 50%, #ff007f 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        /* Custom glass card for feature items */
+      
         .glass-pill {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -138,17 +145,17 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between relative selection:bg-pink-500 selection:text-white">
 
-    <!-- Background Animated Orbs -->
+   
     <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div class="ambient-orb-1 absolute -top-24 -left-24 w-96 h-96 bg-purple-600/25 rounded-full blur-[120px]"></div>
         <div class="ambient-orb-2 absolute top-1/2 -right-24 w-[28rem] h-[28rem] bg-cyan-500/20 rounded-full blur-[140px]"></div>
         <div class="ambient-orb-1 absolute -bottom-24 left-1/3 w-96 h-96 bg-pink-600/20 rounded-full blur-[130px]"></div>
     </div>
 
-    <!-- Navigation Header -->
+   
     <header class="relative z-20 w-full max-w-6xl mx-auto px-6 pt-6 flex justify-between items-center">
-        <!-- Logo / Brand Title -->
-        <a href="#" class="flex items-center gap-3 group">
+       
+        <a href="index.html" class="flex items-center gap-3 group">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-105 transition-transform duration-300">
                 <i class="fa-solid fa-store text-white text-lg"></i>
             </div>
@@ -158,15 +165,13 @@
             </div>
         </a>
 
-        <!-- Right Header Actions (Language Toggle & Back Button) -->
+       
         <div class="flex items-center gap-3">
-            <!-- Language Switcher Button -->
             <button id="langToggleBtn" onclick="toggleLanguage()" class="glass-pill px-4 py-2 rounded-full flex items-center gap-2 text-xs font-semibold text-slate-200 hover:text-white transition-all cursor-pointer">
                 <i class="fa-solid fa-globe text-cyan-400"></i>
                 <span id="currentLangLabel">မြန်မာ</span>
             </button>
 
-            <!-- Back to Store Link -->
             <a href="index.html" class="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-all">
                 <i class="fa-solid fa-arrow-left"></i>
                 <span data-lang-key="btnBack">Back to Store</span>
@@ -174,50 +179,57 @@
         </div>
     </header>
 
-    <!-- Main Content Body -->
+  
     <main class="relative z-10 my-auto py-10 px-4 sm:px-6 flex items-center justify-center">
-        <div class="w-full max-w-3xl mx-auto">
+        <div class="w-full max-w-4xl mx-auto">
             
-            <!-- Rainbow Gradient Border Outer Wrap -->
             <div class="rainbow-wrap">
-                <div class="rainbow-inner p-8 sm:p-12 text-center relative overflow-hidden">
+                <div class="rainbow-inner p-6 sm:p-10 text-center relative overflow-hidden">
                     
-                    <!-- Floating Background Elements inside Card -->
                     <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-3/4 h-20 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-2xl pointer-events-none"></div>
 
-                    <!-- Floating Animated Icons Header Header -->
-                    <div class="relative w-32 h-24 mx-auto mb-6 flex items-center justify-center">
-                        <!-- Floating Lightbulb Icon -->
-                        <div class="animate-float-bulb absolute left-2 top-1 w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400/20 to-yellow-500/10 border border-yellow-400/30 flex items-center justify-center backdrop-blur-md shadow-lg shadow-yellow-500/10">
-                            <i class="fa-regular fa-lightbulb text-3xl text-yellow-300 drop-shadow-[0_0_12px_rgba(253,224,71,0.8)]"></i>
+                  
+                    <div class="relative w-64 h-28 mx-auto mb-4 flex items-center justify-center">
+                   
+                        <div class="animate-float-1 absolute left-0 top-0 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-400/20 to-yellow-500/10 border border-yellow-400/30 flex items-center justify-center backdrop-blur-md shadow-lg shadow-yellow-500/10">
+                            <i class="fa-regular fa-lightbulb text-2xl text-yellow-300 drop-shadow-[0_0_12px_rgba(253,224,71,0.8)]"></i>
                         </div>
 
-                        <!-- Floating Comment/Feedback Icon -->
-                        <div class="animate-float-comment absolute right-2 bottom-1 w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400/20 to-blue-600/10 border border-cyan-400/30 flex items-center justify-center backdrop-blur-md shadow-lg shadow-cyan-500/10">
-                            <i class="fa-regular fa-comment-dots text-3xl text-cyan-300 drop-shadow-[0_0_12px_rgba(103,232,249,0.8)]"></i>
+                      
+                        <div class="animate-float-2 absolute left-16 bottom-0 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-blue-400/20 to-indigo-600/10 border border-blue-400/30 flex items-center justify-center backdrop-blur-md shadow-lg shadow-blue-500/10">
+                            <i class="fa-regular fa-circle-question text-2xl text-blue-300 drop-shadow-[0_0_12px_rgba(147,197,253,0.8)]"></i>
+                        </div>
+
+                        <div class="animate-float-3 absolute right-16 top-0 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-purple-400/20 to-pink-500/10 border border-purple-400/30 flex items-center justify-center backdrop-blur-md shadow-lg shadow-purple-500/10">
+                            <i class="fa-regular fa-star text-2xl text-purple-300 drop-shadow-[0_0_12px_rgba(216,180,254,0.8)]"></i>
+                        </div>
+
+                   
+                        <div class="animate-float-4 absolute right-0 bottom-0 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-cyan-400/20 to-teal-600/10 border border-cyan-400/30 flex items-center justify-center backdrop-blur-md shadow-lg shadow-cyan-500/10">
+                            <i class="fa-regular fa-comment-dots text-2xl text-cyan-300 drop-shadow-[0_0_12px_rgba(103,232,249,0.8)]"></i>
                         </div>
                     </div>
 
-                    <!-- Sub-nav Feature Badge -->
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-pink-500/10 border border-white/10 text-cyan-300 text-xs font-semibold tracking-wider uppercase mb-6 shadow-inner">
+        
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-pink-500/10 border border-white/10 text-cyan-300 text-xs font-semibold tracking-wider uppercase mb-5 shadow-inner">
                         <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                        <span data-lang-key="badgeText">Feedback & Suggestions</span>
+                        <span data-lang-key="badgeText">FEEDBACK, FAQ, & REVIEWS</span>
                     </div>
 
-                    <!-- Main Coming Soon Pulsing Title -->
+                    
                     <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4 pulse-text-glow leading-tight">
                         <span class="text-gradient-rainbow" data-lang-key="heroTitle">Something Amazing is Coming Soon!</span>
                     </h1>
 
-                    <!-- Paragraph Description -->
-                    <p class="text-slate-300 text-sm sm:text-base max-w-xl mx-auto font-normal leading-relaxed mb-8" data-lang-key="heroDesc">
-                        We are crafting an interactive portal where your feedback, ideas, and suggestions directly shape the future features and products of Acai Shop!
+                  
+                    <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto font-normal leading-relaxed mb-8" data-lang-key="heroDesc">
+                        We are crafting an interactive portal for FAQ, Customer Reviews, feedback, and ideas to shape the future features and products of Acai Shop!
                     </p>
 
-                    <!-- Quick Feature Highlights Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10 text-left">
-                        <div class="glass-pill p-4 rounded-xl flex sm:flex-col items-center sm:items-start gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-pink-500/10 border border-pink-500/30 flex items-center justify-center shrink-0">
+             
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-10 text-left">
+                        <div class="glass-pill p-4 rounded-xl flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-pink-500/10 border border-pink-500/30 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-wand-magic-sparkles text-pink-400 text-sm"></i>
                             </div>
                             <div>
@@ -226,9 +238,9 @@
                             </div>
                         </div>
 
-                        <div class="glass-pill p-4 rounded-xl flex sm:flex-col items-center sm:items-start gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shrink-0">
-                                <i class="fa-solid fa-heart text-cyan-400 text-sm"></i>
+                        <div class="glass-pill p-4 rounded-xl flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shrink-0">
+                                <i class="fa-regular fa-comment-dots text-cyan-400 text-sm"></i>
                             </div>
                             <div>
                                 <h4 class="text-xs font-bold text-white mb-0.5" data-lang-key="feat2Title">Instant Feedback</h4>
@@ -236,18 +248,37 @@
                             </div>
                         </div>
 
-                        <div class="glass-pill p-4 rounded-xl flex sm:flex-col items-center sm:items-start gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+                        <div class="glass-pill p-4 rounded-xl flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center shrink-0">
+                                <i class="fa-regular fa-circle-question text-blue-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white mb-0.5" data-lang-key="feat3Title">FAQ & Help</h4>
+                                <p class="text-[11px] text-slate-400 leading-tight" data-lang-key="feat3Desc">Find quick answers to common questions.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-pill p-4 rounded-xl flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center shrink-0">
+                                <i class="fa-regular fa-star text-purple-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white mb-0.5" data-lang-key="feat4Title">Customer Reviews</h4>
+                                <p class="text-[11px] text-slate-400 leading-tight" data-lang-key="feat4Desc">See ratings and buyer experiences.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-pill p-4 rounded-xl flex items-center gap-3 sm:col-span-2 lg:col-span-1">
+                            <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-gift text-amber-400 text-sm"></i>
                             </div>
                             <div>
-                                <h4 class="text-xs font-bold text-white mb-0.5" data-lang-key="feat3Title">Earn Perks</h4>
-                                <p class="text-[11px] text-slate-400 leading-tight" data-lang-key="feat3Desc">Get special rewards for top input.</p>
+                                <h4 class="text-xs font-bold text-white mb-0.5" data-lang-key="feat5Title">Earn Perks</h4>
+                                <p class="text-[11px] text-slate-400 leading-tight" data-lang-key="feat5Desc">Get special rewards for top input.</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Email Subscription Form -->
                     <div class="max-w-md mx-auto">
                         <label for="emailInput" class="block text-xs font-medium text-slate-300 mb-2" data-lang-key="formLabel">
                             Be the first to know when this feature goes live:
@@ -276,14 +307,13 @@
                             </button>
                         </form>
                         
-                        <!-- Notification Toast Container -->
                         <div id="toastMessage" class="hidden mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium flex items-center justify-center gap-2 transition-all">
                             <i class="fa-solid fa-circle-check"></i>
                             <span id="toastText" data-lang-key="successMsg">Thank you! We'll notify you as soon as we launch!</span>
                         </div>
                     </div>
 
-                    <!-- Mobile Back Link -->
+                
                     <div class="mt-8 pt-6 border-t border-white/5 sm:hidden">
                         <a href="index.html" class="inline-flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-white transition-colors">
                             <i class="fa-solid fa-arrow-left"></i>
@@ -307,20 +337,23 @@
         </div>
     </footer>
 
-    <!-- JavaScript Logic -->
+   
     <script>
-        // Dictionary for English & Burmese Translations
         const translations = {
             en: {
-                badgeText: "Feedback & Suggestions",
+                badgeText: "FEEDBACK, FAQ & REVIEWS",
                 heroTitle: "Something Amazing is Coming Soon!",
-                heroDesc: "We are crafting an interactive space where your thoughts, ideas, and feedback directly shape the future experience and features of Acai Shop!",
+                heroDesc: "We are crafting an interactive portal for FAQ, Customer Reviews, feedback, and ideas to shape the future experience and features of Acai Shop!",
                 feat1Title: "Share Ideas",
                 feat1Desc: "Propose new products & menu items.",
                 feat2Title: "Instant Feedback",
                 feat2Desc: "Help us improve your shop experience.",
-                feat3Title: "Earn Perks",
-                feat3Desc: "Get special rewards for helpful input.",
+                feat3Title: "FAQ & Help",
+                feat3Desc: "Find quick answers to common questions.",
+                feat4Title: "Customer Reviews",
+                feat4Desc: "See ratings and buyer experiences.",
+                feat5Title: "Earn Perks",
+                feat5Desc: "Get special rewards for top input.",
                 formLabel: "Be the first to know when this feature goes live:",
                 placeholder: "Enter your email address...",
                 btnNotify: "Notify Me",
@@ -329,32 +362,49 @@
                 langBtnLabel: "မြန်မာ"
             },
             my: {
-                badgeText: "အကြံပြုချက်နှင့် တုံ့ပြန်ချက်",
+                badgeText: "အကြံပြုချက်၊ မေးခွန်းများနှင့် သုံးသပ်ချက်များ",
                 heroTitle: "အသစ်စက်စက် မကြာမီ လာမည်!",
-                heroDesc: "သင်၏ အကြံဉာဏ်များနှင့် တုံ့ပြန်ချက်များဖြင့် Acai Shop ကို ပိုမိုကောင်းမွန်အောင် အတူတကွ ဖန်တီးပေးနိုင်မယ့် အသစ်စက်စက် ကဏ္ဍကို ပြင်ဆင်နေပါတယ်!",
+                heroDesc: "မေးလေ့ရှိသော မေးခွန်းများ၊ ဝယ်ယူသူများ၏ သုံးသပ်ချက်များ၊ အကြံပြုချက်များနှင့် တုံ့ပြန်ချက်များကို တစ်နေရာတည်းတွင် ကြည့်ရှုနိုင်မည့် အသစ်စက်စက် ကဏ္ဍကို ပြင်ဆင်နေပါတယ်!",
                 feat1Title: "အကြံဉာဏ်များ မျှဝေရန်",
                 feat1Desc: "ကုန်ပစ္စည်းအသစ်များနှင့် မီနူးများကို အကြံပြုပါ",
                 feat2Title: "တုံ့ပြန်ချက်ပေးရန်",
                 feat2Desc: "ဝန်ဆောင်မှုများ ပိုမိုကောင်းမွန်စေရန် ကူညီပါ",
-                feat3Title: "ဆုလက်ဆောင်များ ရယူရန်",
-                feat3Desc: "အကြံပြုသူများအတွက် အထူးခံစားခွင့်များ",
+                feat3Title: "မေးလေ့ရှိသော မေးခွန်းများ",
+                feat3Desc: "သိရှိလိုသည်များကို အမြန်ဆုံး ရှာဖွေဖတ်ရှုပါ",
+                feat4Title: "သုံးသပ်ချက်များ",
+                feat4Desc: "ဝယ်ယူသူများ၏ စိတ်ကျေနပ်မှုနှင့် သုံးသပ်ချက်များကို ကြည့်ပါ",
+                feat5Title: "ဆုလက်ဆောင်များ ရယူရန်",
+                feat5Desc: "အကြံပြုသူများအတွက် အထူးခံစားခွင့်များ",
                 formLabel: "စတင်အသုံးပြုနိုင်ပါက အသိပေးချက် ရယူရန် မေးလ်ရိုက်ထည့်ပါ:",
                 placeholder: "သင့်အီးမေးလ်လိပ်စာ ရိုက်ထည့်ပါ...",
                 btnNotify: "အကြောင်းကြားပါ",
                 btnBack: "ပင်မစာမျက်နှာသို့",
-                successMsg: "ကျေးဇူးတင်ပါသည်။ ဝန်ဆောင်မှု စတင်သည်နှင့် သို့ အကြောင်းကြားပေးပါမည်။",
+                successMsg: "ကျေးဇူးတင်ပါသည်။ ဝန်ဆောင်မှု စတင်သည်နှင့် အကြောင်းကြားပေးပါမည်။",
                 langBtnLabel: "English"
             }
         };
 
         let currentLang = 'en';
 
-        // Function to Toggle Between English and Burmese
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('language');
+            if (savedLang && (savedLang === 'en' || savedLang === 'my' || savedLang === 'mm')) {
+                currentLang = (savedLang === 'mm') ? 'my' : savedLang;
+            } else {
+                currentLang = 'en';
+            }
+            updatePageLanguage();
+        });
+
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'my' : 'en';
-            const langData = translations[currentLang];
+            localStorage.setItem('language', currentLang === 'my' ? 'mm' : 'en');
+            updatePageLanguage();
+        }
 
-            // Update Text Elements
+        function updatePageLanguage() {
+            const langData = translations[currentLang] || translations['en'];
+
             document.querySelectorAll('[data-lang-key]').forEach(elem => {
                 const key = elem.getAttribute('data-lang-key');
                 if (langData[key]) {
@@ -362,17 +412,14 @@
                 }
             });
 
-            // Update Email Placeholder
             const emailInput = document.getElementById('emailInput');
             if (emailInput) {
                 emailInput.placeholder = langData.placeholder;
             }
 
-            // Update Language Toggle Button Label
             document.getElementById('currentLangLabel').textContent = langData.langBtnLabel;
         }
 
-        // Form Submission Logic
         function handleSubscribe(event) {
             event.preventDefault();
 
@@ -384,24 +431,20 @@
 
             if (!emailInput.value.trim()) return;
 
-            // Loading state
             submitBtn.disabled = true;
             submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
             submitText.textContent = currentLang === 'en' ? 'Saving...' : 'သိမ်းဆည်းနေသည်...';
             submitIcon.className = 'fa-solid fa-spinner fa-spin text-xs';
 
-            // Simulate API Request delay
             setTimeout(() => {
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
                 submitText.textContent = translations[currentLang].btnNotify;
                 submitIcon.className = 'fa-solid fa-paper-plane text-xs';
 
-                // Reset Input & Display Toast Banner
                 emailInput.value = '';
                 toastMessage.classList.remove('hidden');
 
-                // Auto hide toast after 5 seconds
                 setTimeout(() => {
                     toastMessage.classList.add('hidden');
                 }, 5000);
