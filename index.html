@@ -459,30 +459,62 @@ nav {
     justify-content: center; 
     gap: 24px;
 }
+/* ✅ Rainbow Border Hover Effect အတွက် ကုဒ်အသစ် */
 .card {
+    position: relative;
     background: rgba(15, 23, 42, .82);
     border-radius: 22px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, .08);
-    transition: .3s;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
     max-width: 280px; 
     margin: 0 auto; 
+    padding: 2px; /* Rainbow Border ပေါ်ရန် 2px ပတ်လည် ချန်ထားခြင်း */
+}
+
+/* Hover/Touch ဖြစ်ချိန်မှ လည်မယ့် Rainbow Effect Layer */
+.card::before {
+    content: '';
+    position: absolute;
+    top: -150%;
+    left: -50%;
+    width: 200%;
+    height: 400%;
+    background: conic-gradient(#F09EA7, #F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB, #F6C2F3);
+    animation: spin 3s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+/* Mouse ထိလိုက်ချိန် (Hover) သို့မဟုတ် ဖုန်းမှာ Touch လုပ်လိုက်ချိန် ပေါ်လာစေရန် */
+.card:hover::before,
+.card:active::before {
+    opacity: 1;
 }
 
 .card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, .35);
+    box-shadow: 0 15px 30px rgba(199, 202, 255, 0.25);
 }
 
 .card img {
     width: 100%;
     height: 240px;
     object-fit: cover;
+    position: relative;
+    z-index: 1;
+    border-radius: 20px 20px 0 0;
+    background: #0f172a;
 }
 
 .card-content {
     padding: 18px;
+    position: relative;
+    z-index: 1;
+    background: #0f172a;
+    border-radius: 0 0 20px 20px;
 }
 
 .price {
