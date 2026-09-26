@@ -1,17 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
-<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acai Shop</title>
+    
+    <link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
 
-<title>Acai Shop</title>
-<script src="language.js"></script>
-<style>
+    <!-- CDN Preconnect Setup -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- Font Awesome (jsDelivr CDN သုံးထားသဖြင့် မြန်မာနိုင်ငံလိုင်းများတွင် ပိုငြိမ်သည်) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css">
+
+    <!-- Google Fonts (Poppins) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Language Script -->
+    <script src="language.js"></script>
+
+    <style>
 .language-select {
     padding: 9px 12px;
     border-radius: 10px;
@@ -221,7 +232,7 @@ nav {
     left: -50%;
     width: 200%;
     height: 500%;
-    background: conic-gradient(#00d2ff, #00f5a0, #ff007f, #7928ca, #00d2ff);
+    background: conic-gradient(#F09EA7,#F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB,#F6C2F3);
     animation: spin 3s linear infinite;
     z-index: 1;
 }
@@ -370,7 +381,7 @@ nav {
   height: 500%;
   top: -200%;
   left: -50%;
-  background: conic-gradient(#00d2ff, #00f5a0, #ff007f, #7928ca, #00d2ff);
+  background: conic-gradient(#F09EA7,#F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB,#F6C2F3);
   animation: spin 3s linear infinite;
 }
 
@@ -843,7 +854,32 @@ footer {
     font-size:24px !important;
   }
 
-}s
+}
+.see-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: rgba(15, 23, 42, 0.75); /* Dark Glassmorphic background */
+  color: #38bdf8; /* စာလုံးအရောင် အပြာနု */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px; /* အနားဝိုင်း ခလုတ်ပုံစံ */
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  backdrop-filter: blur(8px); /* အနောက်ကို ဝါးပေးသည့် Glass effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* Mouse တင်လိုက်ရင် အရောင်ပြောင်းမည့် Hover Effect */
+.see-all-btn:hover {
+  background: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  transform: translateY(-2px);
+}
 </style>
 </head>
 <body>
@@ -928,7 +964,9 @@ footer {
 <section class="section">
   <div class="section-title">
     <h2 data-lang="newArrivals">New Arrivals</h2>
-    <a href="#" data-lang="seeAll">See All</a>
+    <a href="#" class="see-all-btn" data-lang="seeAll">
+      See All <i class="fa-solid fa-arrow-right"></i>
+    </a>
   </div>
 
   <div class="products" id="productList"></div>
