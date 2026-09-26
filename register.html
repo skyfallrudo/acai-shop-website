@@ -291,7 +291,7 @@ button:hover {
     margin: 0;
 }
 
-/* ---------- Mobile Responsive ---------- */
+
 @media (max-width: 768px) {
     body {
         padding: 16px !important;
@@ -401,7 +401,6 @@ button:hover {
 
 <body>
 
-<!-- Language Switcher Dropdown -->
 <div class="lang-container">
     <select class="language-select" onchange="changeLanguage(this.value)">
         <option value="en">English</option>
@@ -486,7 +485,7 @@ async function sendOTP(){
   }
 }
 
-// Initial Language Check
+
 document.addEventListener("DOMContentLoaded", () => {
   const savedLang = localStorage.getItem("language") || "en";
   const langSelect = document.querySelector(".language-select");

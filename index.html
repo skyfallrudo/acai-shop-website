@@ -7,61 +7,35 @@
     
     <link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
 
-    <!-- CDN Preconnect Setup -->
+
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-
-    <!-- Font Awesome (jsDelivr CDN သုံးထားသဖြင့် မြန်မာနိုင်ငံလိုင်းများတွင် ပိုငြိမ်သည်) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css">
-
-    <!-- Google Fonts (Poppins) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+   
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Language Script -->
+   
     <script src="language.js"></script>
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-F00XQ96WFJ');
+    </script>
+
     <style>
-.language-select {
-    padding: 9px 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.15);
-    background: rgba(255,255,255,.08);
-    color: white;
-    outline: none;
-    cursor: pointer;
-    font-family: Poppins, sans-serif;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-}
-
-.language-select option {
-    background: #111827;
-    color: white;
-}
-</style>
-
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-F00XQ96WFJ');
-</script>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-<style>
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Poppins, sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
 
 html, body {
@@ -75,7 +49,6 @@ body {
     background-color: #05080f;
 }
 
-/* Background ပုံကို local ဖိုင်များမှ ခေါ်သုံးခြင်း */
 body::after {
     content: "";
     position: fixed;
@@ -89,21 +62,21 @@ body::after {
     z-index: -2;
 }
 
-/* PC အတွက် Desktop ပုံ */
+
 @media (min-width: 769px) {
     body::after {
         background-image: url("bg-desktop.jpg");
     }
 }
 
-/* ဖုန်း Screen များအတွက် Mobile ပုံ */
+
 @media (max-width: 768px) {
     body::after {
         background-image: url("bg-mobile.jpg");
     }
 }
 
-/* အမည်းရောင် အလွှာ */
+
 body::before {
     content: "";
     position: fixed;
@@ -113,6 +86,24 @@ body::before {
     height: 100vh;
     background: rgba(5, 8, 15, 0.4); 
     z-index: -1;
+}
+
+.language-select {
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.15);
+    background: rgba(255,255,255,.08);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.language-select option {
+    background: #111827;
+    color: white;
 }
 
 nav {
@@ -177,14 +168,9 @@ nav {
     text-decoration: none;
     font-weight: 500;
 }
-/* ==========================================
-   SUB NAVIGATION (Computer မှာ အလယ်ကျ / ဖုန်းမှာ ဘေးဆွဲ)
-   ========================================== */
-
-/* ၁။ Container (Computer အတွက် အလယ်ကျအောင် ထားသည်) */
 .sub-nav {
     display: flex;
-    justify-content: center; /* Computer မှာ အလယ်ကျအောင် */
+    justify-content: center;
     align-items: center;
     gap: 12px;
     padding: 12px 6%;
@@ -200,12 +186,10 @@ nav {
     scrollbar-width: none;
 }
 
-/* Scrollbar မပေါ်စေရန် */
 .sub-nav::-webkit-scrollbar {
     display: none;
 }
 
-/* ၂။ Sub Nav ခလုတ်များ (အရောင်ပြေး မီးရောင် Style) */
 .sub-nav a {
     flex: 0 0 auto;
     white-space: nowrap;
@@ -224,7 +208,6 @@ nav {
     transition: transform 0.3s ease;
 }
 
-/* ခလုတ် အနောက်မှ အရောင်ပြေး Animation */
 .sub-nav a::before {
     content: '';
     position: absolute;
@@ -237,7 +220,6 @@ nav {
     z-index: 1;
 }
 
-/* ခလုတ် အထဲက အမည်းရောင် အလွှာ */
 .sub-nav a::after {
     content: '';
     position: absolute;
@@ -247,7 +229,6 @@ nav {
     z-index: 2;
 }
 
-/* စာလုံးနှင့် Icon များကို အပေါ်သို့ တင်ခြင်း */
 .sub-nav a span,
 .sub-nav a i {
     position: relative;
@@ -268,16 +249,7 @@ nav {
     color: #ffffff;
 }
 
-/* ၃။ ဖုန်း (Mobile) Screen အတွက် သီးသန့် ပြင်ဆင်ခြင်း */
-@media (max-width: 768px) {
-    .sub-nav {
-        top: 64px;
-        padding: 10px 4%;
-        justify-content: flex-start; /* ဖုန်းမှာ ဘေးဆွဲရအောင် ဘေးက စပေးသည် */
-        gap: 8px;
-    }
-}
-/* Profile Section & Dropdown Menu */
+
 #profile-area {
     display: none;
     position: relative;
@@ -361,60 +333,80 @@ nav {
     max-width: 700px;
     margin: auto auto 30px;
 }
-/* Search Box အပြင်ဘက်အရာ (အရောင်ပြေးမယ့် ပတ်လမ်း) */
+
 .search {
-  position: relative;
-  max-width: 500px;
-  margin: 0 auto;
-  border-radius: 18px;
-  overflow: hidden;
-  padding: 2px; /* အနားသတ် အထူ */
-  display: flex;
-  align-items: center;
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 999px; 
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    background: transparent;
+    padding: 2px;
 }
 
-/* အရောင်ပြေးနေမယ့် Animation Effect */
 .search::before {
-  content: '';
-  position: absolute;
-  width: 200%;
-  height: 500%;
-  top: -200%;
-  left: -50%;
-  background: conic-gradient(#F09EA7,#F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB,#F6C2F3);
-  animation: spin 3s linear infinite;
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 650px;
+    height: 650px;
+    background: conic-gradient(#F09EA7, #F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB, #F6C2F3);
+    animation: spin-search 3s linear infinite;
+    z-index: 1;
 }
 
-/* အထဲက စာရိုက်ကွက် (Input Box) */
+
+.search::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: #0f172a;
+    border-radius: 999px;
+    z-index: 2;
+}
+
+
 .search input {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  padding: 16px 18px 16px 50px;
-  border: none;
-  outline: none;
-  border-radius: 16px;
-  background: #0f172a; /* Shop ရဲ့ dark background အရောင် */
-  color: white;
-  font-size: 15px;
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    padding: 14px 20px 14px 50px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #ffffff;
+    font-size: 15px;
 }
 
-/* မှန်ဘီလူး Icon လေး အပေါ်ရောက်အောင် z-index ထည့်ထားတာ */
+
 .search i {
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94A3B8;
-  z-index: 2;
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #60a5fa;
+    z-index: 3;
+    font-size: 15px;
 }
 
-/* အရောင်လည်စေမယ့် Keyframe */
-@keyframes spin {
-  100% {
-    transform: rotate(360deg);
-  }
+
+@keyframes spin-search {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
 }
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 .categories {
     display: flex;
     justify-content: center;
@@ -440,7 +432,8 @@ nav {
 .section {
     padding: 10px 6% 30px;
 }
-.section-title{
+
+.section-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -449,17 +442,18 @@ nav {
     padding: 0 8px;
 }
 
-.section-title a{
+.section-title a {
     color: #60A5FA;
     text-decoration: none;
 }
+
 .products {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 280px)); 
     justify-content: center; 
     gap: 24px;
 }
-/* ✅ Rainbow Border Hover Effect အတွက် ကုဒ်အသစ် */
+
 .card {
     position: relative;
     background: rgba(15, 23, 42, .82);
@@ -470,10 +464,9 @@ nav {
     width: 100%;
     max-width: 280px; 
     margin: 0 auto; 
-    padding: 2px; /* Rainbow Border ပေါ်ရန် 2px ပတ်လည် ချန်ထားခြင်း */
+    padding: 2px;
 }
 
-/* Hover/Touch ဖြစ်ချိန်မှ လည်မယ့် Rainbow Effect Layer */
 .card::before {
     content: '';
     position: absolute;
@@ -488,7 +481,6 @@ nav {
     z-index: 0;
 }
 
-/* Mouse ထိလိုက်ချိန် (Hover) သို့မဟုတ် ဖုန်းမှာ Touch လုပ်လိုက်ချိန် ပေါ်လာစေရန် */
 .card:hover::before,
 .card:active::before {
     opacity: 1;
@@ -587,421 +579,355 @@ footer {
     color: #94A3B8;
 }
 
-@media(max-width:768px){
-    .hero h1 {
-        font-size: 34px;
-    }
-    .logo h2 {
-        display: none;
-    }
-}
-@media(max-width:768px){
-    .hero h1 {
-        font-size: 28px;
-    }
-    .logo h2 {
-        display: none;
-    }
-    /* 👇 ဒီအောက်က ကုဒ်အသစ်တွေကို အဲ့ဒီထဲမှာ ထပ်ထည့်ပါ 👇 */
-    nav {
-        padding: 10px 3%;
-        gap: 6px;
-    }
-    .nav-right {
-        gap: 6px;
-    }
-    .language-select {
-        padding: 6px 6px;
-        font-size: 11px;
-    }
-    .icon-btn {
-        width: 36px;
-        height: 36px;
-    }
-    .sign-btn {
-        padding: 8px 12px;
-        font-size: 12px;
-    }
-    .sub-nav {
-        padding: 10px 3%;
-        gap: 8px;
-    }
-    .sub-nav a {
-        padding: 6px 12px;
-        font-size: 11px;
-    }
-    .categories {
-        padding: 15px 3%;
-        gap: 6px;
-    }
-    .categories button {
-        padding: 8px 12px;
-        font-size: 11px;
-    }
-}
-/* ===== Final Mobile Responsive Fix ===== */
-@media (max-width:768px){
-
-  body{
-    overflow-x:hidden;
-  }
-
-  /* Navbar */
-  nav{
-    padding:12px 4% !important;
-  }
-
-  .logo img{
-    width:40px !important;
-    height:40px !important;
-  }
-
-  .logo h2{
-    display:none !important;
-  }
-
-  .nav-right{
-    gap:8px !important;
-  }
-
-  .language-select{
-    padding:6px 8px !important;
-    font-size:11px !important;
-  }
-
-  .icon-btn{
-    width:36px !important;
-    height:36px !important;
-  }
-
-  .sign-btn{
-    padding:8px 12px !important;
-    font-size:12px !important;
-  }
-
-  #cart-count{
-    width:16px !important;
-    height:16px !important;
-    font-size:10px !important;
-  }
-
-  /* Sub Nav */
-  .sub-nav{
-    top:64px !important;
-    padding:10px 3% !important;
-    gap:8px !important;
-  }
-
-  .sub-nav a{
-    padding:8px 14px !important;
-    font-size:11px !important;
-  }
-
-  .sub-nav a i{
-    font-size:11px !important;
-  }
-
-  /* Hero */
-  .hero{
-    padding:42px 5% 28px !important;
-  }
-
-  .hero h1{
-    font-size:28px !important;
-    line-height:1.2;
-  }
-
-  .hero p{
-    font-size:14px;
-    line-height:1.6;
-    margin-bottom:22px !important;
-  }
-
-  .search input{
-    height:48px;
-    padding:0 16px 0 42px !important;
-    border-radius:14px;
-    font-size:15px;
-  }
-
-  .search i{
-    left:15px;
-    font-size:15px;
-  }
-
-  /* Categories */
-  .categories{
-    padding:16px 4% !important;
-    gap:8px !important;
-    justify-content:flex-start;
-    overflow-x:auto;
-    flex-wrap:nowrap;
-    scrollbar-width:none;
-  }
-
-  .categories::-webkit-scrollbar{
-    display:none;
-  }
-
-  .categories button{
-    flex:0 0 auto;
-    padding:9px 14px !important;
-    font-size:12px !important;
-    white-space:nowrap;
-  }
-
-  /* Sections */
-  .section{
-    padding:6px 4% 24px !important;
-  }
-
-  .section-title{
-    padding:0;
-    margin-bottom:14px;
-  }
-
-  .section-title h2{
-    font-size:20px;
-  }
-
-  .section-title a{
-    font-size:13px;
-  }
-
-  /* Product Grid */
-  .products{
-    grid-template-columns:repeat(2,minmax(145px,1fr)) !important;
-    gap:14px !important;
-  }
-
-  .card{
-    max-width:none !important;
-    border-radius:18px !important;
-  }
-
-  .card img{
-    height:170px !important;
-  }
-
-  .card-content{
-    padding:14px !important;
-  }
-
-  .card-content h3{
-    font-size:14px;
-    line-height:1.3;
-    min-height:36px;
-    word-break:break-word;
-  }
-
-  .price{
-    font-size:16px !important;
-    margin:8px 0 !important;
-  }
-
-  .stock{
-    font-size:12px !important;
-    margin-bottom:10px !important;
-  }
-
-  .buy-btn{
-    height:42px !important;
-    padding:0 !important;
-    font-size:13px !important;
-    border-radius:10px !important;
-  }
-
-  /* Banner */
-  .banner{
-    margin:26px 4% !important;
-    padding:26px 18px !important;
-    border-radius:20px !important;
-  }
-
-  .banner h2{
-    font-size:24px !important;
-    line-height:1.3;
-  }
-
-  .banner p{
-    font-size:14px;
-    line-height:1.5;
-  }
-
-  .banner button{
-    height:44px;
-    padding:0 22px !important;
-    border-radius:10px;
-    font-size:14px;
-  }
-
-  /* Profile Menu */
-  #profile-menu{
-    width:190px !important;
-    right:-8px !important;
-  }
-
-  /* Footer */
-  footer{
-    padding:28px 5% !important;
-  }
-
-  footer p{
-    font-size:13px;
-    line-height:1.6;
-  }
-
-}
-
-/* Small Phones */
-@media (max-width:360px){
-
-  .products{
-    grid-template-columns:repeat(2,minmax(135px,1fr)) !important;
-    gap:12px !important;
-  }
-
-  .card img{
-    height:155px !important;
-  }
-
-  .card-content{
-    padding:12px !important;
-  }
-
-  .card-content h3{
-    font-size:13px;
-    min-height:32px;
-  }
-
-  .price{
-    font-size:15px !important;
-  }
-
-  .buy-btn{
-    font-size:12px !important;
-  }
-
-  .hero h1{
-    font-size:24px !important;
-  }
-
-}
 .see-all-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
-  background: rgba(15, 23, 42, 0.75); /* Dark Glassmorphic background */
-  color: #38bdf8; /* စာလုံးအရောင် အပြာနု */
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px; /* အနားဝိုင်း ခလုတ်ပုံစံ */
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  backdrop-filter: blur(8px); /* အနောက်ကို ဝါးပေးသည့် Glass effect */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: rgba(15, 23, 42, 0.75);
+    color: #38bdf8;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
-/* Mouse တင်လိုက်ရင် အရောင်ပြောင်းမည့် Hover Effect */
 .see-all-btn:hover {
-  background: #3b82f6;
-  color: #ffffff;
-  border-color: #3b82f6;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-  transform: translateY(-2px);
+    background: #3b82f6;
+    color: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+    transform: translateY(-2px);
 }
-</style>
+
+
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    nav {
+        padding: 12px 4% !important;
+        gap: 6px;
+    }
+
+    .logo img {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    .logo h2 {
+        display: none !important;
+    }
+
+    .nav-right {
+        gap: 8px !important;
+    }
+
+    .language-select {
+        padding: 6px 8px !important;
+        font-size: 11px !important;
+    }
+
+    .icon-btn {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .sign-btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+
+    #cart-count {
+        width: 16px !important;
+        height: 16px !important;
+        font-size: 10px !important;
+    }
+
+    .sub-nav {
+        top: 64px !important;
+        padding: 10px 3% !important;
+        gap: 8px !important;
+        justify-content: flex-start;
+    }
+
+    .sub-nav a {
+        padding: 8px 14px !important;
+        font-size: 11px !important;
+    }
+
+    .sub-nav a i {
+        font-size: 11px !important;
+    }
+
+    .hero {
+        padding: 42px 5% 28px !important;
+    }
+
+    .hero h1 {
+        font-size: 28px !important;
+        line-height: 1.2;
+    }
+
+    .hero p {
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 22px !important;
+    }
+.search input {
+    height: 48px;
+    padding: 0 16px 0 46px !important;
+    font-size: 14px;
+}
+
+.search i {
+    left: 18px;
+    font-size: 14px;
+}
+
+    .categories {
+        padding: 16px 4% !important;
+        gap: 8px !important;
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+    }
+
+    .categories::-webkit-scrollbar {
+        display: none;
+    }
+
+    .categories button {
+        flex: 0 0 auto;
+        padding: 9px 14px !important;
+        font-size: 12px !important;
+        white-space: nowrap;
+    }
+
+    .section {
+        padding: 6px 4% 24px !important;
+    }
+
+    .section-title {
+        padding: 0;
+        margin-bottom: 14px;
+    }
+
+    .section-title h2 {
+        font-size: 20px;
+    }
+
+    .section-title a {
+        font-size: 13px;
+    }
+
+    .products {
+        grid-template-columns: repeat(2, minmax(145px, 1fr)) !important;
+        gap: 14px !important;
+    }
+
+    .card {
+        max-width: none !important;
+        border-radius: 18px !important;
+    }
+
+    .card img {
+        height: 170px !important;
+    }
+
+    .card-content {
+        padding: 14px !important;
+    }
+
+    .card-content h3 {
+        font-size: 14px;
+        line-height: 1.3;
+        min-height: 36px;
+        word-break: break-word;
+    }
+
+    .price {
+        font-size: 16px !important;
+        margin: 8px 0 !important;
+    }
+
+    .stock {
+        font-size: 12px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .buy-btn {
+        height: 42px !important;
+        padding: 0 !important;
+        font-size: 13px !important;
+        border-radius: 10px !important;
+    }
+
+    .banner {
+        margin: 26px 4% !important;
+        padding: 26px 18px !important;
+        border-radius: 20px !important;
+    }
+
+    .banner h2 {
+        font-size: 24px !important;
+        line-height: 1.3;
+    }
+
+    .banner p {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .banner button {
+        height: 44px;
+        padding: 0 22px !important;
+        border-radius: 10px;
+        font-size: 14px;
+    }
+
+    #profile-menu {
+        width: 190px !important;
+        right: -8px !important;
+    }
+
+    footer {
+        padding: 28px 5% !important;
+    }
+
+    footer p {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+}
+
+
+@media (max-width: 360px) {
+    .products {
+        grid-template-columns: repeat(2, minmax(135px, 1fr)) !important;
+        gap: 12px !important;
+    }
+
+    .card img {
+        height: 155px !important;
+    }
+
+    .card-content {
+        padding: 12px !important;
+    }
+
+    .card-content h3 {
+        font-size: 13px;
+        min-height: 32px;
+    }
+
+    .price {
+        font-size: 15px !important;
+    }
+
+    .buy-btn {
+        font-size: 12px !important;
+    }
+
+    .hero h1 {
+        font-size: 24px !important;
+    }
+}
+    </style>
 </head>
 <body>
 
 <nav>
-<div class="logo">
-<img src="logo.jpg" alt="Acai Shop">
-<h2>Acai Shop</h2>
-</div>
-<div class="nav-right">
-    <select class="language-select" onchange="changeLanguage(this.value)">
-    <option value="en">English</option>
-    <option value="mm">မြန်မာ</option>
-</select>
- <a href="cart.html" class="icon-btn" style="position:relative;">
-<i class="fa-solid fa-cart-shopping"></i>
-<span id="cart-count" style="position:absolute;top:-6px;right:-6px;background:red;width:18px;height:18px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:11px;">0</span>
-</a>
-<div id="guest-area">
-<a href="login.html" class="sign-btn" data-lang="signIn">Sign In</a>
-</div>
-<div id="profile-area">
-<div class="icon-btn" id="profile-btn" title="My Profile">
-<i class="fa-solid fa-user"></i>
-</div>
-<div id="profile-menu">
-  <span id="user-email" class="user-email-text">Loading...</span>
-  <hr>
-  <a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a>
-  <button id="logoutBtn" class="logout-btn">Logout</button>
-</div>
-</div>
-</div>
+    <div class="logo">
+        <img src="logo.jpg" alt="Acai Shop">
+        <h2>Acai Shop</h2>
+    </div>
+    <div class="nav-right">
+        <select class="language-select" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="mm">မြန်မာ</option>
+        </select>
+        <a href="cart.html" class="icon-btn" style="position:relative;">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span id="cart-count" style="position:absolute;top:-6px;right:-6px;background:red;width:18px;height:18px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:11px;">0</span>
+        </a>
+        <div id="guest-area">
+            <a href="login.html" class="sign-btn" data-lang="signIn">Sign In</a>
+        </div>
+        <div id="profile-area">
+            <div class="icon-btn" id="profile-btn" title="My Profile">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div id="profile-menu">
+                <span id="user-email" class="user-email-text">Loading...</span>
+                <hr>
+                <a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </div>
 </nav>
 
-<!-- Sub Navigation Bar (Modern Pill Buttons with Icons) -->
-<div class="sub-nav">
-<a href="my-orders.html">
-    <i class="fa-solid fa-box-archive"></i>
-    <span data-lang="myOrders">My Orders</span>
-</a>
-<a href="waiting.html">
-    <i class="fa-solid fa-clock"></i>
-    <span data-lang="waitingTime">Waiting Time</span>
-</a>
-<a href="support.html">
-    <i class="fa-solid fa-headset"></i>
-    <span data-lang="customerSupport">Customer Support</span>
-</a>
-<a href="faq.html">
-  <i class="fa-solid fa-circle-question"></i>
-  <span data-lang="faq">FAQ</span>
-</a>
 
-<a href="reviews.html">
-  <i class="fa-solid fa-star"></i>
-  <span data-lang="customerReviews">Customer Reviews</span>
-</a>
+<div class="sub-nav">
+    <a href="my-orders.html">
+        <i class="fa-solid fa-box-archive"></i>
+        <span data-lang="myOrders">My Orders</span>
+    </a>
+    <a href="waiting.html">
+        <i class="fa-solid fa-clock"></i>
+        <span data-lang="waitingTime">Waiting Time</span>
+    </a>
+    <a href="support.html">
+        <i class="fa-solid fa-headset"></i>
+        <span data-lang="customerSupport">Customer Support</span>
+    </a>
+    <a href="faq.html">
+        <i class="fa-solid fa-circle-question"></i>
+        <span data-lang="faq">FAQ</span>
+    </a>
+    <a href="reviews.html">
+        <i class="fa-solid fa-star"></i>
+        <span data-lang="customerReviews">Customer Reviews</span>
+    </a>
 </div>
 
 <section class="hero">
-<h1 data-lang="heroTitle">Accessories For Everyone</h1>
-
-<p data-lang="heroDescription">
-    Discover trendy accessories, keychains, phone accessories, wallets, jewelry and more — all in one place.
-</p>
-<div class="search">
-<i class="fa-solid fa-magnifying-glass"></i>
-<input id="searchInput" placeholder="Search products" data-lang-placeholder="searchPlaceholder">
-</div>
+    <h1 data-lang="heroTitle">Accessories For Everyone</h1>
+    <p data-lang="heroDescription">
+        Discover trendy accessories, keychains, phone accessories, wallets, jewelry and more — all in one place.
+    </p>
+    <div class="search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="searchInput" placeholder="Search products" data-lang-placeholder="searchPlaceholder">
+    </div>
 </section>
 
 <section class="categories">
-<button data-lang="new">New</button>
-<button data-lang="keychains">Keychains</button>
-<button data-lang="phone">Phone</button>
-<button data-lang="wallets">Wallets</button>
-<button data-lang="jewelry">Jewelry</button>
-<button data-lang="bags">Bags</button>
-<button data-lang="more">More</button>
+    <button data-lang="new">New</button>
+    <button data-lang="keychains">Keychains</button>
+    <button data-lang="phone">Phone</button>
+    <button data-lang="wallets">Wallets</button>
+    <button data-lang="jewelry">Jewelry</button>
+    <button data-lang="bags">Bags</button>
+    <button data-lang="more">More</button>
 </section>
-<section class="section">
-  <div class="section-title">
-    <h2 data-lang="newArrivals">New Arrivals</h2>
-    <a href="#" class="see-all-btn" data-lang="seeAll">
-      See All <i class="fa-solid fa-arrow-right"></i>
-    </a>
-  </div>
 
-  <div class="products" id="productList"></div>
+<section class="section">
+    <div class="section-title">
+        <h2 data-lang="newArrivals">New Arrivals</h2>
+        <a href="#" class="see-all-btn" data-lang="seeAll">
+            See All <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="products" id="productList"></div>
 </section>
 
 <section class="banner">
@@ -1019,46 +945,45 @@ footer {
         <p style="margin:0;" data-lang="creativeLead">Creative lead and Co-founder: Valrqx</p>
     </div>
 </footer>
+
 <script>
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 function updateCartCount(){
-  const count = cart.reduce((t,i)=>t+i.qty,0);
-  document.getElementById("cart-count").innerText = count;
+    const count = cart.reduce((t,i)=>t+i.qty,0);
+    document.getElementById("cart-count").innerText = count;
 }
 
 function addToCart(name, price, stock){
-  const item = cart.find(i=>i.name===name);
-  const currentQty = item ? item.qty : 0;
+    const item = cart.find(i=>i.name===name);
+    const currentQty = item ? item.qty : 0;
 
-  if(currentQty >= stock){
-    alert("Only " + stock + " items left in stock.");
-    return;
-  }
+    if(currentQty >= stock){
+        alert("Only " + stock + " items left in stock.");
+        return;
+    }
 
-  if(item){
-    item.qty++;
-  }else{
-    cart.push({
-      name,
-      price:Number(price),
-      qty:1
-    });
-  }
+    if(item){
+        item.qty++;
+    }else{
+        cart.push({
+            name,
+            price:Number(price),
+            qty:1
+        });
+    }
 
-  localStorage.setItem("cart",JSON.stringify(cart));
-  updateCartCount();
-  alert(name + " added to cart!");
+    localStorage.setItem("cart",JSON.stringify(cart));
+    updateCartCount();
+    alert(name + " added to cart!");
 }
 
-document.getElementById("searchInput")
-.addEventListener("input",function(){
-  const keyword=this.value.toLowerCase();
-  document.querySelectorAll(".card")
-  .forEach(card=>{
-    const name=card.querySelector("h3").innerText.toLowerCase();
-    card.style.display=name.includes(keyword)?"":"none";
-  });
+document.getElementById("searchInput").addEventListener("input",function(){
+    const keyword=this.value.toLowerCase();
+    document.querySelectorAll(".card").forEach(card=>{
+        const name=card.querySelector("h3").innerText.toLowerCase();
+        card.style.display=name.includes(keyword)?"":"none";
+    });
 });
 
 const guestArea=document.getElementById("guest-area");
@@ -1069,102 +994,97 @@ const userEmail=document.getElementById("user-email");
 const logoutBtn=document.getElementById("logoutBtn");
 
 async function loadUser(){
-  try{
-    const res=await fetch("/me");
-    const data=await res.json();
-    if(data.loggedIn){
-      guestArea.style.display="none";
-      profileArea.style.display="block";
-      userEmail.innerText=data.user.email;
-    }
-  }catch{}
+    try{
+        const res=await fetch("/me");
+        const data=await res.json();
+        if(data.loggedIn){
+            guestArea.style.display="none";
+            profileArea.style.display="block";
+            userEmail.innerText=data.user.email;
+        }
+    }catch{}
 }
 
 profileBtn.addEventListener("click",function(e){
-  e.stopPropagation();
-  profileMenu.style.display=profileMenu.style.display==="block"?"none":"block";
+    e.stopPropagation();
+    profileMenu.style.display=profileMenu.style.display==="block"?"none":"block";
 });
 
 document.addEventListener("click",function(){
-  profileMenu.style.display="none";
+    profileMenu.style.display="none";
 });
 
 logoutBtn.addEventListener("click", async function(){
-  try {
-    await fetch("/logout", { method: "POST" });
-    window.location.reload();
-  } catch(err) {
-    console.log(err);
-  }
+    try {
+        await fetch("/logout", { method: "POST" });
+        window.location.reload();
+    } catch(err) {
+        console.log(err);
+    }
 });
-// ၁။ စဖွင့်ချိန်မှာ Dropdown တန်ဖိုးနဲ့ LocalStorage ဘာသာစကားကို Sync လုပ်ပေးခြင်း
+
 function initLanguage() {
-  const savedLang = localStorage.getItem("language") || "en";
-  const langSelect = document.querySelector(".language-select");
-  if (langSelect) {
-    langSelect.value = savedLang; // Dropdown မှာ မှန်ကန်တဲ့ ဘာသာစကား ရွေးထားပေးရန်
-  }
-  if (typeof changeLanguage === "function") {
-    changeLanguage(savedLang); // HTML စာလုံးများ ပြောင်းပေးမည် (ထဲတွင် loadProducts() ပါပြီးသားဖြစ်သည်)
-  }
+    const savedLang = localStorage.getItem("language") || "en";
+    const langSelect = document.querySelector(".language-select");
+    if (langSelect) {
+        langSelect.value = savedLang;
+    }
+    if (typeof changeLanguage === "function") {
+        changeLanguage(savedLang);
+    }
 }
 
-// ၂။ Products Load လုပ်သည့် Function
 async function loadProducts(){ 
-  try{ 
-    const response = await fetch("/products"); 
-    const products = await response.json(); 
-    const list = document.getElementById("productList"); 
-    if (!list) return; // list element မရှိပါက error မတက်စေရန်
-    
-    list.innerHTML = ""; 
+    try{ 
+        const response = await fetch("/products"); 
+        const products = await response.json(); 
+        const list = document.getElementById("productList"); 
+        if (!list) return;
+        
+        list.innerHTML = ""; 
 
-    const lang = localStorage.getItem("language") || "en";
-    const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : {};
+        const lang = localStorage.getItem("language") || "en";
+        const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : {};
 
-    products.forEach(p => { 
-      const imageUrl = p.image 
-        ? (p.image.startsWith("http") ? p.image : "/uploads/" + p.image) 
-        : "logo.jpg"; 
+        products.forEach(p => { 
+            const imageUrl = p.image 
+                ? (p.image.startsWith("http") ? p.image : "/uploads/" + p.image) 
+                : "logo.jpg"; 
 
-      // ဘာသာစကား မရှိရင် သုံးမယ့် Default စာလုံးများ
-      const stockText = t.stock || (lang === 'mm' ? "လက်ကျန်" : "Stock");
-      const addText = t.addToCart || (lang === 'mm' ? "ခြင်းတောင်းထဲထည့်ရန်" : "Add to Cart");
-      const outText = t.outOfStock || (lang === 'mm' ? "ပစ္စည်းပြတ်နေသည်" : "Out of Stock");
+            const stockText = t.stock || (lang === 'mm' ? "လက်ကျန်" : "Stock");
+            const addText = t.addToCart || (lang === 'mm' ? "ခြင်းတောင်းထဲထည့်ရန်" : "Add to Cart");
+            const outText = t.outOfStock || (lang === 'mm' ? "ပစ္စည်းပြတ်နေသည်" : "Out of Stock");
 
-      list.innerHTML += ` 
-      <div class="card"> 
-        <img src="${imageUrl}" alt="${p.name}"> 
+            list.innerHTML += ` 
+            <div class="card"> 
+                <img src="${imageUrl}" alt="${p.name}"> 
 
-        <div class="card-content"> 
-          <h3>${p.name}</h3> 
+                <div class="card-content"> 
+                    <h3>${p.name}</h3> 
 
-          <div class="price">
-            ${Number(p.price).toLocaleString()} MMK
-          </div> 
+                    <div class="price">
+                        ${Number(p.price).toLocaleString()} MMK
+                    </div> 
 
-          <div class="stock">
-            ${stockText}: ${p.stock}
-          </div> 
+                    <div class="stock">
+                        ${stockText}: ${p.stock}
+                    </div> 
 
-          <button class="buy-btn" 
-            onclick="addToCart('${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})" 
-            ${Number(p.stock) <= 0 ? "disabled" : ""}>
-            
-            ${Number(p.stock) <= 0 ? outText : addText}
+                    <button class="buy-btn" 
+                        onclick="addToCart('${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})" 
+                        ${Number(p.stock) <= 0 ? "disabled" : ""}>
+                        ${Number(p.stock) <= 0 ? outText : addText}
+                    </button> 
+                </div> 
+            </div>`; 
+        }); 
 
-          </button> 
-        </div> 
-      </div>`; 
-    }); 
-
-  }catch(err){ 
-    console.log("Error loading products:", err); 
-  } 
+    }catch(err){ 
+        console.log("Error loading products:", err); 
+    } 
 }
 
-// စဖွင့်ချိန်မှာ အစဉ်လိုက် ခေါ်ယူခြင်း
-initLanguage(); // initLanguage() က changeLanguage() ကနေတစ်ဆင့် loadProducts() ကို ခေါ်ပေးပြီးသားဖြစ်သည်
+initLanguage();
 updateCartCount();
 loadUser();
 </script>
