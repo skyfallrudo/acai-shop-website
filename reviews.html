@@ -1,70 +1,412 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acai Shop - Feedback & Suggestions Coming Soon</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
 
-<link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', 'Padauk', sans-serif;
+            background-color: #05080f;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
 
-<title>Customer Reviews | Acai Shop</title>
+        /* Animated Rotating Rainbow Border Container */
+        .rainbow-wrap {
+            position: relative;
+            border-radius: 1.75rem;
+            padding: 2.5px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(121, 40, 202, 0.25);
+        }
 
-<style>
-* {
-  box-sizing: border-box;
-}
+        .rainbow-wrap::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg,
+                #ff007f,
+                #7928ca,
+                #00dfd8,
+                #3b82f6,
+                #10b981,
+                #f59e0b,
+                #ff007f
+            );
+            animation: rotate-gradient 6s linear infinite;
+            z-index: 0;
+        }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: Arial, sans-serif;
-  background: #0b1220;
-  color: white;
-}
+        .rainbow-inner {
+            position: relative;
+            z-index: 10;
+            background: rgba(10, 15, 30, 0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 1.6rem;
+        }
 
-.box {
-  text-align: center;
-  padding: 40px 25px;
-}
+        @keyframes rotate-gradient {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-.icon {
-  font-size: 55px;
-  margin-bottom: 15px;
-}
+        @keyframes float-lightbulb {
+            0%, 100% { transform: translateY(0px) rotate(-8deg) scale(1); }
+            50% { transform: translateY(-16px) rotate(6deg) scale(1.08); }
+        }
 
-h1 {
-  margin: 0 0 10px;
-  font-size: 32px;
-}
+        @keyframes float-comment {
+            0%, 100% { transform: translateY(0px) rotate(8deg) scale(1); }
+            50% { transform: translateY(14px) rotate(-6deg) scale(1.05); }
+        }
 
-p {
-  color: #aaa;
-  font-size: 17px;
-}
+        @keyframes pulse-glow {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(0, 223, 216, 0.5));
+                opacity: 0.95;
+            }
+            50% {
+                filter: drop-shadow(0 0 30px rgba(255, 0, 127, 0.8));
+                opacity: 1;
+            }
+        }
 
-a {
-  display: inline-block;
-  margin-top: 20px;
-  padding: 12px 24px;
-  border-radius: 10px;
-  background: #2563eb;
-  color: white;
-  text-decoration: none;
-}
-</style>
+        @keyframes ambient-drift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -30px) scale(1.15); }
+        }
+
+        .animate-float-bulb {
+            animation: float-lightbulb 5s ease-in-out infinite;
+        }
+
+        .animate-float-comment {
+            animation: float-comment 6s ease-in-out infinite;
+        }
+
+        .pulse-text-glow {
+            animation: pulse-glow 3.5s ease-in-out infinite;
+        }
+
+        .ambient-orb-1 {
+            animation: ambient-drift 10s ease-in-out infinite alternate;
+        }
+
+        .ambient-orb-2 {
+            animation: ambient-drift 14s ease-in-out infinite alternate-reverse;
+        }
+
+        /* Glowing text gradient fill */
+        .text-gradient-rainbow {
+            background: linear-gradient(135deg, #00dfd8 0%, #7928ca 50%, #ff007f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom glass card for feature items */
+        .glass-pill {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-pill:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 223, 216, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 223, 216, 0.2);
+        }
+    </style>
 </head>
+<body class="min-h-screen flex flex-col justify-between relative selection:bg-pink-500 selection:text-white">
 
-<body>
+    <!-- Background Animated Orbs -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="ambient-orb-1 absolute -top-24 -left-24 w-96 h-96 bg-purple-600/25 rounded-full blur-[120px]"></div>
+        <div class="ambient-orb-2 absolute top-1/2 -right-24 w-[28rem] h-[28rem] bg-cyan-500/20 rounded-full blur-[140px]"></div>
+        <div class="ambient-orb-1 absolute -bottom-24 left-1/3 w-96 h-96 bg-pink-600/20 rounded-full blur-[130px]"></div>
+    </div>
 
-<div class="box">
-  <div class="icon">⭐</div>
-  <h1>Customer Reviews</h1>
-  <p>Coming Soon</p>
+    <!-- Navigation Header -->
+    <header class="relative z-20 w-full max-w-6xl mx-auto px-6 pt-6 flex justify-between items-center">
+        <!-- Logo / Brand Title -->
+        <a href="#" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-105 transition-transform duration-300">
+                <i class="fa-solid fa-store text-white text-lg"></i>
+            </div>
+            <div>
+                <span class="font-bold text-xl tracking-tight text-white block">Acai Shop</span>
+                <span class="text-xs text-slate-400 font-medium tracking-wide">STORE EXPERIENCE</span>
+            </div>
+        </a>
 
-  <a href="index.html">Back to Home</a>
-</div>
+        <!-- Right Header Actions (Language Toggle & Back Button) -->
+        <div class="flex items-center gap-3">
+            <!-- Language Switcher Button -->
+            <button id="langToggleBtn" onclick="toggleLanguage()" class="glass-pill px-4 py-2 rounded-full flex items-center gap-2 text-xs font-semibold text-slate-200 hover:text-white transition-all cursor-pointer">
+                <i class="fa-solid fa-globe text-cyan-400"></i>
+                <span id="currentLangLabel">မြန်မာ</span>
+            </button>
 
+            <!-- Back to Store Link -->
+            <a href="index.html" class="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-all">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span data-lang-key="btnBack">Back to Store</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content Body -->
+    <main class="relative z-10 my-auto py-10 px-4 sm:px-6 flex items-center justify-center">
+        <div class="w-full max-w-3xl mx-auto">
+            
+            <!-- Rainbow Gradient Border Outer Wrap -->
+            <div class="rainbow-wrap">
+                <div class="rainbow-inner p-8 sm:p-12 text-center relative overflow-hidden">
+                    
+                    <!-- Floating Background Elements inside Card -->
+                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-3/4 h-20 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-2xl pointer-events-none"></div>
+
+                    <!-- Floating Animated Icons Header Header -->
+                    <div class="relative w-32 h-24 mx-auto mb-6 flex items-center justify-center">
+                        <!-- Floating Lightbulb Icon -->
+                        <div class="animate-float-bulb absolute left-2 top-1 w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400/20 to-yellow-500/10 border border-yellow-400/30 flex items-center justify-center backdrop-blur-md shadow-lg shadow-yellow-500/10">
+                            <i class="fa-regular fa-lightbulb text-3xl text-yellow-300 drop-shadow-[0_0_12px_rgba(253,224,71,0.8)]"></i>
+                        </div>
+
+                        <!-- Floating Comment/Feedback Icon -->
+                        <div class="animate-float-comment absolute right-2 bottom-1 w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400/20 to-blue-600/10 border border-cyan-400/30 flex items-center justify-center backdrop-blur-md shadow-lg shadow-cyan-500/10">
+                            <i class="fa-regular fa-comment-dots text-3xl text-cyan-300 drop-shadow-[0_0_12px_rgba(103,232,249,0.8)]"></i>
+                        </div>
+                    </div>
+
+                    <!-- Sub-nav Feature Badge -->
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-pink-500/10 border border-white/10 text-cyan-300 text-xs font-semibold tracking-wider uppercase mb-6 shadow-inner">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                        <span data-lang-key="badgeText">Feedback & Suggestions</span>
+                    </div>
+
+                    <!-- Main Coming Soon Pulsing Title -->
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4 pulse-text-glow leading-tight">
+                        <span class="text-gradient-rainbow" data-lang-key="heroTitle">Something Amazing is Coming Soon!</span>
+                    </h1>
+
+                    <!-- Paragraph Description -->
+                    <p class="text-slate-300 text-sm sm:text-base max-w-xl mx-auto font-normal leading-relaxed mb-8" data-lang-key="heroDesc">
+                        We are crafting an interactive portal where your feedback, ideas, and suggestions directly shape the future features and products of Acai Shop!
+                    </p>
+
+                    <!-- Quick Feature Highlights Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10 text-left">
+                        <div class="glass-pill p-4 rounded-xl flex sm:flex-col items-center sm:items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-pink-500/10 border border-pink-500/30 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-wand-magic-sparkles text-pink-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white mb-0.5" data-lang-key="feat1Title">Share Ideas</h4>
+                                <p class="text-[11px] text-slate-400 leading-tight" data-lang-key="feat1Desc">Propose new products & menu items.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-pill p-4 rounded-xl flex sm:flex-col items-center sm:items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-heart text-cyan-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white mb-0.5" data-lang-key="feat2Title">Instant Feedback</h4>
+                                <p class="text-[11px] text-slate-400 leading-tight" data-lang-key="feat2Desc">Help us improve your shop experience.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-pill p-4 rounded-xl flex sm:flex-col items-center sm:items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-gift text-amber-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white mb-0.5" data-lang-key="feat3Title">Earn Perks</h4>
+                                <p class="text-[11px] text-slate-400 leading-tight" data-lang-key="feat3Desc">Get special rewards for top input.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Subscription Form -->
+                    <div class="max-w-md mx-auto">
+                        <label for="emailInput" class="block text-xs font-medium text-slate-300 mb-2" data-lang-key="formLabel">
+                            Be the first to know when this feature goes live:
+                        </label>
+
+                        <form id="notifyForm" onsubmit="handleSubscribe(event)" class="relative flex flex-col sm:flex-row items-center gap-2">
+                            <div class="relative w-full">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                                    <i class="fa-regular fa-envelope"></i>
+                                </div>
+                                <input 
+                                    type="email" 
+                                    id="emailInput" 
+                                    required 
+                                    placeholder="Enter your email address..." 
+                                    class="w-full pl-10 pr-4 py-3 bg-slate-900/80 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all"
+                                >
+                            </div>
+                            <button 
+                                type="submit" 
+                                id="submitBtn"
+                                class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-purple-600 to-pink-500 text-white text-sm font-bold shadow-lg shadow-purple-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-95 transition-all duration-200 shrink-0 cursor-pointer flex items-center justify-center gap-2"
+                            >
+                                <span id="submitText" data-lang-key="btnNotify">Notify Me</span>
+                                <i id="submitIcon" class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
+                        </form>
+                        
+                        <!-- Notification Toast Container -->
+                        <div id="toastMessage" class="hidden mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span id="toastText" data-lang-key="successMsg">Thank you! We'll notify you as soon as we launch!</span>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Back Link -->
+                    <div class="mt-8 pt-6 border-t border-white/5 sm:hidden">
+                        <a href="index.html" class="inline-flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-white transition-colors">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            <span data-lang-key="btnBack">Back to Store</span>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 w-full max-w-6xl mx-auto px-6 py-6 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <p>© 2026 Acai Shop. All rights reserved.</p>
+        <div class="flex items-center gap-4">
+            <a href="#" class="hover:text-slate-300 transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" class="hover:text-slate-300 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" class="hover:text-slate-300 transition-colors"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="#" class="hover:text-slate-300 transition-colors"><i class="fa-brands fa-telegram"></i></a>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Dictionary for English & Burmese Translations
+        const translations = {
+            en: {
+                badgeText: "Feedback & Suggestions",
+                heroTitle: "Something Amazing is Coming Soon!",
+                heroDesc: "We are crafting an interactive space where your thoughts, ideas, and feedback directly shape the future experience and features of Acai Shop!",
+                feat1Title: "Share Ideas",
+                feat1Desc: "Propose new products & menu items.",
+                feat2Title: "Instant Feedback",
+                feat2Desc: "Help us improve your shop experience.",
+                feat3Title: "Earn Perks",
+                feat3Desc: "Get special rewards for helpful input.",
+                formLabel: "Be the first to know when this feature goes live:",
+                placeholder: "Enter your email address...",
+                btnNotify: "Notify Me",
+                btnBack: "Back to Store",
+                successMsg: "Thank you! We will notify you as soon as this feature goes live.",
+                langBtnLabel: "မြန်မာ"
+            },
+            my: {
+                badgeText: "အကြံပြုချက်နှင့် တုံ့ပြန်ချက်",
+                heroTitle: "အသစ်စက်စက် မကြာမီ လာမည်!",
+                heroDesc: "သင်၏ အကြံဉာဏ်များနှင့် တုံ့ပြန်ချက်များဖြင့် Acai Shop ကို ပိုမိုကောင်းမွန်အောင် အတူတကွ ဖန်တီးပေးနိုင်မယ့် အသစ်စက်စက် ကဏ္ဍကို ပြင်ဆင်နေပါတယ်!",
+                feat1Title: "အကြံဉာဏ်များ မျှဝေရန်",
+                feat1Desc: "ကုန်ပစ္စည်းအသစ်များနှင့် မီနူးများကို အကြံပြုပါ",
+                feat2Title: "တုံ့ပြန်ချက်ပေးရန်",
+                feat2Desc: "ဝန်ဆောင်မှုများ ပိုမိုကောင်းမွန်စေရန် ကူညီပါ",
+                feat3Title: "ဆုလက်ဆောင်များ ရယူရန်",
+                feat3Desc: "အကြံပြုသူများအတွက် အထူးခံစားခွင့်များ",
+                formLabel: "စတင်အသုံးပြုနိုင်ပါက အသိပေးချက် ရယူရန် မေးလ်ရိုက်ထည့်ပါ:",
+                placeholder: "သင့်အီးမေးလ်လိပ်စာ ရိုက်ထည့်ပါ...",
+                btnNotify: "အကြောင်းကြားပါ",
+                btnBack: "ပင်မစာမျက်နှာသို့",
+                successMsg: "ကျေးဇူးတင်ပါသည်။ ဝန်ဆောင်မှု စတင်သည်နှင့် သို့ အကြောင်းကြားပေးပါမည်။",
+                langBtnLabel: "English"
+            }
+        };
+
+        let currentLang = 'en';
+
+        // Function to Toggle Between English and Burmese
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'my' : 'en';
+            const langData = translations[currentLang];
+
+            // Update Text Elements
+            document.querySelectorAll('[data-lang-key]').forEach(elem => {
+                const key = elem.getAttribute('data-lang-key');
+                if (langData[key]) {
+                    elem.textContent = langData[key];
+                }
+            });
+
+            // Update Email Placeholder
+            const emailInput = document.getElementById('emailInput');
+            if (emailInput) {
+                emailInput.placeholder = langData.placeholder;
+            }
+
+            // Update Language Toggle Button Label
+            document.getElementById('currentLangLabel').textContent = langData.langBtnLabel;
+        }
+
+        // Form Submission Logic
+        function handleSubscribe(event) {
+            event.preventDefault();
+
+            const emailInput = document.getElementById('emailInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitIcon = document.getElementById('submitIcon');
+            const toastMessage = document.getElementById('toastMessage');
+
+            if (!emailInput.value.trim()) return;
+
+            // Loading state
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+            submitText.textContent = currentLang === 'en' ? 'Saving...' : 'သိမ်းဆည်းနေသည်...';
+            submitIcon.className = 'fa-solid fa-spinner fa-spin text-xs';
+
+            // Simulate API Request delay
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+                submitText.textContent = translations[currentLang].btnNotify;
+                submitIcon.className = 'fa-solid fa-paper-plane text-xs';
+
+                // Reset Input & Display Toast Banner
+                emailInput.value = '';
+                toastMessage.classList.remove('hidden');
+
+                // Auto hide toast after 5 seconds
+                setTimeout(() => {
+                    toastMessage.classList.add('hidden');
+                }, 5000);
+            }, 1200);
+        }
+    </script>
 </body>
 </html>

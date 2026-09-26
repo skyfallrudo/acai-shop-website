@@ -112,6 +112,8 @@ const translations = {
     placeOrder: "Place Order",
      faq: "FAQ",
     customerReviews: "Customer Reviews",
+    suggestions: "Suggestions",
+    feedback: "Feedback"
   },
   mm: {
     signIn: "အကောင့်ဝင်ရန်",
@@ -225,6 +227,9 @@ const translations = {
     placeOrder: "အော်ဒါတင်မည်",
       faq: "မေးလေ့ရှိသောမေးခွန်းများ",
     customerReviews: "ဝယ်ယူသူများ၏ သုံးသပ်ချက်များ",
+    suggestions: "အကြံပြုချက်",
+    feedback: "ပြန်လည်တုံ့ပြန်မှု"
+
   }
 };
 // ၂။ ဘာသာစကား ပြောင်းလဲပေးသည့် Function

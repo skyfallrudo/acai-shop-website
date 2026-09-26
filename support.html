@@ -174,7 +174,6 @@ h1 {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* တပတ်လည် ပြေးနေမယ့် Light Blue & Purple Gradient */
 .rgb-wrapper::before {
     content: "";
     position: absolute;
@@ -184,11 +183,9 @@ h1 {
     height: 200%;
     background: conic-gradient(
         from 0deg,
-        #38bdf8, /* Light Blue */
-        #a855f7, /* Purple */
-        #00d2ff, /* Cyan / Light Blue */
-        #c084fc, /* Light Purple */
-        #38bdf8  /* Light Blue */
+        #eeafff, /* Light Blue */
+        #afd6ff, /* Purple */
+        #afb0ff /* Cyan / Light Blue */
     );
     animation: rotateRgb 3s linear infinite;
 }
@@ -198,7 +195,7 @@ h1 {
     100% { transform: rotate(360deg); }
 }
 
-/* Buttons Style inside RGB Box */
+
 .support-btn {
     position: relative;
     z-index: 2;
@@ -214,16 +211,16 @@ h1 {
     text-decoration: none;
     font-size: 15px;
     font-weight: 600;
-    background: rgba(15, 23, 42, 0.92); /* အတွင်းဘက် နောက်ခံအမဲ */
+    background: rgba(15, 23, 42, 0.92); 
     backdrop-filter: blur(10px);
 }
 
 .support-btn.telegram {
-    color: #38bdf8; /* Telegram စာသားနှင့် Icon အရောင် */
+    color: #38bdf8; 
 }
 
 .support-btn.viber {
-    color: #c084fc; /* Viber စာသားနှင့် Icon အရောင် */
+    color: #c084fc; 
 }
 
 /* Hover & Touch Animation */
@@ -260,7 +257,7 @@ h1 {
     background: #475569;
 }
 
-/* Mobile Screen Small Optimizations (<= 380px) */
+
 @media (max-width: 380px) {
     .card {
         padding: 22px 16px;
