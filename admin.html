@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Acai Admin Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
 <script>
@@ -11,6 +12,7 @@ window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
 gtag('config','G-F00XQ96WFJ');
+
 </script>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -201,6 +203,7 @@ table{display:block;overflow-x:auto;}
 
 <script>
 let lastOrderCount=0;
+let currentOrderData=null;
 
 (async function(){
 const res=await fetch("/admin-check", { credentials: 'include' });
@@ -448,6 +451,7 @@ loadOrders();
 
 async function viewOrder(id){
 const order=await fetch("/admin/orders/"+id, { credentials: 'include' }).then(r=>r.json());
+currentOrderData = order;
 
 document.getElementById("dCustomer").textContent=order.customer||"-";
 document.getElementById("dPhone").textContent=order.phone||"-";
@@ -553,6 +557,67 @@ r.innerText.toLowerCase().includes(k)
 ?"":"none";
 });
 });
+async function downloadCurrentOrderPDF() {
+    if (!currentOrderData) {
+        alert("Order အချက်အလက် ရှာမတွေ့ပါ။");
+        return;
+    }
+
+    const o = currentOrderData;
+    const voucherElement = document.createElement("div");
+    voucherElement.style.padding = "20px";
+    voucherElement.style.color = "#1e293b";
+    voucherElement.style.background = "#ffffff";
+
+    const itemsList = (o.items || []).map(item => `
+        <tr>
+            <td style="padding:8px; border-bottom:1px solid #e2e8f0;">${item.name}</td>
+            <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;">${item.qty}</td>
+            <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:right;">${(Number(item.price || 0) * Number(item.qty || 1)).toLocaleString()} MMK</td>
+        </tr>
+    `).join("");
+
+    voucherElement.innerHTML = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #cbd5e1; padding: 24px; border-radius: 8px;">
+            <h2 style="text-align: center; color: #2563eb; margin: 0 0 4px 0;">Acai Shop</h2>
+            <p style="text-align: center; font-size: 13px; color: #64748b; margin: 0 0 16px 0;">Official Order Voucher (Admin Copy)</p>
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin-bottom: 16px;">
+            <p style="margin: 4px 0; font-size: 14px;"><b>Order ID:</b> #${o.id}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><b>Customer Name:</b> ${o.customer || '-'}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><b>Phone:</b> ${o.phone || '-'}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><b>Telegram:</b> ${o.telegram || '-'}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><b>Alt Social:</b> ${o.alt_social || '-'}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><b>Address:</b> ${o.address || ''}, ${o.building || ''}, ${o.road || ''}, ${o.township || ''}, ${o.city || ''}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><b>Payment Method:</b> ${o.payment_method || '-'}</p>
+            <br>
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <thead>
+                    <tr style="background: #f8fafc; text-align: left;">
+                        <th style="padding:8px; border-bottom:2px solid #cbd5e1;">Item</th>
+                        <th style="padding:8px; border-bottom:2px solid #cbd5e1; text-align:center;">Qty</th>
+                        <th style="padding:8px; border-bottom:2px solid #cbd5e1; text-align:right;">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsList}
+                </tbody>
+            </table>
+            <br>
+            <p style="text-align: right; font-size: 14px; margin: 4px 0;">Deli Fee: <b>${Number(o.deli_fee || 0).toLocaleString()} MMK</b></p>
+            <h3 style="text-align: right; color: #2563eb; margin: 8px 0 0 0;">Total: ${Number(o.total || 0).toLocaleString()} MMK</h3>
+        </div>
+    `;
+
+    const opt = {
+        margin:       10,
+        filename:     `Voucher_Order_${o.id}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    await html2pdf().set(opt).from(voucherElement).save();
+}
 </script>
 
 <div id="orderPopup"
@@ -594,6 +659,9 @@ style="background:#DC2626;color:white;border:none;width:34px;height:34px;border-
 <hr style="margin:18px 0;border-color:rgba(255,255,255,0.08);">
 
 <h3 style="font-size:18px;color:#f8fafc;">Total: <span id="dTotal" style="color:#38bdf8;"></span></h3>
+<button onclick="downloadCurrentOrderPDF()" style="width:100%;margin-top:16px;padding:12px;background:#2563EB;color:white;border:none;border-radius:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+    <i class="fa-solid fa-file-pdf"></i> Download Voucher PDF
+    </button>
 </div>
 </div>
 
