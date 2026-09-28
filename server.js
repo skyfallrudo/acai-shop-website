@@ -1106,6 +1106,49 @@ app.get("/admin/orders/:id", adminAuth, (req, res) => {
     }
   );
 });
+// ---------------- Admin Download Order PDF ----------------
+
+app.get("/admin/orders/:id/pdf", adminAuth, async (req, res) => {
+  try {
+    const orderId = req.params.id;
+
+    // Database မှ Order အချက်အလက် ဆွဲထုတ်ခြင်း
+    const orderRow = await db.get("SELECT * FROM orders WHERE id=?", [orderId]);
+
+    if (!orderRow) {
+      return res.status(404).send("Order not found");
+    }
+
+    let cartItems = [];
+    try {
+      cartItems = JSON.parse(orderRow.items || "[]");
+    } catch (e) {
+      cartItems = [];
+    }
+
+    // PDF တွင်ပြသမည့် အချက်အလက်များကို ပြင်ဆင်ခြင်း
+    const pdfBuffer = await generateInvoicePDF({
+      orderId: orderRow.id,
+      name: orderRow.customer || "N/A",
+      userEmail: orderRow.email || "N/A",
+      phone: orderRow.phone || "N/A",
+      fullAddress: `${orderRow.address || ""} ${orderRow.building || ""} ${orderRow.road || ""} ${orderRow.township || ""} ${orderRow.city || ""}`.trim(),
+      cart: cartItems,
+      deliveryFee: Number(orderRow.deli_fee || 0),
+      total: Number(orderRow.total || 0),
+      payment_method: orderRow.payment_method || "COD"
+    });
+
+    // Browser သို့ PDF Stream ပြန်ပို့ပေးခြင်း
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename=Voucher_Order_${orderRow.id}.pdf`);
+    res.send(pdfBuffer);
+
+  } catch (err) {
+    console.error("ADMIN PDF GENERATE ERROR:", err);
+    res.status(500).send("Error generating PDF");
+  }
+});
 
 app.put("/admin/orders/:id/status", adminAuth, (req, res) => {
   const { status } = req.body;
