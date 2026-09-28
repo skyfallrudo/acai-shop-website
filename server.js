@@ -1129,6 +1129,7 @@ app.get("/admin/orders/:id/pdf", adminAuth, async (req, res) => {
     // PDF တွင်ပြသမည့် အချက်အလက်များကို ပြင်ဆင်ခြင်း
     const pdfBuffer = await generateInvoicePDF({
       orderId: orderRow.id,
+      date: orderRow.created_at,
       name: orderRow.customer || "N/A",
       userEmail: orderRow.email || "N/A",
       phone: orderRow.phone || "N/A",
