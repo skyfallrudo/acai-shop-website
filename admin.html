@@ -565,6 +565,12 @@ async function downloadCurrentOrderPDF() {
 
     const o = currentOrderData;
     const voucherElement = document.createElement("div");
+    
+    // Page ရဲ့ အနောက်ကွယ်မှာ ခဏထားရန် styling
+    voucherElement.style.position = "fixed";
+    voucherElement.style.left = "-9999px";
+    voucherElement.style.top = "0";
+    voucherElement.style.width = "600px";
     voucherElement.style.padding = "20px";
     voucherElement.style.color = "#1e293b";
     voucherElement.style.background = "#ffffff";
@@ -608,6 +614,9 @@ async function downloadCurrentOrderPDF() {
         </div>
     `;
 
+    // 🎯 DOM ထဲ ထည့်ပေးလိုက်ခြင်း (ဒါမှ capture ရိုက်လို့ရပါမည်)
+    document.body.appendChild(voucherElement);
+
     const opt = {
         margin:       10,
         filename:     `Voucher_Order_${o.id}.pdf`,
@@ -617,6 +626,9 @@ async function downloadCurrentOrderPDF() {
     };
 
     await html2pdf().set(opt).from(voucherElement).save();
+
+    // 🎯 PDF ဒေါင်းပြီးပါက ပြန်ဖြုတ်ထုတ်ခြင်း
+    document.body.removeChild(voucherElement);
 }
 </script>
 
