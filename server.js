@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const { Resend } = require("resend");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
@@ -256,19 +257,47 @@ async function generateInvoicePDF(data) {
       .replace(/'/g, "&#039;");
   };
 
+
+  // ==========================================
+  // PYIDAUNGSU FONT
+  // ==========================================
+
+  const fontPath = path.join(
+    __dirname,
+    "fonts",
+    "Pyidaungsu-2.5.3_Regular.ttf"
+  );
+
+  if (!fs.existsSync(fontPath)) {
+    throw new Error(
+      "Pyidaungsu font not found: " + fontPath
+    );
+  }
+
+  const fontBase64 =
+    fs.readFileSync(fontPath).toString("base64");
+
+
+  // ==========================================
+  // CART
+  // ==========================================
+
   const cart = Array.isArray(data.cart)
     ? data.cart
     : [];
 
+
   const subtotal = cart.reduce(
     (sum, item) => {
 
-      const price = safeNumber(item.price);
+      const price =
+        safeNumber(item.price);
 
-      const qty = Math.max(
-        0,
-        safeNumber(item.qty)
-      );
+      const qty =
+        Math.max(
+          0,
+          safeNumber(item.qty)
+        );
 
       return sum + (price * qty);
 
@@ -276,11 +305,18 @@ async function generateInvoicePDF(data) {
     0
   );
 
+
   const deliveryFee =
     safeNumber(data.deliveryFee);
 
+
   const grandTotal =
     safeNumber(data.total);
+
+
+  // ==========================================
+  // ITEMS
+  // ==========================================
 
   const itemsHTML = cart.map(item => {
 
@@ -321,6 +357,9 @@ async function generateInvoicePDF(data) {
   }).join("");
 
 
+  // ==========================================
+  // HTML
+  // ==========================================
 
   const html = `
 
@@ -338,18 +377,23 @@ async function generateInvoicePDF(data) {
 
   font-family: "Pyidaungsu";
 
-  src: url("file://${path.join(
-    __dirname,
-    "fonts/Pyidaungsu-2.5.3_Regular.ttf"
-  )}");
+  src:
+    url("data:font/ttf;base64,${fontBase64}")
+    format("truetype");
+
+  font-weight: normal;
+
+  font-style: normal;
 
 }
+
 
 * {
 
   box-sizing: border-box;
 
 }
+
 
 body {
 
@@ -369,6 +413,7 @@ body {
 
 }
 
+
 .header {
 
   text-align: center;
@@ -376,6 +421,7 @@ body {
   margin-bottom: 18px;
 
 }
+
 
 .logo-title {
 
@@ -391,6 +437,7 @@ body {
 
 }
 
+
 .subtitle {
 
   font-family:
@@ -405,130 +452,175 @@ body {
 
 }
 
+
 .line {
 
-  border-top: 1px solid #E2E8F0;
+  border-top:
+    1px solid #E2E8F0;
 
-  margin: 15px 0;
+  margin:
+    15px 0;
 
 }
+
 
 .info-table {
 
   width: 100%;
 
-  border-collapse: collapse;
+  border-collapse:
+    collapse;
 
-  margin-bottom: 12px;
+  margin-bottom:
+    12px;
 
 }
+
 
 .info-table td {
 
-  padding: 4px 0;
+  padding:
+    4px 0;
 
-  vertical-align: top;
+  vertical-align:
+    top;
 
 }
+
 
 .info-label {
 
-  font-weight: bold;
+  font-weight:
+    bold;
 
-  width: 145px;
+  width:
+    145px;
 
 }
+
 
 .info-value {
 
-  word-break: break-word;
+  word-break:
+    break-word;
 
 }
+
 
 .items {
 
   width: 100%;
 
-  border-collapse: collapse;
+  border-collapse:
+    collapse;
 
-  margin-top: 15px;
+  margin-top:
+    15px;
 
-  margin-bottom: 15px;
+  margin-bottom:
+    15px;
 
 }
+
 
 .items th {
 
-  background: #818CF8;
+  background:
+    #818CF8;
 
-  color: white;
+  color:
+    white;
 
-  padding: 8px;
+  padding:
+    8px;
 
   font-family:
     "Pyidaungsu",
     Arial,
     sans-serif;
 
-  font-weight: bold;
+  font-weight:
+    bold;
 
 }
+
 
 .items td {
 
-  padding: 8px;
+  padding:
+    8px;
 
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom:
+    1px solid #E2E8F0;
 
-  vertical-align: top;
+  vertical-align:
+    top;
 
 }
+
 
 .center {
 
-  text-align: center;
+  text-align:
+    center;
 
 }
+
 
 .right {
 
-  text-align: right;
+  text-align:
+    right;
 
 }
+
 
 .total-box {
 
-  width: 100%;
+  width:
+    100%;
 
-  margin-top: 10px;
+  margin-top:
+    10px;
 
 }
+
 
 .total-row {
 
-  text-align: right;
+  text-align:
+    right;
 
-  padding: 4px 0;
+  padding:
+    4px 0;
 
 }
+
 
 .grand-total {
 
-  font-size: 15px;
+  font-size:
+    15px;
 
-  font-weight: bold;
+  font-weight:
+    bold;
 
-  color: #818CF8;
+  color:
+    #818CF8;
 
-  margin-top: 5px;
+  margin-top:
+    5px;
 
 }
 
+
 .footer {
 
-  text-align: center;
+  text-align:
+    center;
 
-  margin-top: 35px;
+  margin-top:
+    35px;
 
   font-family:
     "Pyidaungsu",
@@ -537,23 +629,31 @@ body {
 
 }
 
+
 .footer-main {
 
-  font-weight: bold;
+  font-weight:
+    bold;
 
-  font-size: 11px;
+  font-size:
+    11px;
 
-  color: #475569;
+  color:
+    #475569;
 
 }
 
+
 .footer-sub {
 
-  font-size: 9px;
+  font-size:
+    9px;
 
-  color: #94A3B8;
+  color:
+    #94A3B8;
 
-  margin-top: 5px;
+  margin-top:
+    5px;
 
 }
 
@@ -583,6 +683,7 @@ body {
 
 <table class="info-table">
 
+
 <tr>
 
 <td class="info-label">
@@ -593,20 +694,29 @@ Invoice ID:
 #INV-${escapeHTML(data.orderId)}
 </td>
 
-<td class="info-label" style="width:100px;">
+
+<td
+  class="info-label"
+  style="width:100px;"
+>
+
 Date & Time:
+
 </td>
 
 <td class="info-value">
+
 ${escapeHTML(
   data.date ||
   new Date().toLocaleString(
     "en-GB",
     {
-      timeZone: "Asia/Yangon"
+      timeZone:
+        "Asia/Yangon"
     }
   )
 )}
+
 </td>
 
 </tr>
@@ -618,8 +728,13 @@ ${escapeHTML(
 Customer Name:
 </td>
 
-<td colspan="3" class="info-value">
+<td
+  colspan="3"
+  class="info-value"
+>
+
 ${escapeHTML(data.name)}
+
 </td>
 
 </tr>
@@ -631,8 +746,13 @@ ${escapeHTML(data.name)}
 Email:
 </td>
 
-<td colspan="3" class="info-value">
+<td
+  colspan="3"
+  class="info-value"
+>
+
 ${escapeHTML(data.userEmail)}
+
 </td>
 
 </tr>
@@ -644,8 +764,13 @@ ${escapeHTML(data.userEmail)}
 Phone:
 </td>
 
-<td colspan="3" class="info-value">
+<td
+  colspan="3"
+  class="info-value"
+>
+
 ${escapeHTML(data.phone)}
+
 </td>
 
 </tr>
@@ -657,8 +782,13 @@ ${escapeHTML(data.phone)}
 Shipping Address:
 </td>
 
-<td colspan="3" class="info-value">
+<td
+  colspan="3"
+  class="info-value"
+>
+
 ${escapeHTML(data.fullAddress)}
+
 </td>
 
 </tr>
@@ -670,18 +800,26 @@ ${escapeHTML(data.fullAddress)}
 Payment Method:
 </td>
 
-<td colspan="3" class="info-value">
+<td
+  colspan="3"
+  class="info-value"
+>
+
 ${escapeHTML(
-  data.payment_method || "COD"
+  data.payment_method ||
+  "COD"
 )}
+
 </td>
 
 </tr>
+
 
 </table>
 
 
 <table class="items">
+
 
 <thead>
 
@@ -719,9 +857,11 @@ ${itemsHTML}
 
 <div class="total-box">
 
+
 <div class="total-row">
 
 Subtotal:
+
 <strong>
 ${subtotal.toLocaleString()} MMK
 </strong>
@@ -732,6 +872,7 @@ ${subtotal.toLocaleString()} MMK
 <div class="total-row">
 
 Delivery Fee:
+
 <strong>
 ${deliveryFee.toLocaleString()} MMK
 </strong>
@@ -742,14 +883,17 @@ ${deliveryFee.toLocaleString()} MMK
 <div class="total-row grand-total">
 
 Grand Total:
+
 ${grandTotal.toLocaleString()} MMK
 
 </div>
+
 
 </div>
 
 
 <div class="footer">
+
 
 <div class="footer-main">
 
@@ -757,12 +901,14 @@ Thank you for shopping with Açaí Shop!
 
 </div>
 
+
 <div class="footer-sub">
 
 If you have any questions regarding your order,
 please contact our support.
 
 </div>
+
 
 </div>
 
@@ -774,23 +920,34 @@ please contact our support.
 `;
 
 
+  // ==========================================
+  // PUPPETEER
+  // ==========================================
 
   let browser;
 
+
   try {
 
-    browser = await puppeteer.launch({
+    browser =
+      await puppeteer.launch({
 
-      headless: true,
+        headless:
+          true,
 
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu"
-      ]
+        args: [
 
-    });
+          "--no-sandbox",
+
+          "--disable-setuid-sandbox",
+
+          "--disable-dev-shm-usage",
+
+          "--disable-gpu"
+
+        ]
+
+      });
 
 
     const page =
@@ -800,34 +957,46 @@ please contact our support.
     await page.setContent(
       html,
       {
-        waitUntil: "networkidle0"
+        waitUntil:
+          "networkidle0"
       }
     );
 
 
-    await page.evaluate(async () => {
+    // Wait until the embedded
+    // Pyidaungsu font is ready.
 
-      await document.fonts.ready;
+    await page.evaluate(
+      async () => {
 
-    });
+        await document.fonts.ready;
+
+      }
+    );
 
 
     const pdfBuffer =
       await page.pdf({
 
-        format: "A4",
+        format:
+          "A4",
 
-        printBackground: true,
+        printBackground:
+          true,
 
         margin: {
 
-          top: "15mm",
+          top:
+            "15mm",
 
-          right: "15mm",
+          right:
+            "15mm",
 
-          bottom: "15mm",
+          bottom:
+            "15mm",
 
-          left: "15mm"
+          left:
+            "15mm"
 
         }
 
@@ -837,7 +1006,9 @@ please contact our support.
     await browser.close();
 
 
-    return Buffer.from(pdfBuffer);
+    return Buffer.from(
+      pdfBuffer
+    );
 
 
   } catch (error) {
@@ -2610,13 +2781,16 @@ app.post("/place-order", auth, async (req, res) => {
 
 
       /*
-        Send invoice email.
-
-        If email/PDF fails, the order itself
-        remains successfully created.
+        Generate invoice PDF and send email.
+        Order itself is already created successfully.
       */
 
       try {
+
+        console.log(
+          "Generating invoice PDF for order:",
+          orderId
+        );
 
         const pdfBuffer =
           await generateInvoicePDF({
@@ -2656,18 +2830,39 @@ app.post("/place-order", auth, async (req, res) => {
           });
 
 
-        await resend.emails.send({
+        if (
+          !pdfBuffer ||
+          !Buffer.isBuffer(pdfBuffer) ||
+          pdfBuffer.length === 0
+        ) {
 
-          from:
-            "Acai Shop <support@acaishopmm.store>",
+          throw new Error(
+            "PDF was generated but the PDF buffer is empty."
+          );
 
-          to:
-            user.email,
+        }
 
-          subject:
-            `Order Confirmation & Invoice #${orderId} - Acai Shop`,
 
-          html: `
+        console.log(
+          "Invoice PDF generated successfully:",
+          pdfBuffer.length,
+          "bytes"
+        );
+
+
+        const emailResult =
+          await resend.emails.send({
+
+            from:
+              "Acai Shop <support@acaishopmm.store>",
+
+            to:
+              user.email,
+
+            subject:
+              `Order Confirmation & Invoice #${orderId} - Acai Shop`,
+
+            html: `
 <div style="font-family:Arial,sans-serif;padding:20px;color:#1E293B">
 
 <h2 style="color:#2563EB">
@@ -2676,9 +2871,9 @@ Order Confirmed!
 
 <p>
 Dear <b>${String(name || "").replace(
-            /[<>&"]/g,
-            ""
-          )}</b>,
+              /[<>&"]/g,
+              ""
+            )}</b>,
 </p>
 
 <p>
@@ -2712,6 +2907,10 @@ ${String(
 <br>
 
 <p>
+Your purchase voucher / invoice is attached to this email as a PDF.
+</p>
+
+<p>
 Best regards,<br>
 <b>Acai Shop Team</b>
 </p>
@@ -2719,29 +2918,68 @@ Best regards,<br>
 </div>
 `,
 
-          attachments: [
+            attachments: [
 
-            {
-              filename:
-                `Invoice_AcaiShop_${orderId}.pdf`,
+              {
+                filename:
+                  `Voucher_AcaiShop_${orderId}.pdf`,
 
-              content:
-                pdfBuffer
-            }
+                content:
+                  pdfBuffer
 
-          ]
+              }
 
-        });
+            ]
+
+          });
+
+
+        console.log(
+          "INVOICE EMAIL SENT:",
+          emailResult
+        );
+
 
       } catch (emailError) {
 
         console.error(
-          "INVOICE EMAIL ERROR:",
+          "===================================="
+        );
+
+        console.error(
+          "INVOICE EMAIL ERROR"
+        );
+
+        console.error(
+          "Order ID:",
+          orderId
+        );
+
+        console.error(
+          "Customer Email:",
+          user.email
+        );
+
+        console.error(
+          "Error:",
           emailError
         );
 
-      }
+        console.error(
+          "Error message:",
+          emailError?.message
+        );
 
+        console.error(
+          "Error response:",
+          emailError?.response
+        );
+
+        console.error(
+          "===================================="
+        );
+
+      }
 
       return res.json({
 
