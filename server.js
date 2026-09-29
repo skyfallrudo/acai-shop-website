@@ -227,6 +227,16 @@ function generateInvoicePDF(data) {
     doc.end();
   });
 }
+
+function auth(req, res, next) {
+  if (!req.session.userId) {
+    return res.status(401).json({
+      success: false,
+      message: "Login required"
+    });
+  }
+  next();
+}
 function adminAuth(req, res, next) {
   if (!req.session.admin) {
     return res.status(401).json({
@@ -1126,6 +1136,7 @@ const pdfBuffer = await generateInvoicePDF({
       userEmail: orderRow.email || "N/A",
       phone: orderRow.phone || "N/A",
       fullAddress: `${orderRow.road || ""}, ${orderRow.building || ""}, ${orderRow.address || ""}, ${orderRow.township || ""}, ${orderRow.city || ""}`.trim(), 
+      cart: cartItems,
       deliveryFee: Number(orderRow.deli_fee || 0),
       total: Number(orderRow.total || 0),
       payment_method: orderRow.payment_method || "COD"
