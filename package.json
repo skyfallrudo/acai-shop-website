@@ -25,7 +25,11 @@
     "nodemailer": "^10.0.9",
     "pdfkit": "^0.20.2",
     "pdfmake": "^0.3.11",
+    "puppeteer": "^25.12.0",
     "resend": "^6.28.1",
     "sqlite3": "^6.0.1"
+  },
+  "allowScripts": {
+    "puppeteer@25.12.0": true
   }
 }

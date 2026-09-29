@@ -10,37 +10,7 @@ const path = require("path");
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// pdfmake compatibility for both 0.2.x and 0.3.x
-const pdfmake = require('pdfmake');
-
-const PdfPrinter = typeof pdfmake === 'function'
-  ? pdfmake
-  : (pdfmake?.PdfPrinter || pdfmake?.default || null);
-
-const fonts = {
-  Pyidaungsu: {
-    normal: path.join(__dirname, 'fonts/Pyidaungsu-2.5.3_Regular.ttf'),
-    bold: path.join(__dirname, 'fonts/Pyidaungsu-2.5.3_Regular.ttf'),
-    italics: path.join(__dirname, 'fonts/Pyidaungsu-2.5.3_Regular.ttf'),
-    bolditalics: path.join(__dirname, 'fonts/Pyidaungsu-2.5.3_Regular.ttf')
-  }
-};
-
-let printer = null;
-
-if (typeof PdfPrinter === 'function') {
-  printer = new PdfPrinter(fonts);
-}
-
-if (pdfmake && typeof pdfmake.addFonts === 'function') {
-  pdfmake.addFonts(fonts);
-}
-
-if (!printer && (!pdfmake || typeof pdfmake.createPdf !== 'function')) {
-  throw new Error(
-    'Unsupported pdfmake installation. Please use pdfmake 0.2.x or 0.3.x.'
-  );
-}
+const puppeteer = require("puppeteer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -262,31 +232,28 @@ const storage = new CloudinaryStorage({
 const upload = multer({
   storage
 });
-
-
 async function generateInvoicePDF(data) {
 
   const safeNumber = value => {
-
     const n = Number(value);
-
-    return Number.isFinite(n)
-      ? n
-      : 0;
-
+    return Number.isFinite(n) ? n : 0;
   };
 
   const safeText = value => {
-
-    if (
-      value === undefined ||
-      value === null
-    ) {
+    if (value === undefined || value === null) {
       return "";
     }
 
     return String(value);
+  };
 
+  const escapeHTML = value => {
+    return safeText(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   };
 
   const cart = Array.isArray(data.cart)
@@ -296,402 +263,600 @@ async function generateInvoicePDF(data) {
   const subtotal = cart.reduce(
     (sum, item) => {
 
-      return sum +
-        safeNumber(item.price) *
-        Math.max(
-          0,
-          safeNumber(item.qty)
-        );
+      const price = safeNumber(item.price);
+
+      const qty = Math.max(
+        0,
+        safeNumber(item.qty)
+      );
+
+      return sum + (price * qty);
 
     },
     0
   );
 
+  const deliveryFee =
+    safeNumber(data.deliveryFee);
 
-  const docDefinition = {
+  const grandTotal =
+    safeNumber(data.total);
 
-    content: [
+  const itemsHTML = cart.map(item => {
 
-      {
-        text: "Açaí",
-        fontSize: 24,
-        bold: true,
-        color: "#818CF8",
-        alignment: "center"
-      },
+    const price =
+      safeNumber(item.price);
 
-      {
-        text: "Official Purchase Invoice & Voucher",
-        fontSize: 9,
-        color: "#64748B",
-        alignment: "center",
-        margin: [0, 0, 0, 15]
-      },
-
-      {
-        canvas: [
-          {
-            type: "line",
-            x1: 0,
-            y1: 0,
-            x2: 515,
-            y2: 0,
-            lineWidth: 1,
-            lineColor: "#E2E8F0"
-          }
-        ],
-        margin: [0, 0, 0, 10]
-      },
-
-      {
-
-        columns: [
-
-          {
-            text:
-              `Invoice ID: #INV-${safeText(data.orderId)}`,
-            bold: true,
-            fontSize: 10,
-            color: "#1E293B"
-          },
-
-          {
-            text:
-              `Date & Time: ${
-                safeText(data.date) ||
-                new Date().toLocaleString(
-                  "en-GB",
-                  {
-                    timeZone: "Asia/Yangon"
-                  }
-                )
-              }`,
-            alignment: "right",
-            fontSize: 10,
-            color: "#1E293B"
-          }
-
-        ],
-
-        margin: [0, 0, 0, 10]
-
-      },
-
-      {
-        text:
-          `Customer Name: ${safeText(data.name)}`,
-        fontSize: 10,
-        margin: [0, 2, 0, 2]
-      },
-
-      {
-        text:
-          `Email: ${safeText(data.userEmail)}`,
-        fontSize: 10,
-        margin: [0, 2, 0, 2]
-      },
-
-      {
-        text:
-          `Phone: ${safeText(data.phone)}`,
-        fontSize: 10,
-        margin: [0, 2, 0, 2]
-      },
-
-      {
-        text:
-          `Shipping Address: ${safeText(data.fullAddress)}`,
-        fontSize: 10,
-        margin: [0, 2, 0, 2]
-      },
-
-      {
-        text:
-          `Payment Method: ${
-            safeText(data.payment_method) || "COD"
-          }`,
-        fontSize: 10,
-        margin: [0, 2, 0, 15]
-      },
-
-      {
-
-        table: {
-
-          headerRows: 1,
-
-          widths: [
-            "*",
-            40,
-            90,
-            90
-          ],
-
-          body: [
-
-            [
-
-              {
-                text: "Item Name",
-                fillColor: "#818CF8",
-                color: "#FFFFFF",
-                bold: true,
-                fontSize: 10
-              },
-
-              {
-                text: "Qty",
-                fillColor: "#818CF8",
-                color: "#FFFFFF",
-                bold: true,
-                fontSize: 10,
-                alignment: "center"
-              },
-
-              {
-                text: "Price (MMK)",
-                fillColor: "#818CF8",
-                color: "#FFFFFF",
-                bold: true,
-                fontSize: 10,
-                alignment: "right"
-              },
-
-              {
-                text: "Total (MMK)",
-                fillColor: "#818CF8",
-                color: "#FFFFFF",
-                bold: true,
-                fontSize: 10,
-                alignment: "right"
-              }
-
-            ],
-
-            ...cart.map(item => {
-
-              const price =
-                safeNumber(item.price);
-
-              const qty =
-                Math.max(
-                  0,
-                  safeNumber(item.qty)
-                );
-
-              return [
-
-                {
-                  text: safeText(item.name),
-                  fontSize: 9
-                },
-
-                {
-                  text: String(qty),
-                  fontSize: 9,
-                  alignment: "center"
-                },
-
-                {
-                  text: price.toLocaleString(),
-                  fontSize: 9,
-                  alignment: "right"
-                },
-
-                {
-                  text:
-                    (price * qty)
-                      .toLocaleString(),
-                  fontSize: 9,
-                  alignment: "right"
-                }
-
-              ];
-
-            })
-
-          ]
-
-        },
-
-        layout: "lightHorizontalLines",
-
-        margin: [0, 0, 0, 15]
-
-      },
-
-      {
-        text:
-          `Subtotal: ${subtotal.toLocaleString()} MMK`,
-        alignment: "right",
-        fontSize: 10,
-        margin: [0, 2, 0, 2]
-      },
-
-      {
-        text:
-          `Delivery Fee: ${
-            safeNumber(data.deliveryFee)
-              .toLocaleString()
-          } MMK`,
-        alignment: "right",
-        fontSize: 10,
-        margin: [0, 2, 0, 5]
-      },
-
-      {
-        text:
-          `Grand Total: ${
-            safeNumber(data.total)
-              .toLocaleString()
-          } MMK`,
-        alignment: "right",
-        fontSize: 12,
-        bold: true,
-        color: "#818CF8",
-        margin: [0, 2, 0, 20]
-      },
-
-      {
-        text:
-          "Thank you for shopping with Açaí Shop!",
-        alignment: "center",
-        bold: true,
-        fontSize: 9,
-        color: "#475569",
-        margin: [0, 10, 0, 2]
-      },
-
-      {
-        text:
-          "If you have any questions regarding your order, please contact our support.",
-        alignment: "center",
-        fontSize: 8,
-        color: "#94A3B8"
-      }
-
-    ],
-
-    defaultStyle: {
-      font: "Pyidaungsu"
-    }
-
-  };
-
-
-  // pdfmake 0.3.x
-  if (
-    pdfmake &&
-    typeof pdfmake.createPdf === "function"
-  ) {
-
-    const pdf =
-      pdfmake.createPdf(docDefinition);
-
-    if (
-      typeof pdf.getBuffer === "function"
-    ) {
-
-      return await pdf.getBuffer();
-
-    }
-
-    if (
-      typeof pdf.getStream === "function"
-    ) {
-
-      const stream =
-        await pdf.getStream();
-
-      const chunks = [];
-
-      return await new Promise(
-        (resolve, reject) => {
-
-          stream.on(
-            "data",
-            chunk => chunks.push(chunk)
-          );
-
-          stream.on(
-            "end",
-            () =>
-              resolve(
-                Buffer.concat(chunks)
-              )
-          );
-
-          stream.on(
-            "error",
-            reject
-          );
-
-        }
+    const qty =
+      Math.max(
+        0,
+        safeNumber(item.qty)
       );
 
-    }
+    const itemTotal =
+      price * qty;
 
-  }
+    return `
+      <tr>
 
+        <td>
+          ${escapeHTML(item.name)}
+        </td>
 
-  // pdfmake 0.2.x fallback
-  if (
-    printer &&
-    typeof printer.createPdfKitDocument === "function"
-  ) {
+        <td class="center">
+          ${qty}
+        </td>
 
-    return await new Promise(
-      (resolve, reject) => {
+        <td class="right">
+          ${price.toLocaleString()}
+        </td>
 
-        let pdfDoc;
+        <td class="right">
+          ${itemTotal.toLocaleString()}
+        </td>
 
-        try {
+      </tr>
+    `;
 
-          pdfDoc =
-            printer.createPdfKitDocument(
-              docDefinition
-            );
-
-        } catch (error) {
-
-          return reject(error);
-
-        }
-
-        const chunks = [];
-
-        pdfDoc.on(
-          "data",
-          chunk => chunks.push(chunk)
-        );
-
-        pdfDoc.on(
-          "end",
-          () =>
-            resolve(
-              Buffer.concat(chunks)
-            )
-        );
-
-        pdfDoc.on(
-          "error",
-          reject
-        );
-
-        pdfDoc.end();
-
-      }
-    );
-
-  }
+  }).join("");
 
 
-  throw new Error(
-    "No supported pdfmake PDF API found."
-  );
+
+  const html = `
+
+<!DOCTYPE html>
+
+<html lang="my">
+
+<head>
+
+<meta charset="UTF-8">
+
+<style>
+
+@font-face {
+
+  font-family: "Pyidaungsu";
+
+  src: url("file://${path.join(
+    __dirname,
+    "fonts/Pyidaungsu-2.5.3_Regular.ttf"
+  )}");
 
 }
 
+* {
+
+  box-sizing: border-box;
+
+}
+
+body {
+
+  margin: 0;
+
+  padding: 35px;
+
+  font-family:
+    "Pyidaungsu",
+    "Noto Sans Myanmar",
+    Arial,
+    sans-serif;
+
+  color: #1E293B;
+
+  font-size: 12px;
+
+}
+
+.header {
+
+  text-align: center;
+
+  margin-bottom: 18px;
+
+}
+
+.logo-title {
+
+  font-family:
+    Arial,
+    sans-serif;
+
+  font-size: 26px;
+
+  font-weight: bold;
+
+  color: #818CF8;
+
+}
+
+.subtitle {
+
+  font-family:
+    Arial,
+    sans-serif;
+
+  font-size: 10px;
+
+  color: #64748B;
+
+  margin-top: 4px;
+
+}
+
+.line {
+
+  border-top: 1px solid #E2E8F0;
+
+  margin: 15px 0;
+
+}
+
+.info-table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  margin-bottom: 12px;
+
+}
+
+.info-table td {
+
+  padding: 4px 0;
+
+  vertical-align: top;
+
+}
+
+.info-label {
+
+  font-weight: bold;
+
+  width: 145px;
+
+}
+
+.info-value {
+
+  word-break: break-word;
+
+}
+
+.items {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  margin-top: 15px;
+
+  margin-bottom: 15px;
+
+}
+
+.items th {
+
+  background: #818CF8;
+
+  color: white;
+
+  padding: 8px;
+
+  font-family:
+    "Pyidaungsu",
+    Arial,
+    sans-serif;
+
+  font-weight: bold;
+
+}
+
+.items td {
+
+  padding: 8px;
+
+  border-bottom: 1px solid #E2E8F0;
+
+  vertical-align: top;
+
+}
+
+.center {
+
+  text-align: center;
+
+}
+
+.right {
+
+  text-align: right;
+
+}
+
+.total-box {
+
+  width: 100%;
+
+  margin-top: 10px;
+
+}
+
+.total-row {
+
+  text-align: right;
+
+  padding: 4px 0;
+
+}
+
+.grand-total {
+
+  font-size: 15px;
+
+  font-weight: bold;
+
+  color: #818CF8;
+
+  margin-top: 5px;
+
+}
+
+.footer {
+
+  text-align: center;
+
+  margin-top: 35px;
+
+  font-family:
+    "Pyidaungsu",
+    Arial,
+    sans-serif;
+
+}
+
+.footer-main {
+
+  font-weight: bold;
+
+  font-size: 11px;
+
+  color: #475569;
+
+}
+
+.footer-sub {
+
+  font-size: 9px;
+
+  color: #94A3B8;
+
+  margin-top: 5px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+
+  <div class="logo-title">
+    Açaí
+  </div>
+
+  <div class="subtitle">
+    Official Purchase Invoice & Voucher
+  </div>
+
+</div>
+
+
+<div class="line"></div>
+
+
+<table class="info-table">
+
+<tr>
+
+<td class="info-label">
+Invoice ID:
+</td>
+
+<td class="info-value">
+#INV-${escapeHTML(data.orderId)}
+</td>
+
+<td class="info-label" style="width:100px;">
+Date & Time:
+</td>
+
+<td class="info-value">
+${escapeHTML(
+  data.date ||
+  new Date().toLocaleString(
+    "en-GB",
+    {
+      timeZone: "Asia/Yangon"
+    }
+  )
+)}
+</td>
+
+</tr>
+
+
+<tr>
+
+<td class="info-label">
+Customer Name:
+</td>
+
+<td colspan="3" class="info-value">
+${escapeHTML(data.name)}
+</td>
+
+</tr>
+
+
+<tr>
+
+<td class="info-label">
+Email:
+</td>
+
+<td colspan="3" class="info-value">
+${escapeHTML(data.userEmail)}
+</td>
+
+</tr>
+
+
+<tr>
+
+<td class="info-label">
+Phone:
+</td>
+
+<td colspan="3" class="info-value">
+${escapeHTML(data.phone)}
+</td>
+
+</tr>
+
+
+<tr>
+
+<td class="info-label">
+Shipping Address:
+</td>
+
+<td colspan="3" class="info-value">
+${escapeHTML(data.fullAddress)}
+</td>
+
+</tr>
+
+
+<tr>
+
+<td class="info-label">
+Payment Method:
+</td>
+
+<td colspan="3" class="info-value">
+${escapeHTML(
+  data.payment_method || "COD"
+)}
+</td>
+
+</tr>
+
+</table>
+
+
+<table class="items">
+
+<thead>
+
+<tr>
+
+<th>
+Item Name
+</th>
+
+<th style="width:45px;">
+Qty
+</th>
+
+<th style="width:90px;">
+Price (MMK)
+</th>
+
+<th style="width:90px;">
+Total (MMK)
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+${itemsHTML}
+
+</tbody>
+
+</table>
+
+
+<div class="total-box">
+
+<div class="total-row">
+
+Subtotal:
+<strong>
+${subtotal.toLocaleString()} MMK
+</strong>
+
+</div>
+
+
+<div class="total-row">
+
+Delivery Fee:
+<strong>
+${deliveryFee.toLocaleString()} MMK
+</strong>
+
+</div>
+
+
+<div class="total-row grand-total">
+
+Grand Total:
+${grandTotal.toLocaleString()} MMK
+
+</div>
+
+</div>
+
+
+<div class="footer">
+
+<div class="footer-main">
+
+Thank you for shopping with Açaí Shop!
+
+</div>
+
+<div class="footer-sub">
+
+If you have any questions regarding your order,
+please contact our support.
+
+</div>
+
+</div>
+
+
+</body>
+
+</html>
+
+`;
+
+
+
+  let browser;
+
+  try {
+
+    browser = await puppeteer.launch({
+
+      headless: true,
+
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu"
+      ]
+
+    });
+
+
+    const page =
+      await browser.newPage();
+
+
+    await page.setContent(
+      html,
+      {
+        waitUntil: "networkidle0"
+      }
+    );
+
+
+    await page.evaluate(async () => {
+
+      await document.fonts.ready;
+
+    });
+
+
+    const pdfBuffer =
+      await page.pdf({
+
+        format: "A4",
+
+        printBackground: true,
+
+        margin: {
+
+          top: "15mm",
+
+          right: "15mm",
+
+          bottom: "15mm",
+
+          left: "15mm"
+
+        }
+
+      });
+
+
+    await browser.close();
+
+
+    return Buffer.from(pdfBuffer);
+
+
+  } catch (error) {
+
+    if (browser) {
+
+      try {
+
+        await browser.close();
+
+      } catch {}
+
+    }
+
+    throw error;
+
+  }
+
+}
 
 function auth(req, res, next) {
 
