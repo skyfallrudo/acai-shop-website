@@ -147,46 +147,44 @@ function generateInvoicePDF(data) {
     doc.on("end", () => resolve(Buffer.concat(buffers)));
     doc.on("error", reject);
 
-    
-    const logoUrl = "https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg"; 
-    
-    
-    doc.fontSize(24).fillColor("#7C3AED").font("Helvetica-Bold").text("Açaí", { align: "center" });
-    doc.fontSize(10).fillColor("#64748B").font("Helvetica").text("Official Purchase Invoice & Voucher", { align: "center" });
+    // 🌟 Açaí Brand Theme Color (Logo Colour: Soft Periwinkle Purple)
+    const brandColor = "#93C5FD"; // Logo ပုံပါ အရောင်ဖျော့စတိုင်လ်
+    const primaryDark = "#1E293B";
+
+    // Header Section (Açaí Brand Name)
+    doc.fontSize(28).fillColor("#818CF8").font("Helvetica-Bold").text("Açaí", { align: "center" });
+    doc.fontSize(9).fillColor("#64748B").font("Helvetica").text("Official Purchase Invoice & Voucher", { align: "center" });
     doc.moveDown(1.2);
 
-   
+    // Decorative Line
     doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#E2E8F0").stroke();
     doc.moveDown(1);
 
-    
-    doc.fontSize(10).fillColor("#0F172A").font("Helvetica-Bold");
+    // Invoice & Customer Info Box
+    doc.fontSize(10).fillColor(primaryDark).font("Helvetica-Bold");
     doc.text(`Invoice ID: #INV-${data.orderId}`, { continued: true });
-    doc.text(`Date: ${data.date || new Date().toLocaleString('en-GB', { timeZone: 'Asia/Yangon' })}`, { align: "right" });
+    doc.text(`Date & Time: ${data.date || new Date().toLocaleString('en-GB', { timeZone: 'Asia/Yangon' })}`, { align: "right" });
     
     doc.font("Helvetica").fontSize(10);
     doc.text(`Customer Name: ${data.name}`);
     doc.text(`Email: ${data.userEmail}`);
     doc.text(`Phone: ${data.phone}`);
-    doc.text(`Shipping Address: ${data.fullAddress}`);
+    doc.text(`Shipping Address: ${data.fullAddress}`); // မြို့နှင့် မြို့နယ်အစုံပါသော လိပ်စာအပြည့်အစုံ
     doc.text(`Payment Method: ${data.payment_method}`);
     doc.moveDown(1.5);
 
-    
+    // Table Header with Logo Theme Color
     const tableTop = doc.y;
-    doc.fontSize(10).fillColor("#FFFFFF");
+    doc.rect(40, tableTop - 4, 510, 20).fill("#818CF8"); // Logo ခရမ်းရောင်ဖျော့စတိုင်လ်
     
-   
-    doc.rect(40, tableTop - 4, 510, 20).fill("#7C3AED");
-    
-    doc.fillColor("#FFFFFF").font("Helvetica-Bold");
+    doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(10);
     doc.text("Item Name", 48, tableTop);
     doc.text("Qty", 320, tableTop, { width: 40, align: "center" });
     doc.text("Price (MMK)", 370, tableTop, { width: 90, align: "right" });
     doc.text("Total (MMK)", 460, tableTop, { width: 80, align: "right" });
     doc.moveDown(1.5);
 
-   
+    // Table Rows
     doc.font("Helvetica").fontSize(9).fillColor("#334155");
     let subtotal = 0;
     
@@ -195,7 +193,6 @@ function generateInvoicePDF(data) {
       subtotal += itemTotal;
       const y = doc.y;
 
-      
       if (index % 2 === 0) {
         doc.rect(40, y - 2, 510, 16).fill("#F8FAFC");
         doc.fillColor("#334155");
@@ -211,13 +208,13 @@ function generateInvoicePDF(data) {
     doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#CBD5E1").stroke();
     doc.moveDown(1);
 
-   
-    doc.fontSize(10).font("Helvetica").fillColor("#0F172A");
+    // Totals Section
+    doc.fontSize(10).font("Helvetica").fillColor(primaryDark);
     doc.text(`Subtotal: ${subtotal.toLocaleString()} MMK`, { align: "right" });
     doc.text(`Delivery Fee: ${Number(data.deliveryFee).toLocaleString()} MMK`, { align: "right" });
     doc.moveDown(0.4);
     
-    doc.fontSize(12).font("Helvetica-Bold").fillColor("#7C3AED");
+    doc.fontSize(12).font("Helvetica-Bold").fillColor("#818CF8");
     doc.text(`Grand Total: ${Number(data.total).toLocaleString()} MMK`, { align: "right" });
     doc.moveDown(2.5);
 
@@ -320,7 +317,7 @@ app.post("/send-otp", (req, res) => {
             <table border="0" cellspacing="0" cellpadding="0">
               <tr>
                 <td style="width:80px;height:80px;border-radius:50%;background-color:#ffffff;border:4px solid #E8ECFF;overflow:hidden;" align="center" valign="middle">
-                  <img src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg" width="80" height="80" style="display:block;border-radius:50%;object-fit:cover;" alt="Acai Shop">
+                  <img src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg.jpg" width="80" height="80" style="display:block;border-radius:50%;object-fit:cover;" alt="Acai Shop">
                 </td>
               </tr>
             </table>
