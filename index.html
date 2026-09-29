@@ -956,9 +956,8 @@ function updateCartCount(){
     const count = cart.reduce((t,i)=>t+i.qty,0);
     document.getElementById("cart-count").innerText = count;
 }
-
-function addToCart(name, price, stock){
-    const item = cart.find(i=>i.name===name);
+function addToCart(id, name, price, stock){
+    const item = cart.find(i => i.id === id);
     const currentQty = item ? item.qty : 0;
 
     if(currentQty >= stock){
@@ -970,13 +969,14 @@ function addToCart(name, price, stock){
         item.qty++;
     }else{
         cart.push({
-            name,
-            price:Number(price),
-            qty:1
+            id: id,
+            name: name,
+            price: Number(price),
+            qty: 1
         });
     }
 
-    localStorage.setItem("cart",JSON.stringify(cart));
+    localStorage.setItem("cart", JSON.stringify(cart));
     updateCartCount();
     alert(name + " added to cart!");
 }
@@ -1074,7 +1074,7 @@ async function loadProducts(){
                     </div> 
 
                     <button class="buy-btn" 
-                        onclick="addToCart('${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})" 
+                      onclick="addToCart('${p.id}','${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})"
                         ${Number(p.stock) <= 0 ? "disabled" : ""}>
                         ${Number(p.stock) <= 0 ? outText : addText}
                     </button> 
