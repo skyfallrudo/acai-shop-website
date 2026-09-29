@@ -152,122 +152,81 @@ function generateInvoicePDF(data) {
 
     const primaryDark = "#1E293B";
 
-    // 🖼️ GitHub ကနေ လိုဂိုပုံကို Fetch လုပ်ပြီး PDF ထဲသို့ ထည့်သွင်းခြင်း
-    https.get("https://raw.githubusercontent.com/skyfallrudo/acai-assets/refs/heads/main/logo.jpg.jpg", (response) => {
-      let chunks = [];
-      response.on("data", (chunk) => chunks.push(chunk));
-      response.on("end", () => {
-        const logoBuffer = Buffer.concat(chunks);
-        try {
-          doc.image(logoBuffer, {
-            fit: [60, 60],
-            align: 'center',
-            valign: 'center'
-          });
-          doc.moveDown(0.5);
-        } catch (e) {
-          console.log("Logo render error:", e);
-        }
-        buildPDFContent();
-      });
-    }).on("error", (err) => {
-      console.log("Logo download error:", err);
-      buildPDFContent(); // ပုံဆွဲလို့မရရင်လည်း ကျန်တာ ဆက်ထုတ်ပေးရန်
+    // Header Section (Açaí Brand Name & Title) - Logo ကို Async မလုပ်တော့ဘဲ Text ဖြင့် သပ်ရပ်စွာပြခြင်း
+    doc.fontSize(28).fillColor("#818CF8").font("Helvetica-Bold").text("Açaí", { align: "center" });
+    doc.fontSize(9).fillColor("#64748B").font("Helvetica").text("Official Purchase Invoice & Voucher", { align: "center" });
+    doc.moveDown(1.2);
+
+    // Decorative Line
+    doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#E2E8F0").stroke();
+    doc.moveDown(1);
+
+    // Invoice & Customer Info Box
+    doc.fontSize(10).fillColor(primaryDark).font("Helvetica-Bold");
+    doc.text(`Invoice ID: #INV-${data.orderId}`, { continued: true });
+    doc.text(`Date & Time: ${data.date || new Date().toLocaleString('en-GB', { timeZone: 'Asia/Yangon' })}`, { align: "right" });
+    
+    // မြန်မာစာပါသော Customer အချက်အလက်များ
+    doc.font("MyanmarFont").fontSize(10);
+    doc.text(`Customer Name: ${data.name}`);
+    doc.text(`Email: ${data.userEmail}`);
+    doc.text(`Phone: ${data.phone}`);
+    doc.text(`Shipping Address: ${data.fullAddress}`);
+    doc.text(`Payment Method: ${data.payment_method}`);
+    doc.moveDown(1.5);
+
+    // Table Header with Logo Theme Color
+    const tableTop = doc.y;
+    doc.rect(40, tableTop - 4, 510, 20).fill("#818CF8");
+    
+    doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(10);
+    doc.text("Item Name", 48, tableTop);
+    doc.text("Qty", 320, tableTop, { width: 40, align: "center" });
+    doc.text("Price (MMK)", 370, tableTop, { width: 90, align: "right" });
+    doc.text("Total (MMK)", 460, tableTop, { width: 80, align: "right" });
+    doc.moveDown(1.5);
+
+    // Table Rows
+    doc.font("MyanmarFont").fontSize(9).fillColor("#334155");
+    let subtotal = 0;
+    
+    data.cart.forEach((item, index) => {
+      const itemTotal = Number(item.price) * Number(item.qty);
+      subtotal += itemTotal;
+      const y = doc.y;
+
+      if (index % 2 === 0) {
+        doc.rect(40, y - 2, 510, 16).fill("#F8FAFC");
+        doc.fillColor("#334155");
+      }
+
+      doc.text(item.name, 48, y, { width: 260 });
+      doc.text(String(item.qty), 320, y, { width: 40, align: "center" });
+      doc.text(Number(item.price).toLocaleString(), 370, y, { width: 90, align: "right" });
+      doc.text(itemTotal.toLocaleString(), 460, y, { width: 80, align: "right" });
+      doc.moveDown(1);
     });
 
-    function buildPDFContent() {
-      // Header Section (Açaí Brand Name & Title)
-      doc.fontSize(24).fillColor("#818CF8").font("Helvetica-Bold").text("Açaí", { align: "center" });
-      doc.fontSize(9).fillColor("#64748B").font("Helvetica").text("Official Purchase Invoice & Voucher", { align: "center" });
-      doc.moveDown(1.2);
+    doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#CBD5E1").stroke();
+    doc.moveDown(1);
 
-      // Decorative Line
-      doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#E2E8F0").stroke();
-      doc.moveDown(1);
+    // Totals Section
+    doc.fontSize(10).font("Helvetica").fillColor(primaryDark);
+    doc.text(`Subtotal: ${subtotal.toLocaleString()} MMK`, { align: "right" });
+    doc.text(`Delivery Fee: ${Number(data.deliveryFee).toLocaleString()} MMK`, { align: "right" });
+    doc.moveDown(0.4);
+    
+    doc.fontSize(12).font("Helvetica-Bold").fillColor("#818CF8");
+    doc.text(`Grand Total: ${Number(data.total).toLocaleString()} MMK`, { align: "right" });
+    doc.moveDown(2.5);
 
-      // Invoice & Customer Info Box
-      doc.fontSize(10).fillColor(primaryDark).font("Helvetica-Bold");
-      doc.text(`Invoice ID: #INV-${data.orderId}`, { continued: true });
-      doc.text(`Date & Time: ${data.date || new Date().toLocaleString('en-GB', { timeZone: 'Asia/Yangon' })}`, { align: "right" });
-      
-      // မြန်မာစာပါသော Customer အချက်အလက်များ
-      doc.font("MyanmarFont").fontSize(10);
-      doc.text(`Customer Name: ${data.name}`);
-      doc.text(`Email: ${data.userEmail}`);
-      doc.text(`Phone: ${data.phone}`);
-      doc.text(`Shipping Address: ${data.fullAddress}`); // မြို့နှင့် မြို့နယ် အပါအဝင် လိပ်စာအပြည့်အစုံ
-      doc.text(`Payment Method: ${data.payment_method}`);
-      doc.moveDown(1.5);
+    // Footer Note
+    doc.fontSize(9).font("Helvetica-Bold").fillColor("#475569").text("Thank you for shopping with Açaí Shop!", { align: "center" });
+    doc.fontSize(8).fillColor("#94A3B8").text("If you have any questions regarding your order, please contact our support.", { align: "center" });
 
-      // Table Header with Logo Theme Color
-      const tableTop = doc.y;
-      doc.rect(40, tableTop - 4, 510, 20).fill("#818CF8");
-      
-      doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(10);
-      doc.text("Item Name", 48, tableTop);
-      doc.text("Qty", 320, tableTop, { width: 40, align: "center" });
-      doc.text("Price (MMK)", 370, tableTop, { width: 90, align: "right" });
-      doc.text("Total (MMK)", 460, tableTop, { width: 80, align: "right" });
-      doc.moveDown(1.5);
-
-      // Table Rows
-      doc.font("MyanmarFont").fontSize(9).fillColor("#334155");
-      let subtotal = 0;
-      
-      data.cart.forEach((item, index) => {
-        const itemTotal = Number(item.price) * Number(item.qty);
-        subtotal += itemTotal;
-        const y = doc.y;
-
-        if (index % 2 === 0) {
-          doc.rect(40, y - 2, 510, 16).fill("#F8FAFC");
-          doc.fillColor("#334155");
-        }
-
-        doc.text(item.name, 48, y, { width: 260 });
-        doc.text(String(item.qty), 320, y, { width: 40, align: "center" });
-        doc.text(Number(item.price).toLocaleString(), 370, y, { width: 90, align: "right" });
-        doc.text(itemTotal.toLocaleString(), 460, y, { width: 80, align: "right" });
-        doc.moveDown(1);
-      });
-
-      doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#CBD5E1").stroke();
-      doc.moveDown(1);
-
-      // Totals Section
-      doc.fontSize(10).font("Helvetica").fillColor(primaryDark);
-      doc.text(`Subtotal: ${subtotal.toLocaleString()} MMK`, { align: "right" });
-      doc.text(`Delivery Fee: ${Number(data.deliveryFee).toLocaleString()} MMK`, { align: "right" });
-      doc.moveDown(0.4);
-      
-      doc.fontSize(12).font("Helvetica-Bold").fillColor("#818CF8");
-      doc.text(`Grand Total: ${Number(data.total).toLocaleString()} MMK`, { align: "right" });
-      doc.moveDown(2.5);
-
-      // Footer Note
-      doc.fontSize(9).font("Helvetica-Bold").fillColor("#475569").text("Thank you for shopping with Açaí Shop!", { align: "center" });
-      doc.fontSize(8).fillColor("#94A3B8").text("If you have any questions regarding your order, please contact our support.", { align: "center" });
-
-      doc.end();
-    }
+    doc.end();
   });
 }
-
-const otpStore = {};
-const resetOtpStore = {};
-
-
-function auth(req, res, next) {
-  if (!req.session.userId) {
-    return res.status(401).json({
-      success: false,
-      message: "Login required"
-    });
-  }
-
-  next();
-}
-
 function adminAuth(req, res, next) {
   if (!req.session.admin) {
     return res.status(401).json({
