@@ -147,8 +147,10 @@ function generateInvoicePDF(data) {
     doc.on("end", () => resolve(Buffer.concat(buffers)));
     doc.on("error", reject);
 
-    // 🌟 Açaí Brand Theme Color (Logo Colour: Soft Periwinkle Purple)
-    const brandColor = "#93C5FD"; // Logo ပုံပါ အရောင်ဖျော့စတိုင်လ်
+const logoUrl = "https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg.jpg";
+
+    
+    const brandColor = "#93C5FD"; 
     const primaryDark = "#1E293B";
 
     // Header Section (Açaí Brand Name)
@@ -519,7 +521,7 @@ app.post("/forgot-password", (req, res) => {
             <table border="0" cellspacing="0" cellpadding="0">
               <tr>
                 <td style="width:80px;height:80px;border-radius:50%;background-color:#ffffff;border:4px solid #E8ECFF;overflow:hidden;" align="center" valign="middle">
-                  <img src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg" width="80" height="80" style="display:block;border-radius:50%;object-fit:cover;" alt="Acai Shop">
+                  <img src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg.jpg" width="80" height="80" style="display:block;border-radius:50%;object-fit:cover;" alt="Acai Shop">
                 </td>
               </tr>
             </table>
@@ -938,7 +940,7 @@ app.post("/place-order", auth, async (req, res) => {
     const deliveryFee = Number(deliFee) || 0;
     const total = subtotal + deliveryFee;
 
-    const fullAddress = `${road || ""}, ${building || ""}, ${address || ""}`.trim();
+   const fullAddress = `${road || ""}, ${building || ""}, ${address || ""}, ${township || ""}, ${city || ""}`.trim();
 
     const userResult = await tursoClient.execute({
       sql: "SELECT email FROM customers WHERE id=?",
@@ -1133,15 +1135,13 @@ app.get("/admin/orders/:id/pdf", adminAuth, async (req, res) => {
     } catch (e) {
       cartItems = [];
     }
-
-    const pdfBuffer = await generateInvoicePDF({
+const pdfBuffer = await generateInvoicePDF({
       orderId: orderRow.id,
       date: orderRow.created_at,
       name: orderRow.customer || "N/A",
       userEmail: orderRow.email || "N/A",
       phone: orderRow.phone || "N/A",
-      fullAddress: `${orderRow.address || ""} ${orderRow.building || ""} ${orderRow.road || ""} ${orderRow.township || ""} ${orderRow.city || ""}`.trim(),
-      cart: cartItems,
+      fullAddress: `${orderRow.road || ""}, ${orderRow.building || ""}, ${orderRow.address || ""}, ${orderRow.township || ""}, ${orderRow.city || ""}`.trim(), 
       deliveryFee: Number(orderRow.deli_fee || 0),
       total: Number(orderRow.total || 0),
       payment_method: orderRow.payment_method || "COD"
