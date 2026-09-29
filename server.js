@@ -9,14 +9,14 @@ const multer = require("multer");
 const path = require("path");
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const PDFDocument = require("pdfkit"); // 📄 PDF Generator ထည့်သွင်းခြင်း
+const PDFDocument = require("pdfkit"); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.set("trust proxy", 1);
 
-// ---------------- Turso ----------------
+
 
 const tursoClient = createClient({
   url: process.env.TURSO_DATABASE_URL,
@@ -25,7 +25,7 @@ const tursoClient = createClient({
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// ---------------- DB Wrapper ----------------
+
 
 const db = {
   get: (sql, params = [], callback) => {
@@ -103,7 +103,7 @@ const db = {
   }
 };
 
-// ---------------- Middlewares ----------------
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -121,7 +121,7 @@ app.use(session({
   }
 }));
 
-// ---------------- Cloudinary Upload ----------------
+
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -138,9 +138,6 @@ const storage = new CloudinaryStorage({
 });
 
 const upload = multer({ storage });
-
-// ---------------- Helper: Invoice PDF Generator ----------------
-
 function generateInvoicePDF(data) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 40 });
@@ -150,75 +147,91 @@ function generateInvoicePDF(data) {
     doc.on("end", () => resolve(Buffer.concat(buffers)));
     doc.on("error", reject);
 
-    // Header Title
-    doc.fontSize(22).fillColor("#2563EB").text("ACAI SHOP", { align: "center" });
-    doc.fontSize(10).fillColor("#64748B").text("Official Purchase Invoice", { align: "center" });
-    doc.moveDown(1.5);
+    
+    const logoUrl = "https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg"; 
+    
+    
+    doc.fontSize(24).fillColor("#7C3AED").font("Helvetica-Bold").text("Açaí", { align: "center" });
+    doc.fontSize(10).fillColor("#64748B").font("Helvetica").text("Official Purchase Invoice & Voucher", { align: "center" });
+    doc.moveDown(1.2);
 
-    // Order Info Details
-    doc.fontSize(10).fillColor("#0F172A");
-    doc.text(`Invoice ID: #INV-${data.orderId}`);
-   doc.text(`Date & Time: ${new Date().toLocaleString('en-GB', { timeZone: 'Asia/Yangon' })}`);
+   
+    doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#E2E8F0").stroke();
+    doc.moveDown(1);
+
+    
+    doc.fontSize(10).fillColor("#0F172A").font("Helvetica-Bold");
+    doc.text(`Invoice ID: #INV-${data.orderId}`, { continued: true });
+    doc.text(`Date: ${data.date || new Date().toLocaleString('en-GB', { timeZone: 'Asia/Yangon' })}`, { align: "right" });
+    
+    doc.font("Helvetica").fontSize(10);
     doc.text(`Customer Name: ${data.name}`);
     doc.text(`Email: ${data.userEmail}`);
     doc.text(`Phone: ${data.phone}`);
-    doc.text(`Address: ${data.fullAddress}`);
+    doc.text(`Shipping Address: ${data.fullAddress}`);
     doc.text(`Payment Method: ${data.payment_method}`);
-    doc.moveDown(1);
+    doc.moveDown(1.5);
 
-    // Table Header
+    
     const tableTop = doc.y;
-    doc.fontSize(10).fillColor("#1E293B").font("Helvetica-Bold");
-    doc.text("Item Name", 40, tableTop);
+    doc.fontSize(10).fillColor("#FFFFFF");
+    
+   
+    doc.rect(40, tableTop - 4, 510, 20).fill("#7C3AED");
+    
+    doc.fillColor("#FFFFFF").font("Helvetica-Bold");
+    doc.text("Item Name", 48, tableTop);
     doc.text("Qty", 320, tableTop, { width: 40, align: "center" });
     doc.text("Price (MMK)", 370, tableTop, { width: 90, align: "right" });
-    doc.text("Total (MMK)", 460, tableTop, { width: 90, align: "right" });
-    doc.moveDown(0.5);
+    doc.text("Total (MMK)", 460, tableTop, { width: 80, align: "right" });
+    doc.moveDown(1.5);
 
-    doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#CBD5E1").stroke();
-    doc.moveDown(0.5);
-
-    // Items List
+   
     doc.font("Helvetica").fontSize(9).fillColor("#334155");
     let subtotal = 0;
     
-    data.cart.forEach((item) => {
+    data.cart.forEach((item, index) => {
       const itemTotal = Number(item.price) * Number(item.qty);
       subtotal += itemTotal;
       const y = doc.y;
 
-      doc.text(item.name, 40, y, { width: 270 });
+      
+      if (index % 2 === 0) {
+        doc.rect(40, y - 2, 510, 16).fill("#F8FAFC");
+        doc.fillColor("#334155");
+      }
+
+      doc.text(item.name, 48, y, { width: 260 });
       doc.text(String(item.qty), 320, y, { width: 40, align: "center" });
       doc.text(Number(item.price).toLocaleString(), 370, y, { width: 90, align: "right" });
-      doc.text(itemTotal.toLocaleString(), 460, y, { width: 90, align: "right" });
-      doc.moveDown(0.8);
+      doc.text(itemTotal.toLocaleString(), 460, y, { width: 80, align: "right" });
+      doc.moveDown(1);
     });
 
-    doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#E2E8F0").stroke();
+    doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#CBD5E1").stroke();
     doc.moveDown(1);
 
-    // Summary
+   
     doc.fontSize(10).font("Helvetica").fillColor("#0F172A");
     doc.text(`Subtotal: ${subtotal.toLocaleString()} MMK`, { align: "right" });
     doc.text(`Delivery Fee: ${Number(data.deliveryFee).toLocaleString()} MMK`, { align: "right" });
-    doc.moveDown(0.3);
-    doc.fontSize(12).font("Helvetica-Bold").fillColor("#2563EB");
+    doc.moveDown(0.4);
+    
+    doc.fontSize(12).font("Helvetica-Bold").fillColor("#7C3AED");
     doc.text(`Grand Total: ${Number(data.total).toLocaleString()} MMK`, { align: "right" });
-    doc.moveDown(2);
+    doc.moveDown(2.5);
 
-    // Footer
-    doc.fontSize(9).font("Helvetica").fillColor("#94A3B8").text("Thank you for shopping with Acai Shop!", { align: "center" });
+    // Footer Note
+    doc.fontSize(9).font("Helvetica-Bold").fillColor("#475569").text("Thank you for shopping with Açaí Shop!", { align: "center" });
+    doc.fontSize(8).fillColor("#94A3B8").text("If you have any questions regarding your order, please contact our support.", { align: "center" });
 
     doc.end();
   });
 }
 
-// ---------------- Stores ----------------
-
 const otpStore = {};
 const resetOtpStore = {};
 
-// ---------------- Auth ----------------
 
 function auth(req, res, next) {
   if (!req.session.userId) {
@@ -241,7 +254,7 @@ function adminAuth(req, res, next) {
 
   next();
 }
-// ---------------- Register OTP ----------------
+
 
 app.post("/send-otp", (req, res) => {
   const email = (req.body.email || "").trim().toLowerCase();
@@ -357,7 +370,7 @@ app.post("/send-otp", (req, res) => {
     }
   );
 });
-// ---------------- Verify OTP ----------------
+
 
 app.post("/verify-otp", (req, res) => {
   const email = (req.body.email || "").trim().toLowerCase();
@@ -383,7 +396,7 @@ app.post("/verify-otp", (req, res) => {
   });
 });
 
-// ---------------- Register ----------------
+
 
 app.post("/register", async (req, res) => {
   const username = (req.body.username || "").trim();
@@ -443,8 +456,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// ---------------- Forgot Password ----------------
-// ---------------- Forgot Password ----------------
+
 
 app.post("/forgot-password", (req, res) => {
   const email = (req.body.email || "").trim().toLowerCase();
@@ -560,7 +572,7 @@ app.post("/forgot-password", (req, res) => {
     }
   );
 });
-// ---------------- Reset Password ----------------
+
 
 app.post("/reset-password", async (req, res) => {
   const email = (req.body.email || "").trim().toLowerCase();
@@ -648,7 +660,7 @@ app.post("/reset-password", async (req, res) => {
   }
 });
 
-// ---------------- Login ----------------
+
 
 app.post("/login", (req, res) => {
   const email = (req.body.email || "").trim().toLowerCase();
@@ -684,7 +696,7 @@ app.post("/login", (req, res) => {
   );
 });
 
-// ---------------- Current User ----------------
+
 
 app.get("/me", auth, (req, res) => {
   db.get(
@@ -706,7 +718,7 @@ app.get("/me", auth, (req, res) => {
   );
 });
 
-// ---------------- Logout ----------------
+
 
 app.post("/logout", (req, res) => {
   req.session.destroy(() => {
@@ -716,7 +728,6 @@ app.post("/logout", (req, res) => {
   });
 });
 
-// ---------------- Products ----------------
 
 app.get("/products", (req, res) => {
   db.all(
@@ -765,7 +776,7 @@ app.post("/add-product", adminAuth, (req, res) => {
   });
 });
 
-// ---------------- Update Product ----------------
+
 
 app.put("/update-product/:id", adminAuth, async (req, res) => {
   try {
@@ -818,7 +829,7 @@ app.put("/update-product/:id", adminAuth, async (req, res) => {
   }
 });
 
-// ---------------- Delete Product ----------------
+
 
 app.delete("/delete-product/:id", adminAuth, async (req, res) => {
   try {
@@ -855,7 +866,7 @@ app.delete("/delete-product/:id", adminAuth, async (req, res) => {
   }
 });
 
-// ---------------- Profile ----------------
+
 
 app.get("/profile", auth, (req, res) => {
   db.get(
@@ -895,7 +906,7 @@ app.put("/profile", auth, (req, res) => {
   );
 });
 
-// ---------------- Checkout & Auto Invoice Email ----------------
+
 
 app.post("/place-order", auth, async (req, res) => {
   try {
@@ -946,7 +957,7 @@ app.post("/place-order", auth, async (req, res) => {
 
     const userEmail = userResult.rows[0].email;
 
-    // Stock Checking
+  
     for (const item of cart) {
       const p = await tursoClient.execute({
         sql: "SELECT stock FROM products WHERE name=?",
@@ -961,7 +972,7 @@ app.post("/place-order", auth, async (req, res) => {
       }
     }
 
-    // Insert Order
+   
     const insert = await tursoClient.execute({
       sql: `INSERT INTO orders(
         customer,email,phone,telegram,alt_social,address,
@@ -990,7 +1001,7 @@ app.post("/place-order", auth, async (req, res) => {
 
     const orderId = Number(insert.lastInsertRowid);
 
-    // Update Product Stocks
+    
     for (const item of cart) {
       await tursoClient.execute({
         sql: "UPDATE products SET stock=stock-? WHERE name=?",
@@ -998,7 +1009,7 @@ app.post("/place-order", auth, async (req, res) => {
       });
     }
 
-    // 📧 Auto Generate Invoice PDF and Send Email via Resend
+    
     try {
       const pdfBuffer = await generateInvoicePDF({
         orderId,
@@ -1038,7 +1049,7 @@ app.post("/place-order", auth, async (req, res) => {
       });
     } catch (emailError) {
       console.error("INVOICE EMAIL ERROR:", emailError);
-      // Order တင်တာ အောင်မြင်သဖြင့် Email မရောက်လျှင်လည်း Order ကို Success ပြပေးပါသည်
+    
     }
 
     res.json({
@@ -1055,7 +1066,7 @@ app.post("/place-order", auth, async (req, res) => {
   }
 });
 
-// ---------------- My Orders ----------------
+
 
 app.get("/my-orders", auth, (req, res) => {
   db.get(
@@ -1079,7 +1090,7 @@ app.get("/my-orders", auth, (req, res) => {
   );
 });
 
-// ---------------- Admin Orders ----------------
+
 
 app.get("/admin/orders", adminAuth, (req, res) => {
   db.all(
@@ -1106,13 +1117,13 @@ app.get("/admin/orders/:id", adminAuth, (req, res) => {
     }
   );
 });
-// ---------------- Admin Download Order PDF ----------------
+
 
 app.get("/admin/orders/:id/pdf", adminAuth, async (req, res) => {
   try {
     const orderId = req.params.id;
 
-    // Database မှ Order အချက်အလက် ဆွဲထုတ်ခြင်း
+
     const orderRow = await db.get("SELECT * FROM orders WHERE id=?", [orderId]);
 
     if (!orderRow) {
@@ -1126,7 +1137,6 @@ app.get("/admin/orders/:id/pdf", adminAuth, async (req, res) => {
       cartItems = [];
     }
 
-    // PDF တွင်ပြသမည့် အချက်အလက်များကို ပြင်ဆင်ခြင်း
     const pdfBuffer = await generateInvoicePDF({
       orderId: orderRow.id,
       date: orderRow.created_at,
@@ -1140,7 +1150,7 @@ app.get("/admin/orders/:id/pdf", adminAuth, async (req, res) => {
       payment_method: orderRow.payment_method || "COD"
     });
 
-    // Browser သို့ PDF Stream ပြန်ပို့ပေးခြင်း
+
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=Voucher_Order_${orderRow.id}.pdf`);
     res.send(pdfBuffer);
@@ -1189,7 +1199,7 @@ app.delete("/admin/orders/:id", adminAuth, (req, res) => {
   );
 });
 
-// ---------------- Customers ----------------
+
 
 app.get("/admin/customers", adminAuth, (req, res) => {
   db.all(
@@ -1213,7 +1223,7 @@ app.delete("/admin/customers/:id", adminAuth, (req, res) => {
   );
 });
 
-// ---------------- Dashboard ----------------
+
 
 app.get("/admin/dashboard", adminAuth, async (req, res) => {
   try {
@@ -1292,7 +1302,7 @@ app.get("/admin/dashboard", adminAuth, async (req, res) => {
   }
 });
 
-// ---------------- Revenue ----------------
+
 
 app.get("/admin/revenue", adminAuth, (req, res) => {
   db.all(
@@ -1310,7 +1320,7 @@ app.get("/admin/revenue", adminAuth, (req, res) => {
   );
 });
 
-// ---------------- Pending Orders ----------------
+
 
 app.get("/admin/new-orders", adminAuth, (req, res) => {
   db.get(
@@ -1324,7 +1334,7 @@ app.get("/admin/new-orders", adminAuth, (req, res) => {
   );
 });
 
-// ---------------- Admin Login ----------------
+
 
 app.post("/admin-login", (req, res) => {
   const { username, password } = req.body;
@@ -1358,7 +1368,6 @@ app.post("/admin-logout", (req, res) => {
   });
 });
 
-// ---------------- Start ----------------
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
