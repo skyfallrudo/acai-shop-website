@@ -9,23 +9,47 @@ const multer = require("multer");
 const path = require("path");
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const PdfPrinter = require('pdfmake');
 
+// pdfmake compatibility for both 0.2.x and 0.3.x
+const pdfmake = require('pdfmake');
+
+const PdfPrinter = typeof pdfmake === 'function'
+  ? pdfmake
+  : (pdfmake?.PdfPrinter || pdfmake?.default || null);
 
 const fonts = {
   Pyidaungsu: {
     normal: path.join(__dirname, 'fonts/Pyidaungsu-2.5.3_Regular.ttf'),
     bold: path.join(__dirname, 'fonts/Pyidaungsu-2.5.3_Regular.ttf'),
+    italics: path.join(__dirname, 'fonts/Pyidaungsu-2.5.3_Regular.ttf'),
+    bolditalics: path.join(__dirname, 'fonts/Pyidaungsu-2.5.3_Regular.ttf')
   }
 };
-const printer = new PdfPrinter(fonts);
+
+let printer = null;
+
+if (typeof PdfPrinter === 'function') {
+  printer = new PdfPrinter(fonts);
+}
+
+if (pdfmake && typeof pdfmake.addFonts === 'function') {
+  pdfmake.addFonts(fonts);
+}
+
+if (!printer && (!pdfmake || typeof pdfmake.createPdf !== 'function')) {
+  throw new Error(
+    'Unsupported pdfmake installation. Please use pdfmake 0.2.x or 0.3.x.'
+  );
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Temporary OTP stores
+const otpStore = Object.create(null);
+const resetOtpStore = Object.create(null);
+
 app.set("trust proxy", 1);
-
-
 
 const tursoClient = createClient({
   url: process.env.TURSO_DATABASE_URL,
@@ -34,254 +58,761 @@ const tursoClient = createClient({
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-
-
 const db = {
+
   get: (sql, params = [], callback) => {
+
     if (typeof params === "function") {
       callback = params;
       params = [];
     }
 
-    if (!Array.isArray(params)) params = [params];
+    if (!Array.isArray(params)) {
+      params = [params];
+    }
 
-    return tursoClient.execute({ sql, args: params })
+    return tursoClient.execute({
+      sql,
+      args: params
+    })
       .then(r => {
-        const row = r.rows[0] ? { ...r.rows[0] } : null;
-        callback && callback(null, row);
+
+        const row = r.rows[0]
+          ? { ...r.rows[0] }
+          : null;
+
+        if (callback) {
+          callback(null, row);
+        }
+
         return row;
       })
       .catch(err => {
+
         console.log(err);
-        callback && callback(err);
+
+        if (callback) {
+          callback(err);
+        }
+
+        return null;
       });
   },
 
   all: (sql, params = [], callback) => {
+
     if (typeof params === "function") {
       callback = params;
       params = [];
     }
 
-    if (!Array.isArray(params)) params = [params];
+    if (!Array.isArray(params)) {
+      params = [params];
+    }
 
-    return tursoClient.execute({ sql, args: params })
+    return tursoClient.execute({
+      sql,
+      args: params
+    })
       .then(r => {
-        const rows = r.rows.map(x => ({ ...x }));
-        callback && callback(null, rows);
+
+        const rows = r.rows.map(x => ({
+          ...x
+        }));
+
+        if (callback) {
+          callback(null, rows);
+        }
+
         return rows;
       })
       .catch(err => {
+
         console.log(err);
-        callback && callback(err, []);
+
+        if (callback) {
+          callback(err, []);
+        }
+
+        return [];
       });
   },
 
   run: (sql, params = [], callback) => {
+
     if (typeof params === "function") {
       callback = params;
       params = [];
     }
 
-    if (!Array.isArray(params)) params = [params];
+    if (!Array.isArray(params)) {
+      params = [params];
+    }
 
-    return tursoClient.execute({ sql, args: params })
+    return tursoClient.execute({
+      sql,
+      args: params
+    })
       .then(r => {
+
         const info = {
           lastID: Number(r.lastInsertRowid),
           changes: Number(r.rowsAffected)
         };
 
-        callback && callback.call(info, null);
+        if (callback) {
+          callback.call(info, null);
+        }
 
         return info;
       })
       .catch(err => {
+
         console.log(err);
-        callback && callback(err);
+
+        if (callback) {
+          callback(err);
+        }
+
+        return null;
       });
   },
 
   exec: (sql, callback) => {
+
     return tursoClient.executeMultiple(sql)
-      .then(() => callback && callback(null))
+      .then(() => {
+
+        if (callback) {
+          callback(null);
+        }
+
+      })
       .catch(err => {
+
         console.log(err);
-        callback && callback(err);
+
+        if (callback) {
+          callback(err);
+        }
+
       });
   }
+
 };
 
-
-
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({
+  extended: true
+}));
+
 app.use(express.static(__dirname));
 
 app.use(session({
+
   secret: process.env.SESSION_SECRET || "acai-shop-secret",
+
   resave: false,
+
   saveUninitialized: false,
+
   cookie: {
+
     httpOnly: true,
+
     secure: process.env.NODE_ENV === "production",
+
     sameSite: "lax",
+
     maxAge: 1000 * 60 * 60 * 24
+
   }
+
 }));
 
-
-
 cloudinary.config({
+
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+
   api_key: process.env.CLOUDINARY_API_KEY,
+
   api_secret: process.env.CLOUDINARY_API_SECRET
+
 });
 
 const storage = new CloudinaryStorage({
+
   cloudinary: cloudinary,
+
   params: {
-    folder: 'acai-shop-products',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp']
+
+    folder: "acai-shop-products",
+
+    allowed_formats: [
+      "jpg",
+      "png",
+      "jpeg",
+      "webp"
+    ]
+
   }
+
 });
 
-const upload = multer({ storage });
-function generateInvoicePDF(data) {
-  return new Promise((resolve, reject) => {
-    const docDefinition = {
-      content: [
-        { text: 'Açaí', fontSize: 24, bold: true, color: '#818CF8', alignment: 'center' },
-        { text: 'Official Purchase Invoice & Voucher', fontSize: 9, color: '#64748B', alignment: 'center', margin: [0, 0, 0, 15] },
-        
-        { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1, lineColor: '#E2E8F0' }], margin: [0, 0, 0, 10] },
+const upload = multer({
+  storage
+});
 
-        {
-          columns: [
-            { text: `Invoice ID: #INV-${data.orderId}`, bold: true, fontSize: 10, color: '#1E293B' },
-            { text: `Date & Time: ${data.date || new Date().toLocaleString('en-GB', { timeZone: 'Asia/Yangon' })}`, alignment: 'right', fontSize: 10, color: '#1E293B' }
-          ],
-          margin: [0, 0, 0, 10]
-        },
 
-        { text: `Customer Name: ${data.name}`, fontSize: 10, margin: [0, 2, 0, 2] },
-        { text: `Email: ${data.userEmail}`, fontSize: 10, margin: [0, 2, 0, 2] },
-        { text: `Phone: ${data.phone}`, fontSize: 10, margin: [0, 2, 0, 2] },
-        { text: `Shipping Address: ${data.fullAddress}`, fontSize: 10, margin: [0, 2, 0, 2] },
-        { text: `Payment Method: ${data.payment_method}`, fontSize: 10, margin: [0, 2, 0, 15] },
+async function generateInvoicePDF(data) {
 
-        {
-          table: {
-            headerRows: 1,
-            widths: ['*', 40, 90, 90],
-            body: [
-              [
-                { text: 'Item Name', fillColor: '#818CF8', color: '#FFFFFF', bold: true, fontSize: 10 },
-                { text: 'Qty', fillColor: '#818CF8', color: '#FFFFFF', bold: true, fontSize: 10, alignment: 'center' },
-                { text: 'Price (MMK)', fillColor: '#818CF8', color: '#FFFFFF', bold: true, fontSize: 10, alignment: 'right' },
-                { text: 'Total (MMK)', fillColor: '#818CF8', color: '#FFFFFF', bold: true, fontSize: 10, alignment: 'right' }
-              ],
-              ...(data.cart || []).map(item => [
-                { text: item.name, fontSize: 9 },
-                { text: String(item.qty), fontSize: 9, alignment: 'center' },
-                { text: Number(item.price).toLocaleString(), fontSize: 9, alignment: 'right' },
-                { text: (Number(item.price) * Number(item.qty)).toLocaleString(), fontSize: 9, alignment: 'right' }
-              ])
-            ]
+  const safeNumber = value => {
+
+    const n = Number(value);
+
+    return Number.isFinite(n)
+      ? n
+      : 0;
+
+  };
+
+  const safeText = value => {
+
+    if (
+      value === undefined ||
+      value === null
+    ) {
+      return "";
+    }
+
+    return String(value);
+
+  };
+
+  const cart = Array.isArray(data.cart)
+    ? data.cart
+    : [];
+
+  const subtotal = cart.reduce(
+    (sum, item) => {
+
+      return sum +
+        safeNumber(item.price) *
+        Math.max(
+          0,
+          safeNumber(item.qty)
+        );
+
+    },
+    0
+  );
+
+
+  const docDefinition = {
+
+    content: [
+
+      {
+        text: "Açaí",
+        fontSize: 24,
+        bold: true,
+        color: "#818CF8",
+        alignment: "center"
+      },
+
+      {
+        text: "Official Purchase Invoice & Voucher",
+        fontSize: 9,
+        color: "#64748B",
+        alignment: "center",
+        margin: [0, 0, 0, 15]
+      },
+
+      {
+        canvas: [
+          {
+            type: "line",
+            x1: 0,
+            y1: 0,
+            x2: 515,
+            y2: 0,
+            lineWidth: 1,
+            lineColor: "#E2E8F0"
+          }
+        ],
+        margin: [0, 0, 0, 10]
+      },
+
+      {
+
+        columns: [
+
+          {
+            text:
+              `Invoice ID: #INV-${safeText(data.orderId)}`,
+            bold: true,
+            fontSize: 10,
+            color: "#1E293B"
           },
-          layout: 'lightHorizontalLines',
-          margin: [0, 0, 0, 15]
+
+          {
+            text:
+              `Date & Time: ${
+                safeText(data.date) ||
+                new Date().toLocaleString(
+                  "en-GB",
+                  {
+                    timeZone: "Asia/Yangon"
+                  }
+                )
+              }`,
+            alignment: "right",
+            fontSize: 10,
+            color: "#1E293B"
+          }
+
+        ],
+
+        margin: [0, 0, 0, 10]
+
+      },
+
+      {
+        text:
+          `Customer Name: ${safeText(data.name)}`,
+        fontSize: 10,
+        margin: [0, 2, 0, 2]
+      },
+
+      {
+        text:
+          `Email: ${safeText(data.userEmail)}`,
+        fontSize: 10,
+        margin: [0, 2, 0, 2]
+      },
+
+      {
+        text:
+          `Phone: ${safeText(data.phone)}`,
+        fontSize: 10,
+        margin: [0, 2, 0, 2]
+      },
+
+      {
+        text:
+          `Shipping Address: ${safeText(data.fullAddress)}`,
+        fontSize: 10,
+        margin: [0, 2, 0, 2]
+      },
+
+      {
+        text:
+          `Payment Method: ${
+            safeText(data.payment_method) || "COD"
+          }`,
+        fontSize: 10,
+        margin: [0, 2, 0, 15]
+      },
+
+      {
+
+        table: {
+
+          headerRows: 1,
+
+          widths: [
+            "*",
+            40,
+            90,
+            90
+          ],
+
+          body: [
+
+            [
+
+              {
+                text: "Item Name",
+                fillColor: "#818CF8",
+                color: "#FFFFFF",
+                bold: true,
+                fontSize: 10
+              },
+
+              {
+                text: "Qty",
+                fillColor: "#818CF8",
+                color: "#FFFFFF",
+                bold: true,
+                fontSize: 10,
+                alignment: "center"
+              },
+
+              {
+                text: "Price (MMK)",
+                fillColor: "#818CF8",
+                color: "#FFFFFF",
+                bold: true,
+                fontSize: 10,
+                alignment: "right"
+              },
+
+              {
+                text: "Total (MMK)",
+                fillColor: "#818CF8",
+                color: "#FFFFFF",
+                bold: true,
+                fontSize: 10,
+                alignment: "right"
+              }
+
+            ],
+
+            ...cart.map(item => {
+
+              const price =
+                safeNumber(item.price);
+
+              const qty =
+                Math.max(
+                  0,
+                  safeNumber(item.qty)
+                );
+
+              return [
+
+                {
+                  text: safeText(item.name),
+                  fontSize: 9
+                },
+
+                {
+                  text: String(qty),
+                  fontSize: 9,
+                  alignment: "center"
+                },
+
+                {
+                  text: price.toLocaleString(),
+                  fontSize: 9,
+                  alignment: "right"
+                },
+
+                {
+                  text:
+                    (price * qty)
+                      .toLocaleString(),
+                  fontSize: 9,
+                  alignment: "right"
+                }
+
+              ];
+
+            })
+
+          ]
+
         },
 
-        { text: `Subtotal: ${(data.cart || []).reduce((acc, item) => acc + (Number(item.price) * Number(item.qty)), 0).toLocaleString()} MMK`, alignment: 'right', fontSize: 10, margin: [0, 2, 0, 2] },
-        { text: `Delivery Fee: ${Number(data.deliveryFee).toLocaleString()} MMK`, alignment: 'right', fontSize: 10, margin: [0, 2, 0, 5] },
-        { text: `Grand Total: ${Number(data.total).toLocaleString()} MMK`, alignment: 'right', fontSize: 12, bold: true, color: '#818CF8', margin: [0, 2, 0, 20] },
+        layout: "lightHorizontalLines",
 
-        { text: 'Thank you for shopping with Açaí Shop!', alignment: 'center', bold: true, fontSize: 9, color: '#475569', margin: [0, 10, 0, 2] },
-        { text: 'If you have any questions regarding your order, please contact our support.', alignment: 'center', fontSize: 8, color: '#94A3B8' }
-      ],
-      defaultStyle: {
-        font: 'Pyidaungsu'
+        margin: [0, 0, 0, 15]
+
+      },
+
+      {
+        text:
+          `Subtotal: ${subtotal.toLocaleString()} MMK`,
+        alignment: "right",
+        fontSize: 10,
+        margin: [0, 2, 0, 2]
+      },
+
+      {
+        text:
+          `Delivery Fee: ${
+            safeNumber(data.deliveryFee)
+              .toLocaleString()
+          } MMK`,
+        alignment: "right",
+        fontSize: 10,
+        margin: [0, 2, 0, 5]
+      },
+
+      {
+        text:
+          `Grand Total: ${
+            safeNumber(data.total)
+              .toLocaleString()
+          } MMK`,
+        alignment: "right",
+        fontSize: 12,
+        bold: true,
+        color: "#818CF8",
+        margin: [0, 2, 0, 20]
+      },
+
+      {
+        text:
+          "Thank you for shopping with Açaí Shop!",
+        alignment: "center",
+        bold: true,
+        fontSize: 9,
+        color: "#475569",
+        margin: [0, 10, 0, 2]
+      },
+
+      {
+        text:
+          "If you have any questions regarding your order, please contact our support.",
+        alignment: "center",
+        fontSize: 8,
+        color: "#94A3B8"
       }
-    };
 
-    const pdfDoc = printer.createPdfKitDocument(docDefinition);
-    const chunks = [];
+    ],
 
-    pdfDoc.on('data', chunk => chunks.push(chunk));
-    pdfDoc.on('end', () => resolve(Buffer.concat(chunks)));
-    pdfDoc.on('error', reject);
-    pdfDoc.end();
-  });
+    defaultStyle: {
+      font: "Pyidaungsu"
+    }
+
+  };
+
+
+  // pdfmake 0.3.x
+  if (
+    pdfmake &&
+    typeof pdfmake.createPdf === "function"
+  ) {
+
+    const pdf =
+      pdfmake.createPdf(docDefinition);
+
+    if (
+      typeof pdf.getBuffer === "function"
+    ) {
+
+      return await pdf.getBuffer();
+
+    }
+
+    if (
+      typeof pdf.getStream === "function"
+    ) {
+
+      const stream =
+        await pdf.getStream();
+
+      const chunks = [];
+
+      return await new Promise(
+        (resolve, reject) => {
+
+          stream.on(
+            "data",
+            chunk => chunks.push(chunk)
+          );
+
+          stream.on(
+            "end",
+            () =>
+              resolve(
+                Buffer.concat(chunks)
+              )
+          );
+
+          stream.on(
+            "error",
+            reject
+          );
+
+        }
+      );
+
+    }
+
+  }
+
+
+  // pdfmake 0.2.x fallback
+  if (
+    printer &&
+    typeof printer.createPdfKitDocument === "function"
+  ) {
+
+    return await new Promise(
+      (resolve, reject) => {
+
+        let pdfDoc;
+
+        try {
+
+          pdfDoc =
+            printer.createPdfKitDocument(
+              docDefinition
+            );
+
+        } catch (error) {
+
+          return reject(error);
+
+        }
+
+        const chunks = [];
+
+        pdfDoc.on(
+          "data",
+          chunk => chunks.push(chunk)
+        );
+
+        pdfDoc.on(
+          "end",
+          () =>
+            resolve(
+              Buffer.concat(chunks)
+            )
+        );
+
+        pdfDoc.on(
+          "error",
+          reject
+        );
+
+        pdfDoc.end();
+
+      }
+    );
+
+  }
+
+
+  throw new Error(
+    "No supported pdfmake PDF API found."
+  );
+
 }
+
 
 function auth(req, res, next) {
+
   if (!req.session.userId) {
+
     return res.status(401).json({
+
       success: false,
+
       message: "Login required"
+
     });
-  }
-  next();
-}
-function adminAuth(req, res, next) {
-  if (!req.session.admin) {
-    return res.status(401).json({
-      success: false,
-      message: "Admin login required"
-    });
+
   }
 
   next();
+
+}
+
+
+function adminAuth(req, res, next) {
+
+  if (!req.session.admin) {
+
+    return res.status(401).json({
+
+      success: false,
+
+      message: "Admin login required"
+
+    });
+
+  }
+
+  next();
+
 }
 
 
 app.post("/send-otp", (req, res) => {
-  const email = (req.body.email || "").trim().toLowerCase();
+
+  const email =
+    (req.body.email || "")
+      .trim()
+      .toLowerCase();
 
   if (!email) {
+
     return res.json({
+
       success: false,
+
       message: "Email is required."
+
     });
+
   }
 
   db.get(
+
     "SELECT id FROM customers WHERE LOWER(email)=LOWER(?)",
+
     [email],
+
     async (err, user) => {
 
       if (err) {
+
         return res.json({
+
           success: false,
+
           message: "Database error."
+
         });
+
       }
 
       if (user) {
+
         return res.json({
+
           success: false,
-          message: "Email already exists. Please Sign In."
+
+          message:
+            "Email already exists. Please Sign In."
+
         });
+
       }
 
-      const otp = Math.floor(
-        100000 + Math.random() * 900000
-      ).toString();
+      const otp =
+        Math.floor(
+          100000 +
+          Math.random() * 900000
+        ).toString();
 
       otpStore[email] = otp;
 
       setTimeout(() => {
+
         if (otpStore[email] === otp) {
+
           delete otpStore[email];
+
         }
+
       }, 5 * 60 * 1000);
 
       try {
+
         await resend.emails.send({
-          from: "Acai Shop <support@acaishopmm.store>",
+
+          from:
+            "Acai Shop <support@acaishopmm.store>",
+
           to: email,
-          subject: "Verify your Acai Shop account",
+
+          subject:
+            "Verify your Acai Shop account",
+
           html: `
 <!DOCTYPE html>
 <html>
@@ -289,201 +820,432 @@ app.post("/send-otp", (req, res) => {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
+
 <body style="margin:0;padding:0;background-color:#0b1220;font-family:Arial,sans-serif;">
-<table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#0b1220;padding:30px 10px;">
-  <tr>
-    <td align="center">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:420px;background-color:#111827;border-radius:24px;padding:30px 20px;text-align:center;border:1px solid rgba(255,255,255,0.15);">
-        <tr>
-          <td align="center">
-            <!-- Logo -->
-            <table border="0" cellspacing="0" cellpadding="0">
-              <tr>
-                <td style="width:80px;height:80px;border-radius:50%;background-color:#ffffff;border:4px solid #E8ECFF;overflow:hidden;" align="center" valign="middle">
-                  <img src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/refs/heads/main/logo.jpg.jpg" width="80" height="80" style="display:block;border-radius:50%;object-fit:cover;" alt="Acai Shop">
-                </td>
-              </tr>
-            </table>
 
-            <h1 style="margin:16px 0 0 0;color:#ffffff;font-size:28px;font-weight:bold;">Acai Shop</h1>
-            <p style="color:#CBD5E1;font-size:15px;margin:8px 0 24px 0;">Verify your email address</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0"
+style="background-color:#0b1220;padding:30px 10px;">
 
-            <!-- OTP Box -->
-            <div style="background-color:#1F2937;border:2px solid #3B82F6;border-radius:18px;padding:20px;margin-bottom:24px;">
-              <div style="font-size:12px;letter-spacing:3px;color:#6C8CFF;margin-bottom:8px;font-weight:bold;">VERIFICATION CODE</div>
-              <div style="font-size:42px;font-weight:800;letter-spacing:8px;color:#ffffff;line-height:1;">${otp}</div>
-            </div>
+<tr>
+<td align="center">
 
-            <p style="color:#CBD5E1;font-size:15px;line-height:1.5;margin:0 0 20px 0;">Enter this code in <b style="color:#ffffff;">Acai Shop</b> to finish creating your account.</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0"
+style="max-width:420px;background-color:#111827;border-radius:24px;padding:30px 20px;text-align:center;border:1px solid rgba(255,255,255,0.15);">
 
-            <!-- Expire Badge -->
-            <div style="display:inline-block;background-color:#1E3A8A;border-radius:99px;padding:10px 20px;font-size:14px;color:#FDE68A;font-weight:bold;">
-              ⏱ Expires in 5 minutes
-            </div>
+<tr>
+<td align="center">
 
-            <p style="color:#64748B;font-size:11px;line-height:1.4;margin:24px 0 0 0;">If you did not request this code, you can safely ignore this email.</p>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
+<table border="0" cellspacing="0" cellpadding="0">
+
+<tr>
+
+<td style="width:80px;height:80px;border-radius:50%;background-color:#ffffff;border:4px solid #E8ECFF;overflow:hidden;"
+align="center"
+valign="middle">
+
+<img
+src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/refs/heads/main/logo.jpg.jpg"
+width="80"
+height="80"
+style="display:block;border-radius:50%;object-fit:cover;"
+alt="Acai Shop">
+
+</td>
+
+</tr>
+
 </table>
+
+<h1 style="margin:16px 0 0 0;color:#ffffff;font-size:28px;font-weight:bold;">
+Acai Shop
+</h1>
+
+<p style="color:#CBD5E1;font-size:15px;margin:8px 0 24px 0;">
+Verify your email address
+</p>
+
+<div style="background-color:#1F2937;border:2px solid #3B82F6;border-radius:18px;padding:20px;margin-bottom:24px;">
+
+<div style="font-size:12px;letter-spacing:3px;color:#6C8CFF;margin-bottom:8px;font-weight:bold;">
+VERIFICATION CODE
+</div>
+
+<div style="font-size:42px;font-weight:800;letter-spacing:8px;color:#ffffff;line-height:1;">
+${otp}
+</div>
+
+</div>
+
+<p style="color:#CBD5E1;font-size:15px;line-height:1.5;margin:0 0 20px 0;">
+Enter this code in
+<b style="color:#ffffff;">Acai Shop</b>
+to finish creating your account.
+</p>
+
+<div style="display:inline-block;background-color:#1E3A8A;border-radius:99px;padding:10px 20px;font-size:14px;color:#FDE68A;font-weight:bold;">
+⏱ Expires in 5 minutes
+</div>
+
+<p style="color:#64748B;font-size:11px;line-height:1.4;margin:24px 0 0 0;">
+If you did not request this code, you can safely ignore this email.
+</p>
+
+</td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+
+</table>
+
 </body>
-</html>`
+</html>
+`
+
         });
 
         res.json({
+
           success: true,
-          message: "Verification code sent."
+
+          message:
+            "Verification code sent."
+
         });
 
       } catch (error) {
+
         if (otpStore[email] === otp) {
+
           delete otpStore[email];
+
         }
 
-        res.json({
+        console.error(
+          "SEND OTP ERROR:",
+          error
+        );
+
+        return res.status(500).json({
+
           success: false,
-          message: "Failed to send verification code."
+
+          message:
+            "Failed to send verification email."
+
         });
+
       }
+
     }
+
   );
+
 });
 
 
 app.post("/verify-otp", (req, res) => {
-  const email = (req.body.email || "").trim().toLowerCase();
-  const otp = (req.body.otp || "").trim();
 
-  if (!email || !otp) {
+  const email =
+    (req.body.email || "")
+      .trim()
+      .toLowerCase();
+
+  const otp =
+    (req.body.otp || "")
+      .trim();
+
+  if (
+    !email ||
+    !otp
+  ) {
+
     return res.json({
+
       success: false,
-      message: "Please enter the verification code."
+
+      message:
+        "Email and OTP are required."
+
     });
+
   }
 
-  if (otpStore[email] && otpStore[email] === otp) {
+  if (
+    otpStore[email] &&
+    otpStore[email] === otp
+  ) {
+
     return res.json({
+
       success: true,
-      message: "OTP verified."
+
+      message:
+        "OTP verified."
+
     });
+
   }
 
-  res.json({
-    success: false,
-    message: "Wrong or expired OTP."
-  });
-});
+  return res.json({
 
+    success: false,
+
+    message:
+      "Invalid or expired OTP."
+
+  });
+
+});
 
 
 app.post("/register", async (req, res) => {
-  const username = (req.body.username || "").trim();
-  const email = (req.body.email || "").trim().toLowerCase();
-  const password = req.body.password || "";
-  const otp = (req.body.otp || "").trim();
-
-  if (!email || !password || !otp) {
-    return res.json({
-      success: false,
-      message: "Please fill all required fields."
-    });
-  }
-
-  if (!otpStore[email] || otpStore[email] !== otp) {
-    return res.json({
-      success: false,
-      message: "Wrong or expired OTP."
-    });
-  }
 
   try {
-    const existingUser = await db.get(
-      "SELECT id FROM customers WHERE LOWER(email)=LOWER(?)",
-      [email]
-    );
 
-    if (existingUser) {
-      delete otpStore[email];
+    const {
+      username,
+      email,
+      phone,
+      password,
+      address,
+      otp
+    } = req.body;
+
+    const cleanEmail =
+      (email || "")
+        .trim()
+        .toLowerCase();
+
+    const cleanUsername =
+      (username || "")
+        .trim();
+
+    if (
+      !cleanUsername ||
+      !cleanEmail ||
+      !password
+    ) {
+
       return res.json({
+
         success: false,
-        message: "Email already exists. Please Sign In."
+
+        message:
+          "Username, email and password are required."
+
       });
+
     }
 
-    const hash = await bcrypt.hash(password, 10);
+    if (
+      !otp ||
+      otpStore[cleanEmail] !==
+        String(otp).trim()
+    ) {
 
-    const result = await db.run(
-      "INSERT INTO customers(username,email,password) VALUES(?,?,?)",
-      [username, email, hash]
+      return res.json({
+
+        success: false,
+
+        message:
+          "Please verify your OTP first."
+
+      });
+
+    }
+
+    const existing =
+      await db.get(
+        "SELECT id FROM customers WHERE LOWER(email)=LOWER(?)",
+        [cleanEmail]
+      );
+
+    if (existing) {
+
+      delete otpStore[cleanEmail];
+
+      return res.json({
+
+        success: false,
+
+        message:
+          "Email already exists. Please Sign In."
+
+      });
+
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(
+        password,
+        10
+      );
+
+    await db.run(
+
+      `INSERT INTO customers
+      (username,email,phone,password,address)
+      VALUES (?,?,?,?,?)`,
+
+      [
+        cleanUsername,
+        cleanEmail,
+        phone || "",
+        hashedPassword,
+        address || ""
+      ]
+
     );
 
-    delete otpStore[email];
-    req.session.userId = result.lastID;
+    delete otpStore[cleanEmail];
 
-    res.json({
+    const user =
+      await db.get(
+        `SELECT id,username,email,phone,address,created_at
+         FROM customers
+         WHERE LOWER(email)=LOWER(?)`,
+        [cleanEmail]
+      );
+
+    if (!user) {
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Registration completed but user session could not be created."
+
+      });
+
+    }
+
+    req.session.userId =
+      user.id;
+
+    req.session.userEmail =
+      user.email;
+
+    return res.json({
+
       success: true,
-      message: "Account created successfully."
+
+      user
+
     });
 
   } catch (error) {
-    console.error("REGISTER ERROR:", error);
-    res.json({
+
+    console.error(
+      "REGISTER ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+
       success: false,
-      message: "Failed to create account."
+
+      message:
+        "Registration failed."
+
     });
+
   }
+
 });
 
 
-
 app.post("/forgot-password", (req, res) => {
-  const email = (req.body.email || "").trim().toLowerCase();
+
+  const email =
+    (req.body.email || "")
+      .trim()
+      .toLowerCase();
 
   if (!email) {
+
     return res.json({
+
       success: false,
-      message: "Email is required."
+
+      message:
+        "Email is required."
+
     });
+
   }
 
   db.get(
-    "SELECT id FROM customers WHERE LOWER(email)=LOWER(?)",
+
+    "SELECT id,username FROM customers WHERE LOWER(email)=LOWER(?)",
+
     [email],
+
     async (err, user) => {
 
       if (err) {
+
         return res.json({
+
           success: false,
-          message: "Database error."
+
+          message:
+            "Database error."
+
         });
+
       }
 
       if (!user) {
+
         return res.json({
+
           success: false,
-          message: "Account not found. Please create an account first."
+
+          message:
+            "No account found with this email."
+
         });
+
       }
 
-      const otp = Math.floor(
-        100000 + Math.random() * 900000
-      ).toString();
+      const otp =
+        Math.floor(
+          100000 +
+          Math.random() * 900000
+        ).toString();
 
-      resetOtpStore[email] = otp;
+      resetOtpStore[email] =
+        otp;
 
       setTimeout(() => {
-        if (resetOtpStore[email] === otp) {
+
+        if (
+          resetOtpStore[email] ===
+          otp
+        ) {
+
           delete resetOtpStore[email];
+
         }
+
       }, 5 * 60 * 1000);
 
       try {
+
         await resend.emails.send({
-          from: "Acai Shop <support@acaishopmm.store>",
+
+          from:
+            "Acai Shop <support@acaishopmm.store>",
+
           to: email,
-          subject: "Reset Your Acai Shop Password",
+
+          subject:
+            "Reset Your Acai Shop Password",
+
           html: `
 <!DOCTYPE html>
 <html>
@@ -491,282 +1253,651 @@ app.post("/forgot-password", (req, res) => {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin:0;padding:0;background-color:#0b1220;font-family:Arial,sans-serif;">
-<table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#0b1220;padding:30px 10px;">
-  <tr>
-    <td align="center">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:420px;background-color:#111827;border-radius:24px;padding:30px 20px;text-align:center;border:1px solid rgba(255,255,255,0.15);">
-        <tr>
-          <td align="center">
-            <!-- Logo -->
-            <table border="0" cellspacing="0" cellpadding="0">
-              <tr>
-                <td style="width:80px;height:80px;border-radius:50%;background-color:#ffffff;border:4px solid #E8ECFF;overflow:hidden;" align="center" valign="middle">
-                  <img src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/main/logo.jpg.jpg" width="80" height="80" style="display:block;border-radius:50%;object-fit:cover;" alt="Acai Shop">
-                </td>
-              </tr>
-            </table>
 
-            <h1 style="margin:16px 0 0 0;color:#ffffff;font-size:28px;font-weight:bold;">Acai Shop</h1>
-            <p style="color:#CBD5E1;font-size:15px;margin:8px 0 24px 0;">Reset your password</p>
+<body style="margin:0;padding:0;background:#0b1220;font-family:Arial,sans-serif;">
 
-            <!-- OTP Box -->
-            <div style="background-color:#1F2937;border:2px solid #3B82F6;border-radius:18px;padding:20px;margin-bottom:24px;">
-              <div style="font-size:12px;letter-spacing:3px;color:#6C8CFF;margin-bottom:8px;font-weight:bold;">VERIFICATION CODE</div>
-              <div style="font-size:42px;font-weight:800;letter-spacing:8px;color:#ffffff;line-height:1;">${otp}</div>
-            </div>
+<div style="max-width:500px;margin:40px auto;background:#111827;padding:30px;border-radius:20px;color:white;text-align:center;">
 
-            <p style="color:#CBD5E1;font-size:15px;line-height:1.5;margin:0 0 20px 0;">Enter this code in <b style="color:#ffffff;">Acai Shop</b> to reset your password.</p>
+<img
+src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/refs/heads/main/logo.jpg.jpg"
+width="80"
+height="80"
+style="border-radius:50%;object-fit:cover;">
 
-            <!-- Expire Badge -->
-            <div style="display:inline-block;background-color:#1E3A8A;border-radius:99px;padding:10px 20px;font-size:14px;color:#FDE68A;font-weight:bold;">
-              ⏱ Expires in 5 minutes
-            </div>
+<h2 style="margin-top:20px;">
+Reset Your Password
+</h2>
 
-            <p style="color:#64748B;font-size:11px;line-height:1.4;margin:24px 0 0 0;">If you did not request this code, you can safely ignore this email.</p>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
+<p style="color:#CBD5E1;">
+Use the verification code below to reset your Acai Shop password.
+</p>
+
+<div style="font-size:40px;font-weight:bold;letter-spacing:8px;background:#1F2937;border:2px solid #3B82F6;padding:20px;border-radius:15px;margin:20px 0;">
+${otp}
+</div>
+
+<p style="color:#CBD5E1;">
+This code expires in 5 minutes.
+</p>
+
+<p style="font-size:12px;color:#64748B;">
+If you did not request a password reset, you can safely ignore this email.
+</p>
+
+</div>
+
 </body>
-</html>`
+</html>
+`
+
         });
 
-        res.json({
+        return res.json({
+
           success: true,
-          message: "Password reset code sent."
+
+          message:
+            "Password reset code sent."
+
         });
 
       } catch (error) {
-        if (resetOtpStore[email] === otp) {
+
+        if (
+          resetOtpStore[email] ===
+          otp
+        ) {
+
           delete resetOtpStore[email];
+
         }
 
-        res.json({
+        console.error(
+          "FORGOT PASSWORD EMAIL ERROR:",
+          error
+        );
+
+        return res.status(500).json({
+
           success: false,
-          message: "Failed to send OTP."
+
+          message:
+            "Failed to send reset email."
+
         });
+
       }
+
     }
+
   );
+
 });
 
 
 app.post("/reset-password", async (req, res) => {
-  const email = (req.body.email || "").trim().toLowerCase();
-  const otp = (req.body.otp || "").trim();
-  const password = req.body.password || "";
-
-  if (!email || !otp) {
-    return res.json({
-      success: false,
-      message: "Please fill all fields."
-    });
-  }
-
-  if (!resetOtpStore[email]) {
-    return res.json({
-      success: false,
-      message: "OTP expired. Please request a new OTP."
-    });
-  }
-
-  if (password === "__VERIFY__") {
-    if (resetOtpStore[email] !== otp) {
-      return res.json({
-        success: false,
-        verified: false,
-        message: "Wrong OTP."
-      });
-    }
-
-    return res.json({
-      success: true,
-      verified: true,
-      message: "OTP verified."
-    });
-  }
-
-  if (resetOtpStore[email] !== otp) {
-    return res.json({
-      success: false,
-      message: "Wrong or expired OTP."
-    });
-  }
-
-  if (!password) {
-    return res.json({
-      success: false,
-      message: "Password is required."
-    });
-  }
 
   try {
-    const user = await db.get(
-      "SELECT id FROM customers WHERE LOWER(email)=LOWER(?)",
-      [email]
-    );
 
-    if (!user) {
-      delete resetOtpStore[email];
+    const email =
+      (req.body.email || "")
+        .trim()
+        .toLowerCase();
+
+    const otp =
+      (req.body.otp || "")
+        .trim();
+
+    const password =
+      req.body.password || "";
+
+    if (!email || !otp) {
+
       return res.json({
+
         success: false,
-        message: "Account not found."
+
+        message:
+          "Email and OTP are required."
+
       });
+
     }
 
-    const hash = await bcrypt.hash(password, 10);
+    if (
+      resetOtpStore[email] !== otp
+    ) {
 
-    await db.run(
-      "UPDATE customers SET password=? WHERE email=?",
-      [hash, email]
-    );
+      return res.json({
+
+        success: false,
+
+        message:
+          "Invalid or expired OTP."
+
+      });
+
+    }
+
+    // OTP verification only
+    if (password === "__VERIFY__") {
+
+      return res.json({
+
+        success: true,
+
+        message:
+          "OTP verified."
+
+      });
+
+    }
+
+    if (
+      password.length < 6
+    ) {
+
+      return res.json({
+
+        success: false,
+
+        message:
+          "Password must be at least 6 characters."
+
+      });
+
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(
+        password,
+        10
+      );
+
+    const result =
+      await db.run(
+
+        `UPDATE customers
+         SET password=?
+         WHERE LOWER(email)=LOWER(?)`,
+
+        [
+          hashedPassword,
+          email
+        ]
+
+      );
+
+    if (
+      !result ||
+      Number(result.changes || 0) !== 1
+    ) {
+
+      return res.json({
+
+        success: false,
+
+        message:
+          "Account not found."
+
+      });
+
+    }
 
     delete resetOtpStore[email];
 
-    res.json({
+    return res.json({
+
       success: true,
-      message: "Password updated successfully."
+
+      message:
+        "Password reset successfully."
+
     });
 
   } catch (error) {
-    console.error("RESET PASSWORD ERROR:", error);
-    res.json({
-      success: false,
-      message: "Failed to reset password."
-    });
-  }
-});
 
+    console.error(
+      "RESET PASSWORD ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        "Failed to reset password."
+
+    });
+
+  }
+
+});
 
 
 app.post("/login", (req, res) => {
-  const email = (req.body.email || "").trim().toLowerCase();
-  const password = req.body.password || "";
+
+  const email =
+    (req.body.email || "")
+      .trim()
+      .toLowerCase();
+
+  const password =
+    req.body.password || "";
+
+  if (
+    !email ||
+    !password
+  ) {
+
+    return res.json({
+
+      success: false,
+
+      message:
+        "Email and password are required."
+
+    });
+
+  }
 
   db.get(
-    "SELECT * FROM customers WHERE LOWER(email)=LOWER(?)",
+
+    `SELECT
+      id,
+      username,
+      email,
+      phone,
+      address,
+      password,
+      created_at
+     FROM customers
+     WHERE LOWER(email)=LOWER(?)`,
+
     [email],
+
     async (err, user) => {
 
+      if (err) {
+
+        console.error(
+          "LOGIN DB ERROR:",
+          err
+        );
+
+        return res.status(500).json({
+
+          success: false,
+
+          message:
+            "Database error."
+
+        });
+
+      }
+
       if (!user) {
+
         return res.json({
+
           success: false,
-          message: "Invalid email or password"
+
+          message:
+            "Invalid email or password."
+
         });
+
       }
 
-      const ok = await bcrypt.compare(password, user.password);
+      try {
 
-      if (!ok) {
+        const valid =
+          await bcrypt.compare(
+            password,
+            user.password
+          );
+
+        if (!valid) {
+
+          return res.json({
+
+            success: false,
+
+            message:
+              "Invalid email or password."
+
+          });
+
+        }
+
+        req.session.userId =
+          user.id;
+
+        req.session.userEmail =
+          user.email;
+
+        delete user.password;
+
         return res.json({
-          success: false,
-          message: "Invalid email or password"
+
+          success: true,
+
+          user
+
         });
+
+      } catch (compareError) {
+
+        console.error(
+          "PASSWORD COMPARE ERROR:",
+          compareError
+        );
+
+        return res.status(500).json({
+
+          success: false,
+
+          message:
+            "Login failed."
+
+        });
+
       }
 
-      req.session.userId = user.id;
-
-      res.json({
-        success: true
-      });
     }
-  );
-});
 
+  );
+
+});
 
 
 app.get("/me", auth, (req, res) => {
+
   db.get(
-    "SELECT id,username,email,phone,address FROM customers WHERE id=?",
+
+    `SELECT
+      id,
+      username,
+      email,
+      phone,
+      address,
+      created_at
+     FROM customers
+     WHERE id=?`,
+
     [req.session.userId],
+
     (err, user) => {
 
-      if (!user) {
-        return res.json({
-          loggedIn: false
+      if (err) {
+
+        return res.status(500).json({
+
+          success: false,
+
+          message:
+            "Database error."
+
         });
+
+      }
+
+      if (!user) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "User not found."
+
+        });
+
       }
 
       res.json({
-        loggedIn: true,
+
+        success: true,
+
         user
+
       });
+
     }
+
   );
+
 });
 
 
-
 app.post("/logout", (req, res) => {
-  req.session.destroy(() => {
+
+  req.session.destroy(err => {
+
+    if (err) {
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Logout failed."
+
+      });
+
+    }
+
+    res.clearCookie(
+      "connect.sid"
+    );
+
     res.json({
+
       success: true
+
     });
+
   });
+
 });
 
 
 app.get("/products", (req, res) => {
+
   db.all(
+
     "SELECT * FROM products ORDER BY id DESC",
+
     [],
+
     (err, rows) => {
+
+      if (err) {
+
+        return res.status(500).json({
+
+          success: false,
+
+          message:
+            "Failed to load products."
+
+        });
+
+      }
+
       res.json(rows || []);
+
     }
+
   );
+
 });
 
-app.post("/add-product", adminAuth, (req, res) => {
-  upload.single("image")(req, res, async (err) => {
 
-    if (err) {
-      console.error("UPLOAD ERROR:", err);
-      return res.json({
-        success: false,
-        message: err.message
-      });
-    }
+app.post(
+  "/admin/products",
+  adminAuth,
+  upload.single("image"),
+  async (req, res) => {
 
     try {
-      const { name, price, stock, description } = req.body;
-      const image = req.file?.secure_url || req.file?.path || "";
 
-      const result = await db.run(
-        `INSERT INTO products(name,price,stock,image,description)
-         VALUES(?,?,?,?,?)`,
-        [name, Number(price), Number(stock), image, description]
+      const {
+        name,
+        description,
+        price,
+        stock,
+        category
+      } = req.body;
+
+      const cleanName =
+        String(name || "").trim();
+
+      const cleanDescription =
+        String(description || "").trim();
+
+      const cleanCategory =
+        String(category || "").trim();
+
+      const cleanPrice =
+        Number(price);
+
+      const cleanStock =
+        Number(stock);
+
+      if (!cleanName) {
+
+        return res.json({
+
+          success: false,
+
+          message:
+            "Product name is required."
+
+        });
+
+      }
+
+      if (
+        !Number.isFinite(cleanPrice) ||
+        cleanPrice < 0
+      ) {
+
+        return res.json({
+
+          success: false,
+
+          message:
+            "Invalid product price."
+
+        });
+
+      }
+
+      if (
+        !Number.isInteger(cleanStock) ||
+        cleanStock < 0
+      ) {
+
+        return res.json({
+
+          success: false,
+
+          message:
+            "Invalid stock quantity."
+
+        });
+
+      }
+
+      const image =
+        req.file?.path ||
+        req.file?.secure_url ||
+        req.file?.url ||
+        "";
+
+      await db.run(
+
+        `INSERT INTO products
+        (name,description,price,stock,category,image)
+        VALUES (?,?,?,?,?,?)`,
+
+        [
+          cleanName,
+          cleanDescription,
+          cleanPrice,
+          cleanStock,
+          cleanCategory,
+          image
+        ]
+
       );
 
-      res.json({
+      return res.json({
+
         success: true,
-        id: result.lastID,
-        image
+
+        message:
+          "Product added successfully."
+
       });
 
-    } catch (e) {
-      console.error("DB ERROR:", e);
-      res.json({
+    } catch (error) {
+
+      console.error(
+        "ADD PRODUCT ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+
         success: false,
-        message: "Database error"
+
+        message:
+          "Failed to add product."
+
       });
+
     }
-  });
-});
 
-
-
+  }
+);
 app.put("/update-product/:id", adminAuth, async (req, res) => {
   try {
-    const { name, price, stock, description } = req.body;
-    const id = req.params.id;
+    const id = Number(req.params.id);
 
-    if (!name || price === undefined || stock === undefined) {
-      return res.json({
+    const name = String(req.body.name || "").trim();
+    const description = String(req.body.description || "").trim();
+    const price = Number(req.body.price);
+    const stock = Number(req.body.stock);
+    const category = String(req.body.category || "").trim();
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({
         success: false,
-        message: "Name, price and stock are required."
+        message: "Invalid product ID."
+      });
+    }
+
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        message: "Product name is required."
+      });
+    }
+
+    if (!Number.isFinite(price) || price < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product price."
+      });
+    }
+
+    if (!Number.isInteger(stock) || stock < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid stock quantity."
       });
     }
 
@@ -784,25 +1915,31 @@ app.put("/update-product/:id", adminAuth, async (req, res) => {
 
     await db.run(
       `UPDATE products
-       SET name=?, price=?, stock=?, description=?
+       SET name=?,
+           price=?,
+           stock=?,
+           description=?,
+           category=?
        WHERE id=?`,
       [
-        name.trim(),
-        Number(price),
-        Number(stock),
-        description || "",
+        name,
+        price,
+        stock,
+        description,
+        category,
         id
       ]
     );
 
-    res.json({
+    return res.json({
       success: true,
       message: "Product updated successfully."
     });
 
-  } catch (err) {
-    console.error("UPDATE PRODUCT ERROR:", err);
-    res.status(500).json({
+  } catch (error) {
+    console.error("UPDATE PRODUCT ERROR:", error);
+
+    return res.status(500).json({
       success: false,
       message: "Failed to update product."
     });
@@ -810,10 +1947,16 @@ app.put("/update-product/:id", adminAuth, async (req, res) => {
 });
 
 
-
 app.delete("/delete-product/:id", adminAuth, async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID."
+      });
+    }
 
     const product = await db.get(
       "SELECT id FROM products WHERE id=?",
@@ -832,14 +1975,15 @@ app.delete("/delete-product/:id", adminAuth, async (req, res) => {
       [id]
     );
 
-    res.json({
+    return res.json({
       success: true,
       message: "Product deleted successfully."
     });
 
-  } catch (err) {
-    console.error("DELETE PRODUCT ERROR:", err);
-    res.status(500).json({
+  } catch (error) {
+    console.error("DELETE PRODUCT ERROR:", error);
+
+    return res.status(500).json({
       success: false,
       message: "Failed to delete product."
     });
@@ -847,49 +1991,96 @@ app.delete("/delete-product/:id", adminAuth, async (req, res) => {
 });
 
 
+app.get("/profile", auth, async (req, res) => {
+  try {
+    const user = await db.get(
+      `SELECT
+        id,
+        username,
+        email,
+        phone,
+        address,
+        created_at
+       FROM customers
+       WHERE id=?`,
+      [req.session.userId]
+    );
 
-app.get("/profile", auth, (req, res) => {
-  db.get(
-    `SELECT id,username,email,phone,address
-     FROM customers
-     WHERE id=?`,
-    [req.session.userId],
-    (err, user) => {
-
-      if (!user) {
-        return res.json({
-          success: false
-        });
-      }
-
-      res.json({
-        success: true,
-        user
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found."
       });
     }
-  );
+
+    return res.json({
+      success: true,
+      user
+    });
+
+  } catch (error) {
+    console.error("PROFILE ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load profile."
+    });
+  }
 });
 
-app.put("/profile", auth, (req, res) => {
-  const { username, phone, address } = req.body;
 
-  db.run(
-    `UPDATE customers
-     SET username=?,phone=?,address=?
-     WHERE id=?`,
-    [username || "", phone || "", address || "", req.session.userId],
-    function () {
-      res.json({
-        success: true
+app.put("/profile", auth, async (req, res) => {
+  try {
+    const username =
+      String(req.body.username || "").trim();
+
+    const phone =
+      String(req.body.phone || "").trim();
+
+    const address =
+      String(req.body.address || "").trim();
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: "Username is required."
       });
     }
-  );
-});
 
+    await db.run(
+      `UPDATE customers
+       SET username=?,
+           phone=?,
+           address=?
+       WHERE id=?`,
+      [
+        username,
+        phone,
+        address,
+        req.session.userId
+      ]
+    );
+
+    return res.json({
+      success: true,
+      message: "Profile updated successfully."
+    });
+
+  } catch (error) {
+    console.error("UPDATE PROFILE ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update profile."
+    });
+  }
+});
 
 
 app.post("/place-order", auth, async (req, res) => {
+
   try {
+
     const {
       name,
       phone,
@@ -905,449 +2096,1670 @@ app.post("/place-order", auth, async (req, res) => {
       cart
     } = req.body;
 
-    if (!cart || cart.length === 0) {
-      return res.json({
+
+    if (!Array.isArray(cart) || cart.length === 0) {
+
+      return res.status(400).json({
         success: false,
-        message: "Cart is empty"
+        message: "Cart is empty."
       });
+
     }
+
+
+    // Validate cart items first
+    for (const item of cart) {
+
+      const qty = Number(item.qty);
+
+      if (
+        !Number.isInteger(qty) ||
+        qty <= 0
+      ) {
+
+        return res.status(400).json({
+          success: false,
+          message: `Invalid quantity for ${item.name || "item"}.`
+        });
+
+      }
+
+      if (
+        !item.id &&
+        !item.productId
+      ) {
+
+        return res.status(400).json({
+          success: false,
+          message:
+            `Product ID missing for ${item.name || "item"}.`
+        });
+
+      }
+
+    }
+
+
+    const deliveryFee =
+      Number(deliFee) || 0;
+
+
+    if (
+      !Number.isFinite(deliveryFee) ||
+      deliveryFee < 0
+    ) {
+
+      return res.status(400).json({
+        success: false,
+        message: "Invalid delivery fee."
+      });
+
+    }
+
+
+    const user = await db.get(
+      `SELECT
+        id,
+        email
+       FROM customers
+       WHERE id=?`,
+      [req.session.userId]
+    );
+
+
+    if (!user) {
+
+      return res.status(404).json({
+        success: false,
+        message: "User not found."
+      });
+
+    }
+
+
+    const verifiedCart = [];
 
     let subtotal = 0;
 
-    cart.forEach(item => {
-      subtotal += Number(item.price) * Number(item.qty);
-    });
 
-    const deliveryFee = Number(deliFee) || 0;
-    const total = subtotal + deliveryFee;
-
-   const fullAddress = `${road || ""}, ${building || ""}, ${address || ""}, ${township || ""}, ${city || ""}`.trim();
-
-    const userResult = await tursoClient.execute({
-      sql: "SELECT email FROM customers WHERE id=?",
-      args: [req.session.userId]
-    });
-
-    if (userResult.rows.length === 0) {
-      return res.json({
-        success: false,
-        message: "User not found"
-      });
-    }
-
-    const userEmail = userResult.rows[0].email;
-
-  
+    // Get real product prices from database.
+    // Do NOT trust price sent from browser.
     for (const item of cart) {
-      const p = await tursoClient.execute({
-        sql: "SELECT stock FROM products WHERE name=?",
-        args: [item.name]
-      });
 
-      if (p.rows.length === 0 || p.rows[0].stock < item.qty) {
-        return res.json({
+      const productId =
+        Number(item.id || item.productId);
+
+      const qty =
+        Number(item.qty);
+
+
+      if (
+        !Number.isInteger(productId) ||
+        productId <= 0
+      ) {
+
+        return res.status(400).json({
           success: false,
-          message: `${item.name} out of stock`
+          message:
+            `Invalid product ID for ${item.name || "item"}.`
         });
+
       }
+
+
+      const product = await db.get(
+        `SELECT
+          id,
+          name,
+          price,
+          stock,
+          image
+         FROM products
+         WHERE id=?`,
+        [productId]
+      );
+
+
+      if (!product) {
+
+        return res.status(400).json({
+          success: false,
+          message:
+            `${item.name || "Product"} no longer exists.`
+        });
+
+      }
+
+
+      if (
+        Number(product.stock) < qty
+      ) {
+
+        return res.status(400).json({
+          success: false,
+          message:
+            `${product.name} out of stock. Only ${product.stock} left.`
+        });
+
+      }
+
+
+      const realPrice =
+        Number(product.price);
+
+
+      if (
+        !Number.isFinite(realPrice) ||
+        realPrice < 0
+      ) {
+
+        return res.status(500).json({
+          success: false,
+          message:
+            `Invalid price for ${product.name}.`
+        });
+
+      }
+
+
+      subtotal +=
+        realPrice * qty;
+
+
+      verifiedCart.push({
+
+        id: product.id,
+
+        productId: product.id,
+
+        name: product.name,
+
+        price: realPrice,
+
+        qty,
+
+        image:
+          item.image ||
+          product.image ||
+          ""
+
+      });
+
     }
 
-   
-    const insert = await tursoClient.execute({
-      sql: `INSERT INTO orders(
-        customer,email,phone,telegram,alt_social,address,
-        items,total,status,city,township,road,building,
-        deli_fee,payment_method
-      ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 
-      args: [
-        name,
-        userEmail,
-        phone,
-        telegram || "",
-        altSocial || "",
-        fullAddress,
-        JSON.stringify(cart),
-        total,
-        "Pending",
-        city || "",
-        township || "",
-        road || "",
-        building || "",
-        deliveryFee,
-        payment_method || "COD"
+    const total =
+      subtotal + deliveryFee;
+
+
+    const fullAddress =
+      [
+        road,
+        building,
+        address,
+        township,
+        city
       ]
-    });
+      .filter(v =>
+        String(v || "").trim()
+      )
+      .map(v =>
+        String(v).trim()
+      )
+      .join(", ");
 
-    const orderId = Number(insert.lastInsertRowid);
 
-    
-    for (const item of cart) {
-      await tursoClient.execute({
-        sql: "UPDATE products SET stock=stock-? WHERE name=?",
-        args: [item.qty, item.name]
-      });
-    }
+    /*
+      Stock must be reduced only when enough
+      stock still exists.
 
-    
+      This prevents two customers from buying
+      the same last item at the same time.
+    */
+
+    const changedProducts = [];
+
+
     try {
-      const pdfBuffer = await generateInvoicePDF({
-        orderId,
-        name,
-        userEmail,
-        phone,
-        fullAddress,
-        cart,
-        deliveryFee,
-        total,
-        payment_method: payment_method || "COD"
+
+      for (const item of verifiedCart) {
+
+        const result =
+          await tursoClient.execute({
+
+            sql:
+              `UPDATE products
+               SET stock=stock-?
+               WHERE id=?
+               AND stock>=?`,
+
+            args: [
+              item.qty,
+              item.productId,
+              item.qty
+            ]
+
+          });
+
+
+        if (
+          Number(result.rowsAffected) !== 1
+        ) {
+
+          throw new Error(
+            `${item.name} is no longer available in the requested quantity.`
+          );
+
+        }
+
+
+        changedProducts.push({
+
+          id: item.productId,
+
+          qty: item.qty
+
+        });
+
+      }
+
+
+      /*
+        Insert order only after all stock updates
+        succeed.
+      */
+
+      const insert =
+        await tursoClient.execute({
+
+          sql:
+            `INSERT INTO orders(
+              customer,
+              email,
+              phone,
+              telegram,
+              alt_social,
+              address,
+              items,
+              total,
+              status,
+              city,
+              township,
+              road,
+              building,
+              deli_fee,
+              payment_method
+            )
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+
+          args: [
+
+            String(name || "").trim(),
+
+            user.email,
+
+            String(phone || "").trim(),
+
+            String(telegram || "").trim(),
+
+            String(altSocial || "").trim(),
+
+            fullAddress,
+
+            JSON.stringify(verifiedCart),
+
+            total,
+
+            "Pending",
+
+            String(city || "").trim(),
+
+            String(township || "").trim(),
+
+            String(road || "").trim(),
+
+            String(building || "").trim(),
+
+            deliveryFee,
+
+            String(
+              payment_method || "COD"
+            ).trim()
+
+          ]
+
+        });
+
+
+      const orderId =
+        Number(insert.lastInsertRowid);
+
+
+      if (!orderId) {
+
+        throw new Error(
+          "Order ID was not generated."
+        );
+
+      }
+
+
+      /*
+        Send invoice email.
+
+        If email/PDF fails, the order itself
+        remains successfully created.
+      */
+
+      try {
+
+        const pdfBuffer =
+          await generateInvoicePDF({
+
+            orderId,
+
+            date:
+              new Date().toLocaleString(
+                "en-GB",
+                {
+                  timeZone:
+                    "Asia/Yangon"
+                }
+              ),
+
+            name:
+              String(name || "").trim(),
+
+            userEmail:
+              user.email,
+
+            phone:
+              String(phone || "").trim(),
+
+            fullAddress,
+
+            cart:
+              verifiedCart,
+
+            deliveryFee,
+
+            total,
+
+            payment_method:
+              payment_method || "COD"
+
+          });
+
+
+        await resend.emails.send({
+
+          from:
+            "Acai Shop <support@acaishopmm.store>",
+
+          to:
+            user.email,
+
+          subject:
+            `Order Confirmation & Invoice #${orderId} - Acai Shop`,
+
+          html: `
+<div style="font-family:Arial,sans-serif;padding:20px;color:#1E293B">
+
+<h2 style="color:#2563EB">
+Order Confirmed!
+</h2>
+
+<p>
+Dear <b>${String(name || "").replace(
+            /[<>&"]/g,
+            ""
+          )}</b>,
+</p>
+
+<p>
+Thank you for shopping at
+<b>Acai Shop</b>.
+</p>
+
+<p>
+Your order has been received successfully.
+</p>
+
+<hr>
+
+<p>
+<b>Order ID:</b>
+#${orderId}
+</p>
+
+<p>
+<b>Total:</b>
+${total.toLocaleString()} MMK
+</p>
+
+<p>
+<b>Payment Method:</b>
+${String(
+  payment_method || "COD"
+)}
+</p>
+
+<br>
+
+<p>
+Best regards,<br>
+<b>Acai Shop Team</b>
+</p>
+
+</div>
+`,
+
+          attachments: [
+
+            {
+              filename:
+                `Invoice_AcaiShop_${orderId}.pdf`,
+
+              content:
+                pdfBuffer
+            }
+
+          ]
+
+        });
+
+      } catch (emailError) {
+
+        console.error(
+          "INVOICE EMAIL ERROR:",
+          emailError
+        );
+
+      }
+
+
+      return res.json({
+
+        success: true,
+
+        orderId
+
       });
 
-      await resend.emails.send({
-        from: "Acai Shop <support@acaishopmm.store>",
-        to: userEmail,
-        subject: `Order Confirmation & Invoice #${orderId} - Acai Shop`,
-        html: `
-          <div style="font-family: Arial, sans-serif; padding: 20px; color: #1E293B;">
-            <h2 style="color: #2563EB;">Order Confirmed!</h2>
-            <p>Dear <b>${name}</b>,</p>
-            <p>Thank you for shopping at <b>Acai Shop</b>! We have received your order and attached your official purchase invoice PDF to this email.</p>
-            <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 15px 0;">
-            <p><b>Order ID:</b> #INV-${orderId}</p>
-            <p><b>Total Amount:</b> ${total.toLocaleString()} MMK</p>
-            <p><b>Payment Method:</b> ${payment_method || "COD"}</p>
-            <br>
-            <p>Best regards,<br><b>Acai Shop Team</b></p>
-          </div>
-        `,
-        attachments: [
-          {
-            filename: `Invoice_AcaiShop_${orderId}.pdf`,
-            content: pdfBuffer
-          }
-        ]
-      });
-    } catch (emailError) {
-      console.error("INVOICE EMAIL ERROR:", emailError);
-    
+
+    } catch (orderError) {
+
+      console.error(
+        "PLACE ORDER ERROR:",
+        orderError
+      );
+
+
+      /*
+        If order insertion/email process fails
+        after stock was reduced, restore stock.
+      */
+
+      for (
+        const changed of changedProducts
+      ) {
+
+        try {
+
+          await tursoClient.execute({
+
+            sql:
+              `UPDATE products
+               SET stock=stock+?
+               WHERE id=?`,
+
+            args: [
+              changed.qty,
+              changed.id
+            ]
+
+          });
+
+        } catch (restoreError) {
+
+          console.error(
+            "STOCK RESTORE ERROR:",
+            restoreError
+          );
+
+        }
+
+      }
+
+
+      throw orderError;
+
     }
 
-    res.json({
-      success: true,
-      orderId
+
+  } catch (error) {
+
+    console.error(
+      "PLACE ORDER ERROR:",
+      error
+    );
+
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        error.message ||
+        "Failed to place order."
+
     });
 
-  } catch (err) {
-    console.log(err);
-    res.json({
-      success: false,
-      message: "Failed to place order"
-    });
   }
+
 });
 
 
+app.get("/my-orders", auth, async (req, res) => {
 
-app.get("/my-orders", auth, (req, res) => {
-  db.get(
-    "SELECT email FROM customers WHERE id=?",
-    [req.session.userId],
-    (err, user) => {
+  try {
 
-      if (!user) return res.json([]);
+    const user =
+      await db.get(
+        "SELECT email FROM customers WHERE id=?",
+        [req.session.userId]
+      );
 
-      db.all(
+
+    if (!user) {
+
+      return res.json([]);
+
+    }
+
+
+    const orders =
+      await db.all(
+
         `SELECT *
          FROM orders
          WHERE email=?
          ORDER BY id DESC`,
-        [user.email],
-        (err2, rows) => {
-          res.json(rows || []);
-        }
+
+        [user.email]
+
       );
+
+
+    return res.json(
+      orders || []
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "MY ORDERS ERROR:",
+      error
+    );
+
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        "Failed to load orders."
+
+    });
+
+  }
+
+});
+
+
+app.get(
+  "/admin/orders",
+  adminAuth,
+  async (req, res) => {
+
+    try {
+
+      const orders =
+        await db.all(
+          "SELECT * FROM orders ORDER BY id DESC"
+        );
+
+
+      return res.json(
+        orders || []
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "ADMIN ORDERS ERROR:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load orders."
+
+      });
+
     }
-  );
-});
+
+  }
+);
 
 
+app.get(
+  "/admin/orders/:id",
+  adminAuth,
+  async (req, res) => {
 
-app.get("/admin/orders", adminAuth, (req, res) => {
-  db.all(
-    "SELECT * FROM orders ORDER BY id DESC",
-    [],
-    (err, rows) => res.json(rows || [])
-  );
-});
+    try {
 
-app.get("/admin/orders/:id", adminAuth, (req, res) => {
-  db.get(
-    "SELECT * FROM orders WHERE id=?",
-    [req.params.id],
-    (err, row) => {
+      const order =
+        await db.get(
+          "SELECT * FROM orders WHERE id=?",
+          [req.params.id]
+        );
 
-      if (!row) {
-        return res.status(404).json({ success: false });
+
+      if (!order) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "Order not found."
+
+        });
+
       }
 
-      res.json({
-        ...row,
-        items: JSON.parse(row.items || "[]")
-      });
-    }
-  );
-});
 
-
-app.get("/admin/orders/:id/pdf", adminAuth, async (req, res) => {
-  try {
-    const orderId = req.params.id;
-
-
-    const orderRow = await db.get("SELECT * FROM orders WHERE id=?", [orderId]);
-
-    if (!orderRow) {
-      return res.status(404).send("Order not found");
-    }
-
-    let cartItems = [];
-    try {
-      cartItems = JSON.parse(orderRow.items || "[]");
-    } catch (e) {
-      cartItems = [];
-    }
-const pdfBuffer = await generateInvoicePDF({
-      orderId: orderRow.id,
-      date: orderRow.created_at,
-      name: orderRow.customer || "N/A",
-      userEmail: orderRow.email || "N/A",
-      phone: orderRow.phone || "N/A",
-      fullAddress: `${orderRow.road || ""}, ${orderRow.building || ""}, ${orderRow.address || ""}, ${orderRow.township || ""}, ${orderRow.city || ""}`.trim(), 
-      cart: cartItems,
-      deliveryFee: Number(orderRow.deli_fee || 0),
-      total: Number(orderRow.total || 0),
-      payment_method: orderRow.payment_method || "COD"
-    });
-
-
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename=Voucher_Order_${orderRow.id}.pdf`);
-    res.send(pdfBuffer);
-
-  } catch (err) {
-    console.error("ADMIN PDF GENERATE ERROR:", err);
-    res.status(500).send("Error generating PDF");
-  }
-});
-
-app.put("/admin/orders/:id/status", adminAuth, (req, res) => {
-  const { status } = req.body;
-
-  const allowed = [
-    "Pending",
-    "Confirmed",
-    "Processing",
-    "Shipped",
-    "Delivered",
-    "Cancelled"
-  ];
-
-  if (!allowed.includes(status)) {
-    return res.json({
-      success: false,
-      message: "Invalid status"
-    });
-  }
-
-  db.run(
-    "UPDATE orders SET status=? WHERE id=?",
-    [status, req.params.id],
-    function () {
-      res.json({ success: true });
-    }
-  );
-});
-
-app.delete("/admin/orders/:id", adminAuth, (req, res) => {
-  db.run(
-    "DELETE FROM orders WHERE id=?",
-    [req.params.id],
-    function () {
-      res.json({ success: true });
-    }
-  );
-});
-
-
-
-app.get("/admin/customers", adminAuth, (req, res) => {
-  db.all(
-    `SELECT id,username,email,phone,address,created_at
-     FROM customers
-     ORDER BY id DESC`,
-    [],
-    (err, rows) => {
-      res.json(rows || []);
-    }
-  );
-});
-
-app.delete("/admin/customers/:id", adminAuth, (req, res) => {
-  db.run(
-    "DELETE FROM customers WHERE id=?",
-    [req.params.id],
-    function () {
-      res.json({ success: true });
-    }
-  );
-});
-
-
-
-app.get("/admin/dashboard", adminAuth, async (req, res) => {
-  try {
-    const orders = await db.get("SELECT COUNT(*) AS totalOrders FROM orders");
-    const customers = await db.get("SELECT COUNT(*) AS totalCustomers FROM customers");
-    const products = await db.get("SELECT COUNT(*) AS totalProducts FROM products");
-
-    const revenue = await db.get(`
-      SELECT COALESCE(SUM(total-COALESCE(deli_fee,0)),0)
-      AS productRevenue
-      FROM orders
-      WHERE status!='Cancelled'
-    `);
-
-    const delivery = await db.get(`
-      SELECT COALESCE(SUM(deli_fee),0)
-      AS deliveryRevenue
-      FROM orders
-      WHERE status!='Cancelled'
-    `);
-
-    const today = await db.get(`
-      SELECT COALESCE(SUM(total-COALESCE(deli_fee,0)),0)
-      AS todayRevenue
-      FROM orders
-      WHERE status!='Cancelled'
-      AND DATE(created_at)=DATE('now','localtime')
-    `);
-
-    const allOrders = await db.all(`
-      SELECT items,total,created_at
-      FROM orders
-      WHERE status!='Cancelled'
-    `);
-
-    const seller = {};
-    const weekly = {};
-
-    (allOrders || []).forEach(o => {
-      const day = (o.created_at || "").split(" ")[0];
-      weekly[day] = (weekly[day] || 0) + Number(o.total || 0);
+      let items = [];
 
       try {
-        JSON.parse(o.items || "[]").forEach(i => {
-          seller[i.name] = (seller[i.name] || 0) + Number(i.qty || 0);
-        });
-      } catch {}
-    });
 
-    let bestProduct = "-";
-    let max = 0;
+        items =
+          JSON.parse(
+            order.items || "[]"
+          );
 
-    Object.entries(seller).forEach(([name, qty]) => {
-      if (qty > max) {
-        max = qty;
-        bestProduct = name;
+      } catch {
+
+        items = [];
+
       }
-    });
+
+
+      return res.json({
+
+        ...order,
+
+        items
+
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "ADMIN ORDER DETAIL ERROR:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load order."
+
+      });
+
+    }
+
+  }
+);
+
+
+app.get(
+  "/admin/orders/:id/pdf",
+  adminAuth,
+  async (req, res) => {
+
+    try {
+
+      const orderId =
+        Number(req.params.id);
+
+
+      const orderRow =
+        await db.get(
+          "SELECT * FROM orders WHERE id=?",
+          [orderId]
+        );
+
+
+      if (!orderRow) {
+
+        return res.status(404).send(
+          "Order not found"
+        );
+
+      }
+
+
+      let cartItems = [];
+
+
+      try {
+
+        cartItems =
+          JSON.parse(
+            orderRow.items || "[]"
+          );
+
+      } catch {
+
+        cartItems = [];
+
+      }
+
+
+      const fullAddress =
+        [
+          orderRow.road,
+          orderRow.building,
+          orderRow.address,
+          orderRow.township,
+          orderRow.city
+        ]
+        .filter(v =>
+          String(v || "").trim()
+        )
+        .join(", ");
+
+
+      const pdfBuffer =
+        await generateInvoicePDF({
+
+          orderId:
+            orderRow.id,
+
+          date:
+            orderRow.created_at,
+
+          name:
+            orderRow.customer || "N/A",
+
+          userEmail:
+            orderRow.email || "N/A",
+
+          phone:
+            orderRow.phone || "N/A",
+
+          fullAddress,
+
+          cart:
+            cartItems,
+
+          deliveryFee:
+            Number(
+              orderRow.deli_fee || 0
+            ),
+
+          total:
+            Number(
+              orderRow.total || 0
+            ),
+
+          payment_method:
+            orderRow.payment_method ||
+            "COD"
+
+        });
+
+
+      res.setHeader(
+        "Content-Type",
+        "application/pdf"
+      );
+
+
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=Voucher_Order_${orderRow.id}.pdf`
+      );
+
+
+      return res.send(
+        pdfBuffer
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "ADMIN PDF GENERATE ERROR:",
+        error
+      );
+
+
+      return res.status(500).send(
+        "Error generating PDF"
+      );
+
+    }
+
+  }
+);
+app.put(
+  "/admin/orders/:id/status",
+  adminAuth,
+  async (req, res) => {
+
+    try {
+
+      const status =
+        String(req.body.status || "").trim();
+
+      const allowedStatuses = [
+        "Pending",
+        "Confirmed",
+        "Processing",
+        "Shipped",
+        "Delivered",
+        "Cancelled"
+      ];
+
+      if (!allowedStatuses.includes(status)) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Invalid order status."
+
+        });
+
+      }
+
+
+      const order =
+        await db.get(
+          "SELECT id,status FROM orders WHERE id=?",
+          [req.params.id]
+        );
+
+
+      if (!order) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "Order not found."
+
+        });
+
+      }
+
+
+      await db.run(
+
+        "UPDATE orders SET status=? WHERE id=?",
+
+        [
+          status,
+          req.params.id
+        ]
+
+      );
+
+
+      return res.json({
+
+        success: true,
+
+        message:
+          "Order status updated successfully."
+
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "UPDATE ORDER STATUS ERROR:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to update order status."
+
+      });
+
+    }
+
+  }
+);
+
+
+app.delete(
+  "/admin/orders/:id",
+  adminAuth,
+  async (req, res) => {
+
+    try {
+
+      const order =
+        await db.get(
+          "SELECT id FROM orders WHERE id=?",
+          [req.params.id]
+        );
+
+
+      if (!order) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "Order not found."
+
+        });
+
+      }
+
+
+      await db.run(
+
+        "DELETE FROM orders WHERE id=?",
+
+        [req.params.id]
+
+      );
+
+
+      return res.json({
+
+        success: true,
+
+        message:
+          "Order deleted successfully."
+
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "DELETE ORDER ERROR:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to delete order."
+
+      });
+
+    }
+
+  }
+);
+
+
+app.get(
+  "/admin/customers",
+  adminAuth,
+  async (req, res) => {
+
+    try {
+
+      const customers =
+        await db.all(
+
+          `SELECT
+             id,
+             username,
+             email,
+             phone,
+             address,
+             created_at
+           FROM customers
+           ORDER BY id DESC`
+
+        );
+
+
+      return res.json(
+        customers || []
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "ADMIN CUSTOMERS ERROR:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load customers."
+
+      });
+
+    }
+
+  }
+);
+
+
+app.delete(
+  "/admin/customers/:id",
+  adminAuth,
+  async (req, res) => {
+
+    try {
+
+      const customer =
+        await db.get(
+          "SELECT id FROM customers WHERE id=?",
+          [req.params.id]
+        );
+
+
+      if (!customer) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "Customer not found."
+
+        });
+
+      }
+
+
+      await db.run(
+
+        "DELETE FROM customers WHERE id=?",
+
+        [req.params.id]
+
+      );
+
+
+      return res.json({
+
+        success: true,
+
+        message:
+          "Customer deleted successfully."
+
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "DELETE CUSTOMER ERROR:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to delete customer."
+
+      });
+
+    }
+
+  }
+);
+
+
+app.get(
+  "/admin/dashboard",
+  adminAuth,
+  async (req, res) => {
+
+    try {
+
+      const orders =
+        await db.get(
+          "SELECT COUNT(*) AS totalOrders FROM orders"
+        );
+
+
+      const customers =
+        await db.get(
+          "SELECT COUNT(*) AS totalCustomers FROM customers"
+        );
+
+
+      const products =
+        await db.get(
+          "SELECT COUNT(*) AS totalProducts FROM products"
+        );
+
+
+      const revenue =
+        await db.get(`
+
+          SELECT
+            COALESCE(
+              SUM(
+                total -
+                COALESCE(deli_fee,0)
+              ),
+              0
+            ) AS productRevenue
+
+          FROM orders
+
+          WHERE status!='Cancelled'
+
+        `);
+
+
+      const delivery =
+        await db.get(`
+
+          SELECT
+            COALESCE(
+              SUM(
+                COALESCE(deli_fee,0)
+              ),
+              0
+            ) AS deliveryRevenue
+
+          FROM orders
+
+          WHERE status!='Cancelled'
+
+        `);
+
+
+      const today =
+        await db.get(`
+
+          SELECT
+            COALESCE(
+              SUM(
+                total -
+                COALESCE(deli_fee,0)
+              ),
+              0
+            ) AS todayRevenue
+
+          FROM orders
+
+          WHERE status!='Cancelled'
+
+          AND DATE(created_at)
+            = DATE('now','localtime')
+
+        `);
+
+
+      const allOrders =
+        await db.all(`
+
+          SELECT
+            items,
+            total,
+            deli_fee,
+            created_at
+
+          FROM orders
+
+          WHERE status!='Cancelled'
+
+        `);
+
+
+      const seller = {};
+
+      const weekly = {};
+
+
+      (allOrders || []).forEach(order => {
+
+        const date =
+          String(
+            order.created_at || ""
+          ).split(" ")[0];
+
+
+        if (date) {
+
+          weekly[date] =
+            (
+              weekly[date] || 0
+            ) +
+            Number(
+              order.total || 0
+            );
+
+        }
+
+
+        try {
+
+          const items =
+            JSON.parse(
+              order.items || "[]"
+            );
+
+
+          if (Array.isArray(items)) {
+
+            items.forEach(item => {
+
+              const itemName =
+                String(
+                  item.name || "Unknown"
+                );
+
+
+              seller[itemName] =
+                (
+                  seller[itemName] || 0
+                ) +
+                Number(
+                  item.qty || 0
+                );
+
+            });
+
+          }
+
+        } catch {
+
+          // Ignore invalid order items JSON
+
+        }
+
+      });
+
+
+      let bestProduct = "-";
+
+      let maxQuantity = 0;
+
+
+      Object.entries(
+        seller
+      ).forEach(
+        ([name, quantity]) => {
+
+          if (
+            Number(quantity) >
+            maxQuantity
+          ) {
+
+            maxQuantity =
+              Number(quantity);
+
+            bestProduct =
+              name;
+
+          }
+
+        }
+      );
+
+
+      return res.json({
+
+        totalOrders:
+          Number(
+            orders?.totalOrders || 0
+          ),
+
+        totalCustomers:
+          Number(
+            customers?.totalCustomers || 0
+          ),
+
+        totalProducts:
+          Number(
+            products?.totalProducts || 0
+          ),
+
+        todayRevenue:
+          Number(
+            today?.todayRevenue || 0
+          ),
+
+        productRevenue:
+          Number(
+            revenue?.productRevenue || 0
+          ),
+
+        deliveryRevenue:
+          Number(
+            delivery?.deliveryRevenue || 0
+          ),
+
+        bestProduct,
+
+        weekly
+
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "ADMIN DASHBOARD ERROR:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load dashboard."
+
+      });
+
+    }
+
+  }
+);
+
+
+app.get(
+  "/admin/revenue",
+  adminAuth,
+  async (req, res) => {
+
+    try {
+
+      const rows =
+        await db.all(`
+
+          SELECT
+
+            DATE(created_at)
+              AS date,
+
+            COALESCE(
+              SUM(total),
+              0
+            ) AS revenue
+
+          FROM orders
+
+          WHERE status!='Cancelled'
+
+          GROUP BY
+            DATE(created_at)
+
+          ORDER BY
+            DATE(created_at) ASC
+
+        `);
+
+
+      return res.json(
+        rows || []
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "ADMIN REVENUE ERROR:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load revenue."
+
+      });
+
+    }
+
+  }
+);
+
+
+app.get(
+  "/admin/new-orders",
+  adminAuth,
+  async (req, res) => {
+
+    try {
+
+      const row =
+        await db.get(
+
+          `SELECT
+             COUNT(*) AS count
+           FROM orders
+           WHERE status='Pending'`
+
+        );
+
+
+      return res.json({
+
+        count:
+          Number(
+            row?.count || 0
+          )
+
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "NEW ORDERS ERROR:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load new orders."
+
+      });
+
+    }
+
+  }
+);
+
+
+app.post(
+  "/admin-login",
+  async (req, res) => {
+
+    try {
+
+      const username =
+        String(
+          req.body.username || ""
+        ).trim();
+
+      const password =
+        String(
+          req.body.password || ""
+        );
+
+
+      const adminUser =
+        process.env.ADMIN_USER ||
+        "admin";
+
+
+      const adminPass =
+        process.env.ADMIN_PASSWORD ||
+        process.env.ADMIN_PASS ||
+        "admin123";
+
+
+      if (
+        username === adminUser &&
+        password === adminPass
+      ) {
+
+        req.session.admin =
+          true;
+
+
+        return res.json({
+
+          success: true
+
+        });
+
+      }
+
+
+      return res.status(401).json({
+
+        success: false,
+
+        message:
+          "Invalid admin login."
+
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "ADMIN LOGIN ERROR:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Admin login failed."
+
+      });
+
+    }
+
+  }
+);
+
+
+app.get(
+  "/admin-check",
+  (req, res) => {
 
     res.json({
-      totalOrders: orders?.totalOrders || 0,
-      totalCustomers: customers?.totalCustomers || 0,
-      totalProducts: products?.totalProducts || 0,
-      todayRevenue: today?.todayRevenue || 0,
-      productRevenue: revenue?.productRevenue || 0,
-      deliveryRevenue: delivery?.deliveryRevenue || 0,
-      bestProduct,
-      weekly
+
+      loggedIn:
+        !!req.session.admin
+
     });
 
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({
-      success: false
-    });
   }
-});
+);
 
 
+app.post(
+  "/admin-logout",
+  (req, res) => {
 
-app.get("/admin/revenue", adminAuth, (req, res) => {
-  db.all(
-    `SELECT
-       DATE(created_at) AS date,
-       COALESCE(SUM(total),0) AS revenue
-     FROM orders
-     WHERE status!='Cancelled'
-     GROUP BY DATE(created_at)
-     ORDER BY DATE(created_at) ASC`,
-    [],
-    (err, rows) => {
-      res.json(rows || []);
-    }
-  );
-});
+    req.session.admin =
+      false;
 
 
+    res.json({
 
-app.get("/admin/new-orders", adminAuth, (req, res) => {
-  db.get(
-    "SELECT COUNT(*) AS count FROM orders WHERE status='Pending'",
-    [],
-    (err, row) => {
-      res.json({
-        count: row?.count || 0
-      });
-    }
-  );
-});
-
-
-
-app.post("/admin-login", (req, res) => {
-  const { username, password } = req.body;
-
-  const adminUser = process.env.ADMIN_USER || "admin";
-  const adminPass = process.env.ADMIN_PASSWORD || process.env.ADMIN_PASS || "admin123";
-
-  if (username === adminUser && password === adminPass) {
-    req.session.admin = true;
-    return res.json({
       success: true
+
     });
+
   }
-
-  res.json({
-    success: false,
-    message: "Invalid admin login"
-  });
-});
-
-app.get("/admin-check", (req, res) => {
-  res.json({
-    loggedIn: !!req.session.admin
-  });
-});
-
-app.post("/admin-logout", (req, res) => {
-  req.session.admin = false;
-  res.json({
-    success: true
-  });
-});
+);
 
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+app.get(
+  "/health",
+  (req, res) => {
+
+    res.json({
+
+      success: true,
+
+      status: "OK",
+
+      time:
+        new Date().toISOString()
+
+    });
+
+  }
+);
+
+
+app.listen(
+  PORT,
+  () => {
+
+    console.log(
+      `Server running on http://localhost:${PORT}`
+    );
+
+  }
+);
