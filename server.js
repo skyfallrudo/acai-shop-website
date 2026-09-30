@@ -1458,20 +1458,28 @@ app.post("/register", async (req, res) => {
       });
 
     }
+req.session.userId = user.id;
+req.session.userEmail = user.email;
 
-    req.session.userId =
-      user.id;
+delete user.password;
 
-    req.session.userEmail =
-      user.email;
+req.session.save(err => {
+
+    if (err) {
+        console.error("SESSION SAVE ERROR:", err);
+
+        return res.status(500).json({
+            success: false,
+            message: "Login session could not be saved."
+        });
+    }
 
     return res.json({
-
-      success: true,
-
-      user
-
+        success: true,
+        user
     });
+
+});
 
   } catch (error) {
 
@@ -1906,22 +1914,26 @@ app.post("/login", (req, res) => {
           });
 
         }
+        req.session.userId = user.id;
+req.session.userEmail = user.email;
 
-        req.session.userId =
-          user.id;
+req.session.save(err => {
 
-        req.session.userEmail =
-          user.email;
+    if (err) {
+        console.error("SESSION SAVE ERROR:", err);
 
-        delete user.password;
-
-        return res.json({
-
-          success: true,
-
-          user
-
+        return res.status(500).json({
+            success: false,
+            message: "Registration session could not be saved."
         });
+    }
+
+    return res.json({
+        success: true,
+        user
+    });
+
+});
 
       } catch (compareError) {
 
