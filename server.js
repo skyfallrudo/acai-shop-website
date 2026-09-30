@@ -929,25 +929,23 @@ please contact our support.
 
   try {
 
-    browser =
-      await puppeteer.launch({
-
-        headless:
-          true,
-
-        args: [
-
-          "--no-sandbox",
-
-          "--disable-setuid-sandbox",
-
-          "--disable-dev-shm-usage",
-
-          "--disable-gpu"
-
-        ]
-
-      });
+    browser = await puppeteer.launch({
+  headless: true,
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-gpu",
+    "--disable-extensions",
+    "--disable-background-networking",
+    "--disable-background-timer-throttling",
+    "--disable-renderer-backgrounding",
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--disable-sync",
+    "--mute-audio"
+  ]
+});
 
 
     const page =
