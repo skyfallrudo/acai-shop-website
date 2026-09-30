@@ -1958,66 +1958,48 @@ req.session.save(err => {
   );
 
 });
-
-
 app.get("/me", auth, (req, res) => {
 
-  db.get(
+    db.get(
+        `SELECT
+            id,
+            username,
+            email,
+            phone,
+            address,
+            created_at
+         FROM customers
+         WHERE id=?`,
+        [req.session.userId],
 
-    `SELECT
-      id,
-      username,
-      email,
-      phone,
-      address,
-      created_at
-     FROM customers
-     WHERE id=?`,
+        (err, user) => {
 
-    [req.session.userId],
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    loggedIn: false,
+                    message: "Database error."
+                });
+            }
 
-    (err, user) => {
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    loggedIn: false,
+                    message: "User not found."
+                });
+            }
 
-      if (err) {
+            res.json({
+                success: true,
+                loggedIn: true,
+                user
+            });
 
-        return res.status(500).json({
-
-          success: false,
-
-          message:
-            "Database error."
-
-        });
-
-      }
-
-      if (!user) {
-
-        return res.status(404).json({
-
-          success: false,
-
-          message:
-            "User not found."
-
-        });
-
-      }
-
-      res.json({
-
-        success: true,
-
-        user
-
-      });
-
-    }
-
-  );
+        }
+    );
 
 });
-
 
 app.post("/logout", (req, res) => {
 
