@@ -6,1026 +6,223 @@ const session = require("express-session");
 const bcrypt = require("bcrypt");
 const { Resend } = require("resend");
 const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-
-const puppeteer = require("puppeteer");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Temporary OTP stores
-const otpStore = Object.create(null);
-const resetOtpStore = Object.create(null);
+/* =========================================================
+   BASIC
+========================================================= */
 
 app.set("trust proxy", 1);
+
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({
+  extended: true,
+  limit: "10mb"
+}));
+
+app.use(express.static(__dirname));
+
+/* =========================================================
+   DATABASE
+========================================================= */
 
 const tursoClient = createClient({
   url: process.env.TURSO_DATABASE_URL,
   authToken: process.env.TURSO_AUTH_TOKEN
 });
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const db = {
 
-  get: (sql, params = [], callback) => {
+  async get(sql, params = []) {
+    try {
+      if (!Array.isArray(params)) params = [params];
 
-    if (typeof params === "function") {
-      callback = params;
-      params = [];
-    }
-
-    if (!Array.isArray(params)) {
-      params = [params];
-    }
-
-    return tursoClient.execute({
-      sql,
-      args: params
-    })
-      .then(r => {
-
-        const row = r.rows[0]
-          ? { ...r.rows[0] }
-          : null;
-
-        if (callback) {
-          callback(null, row);
-        }
-
-        return row;
-      })
-      .catch(err => {
-
-        console.log(err);
-
-        if (callback) {
-          callback(err);
-        }
-
-        return null;
+      const result = await tursoClient.execute({
+        sql,
+        args: params
       });
+
+      return result.rows[0]
+        ? { ...result.rows[0] }
+        : null;
+
+    } catch (error) {
+      console.error("DB GET ERROR:", error);
+      throw error;
+    }
   },
 
-  all: (sql, params = [], callback) => {
+  async all(sql, params = []) {
+    try {
+      if (!Array.isArray(params)) params = [params];
 
-    if (typeof params === "function") {
-      callback = params;
-      params = [];
-    }
-
-    if (!Array.isArray(params)) {
-      params = [params];
-    }
-
-    return tursoClient.execute({
-      sql,
-      args: params
-    })
-      .then(r => {
-
-        const rows = r.rows.map(x => ({
-          ...x
-        }));
-
-        if (callback) {
-          callback(null, rows);
-        }
-
-        return rows;
-      })
-      .catch(err => {
-
-        console.log(err);
-
-        if (callback) {
-          callback(err, []);
-        }
-
-        return [];
+      const result = await tursoClient.execute({
+        sql,
+        args: params
       });
+
+      return (result.rows || []).map(row => ({
+        ...row
+      }));
+
+    } catch (error) {
+      console.error("DB ALL ERROR:", error);
+      throw error;
+    }
   },
 
-  run: (sql, params = [], callback) => {
+  async run(sql, params = []) {
+    try {
+      if (!Array.isArray(params)) params = [params];
 
-    if (typeof params === "function") {
-      callback = params;
-      params = [];
-    }
-
-    if (!Array.isArray(params)) {
-      params = [params];
-    }
-
-    return tursoClient.execute({
-      sql,
-      args: params
-    })
-      .then(r => {
-
-        const info = {
-          lastID: Number(r.lastInsertRowid),
-          changes: Number(r.rowsAffected)
-        };
-
-        if (callback) {
-          callback.call(info, null);
-        }
-
-        return info;
-      })
-      .catch(err => {
-
-        console.log(err);
-
-        if (callback) {
-          callback(err);
-        }
-
-        return null;
+      const result = await tursoClient.execute({
+        sql,
+        args: params
       });
+
+      return {
+        lastID: Number(result.lastInsertRowid),
+        changes: Number(result.rowsAffected)
+      };
+
+    } catch (error) {
+      console.error("DB RUN ERROR:", error);
+      throw error;
+    }
   },
 
-  exec: (sql, callback) => {
-
-    return tursoClient.executeMultiple(sql)
-      .then(() => {
-
-        if (callback) {
-          callback(null);
-        }
-
-      })
-      .catch(err => {
-
-        console.log(err);
-
-        if (callback) {
-          callback(err);
-        }
-
-      });
+  async exec(sql) {
+    return tursoClient.executeMultiple(sql);
   }
 
 };
 
-app.use(express.json());
-app.use(express.urlencoded({
-  extended: true
-}));
-
-app.use(express.static(__dirname));
+/* =========================================================
+   SESSION
+========================================================= */
 
 app.use(session({
-
-  secret: process.env.SESSION_SECRET || "acai-shop-secret",
+  secret:
+    process.env.SESSION_SECRET ||
+    "acai-shop-secret",
 
   resave: false,
 
   saveUninitialized: false,
 
   cookie: {
-
     httpOnly: true,
 
-    secure: process.env.NODE_ENV === "production",
+    secure:
+      process.env.NODE_ENV === "production",
 
     sameSite: "lax",
 
-    maxAge: 1000 * 60 * 60 * 24
-
+    maxAge:
+      1000 * 60 * 60 * 24
   }
-
 }));
+
+/* =========================================================
+   EMAIL
+========================================================= */
+
+const resend = new Resend(
+  process.env.RESEND_API_KEY
+);
+
+/* =========================================================
+   OTP
+========================================================= */
+
+const otpStore =
+  Object.create(null);
+
+const resetOtpStore =
+  Object.create(null);
+
+/* =========================================================
+   CLOUDINARY
+========================================================= */
 
 cloudinary.config({
 
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  cloud_name:
+    process.env.CLOUDINARY_CLOUD_NAME,
 
-  api_key: process.env.CLOUDINARY_API_KEY,
+  api_key:
+    process.env.CLOUDINARY_API_KEY,
 
-  api_secret: process.env.CLOUDINARY_API_SECRET
-
-});
-
-const storage = new CloudinaryStorage({
-
-  cloudinary: cloudinary,
-
-  params: {
-
-    folder: "acai-shop-products",
-
-    allowed_formats: [
-      "jpg",
-      "png",
-      "jpeg",
-      "webp"
-    ]
-
-  }
+  api_secret:
+    process.env.CLOUDINARY_API_SECRET
 
 });
 
-const upload = multer({
-  storage
-});
-async function generateInvoicePDF(data) {
+const storage =
+  new CloudinaryStorage({
 
-  const safeNumber = value => {
-    const n = Number(value);
-    return Number.isFinite(n) ? n : 0;
-  };
+    cloudinary,
 
-  const safeText = value => {
-    if (value === undefined || value === null) {
-      return "";
-    }
+    params: {
 
-    return String(value);
-  };
+      folder:
+        "acai-shop-products",
 
-  const escapeHTML = value => {
-    return safeText(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  };
-
-
-  // ==========================================
-  // PYIDAUNGSU FONT
-  // ==========================================
-
-  const fontPath = path.join(
-    __dirname,
-    "fonts",
-    "Pyidaungsu-2.5.3_Regular.ttf"
-  );
-
-  if (!fs.existsSync(fontPath)) {
-    throw new Error(
-      "Pyidaungsu font not found: " + fontPath
-    );
-  }
-
-  const fontBase64 =
-    fs.readFileSync(fontPath).toString("base64");
-
-
-  // ==========================================
-  // CART
-  // ==========================================
-
-  const cart = Array.isArray(data.cart)
-    ? data.cart
-    : [];
-
-
-  const subtotal = cart.reduce(
-    (sum, item) => {
-
-      const price =
-        safeNumber(item.price);
-
-      const qty =
-        Math.max(
-          0,
-          safeNumber(item.qty)
-        );
-
-      return sum + (price * qty);
-
-    },
-    0
-  );
-
-
-  const deliveryFee =
-    safeNumber(data.deliveryFee);
-
-
-  const grandTotal =
-    safeNumber(data.total);
-
-
-  // ==========================================
-  // ITEMS
-  // ==========================================
-
-  const itemsHTML = cart.map(item => {
-
-    const price =
-      safeNumber(item.price);
-
-    const qty =
-      Math.max(
-        0,
-        safeNumber(item.qty)
-      );
-
-    const itemTotal =
-      price * qty;
-
-    return `
-      <tr>
-
-        <td>
-          ${escapeHTML(item.name)}
-        </td>
-
-        <td class="center">
-          ${qty}
-        </td>
-
-        <td class="right">
-          ${price.toLocaleString()}
-        </td>
-
-        <td class="right">
-          ${itemTotal.toLocaleString()}
-        </td>
-
-      </tr>
-    `;
-
-  }).join("");
-
-
-  // ==========================================
-  // HTML
-  // ==========================================
-
-  const html = `
-
-<!DOCTYPE html>
-
-<html lang="my">
-
-<head>
-
-<meta charset="UTF-8">
-
-<style>
-
-@font-face {
-
-  font-family: "Pyidaungsu";
-
-  src:
-    url("data:font/ttf;base64,${fontBase64}")
-    format("truetype");
-
-  font-weight: normal;
-
-  font-style: normal;
-
-}
-
-
-* {
-
-  box-sizing: border-box;
-
-}
-
-
-body {
-
-  margin: 0;
-
-  padding: 35px;
-
-  font-family:
-    "Pyidaungsu",
-    "Noto Sans Myanmar",
-    Arial,
-    sans-serif;
-
-  color: #1E293B;
-
-  font-size: 12px;
-
-}
-
-
-.header {
-
-  text-align: center;
-
-  margin-bottom: 18px;
-
-}
-
-
-.logo-title {
-
-  font-family:
-    Arial,
-    sans-serif;
-
-  font-size: 26px;
-
-  font-weight: bold;
-
-  color: #818CF8;
-
-}
-
-
-.subtitle {
-
-  font-family:
-    Arial,
-    sans-serif;
-
-  font-size: 10px;
-
-  color: #64748B;
-
-  margin-top: 4px;
-
-}
-
-
-.line {
-
-  border-top:
-    1px solid #E2E8F0;
-
-  margin:
-    15px 0;
-
-}
-
-
-.info-table {
-
-  width: 100%;
-
-  border-collapse:
-    collapse;
-
-  margin-bottom:
-    12px;
-
-}
-
-
-.info-table td {
-
-  padding:
-    4px 0;
-
-  vertical-align:
-    top;
-
-}
-
-
-.info-label {
-
-  font-weight:
-    bold;
-
-  width:
-    145px;
-
-}
-
-
-.info-value {
-
-  word-break:
-    break-word;
-
-}
-
-
-.items {
-
-  width: 100%;
-
-  border-collapse:
-    collapse;
-
-  margin-top:
-    15px;
-
-  margin-bottom:
-    15px;
-
-}
-
-
-.items th {
-
-  background:
-    #818CF8;
-
-  color:
-    white;
-
-  padding:
-    8px;
-
-  font-family:
-    "Pyidaungsu",
-    Arial,
-    sans-serif;
-
-  font-weight:
-    bold;
-
-}
-
-
-.items td {
-
-  padding:
-    8px;
-
-  border-bottom:
-    1px solid #E2E8F0;
-
-  vertical-align:
-    top;
-
-}
-
-
-.center {
-
-  text-align:
-    center;
-
-}
-
-
-.right {
-
-  text-align:
-    right;
-
-}
-
-
-.total-box {
-
-  width:
-    100%;
-
-  margin-top:
-    10px;
-
-}
-
-
-.total-row {
-
-  text-align:
-    right;
-
-  padding:
-    4px 0;
-
-}
-
-
-.grand-total {
-
-  font-size:
-    15px;
-
-  font-weight:
-    bold;
-
-  color:
-    #818CF8;
-
-  margin-top:
-    5px;
-
-}
-
-
-.footer {
-
-  text-align:
-    center;
-
-  margin-top:
-    35px;
-
-  font-family:
-    "Pyidaungsu",
-    Arial,
-    sans-serif;
-
-}
-
-
-.footer-main {
-
-  font-weight:
-    bold;
-
-  font-size:
-    11px;
-
-  color:
-    #475569;
-
-}
-
-
-.footer-sub {
-
-  font-size:
-    9px;
-
-  color:
-    #94A3B8;
-
-  margin-top:
-    5px;
-
-}
-
-</style>
-
-</head>
-
-
-<body>
-
-
-<div class="header">
-
-  <div class="logo-title">
-    Açaí
-  </div>
-
-  <div class="subtitle">
-    Official Purchase Invoice & Voucher
-  </div>
-
-</div>
-
-
-<div class="line"></div>
-
-
-<table class="info-table">
-
-
-<tr>
-
-<td class="info-label">
-Invoice ID:
-</td>
-
-<td class="info-value">
-#INV-${escapeHTML(data.orderId)}
-</td>
-
-
-<td
-  class="info-label"
-  style="width:100px;"
->
-
-Date & Time:
-
-</td>
-
-<td class="info-value">
-
-${escapeHTML(
-  data.date ||
-  new Date().toLocaleString(
-    "en-GB",
-    {
-      timeZone:
-        "Asia/Yangon"
-    }
-  )
-)}
-
-</td>
-
-</tr>
-
-
-<tr>
-
-<td class="info-label">
-Customer Name:
-</td>
-
-<td
-  colspan="3"
-  class="info-value"
->
-
-${escapeHTML(data.name)}
-
-</td>
-
-</tr>
-
-
-<tr>
-
-<td class="info-label">
-Email:
-</td>
-
-<td
-  colspan="3"
-  class="info-value"
->
-
-${escapeHTML(data.userEmail)}
-
-</td>
-
-</tr>
-
-
-<tr>
-
-<td class="info-label">
-Phone:
-</td>
-
-<td
-  colspan="3"
-  class="info-value"
->
-
-${escapeHTML(data.phone)}
-
-</td>
-
-</tr>
-
-
-<tr>
-
-<td class="info-label">
-Shipping Address:
-</td>
-
-<td
-  colspan="3"
-  class="info-value"
->
-
-${escapeHTML(data.fullAddress)}
-
-</td>
-
-</tr>
-
-
-<tr>
-
-<td class="info-label">
-Payment Method:
-</td>
-
-<td
-  colspan="3"
-  class="info-value"
->
-
-${escapeHTML(
-  data.payment_method ||
-  "COD"
-)}
-
-</td>
-
-</tr>
-
-
-</table>
-
-
-<table class="items">
-
-
-<thead>
-
-<tr>
-
-<th>
-Item Name
-</th>
-
-<th style="width:45px;">
-Qty
-</th>
-
-<th style="width:90px;">
-Price (MMK)
-</th>
-
-<th style="width:90px;">
-Total (MMK)
-</th>
-
-</tr>
-
-</thead>
-
-
-<tbody>
-
-${itemsHTML}
-
-</tbody>
-
-</table>
-
-
-<div class="total-box">
-
-
-<div class="total-row">
-
-Subtotal:
-
-<strong>
-${subtotal.toLocaleString()} MMK
-</strong>
-
-</div>
-
-
-<div class="total-row">
-
-Delivery Fee:
-
-<strong>
-${deliveryFee.toLocaleString()} MMK
-</strong>
-
-</div>
-
-
-<div class="total-row grand-total">
-
-Grand Total:
-
-${grandTotal.toLocaleString()} MMK
-
-</div>
-
-
-</div>
-
-
-<div class="footer">
-
-
-<div class="footer-main">
-
-Thank you for shopping with Açaí Shop!
-
-</div>
-
-
-<div class="footer-sub">
-
-If you have any questions regarding your order,
-please contact our support.
-
-</div>
-
-
-</div>
-
-
-</body>
-
-</html>
-
-`;
-
-
-  // ==========================================
-  // PUPPETEER
-  // ==========================================
-
-  let browser;
-
-
-  try {
-
-    browser = await puppeteer.launch({
-  headless: true,
-  args: [
-    "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-dev-shm-usage",
-    "--disable-gpu",
-    "--disable-extensions",
-    "--disable-background-networking",
-    "--disable-background-timer-throttling",
-    "--disable-renderer-backgrounding",
-    "--no-first-run",
-    "--no-default-browser-check",
-    "--disable-sync",
-    "--mute-audio"
-  ]
-});
-
-
-    const page =
-      await browser.newPage();
-
-
-    await page.setContent(
-      html,
-      {
-        waitUntil:
-          "networkidle0"
-      }
-    );
-
-
-    // Wait until the embedded
-    // Pyidaungsu font is ready.
-
-    await page.evaluate(
-      async () => {
-
-        await document.fonts.ready;
-
-      }
-    );
-
-
-    const pdfBuffer =
-      await page.pdf({
-
-        format:
-          "A4",
-
-        printBackground:
-          true,
-
-        margin: {
-
-          top:
-            "15mm",
-
-          right:
-            "15mm",
-
-          bottom:
-            "15mm",
-
-          left:
-            "15mm"
-
-        }
-
-      });
-
-
-    await browser.close();
-
-
-    return Buffer.from(
-      pdfBuffer
-    );
-
-
-  } catch (error) {
-
-    if (browser) {
-
-      try {
-
-        await browser.close();
-
-      } catch {}
+      allowed_formats: [
+        "jpg",
+        "jpeg",
+        "png",
+        "webp"
+      ]
 
     }
 
-    throw error;
+  });
 
-  }
+const upload =
+  multer({
+    storage
+  });
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function clean(value) {
+  return String(value ?? "").trim();
+}
+
+function escapeHTML(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
 }
+
+function sendJSONError(
+  res,
+  status,
+  message
+) {
+
+  return res.status(status).json({
+    success: false,
+    message
+  });
+
+}
+
+/* =========================================================
+   AUTH MIDDLEWARE
+========================================================= */
 
 function auth(req, res, next) {
 
@@ -1035,7 +232,10 @@ function auth(req, res, next) {
 
       success: false,
 
-      message: "Login required"
+      loggedIn: false,
+
+      message:
+        "Login required."
 
     });
 
@@ -1045,6 +245,9 @@ function auth(req, res, next) {
 
 }
 
+/* =========================================================
+   ADMIN MIDDLEWARE
+========================================================= */
 
 function adminAuth(req, res, next) {
 
@@ -1054,7 +257,8 @@ function adminAuth(req, res, next) {
 
       success: false,
 
-      message: "Admin login required"
+      message:
+        "Admin login required."
 
     });
 
@@ -1064,47 +268,39 @@ function adminAuth(req, res, next) {
 
 }
 
+/* =========================================================
+   SEND OTP
+========================================================= */
 
-app.post("/send-otp", (req, res) => {
+app.post(
+  "/send-otp",
+  async (req, res) => {
 
-  const email =
-    (req.body.email || "")
-      .trim()
-      .toLowerCase();
+    try {
 
-  if (!email) {
+      const email =
+        clean(req.body.email)
+          .toLowerCase();
 
-    return res.json({
+      if (!email) {
 
-      success: false,
-
-      message: "Email is required."
-
-    });
-
-  }
-
-  db.get(
-
-    "SELECT id FROM customers WHERE LOWER(email)=LOWER(?)",
-
-    [email],
-
-    async (err, user) => {
-
-      if (err) {
-
-        return res.json({
-
-          success: false,
-
-          message: "Database error."
-
-        });
+        return sendJSONError(
+          res,
+          400,
+          "Email is required."
+        );
 
       }
 
-      if (user) {
+      const existing =
+        await db.get(
+          `SELECT id
+           FROM customers
+           WHERE LOWER(email)=LOWER(?)`,
+          [email]
+        );
+
+      if (existing) {
 
         return res.json({
 
@@ -1118,611 +314,172 @@ app.post("/send-otp", (req, res) => {
       }
 
       const otp =
-        Math.floor(
-          100000 +
-          Math.random() * 900000
-        ).toString();
+        String(
+          Math.floor(
+            100000 +
+            Math.random() * 900000
+          )
+        );
 
       otpStore[email] = otp;
 
       setTimeout(() => {
 
-        if (otpStore[email] === otp) {
-
+        if (
+          otpStore[email] === otp
+        ) {
           delete otpStore[email];
-
         }
 
       }, 5 * 60 * 1000);
 
-      try {
+      await resend.emails.send({
 
-        await resend.emails.send({
+        from:
+          "Acai Shop <support@acaishopmm.store>",
 
-          from:
-            "Acai Shop <support@acaishopmm.store>",
+        to: email,
 
-          to: email,
+        subject:
+          "Verify your Acai Shop account",
 
-          subject:
-            "Verify your Acai Shop account",
+        html: `
 
-          html: `
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
-<body style="margin:0;padding:0;background-color:#0b1220;font-family:Arial,sans-serif;">
+<body style="
+margin:0;
+padding:30px;
+background:#0b1220;
+font-family:Arial,sans-serif;
+">
 
-<table width="100%" border="0" cellspacing="0" cellpadding="0"
-style="background-color:#0b1220;padding:30px 10px;">
-
-<tr>
-<td align="center">
-
-<table width="100%" border="0" cellspacing="0" cellpadding="0"
-style="max-width:420px;background-color:#111827;border-radius:24px;padding:30px 20px;text-align:center;border:1px solid rgba(255,255,255,0.15);">
-
-<tr>
-<td align="center">
-
-<table border="0" cellspacing="0" cellpadding="0">
-
-<tr>
-
-<td style="width:80px;height:80px;border-radius:50%;background-color:#ffffff;border:4px solid #E8ECFF;overflow:hidden;"
-align="center"
-valign="middle">
+<div style="
+max-width:450px;
+margin:auto;
+background:#111827;
+padding:30px;
+border-radius:20px;
+text-align:center;
+color:white;
+">
 
 <img
 src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/refs/heads/main/logo.jpg.jpg"
 width="80"
 height="80"
-style="display:block;border-radius:50%;object-fit:cover;"
-alt="Acai Shop">
+style="
+border-radius:50%;
+object-fit:cover;
+"
+>
 
-</td>
+<h1>Acai Shop</h1>
 
-</tr>
-
-</table>
-
-<h1 style="margin:16px 0 0 0;color:#ffffff;font-size:28px;font-weight:bold;">
-Acai Shop
-</h1>
-
-<p style="color:#CBD5E1;font-size:15px;margin:8px 0 24px 0;">
+<p style="color:#CBD5E1;">
 Verify your email address
 </p>
 
-<div style="background-color:#1F2937;border:2px solid #3B82F6;border-radius:18px;padding:20px;margin-bottom:24px;">
+<div style="
+background:#1F2937;
+border:2px solid #3B82F6;
+border-radius:15px;
+padding:20px;
+margin:20px 0;
+">
 
-<div style="font-size:12px;letter-spacing:3px;color:#6C8CFF;margin-bottom:8px;font-weight:bold;">
+<div style="
+font-size:12px;
+color:#93C5FD;
+letter-spacing:3px;
+">
 VERIFICATION CODE
 </div>
 
-<div style="font-size:42px;font-weight:800;letter-spacing:8px;color:#ffffff;line-height:1;">
+<div style="
+font-size:40px;
+font-weight:bold;
+letter-spacing:8px;
+margin-top:10px;
+">
 ${otp}
 </div>
 
-</div>
-
-<p style="color:#CBD5E1;font-size:15px;line-height:1.5;margin:0 0 20px 0;">
-Enter this code in
-<b style="color:#ffffff;">Acai Shop</b>
-to finish creating your account.
-</p>
-
-<div style="display:inline-block;background-color:#1E3A8A;border-radius:99px;padding:10px 20px;font-size:14px;color:#FDE68A;font-weight:bold;">
-⏱ Expires in 5 minutes
-</div>
-
-<p style="color:#64748B;font-size:11px;line-height:1.4;margin:24px 0 0 0;">
-If you did not request this code, you can safely ignore this email.
-</p>
-
-</td>
-</tr>
-
-</table>
-
-</td>
-</tr>
-
-</table>
-
-</body>
-</html>
-`
-
-        });
-
-        res.json({
-
-          success: true,
-
-          message:
-            "Verification code sent."
-
-        });
-
-      } catch (error) {
-
-        if (otpStore[email] === otp) {
-
-          delete otpStore[email];
-
-        }
-
-        console.error(
-          "SEND OTP ERROR:",
-          error
-        );
-
-        return res.status(500).json({
-
-          success: false,
-
-          message:
-            "Failed to send verification email."
-
-        });
-
-      }
-
-    }
-
-  );
-
-});
-
-
-app.post("/verify-otp", (req, res) => {
-
-  const email =
-    (req.body.email || "")
-      .trim()
-      .toLowerCase();
-
-  const otp =
-    (req.body.otp || "")
-      .trim();
-
-  if (
-    !email ||
-    !otp
-  ) {
-
-    return res.json({
-
-      success: false,
-
-      message:
-        "Email and OTP are required."
-
-    });
-
-  }
-
-  if (
-    otpStore[email] &&
-    otpStore[email] === otp
-  ) {
-
-    return res.json({
-
-      success: true,
-
-      message:
-        "OTP verified."
-
-    });
-
-  }
-
-  return res.json({
-
-    success: false,
-
-    message:
-      "Invalid or expired OTP."
-
-  });
-
-});
-
-
-app.post("/register", async (req, res) => {
-
-  try {
-
-    const {
-      username,
-      email,
-      phone,
-      password,
-      address,
-      otp
-    } = req.body;
-
-    const cleanEmail =
-      (email || "")
-        .trim()
-        .toLowerCase();
-
-    const cleanUsername =
-      (username || "")
-        .trim();
-
-    if (
-      !cleanUsername ||
-      !cleanEmail ||
-      !password
-    ) {
-
-      return res.json({
-
-        success: false,
-
-        message:
-          "Username, email and password are required."
-
-      });
-
-    }
-
-    if (
-      !otp ||
-      otpStore[cleanEmail] !==
-        String(otp).trim()
-    ) {
-
-      return res.json({
-
-        success: false,
-
-        message:
-          "Please verify your OTP first."
-
-      });
-
-    }
-
-    const existing =
-      await db.get(
-        "SELECT id FROM customers WHERE LOWER(email)=LOWER(?)",
-        [cleanEmail]
-      );
-
-    if (existing) {
-
-      delete otpStore[cleanEmail];
-
-      return res.json({
-
-        success: false,
-
-        message:
-          "Email already exists. Please Sign In."
-
-      });
-
-    }
-
-    const hashedPassword =
-      await bcrypt.hash(
-        password,
-        10
-      );
-
-    await db.run(
-
-      `INSERT INTO customers
-      (username,email,phone,password,address)
-      VALUES (?,?,?,?,?)`,
-
-      [
-        cleanUsername,
-        cleanEmail,
-        phone || "",
-        hashedPassword,
-        address || ""
-      ]
-
-    );
-
-    delete otpStore[cleanEmail];
-
-    const user =
-      await db.get(
-        `SELECT id,username,email,phone,address,created_at
-         FROM customers
-         WHERE LOWER(email)=LOWER(?)`,
-        [cleanEmail]
-      );
-
-    if (!user) {
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Registration completed but user session could not be created."
-
-      });
-
-    }
-req.session.userId = user.id;
-req.session.userEmail = user.email;
-
-delete user.password;
-
-req.session.save(err => {
-
-    if (err) {
-        console.error("SESSION SAVE ERROR:", err);
-
-        return res.status(500).json({
-            success: false,
-            message: "Login session could not be saved."
-        });
-    }
-
-    return res.json({
-        success: true,
-        user
-    });
-
-});
-
-  } catch (error) {
-
-    console.error(
-      "REGISTER ERROR:",
-      error
-    );
-
-    return res.status(500).json({
-
-      success: false,
-
-      message:
-        "Registration failed."
-
-    });
-
-  }
-
-});
-
-
-app.post("/forgot-password", (req, res) => {
-
-  const email =
-    (req.body.email || "")
-      .trim()
-      .toLowerCase();
-
-  if (!email) {
-
-    return res.json({
-
-      success: false,
-
-      message:
-        "Email is required."
-
-    });
-
-  }
-
-  db.get(
-
-    "SELECT id,username FROM customers WHERE LOWER(email)=LOWER(?)",
-
-    [email],
-
-    async (err, user) => {
-
-      if (err) {
-
-        return res.json({
-
-          success: false,
-
-          message:
-            "Database error."
-
-        });
-
-      }
-
-      if (!user) {
-
-        return res.json({
-
-          success: false,
-
-          message:
-            "No account found with this email."
-
-        });
-
-      }
-
-      const otp =
-        Math.floor(
-          100000 +
-          Math.random() * 900000
-        ).toString();
-
-      resetOtpStore[email] =
-        otp;
-
-      setTimeout(() => {
-
-        if (
-          resetOtpStore[email] ===
-          otp
-        ) {
-
-          delete resetOtpStore[email];
-
-        }
-
-      }, 5 * 60 * 1000);
-
-      try {
-
-        await resend.emails.send({
-
-          from:
-            "Acai Shop <support@acaishopmm.store>",
-
-          to: email,
-
-          subject:
-            "Reset Your Acai Shop Password",
-
-          html: `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-
-<body style="margin:0;padding:0;background:#0b1220;font-family:Arial,sans-serif;">
-
-<div style="max-width:500px;margin:40px auto;background:#111827;padding:30px;border-radius:20px;color:white;text-align:center;">
-
-<img
-src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/refs/heads/main/logo.jpg.jpg"
-width="80"
-height="80"
-style="border-radius:50%;object-fit:cover;">
-
-<h2 style="margin-top:20px;">
-Reset Your Password
-</h2>
-
-<p style="color:#CBD5E1;">
-Use the verification code below to reset your Acai Shop password.
-</p>
-
-<div style="font-size:40px;font-weight:bold;letter-spacing:8px;background:#1F2937;border:2px solid #3B82F6;padding:20px;border-radius:15px;margin:20px 0;">
-${otp}
 </div>
 
 <p style="color:#CBD5E1;">
 This code expires in 5 minutes.
 </p>
 
-<p style="font-size:12px;color:#64748B;">
-If you did not request a password reset, you can safely ignore this email.
-</p>
-
 </div>
 
 </body>
 </html>
+
 `
 
-        });
-
-        return res.json({
-
-          success: true,
-
-          message:
-            "Password reset code sent."
-
-        });
-
-      } catch (error) {
-
-        if (
-          resetOtpStore[email] ===
-          otp
-        ) {
-
-          delete resetOtpStore[email];
-
-        }
-
-        console.error(
-          "FORGOT PASSWORD EMAIL ERROR:",
-          error
-        );
-
-        return res.status(500).json({
-
-          success: false,
-
-          message:
-            "Failed to send reset email."
-
-        });
-
-      }
-
-    }
-
-  );
-
-});
-
-
-app.post("/reset-password", async (req, res) => {
-
-  try {
-
-    const email =
-      (req.body.email || "")
-        .trim()
-        .toLowerCase();
-
-    const otp =
-      (req.body.otp || "")
-        .trim();
-
-    const password =
-      req.body.password || "";
-
-    if (!email || !otp) {
+      });
 
       return res.json({
 
-        success: false,
+        success: true,
 
         message:
-          "Email and OTP are required."
+          "Verification code sent."
 
       });
+
+    } catch (error) {
+
+      console.error(
+        "SEND OTP ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Failed to send verification email."
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   VERIFY OTP
+========================================================= */
+
+app.post(
+  "/verify-otp",
+  (req, res) => {
+
+    const email =
+      clean(req.body.email)
+        .toLowerCase();
+
+    const otp =
+      clean(req.body.otp);
+
+    if (!email || !otp) {
+
+      return sendJSONError(
+        res,
+        400,
+        "Email and OTP are required."
+      );
 
     }
 
     if (
-      resetOtpStore[email] !== otp
+      otpStore[email] &&
+      otpStore[email] === otp
     ) {
-
-      return res.json({
-
-        success: false,
-
-        message:
-          "Invalid or expired OTP."
-
-      });
-
-    }
-
-    // OTP verification only
-    if (password === "__VERIFY__") {
 
       return res.json({
 
@@ -1735,407 +492,857 @@ app.post("/reset-password", async (req, res) => {
 
     }
 
-    if (
-      password.length < 6
-    ) {
-
-      return res.json({
-
-        success: false,
-
-        message:
-          "Password must be at least 6 characters."
-
-      });
-
-    }
-
-    const hashedPassword =
-      await bcrypt.hash(
-        password,
-        10
-      );
-
-    const result =
-      await db.run(
-
-        `UPDATE customers
-         SET password=?
-         WHERE LOWER(email)=LOWER(?)`,
-
-        [
-          hashedPassword,
-          email
-        ]
-
-      );
-
-    if (
-      !result ||
-      Number(result.changes || 0) !== 1
-    ) {
-
-      return res.json({
-
-        success: false,
-
-        message:
-          "Account not found."
-
-      });
-
-    }
-
-    delete resetOtpStore[email];
-
-    return res.json({
-
-      success: true,
-
-      message:
-        "Password reset successfully."
-
-    });
-
-  } catch (error) {
-
-    console.error(
-      "RESET PASSWORD ERROR:",
-      error
-    );
-
-    return res.status(500).json({
-
-      success: false,
-
-      message:
-        "Failed to reset password."
-
-    });
-
-  }
-
-});
-
-
-app.post("/login", (req, res) => {
-
-  const email =
-    (req.body.email || "")
-      .trim()
-      .toLowerCase();
-
-  const password =
-    req.body.password || "";
-
-  if (
-    !email ||
-    !password
-  ) {
-
     return res.json({
 
       success: false,
 
       message:
-        "Email and password are required."
+        "Invalid or expired OTP."
 
     });
 
   }
+);
 
-  db.get(
+/* =========================================================
+   REGISTER
+========================================================= */
 
-    `SELECT
-      id,
-      username,
-      email,
-      phone,
-      address,
-      password,
-      created_at
-     FROM customers
-     WHERE LOWER(email)=LOWER(?)`,
+app.post(
+  "/register",
+  async (req, res) => {
 
-    [email],
+    try {
 
-    async (err, user) => {
+      const username =
+        clean(req.body.username);
 
-      if (err) {
+      const email =
+        clean(req.body.email)
+          .toLowerCase();
 
-        console.error(
-          "LOGIN DB ERROR:",
-          err
+      const phone =
+        clean(req.body.phone);
+
+      const password =
+        req.body.password || "";
+
+      const address =
+        clean(req.body.address);
+
+      const otp =
+        clean(req.body.otp);
+
+      if (
+        !username ||
+        !email ||
+        !password
+      ) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Username, email and password are required."
         );
 
-        return res.status(500).json({
+      }
 
-          success: false,
+      if (
+        !otp ||
+        otpStore[email] !== otp
+      ) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Please verify your OTP first."
+        );
+
+      }
+
+      const existing =
+        await db.get(
+          `SELECT id
+           FROM customers
+           WHERE LOWER(email)=LOWER(?)`,
+          [email]
+        );
+
+      if (existing) {
+
+        delete otpStore[email];
+
+        return sendJSONError(
+          res,
+          400,
+          "Email already exists. Please Sign In."
+        );
+
+      }
+
+      const hashedPassword =
+        await bcrypt.hash(
+          password,
+          10
+        );
+
+      await db.run(
+        `INSERT INTO customers
+        (
+          username,
+          email,
+          phone,
+          password,
+          address
+        )
+        VALUES (?,?,?,?,?)`,
+        [
+          username,
+          email,
+          phone,
+          hashedPassword,
+          address
+        ]
+      );
+
+      delete otpStore[email];
+
+      const user =
+        await db.get(
+          `SELECT
+             id,
+             username,
+             email,
+             phone,
+             address,
+             created_at
+           FROM customers
+           WHERE LOWER(email)=LOWER(?)`,
+          [email]
+        );
+
+      if (!user) {
+
+        return sendJSONError(
+          res,
+          500,
+          "Account created but session could not be created."
+        );
+
+      }
+
+      req.session.userId =
+        user.id;
+
+      req.session.userEmail =
+        user.email;
+
+      req.session.save(error => {
+
+        if (error) {
+
+          console.error(
+            "REGISTER SESSION ERROR:",
+            error
+          );
+
+          return sendJSONError(
+            res,
+            500,
+            "Session could not be saved."
+          );
+
+        }
+
+        return res.json({
+
+          success: true,
+
+          user
+
+        });
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "REGISTER ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Registration failed."
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   FORGOT PASSWORD
+========================================================= */
+
+app.post(
+  "/forgot-password",
+  async (req, res) => {
+
+    try {
+
+      const email =
+        clean(req.body.email)
+          .toLowerCase();
+
+      if (!email) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Email is required."
+        );
+
+      }
+
+      const user =
+        await db.get(
+          `SELECT id,username
+           FROM customers
+           WHERE LOWER(email)=LOWER(?)`,
+          [email]
+        );
+
+      if (!user) {
+
+        return sendJSONError(
+          res,
+          404,
+          "Account not found. Please create an account first."
+        );
+
+      }
+
+      const otp =
+        String(
+          Math.floor(
+            100000 +
+            Math.random() * 900000
+          )
+        );
+
+      resetOtpStore[email] =
+        otp;
+
+      setTimeout(() => {
+
+        if (
+          resetOtpStore[email] === otp
+        ) {
+          delete resetOtpStore[email];
+        }
+
+      }, 5 * 60 * 1000);
+
+      await resend.emails.send({
+
+        from:
+          "Acai Shop <support@acaishopmm.store>",
+
+        to: email,
+
+        subject:
+          "Reset Your Acai Shop Password",
+
+        html: `
+
+<!DOCTYPE html>
+<html>
+
+<body style="
+margin:0;
+padding:30px;
+background:#0b1220;
+font-family:Arial;
+">
+
+<div style="
+max-width:450px;
+margin:auto;
+background:#111827;
+color:white;
+padding:30px;
+border-radius:20px;
+text-align:center;
+">
+
+<img
+src="https://raw.githubusercontent.com/skyfallrudo/acai-assets/refs/heads/main/logo.jpg.jpg"
+width="80"
+height="80"
+style="border-radius:50%;"
+>
+
+<h2>Reset Your Password</h2>
+
+<p style="color:#CBD5E1;">
+Use this code to reset your Acai Shop password.
+</p>
+
+<div style="
+font-size:40px;
+font-weight:bold;
+letter-spacing:8px;
+background:#1F2937;
+border:2px solid #3B82F6;
+padding:20px;
+border-radius:15px;
+">
+
+${otp}
+
+</div>
+
+<p style="color:#CBD5E1;">
+This code expires in 5 minutes.
+</p>
+
+</div>
+
+</body>
+</html>
+
+`
+
+      });
+
+      return res.json({
+
+        success: true,
+
+        message:
+          "Password reset code sent."
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "FORGOT PASSWORD ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Failed to send reset email."
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   RESET PASSWORD
+========================================================= */
+
+app.post(
+  "/reset-password",
+  async (req, res) => {
+
+    try {
+
+      const email =
+        clean(req.body.email)
+          .toLowerCase();
+
+      const otp =
+        clean(req.body.otp);
+
+      const password =
+        req.body.password || "";
+
+      if (!email || !otp) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Email and OTP are required."
+        );
+
+      }
+
+      if (
+        resetOtpStore[email] !== otp
+      ) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Invalid or expired OTP."
+        );
+
+      }
+
+      if (
+        password === "__VERIFY__"
+      ) {
+
+        return res.json({
+
+          success: true,
 
           message:
-            "Database error."
+            "OTP verified."
 
         });
 
       }
+
+      if (
+        password.length < 6
+      ) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Password must be at least 6 characters."
+        );
+
+      }
+
+      const hashedPassword =
+        await bcrypt.hash(
+          password,
+          10
+        );
+
+      const result =
+        await db.run(
+          `UPDATE customers
+           SET password=?
+           WHERE LOWER(email)=LOWER(?)`,
+          [
+            hashedPassword,
+            email
+          ]
+        );
+
+      if (
+        Number(result.changes || 0) !== 1
+      ) {
+
+        return sendJSONError(
+          res,
+          404,
+          "Account not found."
+        );
+
+      }
+
+      delete resetOtpStore[email];
+
+      return res.json({
+
+        success: true,
+
+        message:
+          "Password reset successfully."
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "RESET PASSWORD ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Failed to reset password."
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+app.post(
+  "/login",
+  async (req, res) => {
+
+    try {
+
+      const email =
+        clean(req.body.email)
+          .toLowerCase();
+
+      const password =
+        req.body.password || "";
+
+      if (!email || !password) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Email and password are required."
+        );
+
+      }
+
+      const user =
+        await db.get(
+          `SELECT
+             id,
+             username,
+             email,
+             phone,
+             address,
+             password,
+             created_at
+           FROM customers
+           WHERE LOWER(email)=LOWER(?)`,
+          [email]
+        );
+
+      if (!user) {
+
+        return sendJSONError(
+          res,
+          401,
+          "Invalid email or password."
+        );
+
+      }
+
+      const valid =
+        await bcrypt.compare(
+          password,
+          user.password
+        );
+
+      if (!valid) {
+
+        return sendJSONError(
+          res,
+          401,
+          "Invalid email or password."
+        );
+
+      }
+
+      delete user.password;
+
+      req.session.userId =
+        user.id;
+
+      req.session.userEmail =
+        user.email;
+
+      req.session.save(error => {
+
+        if (error) {
+
+          console.error(
+            "LOGIN SESSION ERROR:",
+            error
+          );
+
+          return sendJSONError(
+            res,
+            500,
+            "Login session could not be saved."
+          );
+
+        }
+
+        return res.json({
+
+          success: true,
+
+          loggedIn: true,
+
+          user
+
+        });
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "LOGIN ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Login failed."
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   ME
+========================================================= */
+
+app.get(
+  "/me",
+  async (req, res) => {
+
+    if (!req.session.userId) {
+
+      return res.json({
+
+        success: true,
+
+        loggedIn: false,
+
+        user: null
+
+      });
+
+    }
+
+    try {
+
+      const user =
+        await db.get(
+          `SELECT
+             id,
+             username,
+             email,
+             phone,
+             address,
+             created_at
+           FROM customers
+           WHERE id=?`,
+          [req.session.userId]
+        );
 
       if (!user) {
 
         return res.json({
 
-          success: false,
+          success: true,
 
-          message:
-            "Invalid email or password."
+          loggedIn: false,
+
+          user: null
 
         });
 
       }
 
-      try {
+      return res.json({
 
-        const valid =
-          await bcrypt.compare(
-            password,
-            user.password
-          );
-
-        if (!valid) {
-
-          return res.json({
-
-            success: false,
-
-            message:
-              "Invalid email or password."
-
-          });
-
-        }
-        req.session.userId = user.id;
-req.session.userEmail = user.email;
-
-req.session.save(err => {
-
-    if (err) {
-        console.error("SESSION SAVE ERROR:", err);
-
-        return res.status(500).json({
-            success: false,
-            message: "Registration session could not be saved."
-        });
-    }
-
-    return res.json({
         success: true,
+
+        loggedIn: true,
+
         user
-    });
-
-});
-
-      } catch (compareError) {
-
-        console.error(
-          "PASSWORD COMPARE ERROR:",
-          compareError
-        );
-
-        return res.status(500).json({
-
-          success: false,
-
-          message:
-            "Login failed."
-
-        });
-
-      }
-
-    }
-
-  );
-
-});
-app.get("/me", auth, (req, res) => {
-
-    db.get(
-        `SELECT
-            id,
-            username,
-            email,
-            phone,
-            address,
-            created_at
-         FROM customers
-         WHERE id=?`,
-        [req.session.userId],
-
-        (err, user) => {
-
-            if (err) {
-                return res.status(500).json({
-                    success: false,
-                    loggedIn: false,
-                    message: "Database error."
-                });
-            }
-
-            if (!user) {
-                return res.status(404).json({
-                    success: false,
-                    loggedIn: false,
-                    message: "User not found."
-                });
-            }
-
-            res.json({
-                success: true,
-                loggedIn: true,
-                user
-            });
-
-        }
-    );
-
-});
-
-app.post("/logout", (req, res) => {
-
-  req.session.destroy(err => {
-
-    if (err) {
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Logout failed."
 
       });
 
+    } catch (error) {
+
+      console.error(
+        "ME ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Failed to load account."
+      );
+
     }
 
-    res.clearCookie(
-      "connect.sid"
-    );
+  }
+);
 
-    res.json({
+/* =========================================================
+   LOGOUT
+========================================================= */
 
-      success: true
+app.post(
+  "/logout",
+  (req, res) => {
 
-    });
+    req.session.destroy(error => {
 
-  });
+      if (error) {
 
-});
-
-
-app.get("/products", (req, res) => {
-
-  db.all(
-
-    "SELECT * FROM products ORDER BY id DESC",
-
-    [],
-
-    (err, rows) => {
-
-      if (err) {
-
-        return res.status(500).json({
-
-          success: false,
-
-          message:
-            "Failed to load products."
-
-        });
+        return sendJSONError(
+          res,
+          500,
+          "Logout failed."
+        );
 
       }
 
-      res.json(rows || []);
+      res.clearCookie(
+        "connect.sid"
+      );
 
-    }
+      return res.json({
 
-  );
+        success: true
 
-});
+      });
 
+    });
 
-app.post(
-  "/admin/products",
-  adminAuth,
-  upload.single("image"),
+  }
+);
+
+/* =========================================================
+   PRODUCTS
+========================================================= */
+
+app.get(
+  "/products",
   async (req, res) => {
 
     try {
 
-      const {
-        name,
-        description,
-        price,
-        stock,
-        category
-      } = req.body;
+      const products =
+        await db.all(
+          `SELECT *
+           FROM products
+           ORDER BY id DESC`
+        );
 
-      const cleanName =
-        String(name || "").trim();
+      return res.json(
+        products || []
+      );
 
-      const cleanDescription =
-        String(description || "").trim();
+    } catch (error) {
 
-      const cleanCategory =
-        String(category || "").trim();
+      console.error(
+        "PRODUCTS ERROR:",
+        error
+      );
 
-      const cleanPrice =
-        Number(price);
+      return sendJSONError(
+        res,
+        500,
+        "Failed to load products."
+      );
 
-      const cleanStock =
-        Number(stock);
+    }
 
-      if (!cleanName) {
+  }
+);
 
-        return res.json({
+/* =========================================================
+   ADD PRODUCT
+   IMPORTANT:
+   Both /add-product and /admin/products work.
+========================================================= */
 
-          success: false,
+app.post(
+  [
+    "/add-product",
+    "/admin/products"
+  ],
+  adminAuth,
 
-          message:
-            "Product name is required."
+  (req, res, next) => {
 
-        });
+    upload.single("image")(
+      req,
+      res,
+      error => {
+
+        if (error) {
+
+          console.error(
+            "PRODUCT IMAGE UPLOAD ERROR:",
+            error
+          );
+
+          return sendJSONError(
+            res,
+            400,
+            error.message ||
+            "Image upload failed."
+          );
+
+        }
+
+        next();
+
+      }
+    );
+
+  },
+
+  async (req, res) => {
+
+    try {
+
+      const name =
+        clean(req.body.name);
+
+      const description =
+        clean(req.body.description);
+
+      const category =
+        clean(req.body.category);
+
+      const price =
+        Number(req.body.price);
+
+      const stock =
+        Number(req.body.stock);
+
+      if (!name) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Product name is required."
+        );
 
       }
 
       if (
-        !Number.isFinite(cleanPrice) ||
-        cleanPrice < 0
+        !Number.isFinite(price) ||
+        price < 0
       ) {
 
-        return res.json({
-
-          success: false,
-
-          message:
-            "Invalid product price."
-
-        });
+        return sendJSONError(
+          res,
+          400,
+          "Invalid product price."
+        );
 
       }
 
       if (
-        !Number.isInteger(cleanStock) ||
-        cleanStock < 0
+        !Number.isInteger(stock) ||
+        stock < 0
       ) {
 
-        return res.json({
-
-          success: false,
-
-          message:
-            "Invalid stock quantity."
-
-        });
+        return sendJSONError(
+          res,
+          400,
+          "Invalid stock quantity."
+        );
 
       }
 
@@ -2146,20 +1353,24 @@ app.post(
         "";
 
       await db.run(
-
         `INSERT INTO products
-        (name,description,price,stock,category,image)
+        (
+          name,
+          description,
+          price,
+          stock,
+          category,
+          image
+        )
         VALUES (?,?,?,?,?,?)`,
-
         [
-          cleanName,
-          cleanDescription,
-          cleanPrice,
-          cleanStock,
-          cleanCategory,
+          name,
+          description,
+          price,
+          stock,
+          category,
           image
         ]
-
       );
 
       return res.json({
@@ -2178,479 +1389,594 @@ app.post(
         error
       );
 
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Failed to add product."
-
-      });
+      return sendJSONError(
+        res,
+        500,
+        error.message ||
+        "Failed to add product."
+      );
 
     }
 
   }
 );
-app.put("/update-product/:id", adminAuth, async (req, res) => {
-  try {
-    const id = Number(req.params.id);
 
-    const name = String(req.body.name || "").trim();
-    const description = String(req.body.description || "").trim();
-    const price = Number(req.body.price);
-    const stock = Number(req.body.stock);
-    const category = String(req.body.category || "").trim();
+/* =========================================================
+   UPDATE PRODUCT
+========================================================= */
 
-    if (!Number.isInteger(id) || id <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid product ID."
-      });
-    }
+app.put(
+  "/update-product/:id",
+  adminAuth,
+  async (req, res) => {
 
-    if (!name) {
-      return res.status(400).json({
-        success: false,
-        message: "Product name is required."
-      });
-    }
+    try {
 
-    if (!Number.isFinite(price) || price < 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid product price."
-      });
-    }
+      const id =
+        Number(req.params.id);
 
-    if (!Number.isInteger(stock) || stock < 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid stock quantity."
-      });
-    }
+      const name =
+        clean(req.body.name);
 
-    const product = await db.get(
-      "SELECT id FROM products WHERE id=?",
-      [id]
-    );
+      const description =
+        clean(req.body.description);
 
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found."
-      });
-    }
+      const category =
+        clean(req.body.category);
 
-    await db.run(
-      `UPDATE products
-       SET name=?,
+      const price =
+        Number(req.body.price);
+
+      const stock =
+        Number(req.body.stock);
+
+      if (
+        !Number.isInteger(id) ||
+        id <= 0
+      ) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Invalid product ID."
+        );
+
+      }
+
+      if (!name) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Product name is required."
+        );
+
+      }
+
+      if (
+        !Number.isFinite(price) ||
+        price < 0
+      ) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Invalid product price."
+        );
+
+      }
+
+      if (
+        !Number.isInteger(stock) ||
+        stock < 0
+      ) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Invalid stock quantity."
+        );
+
+      }
+
+      const product =
+        await db.get(
+          "SELECT id FROM products WHERE id=?",
+          [id]
+        );
+
+      if (!product) {
+
+        return sendJSONError(
+          res,
+          404,
+          "Product not found."
+        );
+
+      }
+
+      await db.run(
+        `UPDATE products
+         SET
+           name=?,
            price=?,
            stock=?,
            description=?,
            category=?
-       WHERE id=?`,
-      [
-        name,
-        price,
-        stock,
-        description,
-        category,
-        id
-      ]
-    );
-
-    return res.json({
-      success: true,
-      message: "Product updated successfully."
-    });
-
-  } catch (error) {
-    console.error("UPDATE PRODUCT ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update product."
-    });
-  }
-});
-
-
-app.delete("/delete-product/:id", adminAuth, async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-
-    if (!Number.isInteger(id) || id <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid product ID."
-      });
-    }
-
-    const product = await db.get(
-      "SELECT id FROM products WHERE id=?",
-      [id]
-    );
-
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found."
-      });
-    }
-
-    await db.run(
-      "DELETE FROM products WHERE id=?",
-      [id]
-    );
-
-    return res.json({
-      success: true,
-      message: "Product deleted successfully."
-    });
-
-  } catch (error) {
-    console.error("DELETE PRODUCT ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Failed to delete product."
-    });
-  }
-});
-
-
-app.get("/profile", auth, async (req, res) => {
-  try {
-    const user = await db.get(
-      `SELECT
-        id,
-        username,
-        email,
-        phone,
-        address,
-        created_at
-       FROM customers
-       WHERE id=?`,
-      [req.session.userId]
-    );
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found."
-      });
-    }
-
-    return res.json({
-      success: true,
-      user
-    });
-
-  } catch (error) {
-    console.error("PROFILE ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Failed to load profile."
-    });
-  }
-});
-
-
-app.put("/profile", auth, async (req, res) => {
-  try {
-    const username =
-      String(req.body.username || "").trim();
-
-    const phone =
-      String(req.body.phone || "").trim();
-
-    const address =
-      String(req.body.address || "").trim();
-
-    if (!username) {
-      return res.status(400).json({
-        success: false,
-        message: "Username is required."
-      });
-    }
-
-    await db.run(
-      `UPDATE customers
-       SET username=?,
-           phone=?,
-           address=?
-       WHERE id=?`,
-      [
-        username,
-        phone,
-        address,
-        req.session.userId
-      ]
-    );
-
-    return res.json({
-      success: true,
-      message: "Profile updated successfully."
-    });
-
-  } catch (error) {
-    console.error("UPDATE PROFILE ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update profile."
-    });
-  }
-});
-
-
-app.post("/place-order", auth, async (req, res) => {
-
-  try {
-
-    const {
-      name,
-      phone,
-      telegram,
-      altSocial,
-      city,
-      township,
-      road,
-      building,
-      address,
-      payment_method,
-      deliFee,
-      cart
-    } = req.body;
-
-
-    if (!Array.isArray(cart) || cart.length === 0) {
-
-      return res.status(400).json({
-        success: false,
-        message: "Cart is empty."
-      });
-
-    }
-
-
-    // Validate cart items first
-    for (const item of cart) {
-
-      const qty = Number(item.qty);
-
-      if (
-        !Number.isInteger(qty) ||
-        qty <= 0
-      ) {
-
-        return res.status(400).json({
-          success: false,
-          message: `Invalid quantity for ${item.name || "item"}.`
-        });
-
-      }
-
-      if (
-        !item.id &&
-        !item.productId
-      ) {
-
-        return res.status(400).json({
-          success: false,
-          message:
-            `Product ID missing for ${item.name || "item"}.`
-        });
-
-      }
-
-    }
-
-
-    const deliveryFee =
-      Number(deliFee) || 0;
-
-
-    if (
-      !Number.isFinite(deliveryFee) ||
-      deliveryFee < 0
-    ) {
-
-      return res.status(400).json({
-        success: false,
-        message: "Invalid delivery fee."
-      });
-
-    }
-
-
-    const user = await db.get(
-      `SELECT
-        id,
-        email
-       FROM customers
-       WHERE id=?`,
-      [req.session.userId]
-    );
-
-
-    if (!user) {
-
-      return res.status(404).json({
-        success: false,
-        message: "User not found."
-      });
-
-    }
-
-
-    const verifiedCart = [];
-
-    let subtotal = 0;
-
-
-    // Get real product prices from database.
-    // Do NOT trust price sent from browser.
-    for (const item of cart) {
-
-      const productId =
-        Number(item.id || item.productId);
-
-      const qty =
-        Number(item.qty);
-
-
-      if (
-        !Number.isInteger(productId) ||
-        productId <= 0
-      ) {
-
-        return res.status(400).json({
-          success: false,
-          message:
-            `Invalid product ID for ${item.name || "item"}.`
-        });
-
-      }
-
-
-      const product = await db.get(
-        `SELECT
-          id,
+         WHERE id=?`,
+        [
           name,
           price,
           stock,
-          image
-         FROM products
-         WHERE id=?`,
-        [productId]
+          description,
+          category,
+          id
+        ]
       );
 
+      return res.json({
 
-      if (!product) {
+        success: true,
 
-        return res.status(400).json({
-          success: false,
-          message:
-            `${item.name || "Product"} no longer exists.`
-        });
-
-      }
-
-
-      if (
-        Number(product.stock) < qty
-      ) {
-
-        return res.status(400).json({
-          success: false,
-          message:
-            `${product.name} out of stock. Only ${product.stock} left.`
-        });
-
-      }
-
-
-      const realPrice =
-        Number(product.price);
-
-
-      if (
-        !Number.isFinite(realPrice) ||
-        realPrice < 0
-      ) {
-
-        return res.status(500).json({
-          success: false,
-          message:
-            `Invalid price for ${product.name}.`
-        });
-
-      }
-
-
-      subtotal +=
-        realPrice * qty;
-
-
-      verifiedCart.push({
-
-        id: product.id,
-
-        productId: product.id,
-
-        name: product.name,
-
-        price: realPrice,
-
-        qty,
-
-        image:
-          item.image ||
-          product.image ||
-          ""
+        message:
+          "Product updated successfully."
 
       });
 
+    } catch (error) {
+
+      console.error(
+        "UPDATE PRODUCT ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Failed to update product."
+      );
+
     }
 
+  }
+);
 
-    const total =
-      subtotal + deliveryFee;
+/* =========================================================
+   DELETE PRODUCT
+========================================================= */
 
-
-    const fullAddress =
-      [
-        road,
-        building,
-        address,
-        township,
-        city
-      ]
-      .filter(v =>
-        String(v || "").trim()
-      )
-      .map(v =>
-        String(v).trim()
-      )
-      .join(", ");
-
-
-    /*
-      Stock must be reduced only when enough
-      stock still exists.
-
-      This prevents two customers from buying
-      the same last item at the same time.
-    */
-
-    const changedProducts = [];
-
+app.delete(
+  "/delete-product/:id",
+  adminAuth,
+  async (req, res) => {
 
     try {
 
-      for (const item of verifiedCart) {
+      const id =
+        Number(req.params.id);
+
+      if (
+        !Number.isInteger(id) ||
+        id <= 0
+      ) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Invalid product ID."
+        );
+
+      }
+
+      const product =
+        await db.get(
+          "SELECT id FROM products WHERE id=?",
+          [id]
+        );
+
+      if (!product) {
+
+        return sendJSONError(
+          res,
+          404,
+          "Product not found."
+        );
+
+      }
+
+      await db.run(
+        "DELETE FROM products WHERE id=?",
+        [id]
+      );
+
+      return res.json({
+
+        success: true,
+
+        message:
+          "Product deleted successfully."
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "DELETE PRODUCT ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Failed to delete product."
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+app.get(
+  "/profile",
+  auth,
+  async (req, res) => {
+
+    try {
+
+      const user =
+        await db.get(
+          `SELECT
+             id,
+             username,
+             email,
+             phone,
+             address,
+             created_at
+           FROM customers
+           WHERE id=?`,
+          [req.session.userId]
+        );
+
+      if (!user) {
+
+        return sendJSONError(
+          res,
+          404,
+          "User not found."
+        );
+
+      }
+
+      return res.json({
+
+        success: true,
+
+        user
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "PROFILE ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Failed to load profile."
+      );
+
+    }
+
+  }
+);
+
+app.put(
+  "/profile",
+  auth,
+  async (req, res) => {
+
+    try {
+
+      const username =
+        clean(req.body.username);
+
+      const phone =
+        clean(req.body.phone);
+
+      const address =
+        clean(req.body.address);
+
+      if (!username) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Username is required."
+        );
+
+      }
+
+      await db.run(
+        `UPDATE customers
+         SET
+           username=?,
+           phone=?,
+           address=?
+         WHERE id=?`,
+        [
+          username,
+          phone,
+          address,
+          req.session.userId
+        ]
+      );
+
+      return res.json({
+
+        success: true,
+
+        message:
+          "Profile updated successfully."
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "PROFILE UPDATE ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Failed to update profile."
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   PLACE ORDER
+   - Uses real DB price
+   - Checks stock
+   - Saves delivery fee
+   - Sends HTML email
+   - NO PDF
+========================================================= */
+
+app.post(
+  "/place-order",
+  auth,
+  async (req, res) => {
+
+    let changedProducts = [];
+
+    try {
+
+      const name =
+        clean(req.body.name);
+
+      const phone =
+        clean(req.body.phone);
+
+      const telegram =
+        clean(req.body.telegram);
+
+      const altSocial =
+        clean(req.body.altSocial);
+
+      const city =
+        clean(req.body.city);
+
+      const township =
+        clean(req.body.township);
+
+      const road =
+        clean(req.body.road);
+
+      const building =
+        clean(req.body.building);
+
+      const address =
+        clean(req.body.address);
+
+      const paymentMethod =
+        clean(
+          req.body.payment_method ||
+          "COD"
+        );
+
+      const deliveryFee =
+        Number(req.body.deliFee || 0);
+
+      const cart =
+        req.body.cart;
+
+      if (
+        !Array.isArray(cart) ||
+        cart.length === 0
+      ) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Cart is empty."
+        );
+
+      }
+
+      if (
+        !Number.isFinite(deliveryFee) ||
+        deliveryFee < 0
+      ) {
+
+        return sendJSONError(
+          res,
+          400,
+          "Invalid delivery fee."
+        );
+
+      }
+
+      const customer =
+        await db.get(
+          `SELECT
+             id,
+             username,
+             email
+           FROM customers
+           WHERE id=?`,
+          [req.session.userId]
+        );
+
+      if (!customer) {
+
+        return sendJSONError(
+          res,
+          404,
+          "User not found."
+        );
+
+      }
+
+      const verifiedCart = [];
+
+      let subtotal = 0;
+
+      for (const item of cart) {
+
+        const productId =
+          Number(
+            item.id ||
+            item.productId
+          );
+
+        const qty =
+          Number(item.qty);
+
+        if (
+          !Number.isInteger(productId) ||
+          productId <= 0
+        ) {
+
+          return sendJSONError(
+            res,
+            400,
+            `Invalid product ID for ${item.name || "item"}.`
+          );
+
+        }
+
+        if (
+          !Number.isInteger(qty) ||
+          qty <= 0
+        ) {
+
+          return sendJSONError(
+            res,
+            400,
+            `Invalid quantity for ${item.name || "item"}.`
+          );
+
+        }
+
+        const product =
+          await db.get(
+            `SELECT
+               id,
+               name,
+               price,
+               stock,
+               image
+             FROM products
+             WHERE id=?`,
+            [productId]
+          );
+
+        if (!product) {
+
+          return sendJSONError(
+            res,
+            400,
+            `${item.name || "Product"} no longer exists.`
+          );
+
+        }
+
+        if (
+          Number(product.stock) < qty
+        ) {
+
+          return sendJSONError(
+            res,
+            400,
+            `${product.name} out of stock. Only ${product.stock} left.`
+          );
+
+        }
+
+        const realPrice =
+          Number(product.price);
+
+        subtotal +=
+          realPrice * qty;
+
+        verifiedCart.push({
+
+          id:
+            Number(product.id),
+
+          productId:
+            Number(product.id),
+
+          name:
+            product.name,
+
+          price:
+            realPrice,
+
+          qty,
+
+          image:
+            item.image ||
+            product.image ||
+            ""
+
+        });
+
+      }
+
+      const total =
+        subtotal + deliveryFee;
+
+      const fullAddress =
+        [
+          road,
+          building,
+          address,
+          township,
+          city
+        ]
+        .filter(v => clean(v))
+        .join(", ");
+
+      /* -----------------------------------------
+         REDUCE STOCK
+      ----------------------------------------- */
+
+      for (
+        const item of verifiedCart
+      ) {
 
         const result =
           await tursoClient.execute({
@@ -2669,7 +1995,6 @@ app.post("/place-order", auth, async (req, res) => {
 
           });
 
-
         if (
           Number(result.rowsAffected) !== 1
         ) {
@@ -2680,28 +2005,28 @@ app.post("/place-order", auth, async (req, res) => {
 
         }
 
-
         changedProducts.push({
 
-          id: item.productId,
+          id:
+            item.productId,
 
-          qty: item.qty
+          qty:
+            item.qty
 
         });
 
       }
 
+      /* -----------------------------------------
+         INSERT ORDER
+      ----------------------------------------- */
 
-      /*
-        Insert order only after all stock updates
-        succeed.
-      */
-
-      const insert =
+      const inserted =
         await tursoClient.execute({
 
           sql:
-            `INSERT INTO orders(
+            `INSERT INTO orders
+            (
               customer,
               email,
               phone,
@@ -2718,50 +2043,51 @@ app.post("/place-order", auth, async (req, res) => {
               deli_fee,
               payment_method
             )
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+            VALUES
+            (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 
           args: [
 
-            String(name || "").trim(),
+            name,
 
-            user.email,
+            customer.email,
 
-            String(phone || "").trim(),
+            phone,
 
-            String(telegram || "").trim(),
+            telegram,
 
-            String(altSocial || "").trim(),
+            altSocial,
 
             fullAddress,
 
-            JSON.stringify(verifiedCart),
+            JSON.stringify(
+              verifiedCart
+            ),
 
             total,
 
             "Pending",
 
-            String(city || "").trim(),
+            city,
 
-            String(township || "").trim(),
+            township,
 
-            String(road || "").trim(),
+            road,
 
-            String(building || "").trim(),
+            building,
 
             deliveryFee,
 
-            String(
-              payment_method || "COD"
-            ).trim()
+            paymentMethod
 
           ]
 
         });
 
-
       const orderId =
-        Number(insert.lastInsertRowid);
-
+        Number(
+          inserted.lastInsertRowid
+        );
 
       if (!orderId) {
 
@@ -2771,113 +2097,126 @@ app.post("/place-order", auth, async (req, res) => {
 
       }
 
-
-      /*
-        Generate invoice PDF and send email.
-        Order itself is already created successfully.
-      */
+      /* -----------------------------------------
+         HTML EMAIL ONLY
+         NO PDF ATTACHMENT
+      ----------------------------------------- */
 
       try {
 
-        console.log(
-          "Generating invoice PDF for order:",
-          orderId
-        );
+        const itemRows =
+          verifiedCart
+            .map(item => `
 
-        const pdfBuffer =
-          await generateInvoicePDF({
+<tr>
 
-            orderId,
+<td style="
+padding:10px;
+border-bottom:1px solid #E2E8F0;
+">
+${escapeHTML(item.name)}
+</td>
 
-            date:
-              new Date().toLocaleString(
-                "en-GB",
-                {
-                  timeZone:
-                    "Asia/Yangon"
-                }
-              ),
+<td style="
+padding:10px;
+text-align:center;
+border-bottom:1px solid #E2E8F0;
+">
+${item.qty}
+</td>
 
-            name:
-              String(name || "").trim(),
+<td style="
+padding:10px;
+text-align:right;
+border-bottom:1px solid #E2E8F0;
+">
+${Number(item.price).toLocaleString()} MMK
+</td>
 
-            userEmail:
-              user.email,
+<td style="
+padding:10px;
+text-align:right;
+border-bottom:1px solid #E2E8F0;
+">
+${(
+  Number(item.price) *
+  Number(item.qty)
+).toLocaleString()} MMK
+</td>
 
-            phone:
-              String(phone || "").trim(),
+</tr>
 
-            fullAddress,
+`)
+            .join("");
 
-            cart:
-              verifiedCart,
+        await resend.emails.send({
 
-            deliveryFee,
+          from:
+            "Acai Shop <support@acaishopmm.store>",
 
-            total,
+          to:
+            customer.email,
 
-            payment_method:
-              payment_method || "COD"
+          subject:
+            `Order Confirmation #${orderId} - Acai Shop`,
 
-          });
+          html: `
 
+<!DOCTYPE html>
 
-        if (
-          !pdfBuffer ||
-          !Buffer.isBuffer(pdfBuffer) ||
-          pdfBuffer.length === 0
-        ) {
+<html>
 
-          throw new Error(
-            "PDF was generated but the PDF buffer is empty."
-          );
+<head>
 
-        }
+<meta charset="UTF-8">
 
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
 
-        console.log(
-          "Invoice PDF generated successfully:",
-          pdfBuffer.length,
-          "bytes"
-        );
+</head>
 
+<body style="
+margin:0;
+padding:20px;
+background:#F1F5F9;
+font-family:Arial,sans-serif;
+color:#1E293B;
+">
 
-        const emailResult =
-          await resend.emails.send({
+<div style="
+max-width:680px;
+margin:auto;
+background:white;
+border-radius:18px;
+padding:25px;
+">
 
-            from:
-              "Acai Shop <support@acaishopmm.store>",
-
-            to:
-              user.email,
-
-            subject:
-              `Order Confirmation & Invoice #${orderId} - Acai Shop`,
-
-            html: `
-<div style="font-family:Arial,sans-serif;padding:20px;color:#1E293B">
-
-<h2 style="color:#2563EB">
+<h2 style="
+color:#2563EB;
+margin-top:0;
+">
 Order Confirmed!
 </h2>
 
 <p>
-Dear <b>${String(name || "").replace(
-              /[<>&"]/g,
-              ""
-            )}</b>,
+Dear
+<b>${escapeHTML(
+  name || "Customer"
+)}</b>,
 </p>
 
 <p>
-Thank you for shopping at
+Thank you for shopping with
 <b>Acai Shop</b>.
-</p>
-
-<p>
 Your order has been received successfully.
 </p>
 
-<hr>
+<div style="
+background:#EFF6FF;
+border-radius:12px;
+padding:15px;
+margin:20px 0;
+">
 
 <p>
 <b>Order ID:</b>
@@ -2885,21 +2224,91 @@ Your order has been received successfully.
 </p>
 
 <p>
+<b>Payment:</b>
+${escapeHTML(
+  paymentMethod
+)}
+</p>
+
+<p>
+<b>Delivery Fee:</b>
+${deliveryFee.toLocaleString()} MMK
+</p>
+
+<p>
 <b>Total:</b>
 ${total.toLocaleString()} MMK
 </p>
 
+</div>
+
 <p>
-<b>Payment Method:</b>
-${String(
-  payment_method || "COD"
+<b>Shipping Address:</b>
+<br>
+${escapeHTML(
+  fullAddress || "N/A"
 )}
 </p>
 
-<br>
+<table style="
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+">
 
-<p>
-Your purchase voucher / invoice is attached to this email as a PDF.
+<thead>
+
+<tr style="
+background:#2563EB;
+color:white;
+">
+
+<th style="
+padding:10px;
+text-align:left;
+">
+Item
+</th>
+
+<th style="
+padding:10px;
+">
+Qty
+</th>
+
+<th style="
+padding:10px;
+text-align:right;
+">
+Price
+</th>
+
+<th style="
+padding:10px;
+text-align:right;
+">
+Total
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+${itemRows}
+
+</tbody>
+
+</table>
+
+<p style="
+margin-top:25px;
+">
+
+We will process your order and update
+the order status when there is a change.
+
 </p>
 
 <p>
@@ -2908,68 +2317,26 @@ Best regards,<br>
 </p>
 
 </div>
-`,
 
-            attachments: [
+</body>
 
-              {
-                filename:
-                  `Voucher_AcaiShop_${orderId}.pdf`,
+</html>
 
-                content:
-                  pdfBuffer
+`
 
-              }
-
-            ]
-
-          });
-
-
-        console.log(
-          "INVOICE EMAIL SENT:",
-          emailResult
-        );
-
+        });
 
       } catch (emailError) {
 
         console.error(
-          "===================================="
-        );
-
-        console.error(
-          "INVOICE EMAIL ERROR"
-        );
-
-        console.error(
-          "Order ID:",
-          orderId
-        );
-
-        console.error(
-          "Customer Email:",
-          user.email
-        );
-
-        console.error(
-          "Error:",
+          "ORDER EMAIL ERROR:",
           emailError
         );
 
-        console.error(
-          "Error message:",
-          emailError?.message
-        );
-
-        console.error(
-          "Error response:",
-          emailError?.response
-        );
-
-        console.error(
-          "===================================="
-        );
+        /*
+          Email failure should NOT cancel
+          an already-created order.
+        */
 
       }
 
@@ -2981,22 +2348,21 @@ Best regards,<br>
 
       });
 
-
-    } catch (orderError) {
+    } catch (error) {
 
       console.error(
         "PLACE ORDER ERROR:",
-        orderError
+        error
       );
 
-
       /*
-        If order insertion/email process fails
-        after stock was reduced, restore stock.
+        Restore stock if something failed
+        after stock was reduced.
       */
 
       for (
-        const changed of changedProducts
+        const changed
+        of changedProducts
       ) {
 
         try {
@@ -3015,7 +2381,9 @@ Best regards,<br>
 
           });
 
-        } catch (restoreError) {
+        } catch (
+          restoreError
+        ) {
 
           console.error(
             "STOCK RESTORE ERROR:",
@@ -3026,92 +2394,244 @@ Best regards,<br>
 
       }
 
-
-      throw orderError;
-
-    }
-
-
-  } catch (error) {
-
-    console.error(
-      "PLACE ORDER ERROR:",
-      error
-    );
-
-
-    return res.status(500).json({
-
-      success: false,
-
-      message:
+      return sendJSONError(
+        res,
+        500,
         error.message ||
         "Failed to place order."
-
-    });
-
-  }
-
-});
-
-
-app.get("/my-orders", auth, async (req, res) => {
-
-  try {
-
-    const user =
-      await db.get(
-        "SELECT email FROM customers WHERE id=?",
-        [req.session.userId]
       );
-
-
-    if (!user) {
-
-      return res.json([]);
 
     }
 
+  }
+);
 
-    const orders =
-      await db.all(
+/* =========================================================
+   MY ORDERS
+========================================================= */
 
-        `SELECT *
-         FROM orders
-         WHERE email=?
-         ORDER BY id DESC`,
+app.get(
+  "/my-orders",
+  auth,
+  async (req, res) => {
 
-        [user.email]
+    try {
 
+      const user =
+        await db.get(
+          `SELECT email
+           FROM customers
+           WHERE id=?`,
+          [req.session.userId]
+        );
+
+      if (!user) {
+
+        return res.json([]);
+
+      }
+
+      const orders =
+        await db.all(
+          `SELECT *
+           FROM orders
+           WHERE email=?
+           ORDER BY id DESC`,
+          [user.email]
+        );
+
+      return res.json(
+        orders || []
       );
 
+    } catch (error) {
 
-    return res.json(
-      orders || []
-    );
+      console.error(
+        "MY ORDERS ERROR:",
+        error
+      );
 
-
-  } catch (error) {
-
-    console.error(
-      "MY ORDERS ERROR:",
-      error
-    );
-
-
-    return res.status(500).json({
-
-      success: false,
-
-      message:
+      return sendJSONError(
+        res,
+        500,
         "Failed to load orders."
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   ADMIN LOGIN
+========================================================= */
+
+app.post(
+  "/admin-login",
+  async (req, res) => {
+
+    try {
+
+      const username =
+        clean(req.body.username);
+
+      const password =
+        String(
+          req.body.password || ""
+        );
+
+      const adminUser =
+        process.env.ADMIN_USER ||
+        "admin";
+
+      const adminPassword =
+        process.env.ADMIN_PASSWORD ||
+        process.env.ADMIN_PASS ||
+        "admin123";
+
+      if (
+        username !== adminUser ||
+        password !== adminPassword
+      ) {
+
+        return res.status(401).json({
+
+          success: false,
+
+          message:
+            "Invalid admin login."
+
+        });
+
+      }
+
+      req.session.admin =
+        true;
+
+      req.session.save(error => {
+
+        if (error) {
+
+          console.error(
+            "ADMIN SESSION ERROR:",
+            error
+          );
+
+          return sendJSONError(
+            res,
+            500,
+            "Admin session could not be saved."
+          );
+
+        }
+
+        return res.json({
+
+          success: true
+
+        });
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "ADMIN LOGIN ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Admin login failed."
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   ADMIN CHECK
+========================================================= */
+
+app.get(
+  "/admin-check",
+  (req, res) => {
+
+    res.json({
+
+      loggedIn:
+        !!req.session.admin
 
     });
 
   }
+);
 
-});
+/* =========================================================
+   ADMIN LOGOUT
+========================================================= */
 
+app.post(
+  "/admin-logout",
+  (req, res) => {
+
+    req.session.admin =
+      false;
+
+    res.json({
+
+      success: true
+
+    });
+
+  }
+);
+
+/* =========================================================
+   ADMIN PRODUCTS
+========================================================= */
+
+app.get(
+  "/admin/products",
+  adminAuth,
+  async (req, res) => {
+
+    try {
+
+      const products =
+        await db.all(
+          `SELECT *
+           FROM products
+           ORDER BY id DESC`
+        );
+
+      return res.json(
+        products || []
+      );
+
+    } catch (error) {
+
+      console.error(
+        "ADMIN PRODUCTS ERROR:",
+        error
+      );
+
+      return sendJSONError(
+        res,
+        500,
+        "Failed to load products."
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   ADMIN ORDERS
+========================================================= */
 
 app.get(
   "/admin/orders",
@@ -3122,14 +2642,14 @@ app.get(
 
       const orders =
         await db.all(
-          "SELECT * FROM orders ORDER BY id DESC"
+          `SELECT *
+           FROM orders
+           ORDER BY id DESC`
         );
-
 
       return res.json(
         orders || []
       );
-
 
     } catch (error) {
 
@@ -3138,21 +2658,20 @@ app.get(
         error
       );
 
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Failed to load orders."
-
-      });
+      return sendJSONError(
+        res,
+        500,
+        "Failed to load orders."
+      );
 
     }
 
   }
 );
 
+/* =========================================================
+   ADMIN ORDER DETAIL
+========================================================= */
 
 app.get(
   "/admin/orders/:id",
@@ -3163,24 +2682,21 @@ app.get(
 
       const order =
         await db.get(
-          "SELECT * FROM orders WHERE id=?",
+          `SELECT *
+           FROM orders
+           WHERE id=?`,
           [req.params.id]
         );
 
-
       if (!order) {
 
-        return res.status(404).json({
-
-          success: false,
-
-          message:
-            "Order not found."
-
-        });
+        return sendJSONError(
+          res,
+          404,
+          "Order not found."
+        );
 
       }
-
 
       let items = [];
 
@@ -3197,7 +2713,6 @@ app.get(
 
       }
 
-
       return res.json({
 
         ...order,
@@ -3206,7 +2721,6 @@ app.get(
 
       });
 
-
     } catch (error) {
 
       console.error(
@@ -3214,153 +2728,21 @@ app.get(
         error
       );
 
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Failed to load order."
-
-      });
-
-    }
-
-  }
-);
-
-
-app.get(
-  "/admin/orders/:id/pdf",
-  adminAuth,
-  async (req, res) => {
-
-    try {
-
-      const orderId =
-        Number(req.params.id);
-
-
-      const orderRow =
-        await db.get(
-          "SELECT * FROM orders WHERE id=?",
-          [orderId]
-        );
-
-
-      if (!orderRow) {
-
-        return res.status(404).send(
-          "Order not found"
-        );
-
-      }
-
-
-      let cartItems = [];
-
-
-      try {
-
-        cartItems =
-          JSON.parse(
-            orderRow.items || "[]"
-          );
-
-      } catch {
-
-        cartItems = [];
-
-      }
-
-
-      const fullAddress =
-        [
-          orderRow.road,
-          orderRow.building,
-          orderRow.address,
-          orderRow.township,
-          orderRow.city
-        ]
-        .filter(v =>
-          String(v || "").trim()
-        )
-        .join(", ");
-
-
-      const pdfBuffer =
-        await generateInvoicePDF({
-
-          orderId:
-            orderRow.id,
-
-          date:
-            orderRow.created_at,
-
-          name:
-            orderRow.customer || "N/A",
-
-          userEmail:
-            orderRow.email || "N/A",
-
-          phone:
-            orderRow.phone || "N/A",
-
-          fullAddress,
-
-          cart:
-            cartItems,
-
-          deliveryFee:
-            Number(
-              orderRow.deli_fee || 0
-            ),
-
-          total:
-            Number(
-              orderRow.total || 0
-            ),
-
-          payment_method:
-            orderRow.payment_method ||
-            "COD"
-
-        });
-
-
-      res.setHeader(
-        "Content-Type",
-        "application/pdf"
-      );
-
-
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename=Voucher_Order_${orderRow.id}.pdf`
-      );
-
-
-      return res.send(
-        pdfBuffer
-      );
-
-
-    } catch (error) {
-
-      console.error(
-        "ADMIN PDF GENERATE ERROR:",
-        error
-      );
-
-
-      return res.status(500).send(
-        "Error generating PDF"
+      return sendJSONError(
+        res,
+        500,
+        "Failed to load order."
       );
 
     }
 
   }
 );
+
+/* =========================================================
+   ADMIN ORDER STATUS
+========================================================= */
+
 app.put(
   "/admin/orders/:id/status",
   adminAuth,
@@ -3369,63 +2751,63 @@ app.put(
     try {
 
       const status =
-        String(req.body.status || "").trim();
+        clean(req.body.status);
 
-      const allowedStatuses = [
+      const allowed = [
+
         "Pending",
+
         "Confirmed",
+
         "Processing",
+
         "Shipped",
+
         "Delivered",
+
         "Cancelled"
+
       ];
 
-      if (!allowedStatuses.includes(status)) {
+      if (
+        !allowed.includes(status)
+      ) {
 
-        return res.status(400).json({
-
-          success: false,
-
-          message:
-            "Invalid order status."
-
-        });
+        return sendJSONError(
+          res,
+          400,
+          "Invalid order status."
+        );
 
       }
-
 
       const order =
         await db.get(
-          "SELECT id,status FROM orders WHERE id=?",
+          `SELECT id
+           FROM orders
+           WHERE id=?`,
           [req.params.id]
         );
 
-
       if (!order) {
 
-        return res.status(404).json({
-
-          success: false,
-
-          message:
-            "Order not found."
-
-        });
+        return sendJSONError(
+          res,
+          404,
+          "Order not found."
+        );
 
       }
 
-
       await db.run(
-
-        "UPDATE orders SET status=? WHERE id=?",
-
+        `UPDATE orders
+         SET status=?
+         WHERE id=?`,
         [
           status,
           req.params.id
         ]
-
       );
-
 
       return res.json({
 
@@ -3436,29 +2818,27 @@ app.put(
 
       });
 
-
     } catch (error) {
 
       console.error(
-        "UPDATE ORDER STATUS ERROR:",
+        "ORDER STATUS ERROR:",
         error
       );
 
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Failed to update order status."
-
-      });
+      return sendJSONError(
+        res,
+        500,
+        "Failed to update order status."
+      );
 
     }
 
   }
 );
 
+/* =========================================================
+   DELETE ORDER
+========================================================= */
 
 app.delete(
   "/admin/orders/:id",
@@ -3469,33 +2849,26 @@ app.delete(
 
       const order =
         await db.get(
-          "SELECT id FROM orders WHERE id=?",
+          `SELECT id
+           FROM orders
+           WHERE id=?`,
           [req.params.id]
         );
 
-
       if (!order) {
 
-        return res.status(404).json({
-
-          success: false,
-
-          message:
-            "Order not found."
-
-        });
+        return sendJSONError(
+          res,
+          404,
+          "Order not found."
+        );
 
       }
 
-
       await db.run(
-
         "DELETE FROM orders WHERE id=?",
-
         [req.params.id]
-
       );
-
 
       return res.json({
 
@@ -3506,7 +2879,6 @@ app.delete(
 
       });
 
-
     } catch (error) {
 
       console.error(
@@ -3514,21 +2886,20 @@ app.delete(
         error
       );
 
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Failed to delete order."
-
-      });
+      return sendJSONError(
+        res,
+        500,
+        "Failed to delete order."
+      );
 
     }
 
   }
 );
 
+/* =========================================================
+   ADMIN CUSTOMERS
+========================================================= */
 
 app.get(
   "/admin/customers",
@@ -3539,7 +2910,6 @@ app.get(
 
       const customers =
         await db.all(
-
           `SELECT
              id,
              username,
@@ -3549,14 +2919,11 @@ app.get(
              created_at
            FROM customers
            ORDER BY id DESC`
-
         );
-
 
       return res.json(
         customers || []
       );
-
 
     } catch (error) {
 
@@ -3565,21 +2932,20 @@ app.get(
         error
       );
 
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Failed to load customers."
-
-      });
+      return sendJSONError(
+        res,
+        500,
+        "Failed to load customers."
+      );
 
     }
 
   }
 );
 
+/* =========================================================
+   DELETE CUSTOMER
+========================================================= */
 
 app.delete(
   "/admin/customers/:id",
@@ -3590,33 +2956,26 @@ app.delete(
 
       const customer =
         await db.get(
-          "SELECT id FROM customers WHERE id=?",
+          `SELECT id
+           FROM customers
+           WHERE id=?`,
           [req.params.id]
         );
 
-
       if (!customer) {
 
-        return res.status(404).json({
-
-          success: false,
-
-          message:
-            "Customer not found."
-
-        });
+        return sendJSONError(
+          res,
+          404,
+          "Customer not found."
+        );
 
       }
 
-
       await db.run(
-
         "DELETE FROM customers WHERE id=?",
-
         [req.params.id]
-
       );
-
 
       return res.json({
 
@@ -3627,7 +2986,6 @@ app.delete(
 
       });
 
-
     } catch (error) {
 
       console.error(
@@ -3635,21 +2993,20 @@ app.delete(
         error
       );
 
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Failed to delete customer."
-
-      });
+      return sendJSONError(
+        res,
+        500,
+        "Failed to delete customer."
+      );
 
     }
 
   }
 );
 
+/* =========================================================
+   ADMIN DASHBOARD
+========================================================= */
 
 app.get(
   "/admin/dashboard",
@@ -3660,25 +3017,27 @@ app.get(
 
       const orders =
         await db.get(
-          "SELECT COUNT(*) AS totalOrders FROM orders"
+          `SELECT
+             COUNT(*) AS totalOrders
+           FROM orders`
         );
-
 
       const customers =
         await db.get(
-          "SELECT COUNT(*) AS totalCustomers FROM customers"
+          `SELECT
+             COUNT(*) AS totalCustomers
+           FROM customers`
         );
-
 
       const products =
         await db.get(
-          "SELECT COUNT(*) AS totalProducts FROM products"
+          `SELECT
+             COUNT(*) AS totalProducts
+           FROM products`
         );
-
 
       const revenue =
         await db.get(`
-
           SELECT
             COALESCE(
               SUM(
@@ -3687,17 +3046,12 @@ app.get(
               ),
               0
             ) AS productRevenue
-
           FROM orders
-
           WHERE status!='Cancelled'
-
         `);
-
 
       const delivery =
         await db.get(`
-
           SELECT
             COALESCE(
               SUM(
@@ -3705,17 +3059,12 @@ app.get(
               ),
               0
             ) AS deliveryRevenue
-
           FROM orders
-
           WHERE status!='Cancelled'
-
         `);
-
 
       const today =
         await db.get(`
-
           SELECT
             COALESCE(
               SUM(
@@ -3724,45 +3073,36 @@ app.get(
               ),
               0
             ) AS todayRevenue
-
           FROM orders
-
           WHERE status!='Cancelled'
-
           AND DATE(created_at)
-            = DATE('now','localtime')
-
+              = DATE('now','localtime')
         `);
-
 
       const allOrders =
         await db.all(`
-
           SELECT
             items,
             total,
             deli_fee,
             created_at
-
           FROM orders
-
           WHERE status!='Cancelled'
-
         `);
-
 
       const seller = {};
 
       const weekly = {};
 
-
-      (allOrders || []).forEach(order => {
+      for (
+        const order
+        of allOrders
+      ) {
 
         const date =
           String(
             order.created_at || ""
           ).split(" ")[0];
-
 
         if (date) {
 
@@ -3776,7 +3116,6 @@ app.get(
 
         }
 
-
         try {
 
           const items =
@@ -3784,64 +3123,63 @@ app.get(
               order.items || "[]"
             );
 
+          if (
+            Array.isArray(items)
+          ) {
 
-          if (Array.isArray(items)) {
-
-            items.forEach(item => {
+            for (
+              const item
+              of items
+            ) {
 
               const itemName =
                 String(
-                  item.name || "Unknown"
+                  item.name ||
+                  "Unknown"
                 );
-
 
               seller[itemName] =
                 (
-                  seller[itemName] || 0
+                  seller[itemName] ||
+                  0
                 ) +
                 Number(
                   item.qty || 0
                 );
 
-            });
+            }
 
           }
 
-        } catch {
+        } catch {}
 
-          // Ignore invalid order items JSON
+      }
 
-        }
+      let bestProduct =
+        "-";
 
-      });
+      let maxQuantity =
+        0;
 
+      for (
+        const [name, quantity]
+        of Object.entries(seller)
+      ) {
 
-      let bestProduct = "-";
+        if (
+          Number(quantity) >
+          maxQuantity
+        ) {
 
-      let maxQuantity = 0;
+          maxQuantity =
+            Number(quantity);
 
-
-      Object.entries(
-        seller
-      ).forEach(
-        ([name, quantity]) => {
-
-          if (
-            Number(quantity) >
-            maxQuantity
-          ) {
-
-            maxQuantity =
-              Number(quantity);
-
-            bestProduct =
-              name;
-
-          }
+          bestProduct =
+            name;
 
         }
-      );
 
+      }
 
       return res.json({
 
@@ -3881,7 +3219,6 @@ app.get(
 
       });
 
-
     } catch (error) {
 
       console.error(
@@ -3889,21 +3226,20 @@ app.get(
         error
       );
 
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Failed to load dashboard."
-
-      });
+      return sendJSONError(
+        res,
+        500,
+        "Failed to load dashboard."
+      );
 
     }
 
   }
 );
 
+/* =========================================================
+   ADMIN REVENUE
+========================================================= */
 
 app.get(
   "/admin/revenue",
@@ -3914,34 +3250,21 @@ app.get(
 
       const rows =
         await db.all(`
-
           SELECT
-
-            DATE(created_at)
-              AS date,
-
+            DATE(created_at) AS date,
             COALESCE(
               SUM(total),
               0
             ) AS revenue
-
           FROM orders
-
           WHERE status!='Cancelled'
-
-          GROUP BY
-            DATE(created_at)
-
-          ORDER BY
-            DATE(created_at) ASC
-
+          GROUP BY DATE(created_at)
+          ORDER BY DATE(created_at) ASC
         `);
-
 
       return res.json(
         rows || []
       );
-
 
     } catch (error) {
 
@@ -3950,21 +3273,20 @@ app.get(
         error
       );
 
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Failed to load revenue."
-
-      });
+      return sendJSONError(
+        res,
+        500,
+        "Failed to load revenue."
+      );
 
     }
 
   }
 );
 
+/* =========================================================
+   ADMIN NEW ORDERS
+========================================================= */
 
 app.get(
   "/admin/new-orders",
@@ -3974,15 +3296,12 @@ app.get(
     try {
 
       const row =
-        await db.get(
-
-          `SELECT
-             COUNT(*) AS count
-           FROM orders
-           WHERE status='Pending'`
-
-        );
-
+        await db.get(`
+          SELECT
+            COUNT(*) AS count
+          FROM orders
+          WHERE status='Pending'
+        `);
 
       return res.json({
 
@@ -3993,7 +3312,6 @@ app.get(
 
       });
 
-
     } catch (error) {
 
       console.error(
@@ -4001,133 +3319,20 @@ app.get(
         error
       );
 
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Failed to load new orders."
-
-      });
-
-    }
-
-  }
-);
-
-
-app.post(
-  "/admin-login",
-  async (req, res) => {
-
-    try {
-
-      const username =
-        String(
-          req.body.username || ""
-        ).trim();
-
-      const password =
-        String(
-          req.body.password || ""
-        );
-
-
-      const adminUser =
-        process.env.ADMIN_USER ||
-        "admin";
-
-
-      const adminPass =
-        process.env.ADMIN_PASSWORD ||
-        process.env.ADMIN_PASS ||
-        "admin123";
-
-
-      if (
-        username === adminUser &&
-        password === adminPass
-      ) {
-
-        req.session.admin =
-          true;
-
-
-        return res.json({
-
-          success: true
-
-        });
-
-      }
-
-
-      return res.status(401).json({
-
-        success: false,
-
-        message:
-          "Invalid admin login."
-
-      });
-
-
-    } catch (error) {
-
-      console.error(
-        "ADMIN LOGIN ERROR:",
-        error
+      return sendJSONError(
+        res,
+        500,
+        "Failed to load new orders."
       );
 
-
-      return res.status(500).json({
-
-        success: false,
-
-        message:
-          "Admin login failed."
-
-      });
-
     }
 
   }
 );
 
-
-app.get(
-  "/admin-check",
-  (req, res) => {
-
-    res.json({
-
-      loggedIn:
-        !!req.session.admin
-
-    });
-
-  }
-);
-
-
-app.post(
-  "/admin-logout",
-  (req, res) => {
-
-    req.session.admin =
-      false;
-
-
-    res.json({
-
-      success: true
-
-    });
-
-  }
-);
-
+/* =========================================================
+   HEALTH
+========================================================= */
 
 app.get(
   "/health",
@@ -4147,6 +3352,9 @@ app.get(
   }
 );
 
+/* =========================================================
+   START SERVER
+========================================================= */
 
 app.listen(
   PORT,
