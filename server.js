@@ -12,10 +12,6 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-/* =========================================================
-   BASIC
-========================================================= */
-
 app.set("trust proxy", 1);
 
 app.use(express.json({ limit: "10mb" }));
@@ -1301,9 +1297,6 @@ app.post(
       const description =
         clean(req.body.description);
 
-      const category =
-        clean(req.body.category);
-
       const price =
         Number(req.body.price);
 
@@ -1359,7 +1352,6 @@ app.post(
           description,
           price,
           stock,
-          category,
           image
         )
         VALUES (?,?,?,?,?,?)`,
@@ -1368,7 +1360,6 @@ app.post(
           description,
           price,
           stock,
-          category,
           image
         ]
       );
@@ -1420,9 +1411,6 @@ app.put(
 
       const description =
         clean(req.body.description);
-
-      const category =
-        clean(req.body.category);
 
       const price =
         Number(req.body.price);
@@ -1502,14 +1490,12 @@ app.put(
            price=?,
            stock=?,
            description=?,
-           category=?
          WHERE id=?`,
         [
           name,
           price,
           stock,
           description,
-          category,
           id
         ]
       );
