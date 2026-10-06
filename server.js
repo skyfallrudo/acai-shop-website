@@ -1354,7 +1354,7 @@ app.post(
           stock,
           image
         )
-        VALUES (?,?,?,?,?,?)`,
+        VALUES (?,?,?,?,?)`,
         [
           name,
           description,
