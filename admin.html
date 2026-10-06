@@ -1798,20 +1798,19 @@ async function loadProducts(silent=false){
                     </td>
 
                     <td>
-
-                        <button
-                            class="btn edit"
-                            onclick="editProduct(
-                                ${Number(p.id)},
-                                ${JSON.stringify(p.name || "")},
-                                ${Number(p.price)||0},
-                                ${Number(p.stock)||0},
-                                ${JSON.stringify(p.description || "")}
-                            )"
-                        >
-                            <i class="fa-solid fa-pen"></i>
-                            Edit
-                        </button>
+<button
+    class="btn edit"
+    onclick='editProduct(
+        ${Number(p.id)},
+        ${JSON.stringify(p.name || "").replace(/'/g, "&#39;")},
+        ${Number(p.price) || 0},
+        ${Number(p.stock) || 0},
+        ${JSON.stringify(p.description || "").replace(/'/g, "&#39;")}
+    )'
+>
+    <i class="fa-solid fa-pen"></i>
+    Edit
+</button>
 
 
                         <button
