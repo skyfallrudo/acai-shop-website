@@ -1489,7 +1489,7 @@ app.put(
            name=?,
            price=?,
            stock=?,
-           description=?,
+           description=?
          WHERE id=?`,
         [
           name,
