@@ -1227,7 +1227,10 @@ tr:hover td{
                 <small>Customer</small>
                 <span id="dCustomer">-</span>
             </div>
-
+<div class="info-box">
+    <small>Email</small>
+    <span id="dEmail">-</span>
+</div>
             <div class="info-box">
                 <small>Phone</small>
                 <span id="dPhone">-</span>
@@ -1237,7 +1240,15 @@ tr:hover td{
                 <small>Address</small>
                 <span id="dAddress">-</span>
             </div>
+<div class="info-box">
+    <small>Road</small>
+    <span id="dRoad">-</span>
+</div>
 
+<div class="info-box">
+    <small>Building</small>
+    <span id="dBuilding">-</span>
+</div>
             <div class="info-box">
                 <small>Township</small>
                 <span id="dTownship">-</span>
@@ -1850,9 +1861,6 @@ async function loadProducts(silent=false){
 }
 
 
-/* =========================================================
-   ADD PRODUCT
-========================================================= */
 
 document.getElementById("productForm")
 .addEventListener("submit",async function(e){
@@ -1989,10 +1997,6 @@ document.getElementById("productForm")
 
 });
 
-
-/* =========================================================
-   EDIT PRODUCT
-========================================================= */
 
 async function editProduct(
     id,
@@ -2131,9 +2135,6 @@ async function editProduct(
 }
 
 
-/* =========================================================
-   DELETE PRODUCT
-========================================================= */
 
 async function deleteProduct(id){
 
@@ -2182,10 +2183,6 @@ async function deleteProduct(id){
 
 }
 
-
-/* =========================================================
-   ORDERS
-========================================================= */
 
 async function loadOrders(silent=false){
 
@@ -2363,10 +2360,6 @@ async function loadOrders(silent=false){
 }
 
 
-/* =========================================================
-   CHANGE ORDER STATUS
-========================================================= */
-
 async function changeStatus(id,status){
 
     try{
@@ -2422,9 +2415,6 @@ async function changeStatus(id,status){
 }
 
 
-/* =========================================================
-   DELETE ORDER
-========================================================= */
 
 async function deleteOrder(id){
 
@@ -2478,10 +2468,6 @@ async function deleteOrder(id){
 }
 
 
-/* =========================================================
-   VIEW ORDER
-========================================================= */
-
 async function viewOrder(id){
 
     try{
@@ -2490,22 +2476,27 @@ async function viewOrder(id){
             "/admin/orders/"+id
         );
 
+document.getElementById("dCustomer").innerText =
+    order.customer ||
+    order.name ||
+    "-";
 
-        document.getElementById("dCustomer").innerText=
-            order.customer ||
-            order.email ||
-            "-";
+document.getElementById("dEmail").innerText =
+    order.email ||
+    "-";
 
-
-        document.getElementById("dPhone").innerText=
-            order.phone ||
-            "-";
-
+document.getElementById("dPhone").innerText =
+    order.phone ||
+    "-";
 
         document.getElementById("dAddress").innerText=
             order.address ||
             "-";
+document.getElementById("dRoad").innerText =
+    order.road || "-";
 
+document.getElementById("dBuilding").innerText =
+    order.building || "-";
 
         document.getElementById("dTownship").innerText=
             order.township ||
@@ -2600,9 +2591,6 @@ async function viewOrder(id){
 }
 
 
-/* =========================================================
-   CLOSE ORDER POPUP
-========================================================= */
 
 function closeOrderPopup(){
 
