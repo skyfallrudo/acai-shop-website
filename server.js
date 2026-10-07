@@ -881,21 +881,22 @@ app.post(
         );
 
       }
+if (
+  password === "__VERIFY__"
+) {
 
-      if (
-        password === "__VERIFY__"
-      ) {
+  return res.json({
 
-        return res.json({
+    success: true,
 
-          success: true,
+    verified: true,
 
-          message:
-            "OTP verified."
+    message:
+      "OTP verified."
 
-        });
+  });
 
-      }
+}
 
       if (
         password.length < 6
