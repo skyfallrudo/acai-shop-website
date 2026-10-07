@@ -43,9 +43,7 @@ body{
     min-height:100vh;
 }
 
-/* =========================
-   LOGIN
-========================= */
+
 
 #loginOverlay{
     position:fixed;
@@ -132,9 +130,7 @@ body{
     margin-top:10px;
 }
 
-/* =========================
-   SIDEBAR
-========================= */
+
 
 .sidebar{
     width:230px;
@@ -202,9 +198,7 @@ body{
     color:#F87171 !important;
 }
 
-/* =========================
-   MAIN
-========================= */
+
 
 .main{
     margin-left:230px;
@@ -226,9 +220,7 @@ body{
     margin-top:4px;
 }
 
-/* =========================
-   DASHBOARD CARDS
-========================= */
+
 
 .cards{
     display:grid;
@@ -296,9 +288,6 @@ body{
     font-size:12px;
 }
 
-/* =========================
-   CHART
-========================= */
 
 .chart-card{
     overflow:hidden;
@@ -315,9 +304,6 @@ body{
     height:210px;
 }
 
-/* =========================
-   PRODUCT FORM
-========================= */
 
 #productForm{
     display:grid;
@@ -358,10 +344,6 @@ body{
     background:#15803D;
 }
 
-/* =========================
-   SEARCH
-========================= */
-
 .search{
     width:100%;
     padding:12px 14px;
@@ -376,10 +358,6 @@ body{
 .search:focus{
     border-color:#2563EB;
 }
-
-/* =========================
-   TABLE
-========================= */
 
 .table-wrap{
     width:100%;
@@ -440,9 +418,6 @@ tr:hover td{
     color:#F87171;
 }
 
-/* =========================
-   BUTTONS
-========================= */
 
 .btn{
     border:none;
@@ -490,9 +465,6 @@ tr:hover td{
     background:#334155;
 }
 
-/* =========================
-   STATUS
-========================= */
 
 .status{
     padding:8px 10px;
@@ -504,9 +476,6 @@ tr:hover td{
     cursor:pointer;
 }
 
-/* =========================
-   EMPTY / LOADING
-========================= */
 
 .empty{
     text-align:center;
@@ -520,9 +489,7 @@ tr:hover td{
     padding:25px;
 }
 
-/* =========================
-   ORDER POPUP
-========================= */
+
 
 #orderPopup{
     display:none;
@@ -630,9 +597,7 @@ tr:hover td{
     color:#60A5FA;
 }
 
-/* =========================
-   TOAST
-========================= */
+
 
 #toast{
     position:fixed;
@@ -652,9 +617,7 @@ tr:hover td{
     background:#DC2626;
 }
 
-/* =========================
-   MOBILE
-========================= */
+
 
 @media(max-width:1100px){
 
@@ -791,9 +754,7 @@ tr:hover td{
 
 <body>
 
-<!-- =========================
-     LOGIN OVERLAY
-========================= -->
+
 
 <div id="loginOverlay">
 
@@ -830,11 +791,6 @@ tr:hover td{
 
 </div>
 
-
-<!-- =========================
-     SIDEBAR
-========================= -->
-
 <div class="sidebar">
 
     <div class="sidebar-logo">
@@ -870,9 +826,7 @@ tr:hover td{
 </div>
 
 
-<!-- =========================
-     MAIN
-========================= -->
+
 
 <div class="main">
 
@@ -882,9 +836,6 @@ tr:hover td{
     </div>
 
 
-    <!-- =========================
-         DASHBOARD
-    ========================= -->
 
     <section id="dashboard">
 
@@ -969,10 +920,6 @@ tr:hover td{
 
     </section>
 
-
-    <!-- =========================
-         PRODUCTS
-    ========================= -->
 
     <section class="section" id="products">
 
@@ -1076,9 +1023,6 @@ tr:hover td{
     </section>
 
 
-    <!-- =========================
-         ORDERS
-    ========================= -->
 
     <section class="section" id="orders">
 
@@ -1134,9 +1078,6 @@ tr:hover td{
     </section>
 
 
-    <!-- =========================
-         CUSTOMERS
-    ========================= -->
 
     <section class="section" id="customers">
 
@@ -1196,9 +1137,6 @@ tr:hover td{
 </div>
 
 
-<!-- =========================
-     ORDER POPUP
-========================= -->
 
 <div id="orderPopup">
 
@@ -1240,6 +1178,15 @@ tr:hover td{
                 <small>Address</small>
                 <span id="dAddress">-</span>
             </div>
+            <div class="info-box">
+    <small>Telegram</small>
+    <span id="dTelegram">-</span>
+</div>
+
+<div class="info-box">
+    <small>Alternative Social</small>
+    <span id="dAltSocial">-</span>
+</div>
 <div class="info-box">
     <small>Road</small>
     <span id="dRoad">-</span>
@@ -1292,18 +1239,12 @@ tr:hover td{
 
 <script>
 
-/* =========================================================
-   GLOBAL
-========================================================= */
 
 let lastOrderCount = 0;
 let adminStarted = false;
 let dashboardInterval = null;
 
 
-/* =========================================================
-   HELPERS
-========================================================= */
 
 function escapeHTML(value){
 
@@ -1385,9 +1326,6 @@ async function getJSON(url,options={}){
 }
 
 
-/* =========================================================
-   ADMIN CHECK
-========================================================= */
 
 async function checkAdmin(){
 
@@ -1417,10 +1355,6 @@ async function checkAdmin(){
 
 }
 
-
-/* =========================================================
-   LOGIN
-========================================================= */
 
 async function adminLogin(){
 
@@ -1506,7 +1440,7 @@ async function adminLogin(){
 }
 
 
-/* Enter key login */
+
 
 document.getElementById("adminPassword")
 .addEventListener("keydown",function(e){
@@ -1520,9 +1454,6 @@ document.getElementById("adminPassword")
 });
 
 
-/* =========================================================
-   LOGOUT
-========================================================= */
 
 async function adminLogout(){
 
@@ -1543,9 +1474,6 @@ async function adminLogout(){
 }
 
 
-/* =========================================================
-   START ADMIN
-========================================================= */
 
 function startAdmin(){
 
@@ -1564,9 +1492,6 @@ function startAdmin(){
 }
 
 
-/* =========================================================
-   DASHBOARD
-========================================================= */
 
 async function loadDashboard(silent=false){
 
@@ -1638,9 +1563,6 @@ async function loadDashboard(silent=false){
 }
 
 
-/* =========================================================
-   CHART
-========================================================= */
 
 function drawChart(data){
 
@@ -1739,9 +1661,6 @@ function drawChart(data){
 }
 
 
-/* =========================================================
-   PRODUCTS
-========================================================= */
 
 async function loadProducts(silent=false){
 
@@ -2492,6 +2411,14 @@ document.getElementById("dPhone").innerText =
         document.getElementById("dAddress").innerText=
             order.address ||
             "-";
+            document.getElementById("dTelegram").innerText =
+    order.telegram ||
+    "-";
+
+document.getElementById("dAltSocial").innerText =
+    order.alt_social ||
+    order.altSocial ||
+    "-";
 document.getElementById("dRoad").innerText =
     order.road || "-";
 
@@ -2623,9 +2550,6 @@ document.addEventListener("keydown",function(e){
 });
 
 
-/* =========================================================
-   CUSTOMERS
-========================================================= */
 
 async function loadCustomers(silent=false){
 
@@ -2726,9 +2650,6 @@ async function loadCustomers(silent=false){
 }
 
 
-/* =========================================================
-   DELETE CUSTOMER
-========================================================= */
 
 async function deleteCustomer(id){
 
@@ -2784,10 +2705,6 @@ async function deleteCustomer(id){
 }
 
 
-/* =========================================================
-   PRODUCT SEARCH
-========================================================= */
-
 function applyProductSearch(){
 
     const input=
@@ -2819,10 +2736,6 @@ document.getElementById("productSearch")
     applyProductSearch
 );
 
-
-/* =========================================================
-   ORDER SEARCH
-========================================================= */
 
 function applyOrderSearch(){
 
@@ -2856,10 +2769,6 @@ document.getElementById("orderSearch")
 );
 
 
-/* =========================================================
-   CUSTOMER SEARCH
-========================================================= */
-
 function applyCustomerSearch(){
 
     const input=
@@ -2892,9 +2801,6 @@ document.getElementById("customerSearch")
 );
 
 
-/* =========================================================
-   ACTIVE SIDEBAR
-========================================================= */
 
 document.querySelectorAll(
     ".sidebar a[href^='#']"
@@ -2916,10 +2822,6 @@ document.querySelectorAll(
 
 });
 
-
-/* =========================================================
-   START
-========================================================= */
 
 checkAdmin();
 
