@@ -969,7 +969,32 @@ function updateCartCount(){
     const count = cart.reduce((t,i)=>t+i.qty,0);
     document.getElementById("cart-count").innerText = count;
 }
-function addToCart(id, name, price, stock){
+
+async function addToCart(id, name, price, stock){
+
+    // Check account login first
+    try {
+        const res = await fetch("/me", {
+            credentials: "include"
+        });
+
+        const data = await res.json();
+
+        // Not logged in
+        if (!data.loggedIn) {
+            alert("Login your account first.");
+            window.location.href = "login.html";
+            return;
+        }
+
+    } catch (err) {
+        console.error("Login check error:", err);
+        alert("Login your account first.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    // Check stock
     const item = cart.find(i => i.id === id);
     const currentQty = item ? item.qty : 0;
 
@@ -978,6 +1003,7 @@ function addToCart(id, name, price, stock){
         return;
     }
 
+    // Add to cart
     if(item){
         item.qty++;
     }else{
@@ -991,6 +1017,7 @@ function addToCart(id, name, price, stock){
 
     localStorage.setItem("cart", JSON.stringify(cart));
     updateCartCount();
+
     alert(name + " added to cart!");
 }
 
