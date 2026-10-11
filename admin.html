@@ -804,7 +804,38 @@ tr:hover td{
         grid-template-columns: 1fr;
     }
 }
+#pinduoduoForm select {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 11px;
+    background: #1E293B;
+    color: white;
+    outline: none;
+}
 
+#pinduoduoForm input[type="file"] {
+    font-size: 12px;
+}
+
+.stock-photo {
+    width: 55px;
+    height: 55px;
+    object-fit: cover;
+    border-radius: 9px;
+    border: 1px solid #334155;
+}
+
+.stock-photo-empty {
+    color: #64748B;
+    font-size: 12px;
+}
+
+#pinduoduoForm button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
 </style>
 </head>
 
@@ -1210,76 +1241,94 @@ tr:hover td{
                 Purchase Date uses Myanmar time. Total = Cost MMK + Shipping Fee.
             </p>
 
-            <form id="pinduoduoForm">
+<form id="pinduoduoForm" enctype="multipart/form-data">
 
-                <input id="stockName" name="item_name"
-                       placeholder="Name (required)" required>
+    <input id="stockName" name="item_name"
+           placeholder="Name (required)" required>
 
-                <input id="stockCny" name="cost_cny"
-                       type="number" min="0" step="any"
-                       placeholder="Cost (CNY)" required>
+    <input id="stockCny" name="cost_cny"
+           type="number" min="0" step="any"
+           placeholder="Cost (CNY)" required>
 
-                <input id="stockMmk" name="cost_mmk"
-                       type="number" min="0" step="any"
-                       placeholder="Cost (MMK)" required>
+    <input id="stockMmk" name="cost_mmk"
+           type="number" min="0" step="any"
+           placeholder="Cost (MMK)" required>
 
-                <input id="stockTracking" name="tracking_code"
-                       placeholder="Tracking Code (optional)">
+    <input id="stockQuantity" name="quantity"
+           type="number" min="1" step="1"
+           value="1" placeholder="Quantity" required>
 
-                <input id="stockWeight" name="weight_kg"
-                       type="number" min="0" step="any"
-                       placeholder="Weight kg (optional)">
+    <select id="stockUnit" name="unit">
+        <option value="Piece">Piece</option>
+        <option value="Pair">Pair</option>
+        <option value="Set">Set</option>
+    </select>
 
-                <input id="stockShipping" name="shipping_fee"
-                       type="number" min="0" step="any"
-                       placeholder="Shipping Fee (MMK)">
+    <input id="stockPhoto" name="item_photo"
+           type="file"
+           accept="image/jpeg,image/png,image/webp">
 
-                <input id="stockDateDisplay"
-                       placeholder="Purchase Date (Myanmar time)" readonly>
+    <input id="stockTracking" name="tracking_code"
+           placeholder="Tracking Code (optional)">
 
-                <input id="stockTotalDisplay"
-                       placeholder="Total (MMK)" readonly>
+    <input id="stockWeight" name="weight_kg"
+           type="number" min="0" step="any"
+           placeholder="Weight kg (optional)">
 
-                <button type="submit" id="stockSubmit">
-                    <i class="fa-solid fa-plus"></i> Add Stock
-                </button>
+    <input id="stockShipping" name="shipping_fee"
+           type="number" min="0" step="any"
+           placeholder="Shipping Fee (MMK)">
 
-                <button type="button" class="btn refresh"
-                        onclick="resetStockForm()">
-                    Cancel Edit / Clear
-                </button>
+    <input id="stockDateDisplay" name="purchase_date"
+           placeholder="Purchase Date (Myanmar time)" readonly>
 
-            </form>
+    <input id="stockTotalDisplay"
+           placeholder="Total (MMK)" readonly>
 
-            <input class="search" id="stockSearch"
-                   placeholder="Search stock list...">
+    <button type="submit" id="stockSubmit">
+        <i class="fa-solid fa-plus"></i> Add Stock
+    </button>
 
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Name</th>
-                            <th>Tracking Code</th>
-                            <th>Cost CNY</th>
-                            <th>Cost MMK</th>
-                            <th>Date</th>
-                            <th>Weight kg</th>
-                            <th>Shipping Fee</th>
-                            <th>Total MMK</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
+    <button type="button" class="btn refresh"
+            onclick="resetStockForm()">
+        Cancel Edit / Clear
+    </button>
 
-                    <tbody id="pinduoduoTable">
-                        <tr>
-                            <td colspan="10" class="loading">
-                                Loading stock list...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+</form>
+
+<input class="search" id="stockSearch"
+       placeholder="Search stock list...">
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Tracking Code</th>
+                <th>Cost CNY</th>
+                <th>Cost MMK</th>
+                <th>Date</th>
+                <th>Weight kg</th>
+                <th>Shipping Fee</th>
+                <th>Total MMK</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="pinduoduoTable">
+            <tr>
+                <td colspan="13" class="loading">
+                    Loading stock list...
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
 
         </div>
 
@@ -3002,9 +3051,15 @@ function updateStockTotal() {
 
 function resetStockForm() {
     editingStockId = null;
-    document.getElementById("pinduoduoForm").reset();
+
+    const form = document.getElementById("pinduoduoForm");
+    form.reset();
+
+    document.getElementById("stockQuantity").value = 1;
+    document.getElementById("stockUnit").value = "Piece";
     document.getElementById("stockDateDisplay").value = stockMyanmarDate();
     document.getElementById("stockTotalDisplay").value = "0 MMK";
+
     document.getElementById("stockSubmit").innerHTML =
         '<i class="fa-solid fa-plus"></i> Add Stock';
 }
@@ -3018,15 +3073,20 @@ async function loadPinduoduo() {
 
     try {
         const rows = await getJSON("/admin/pinduoduo");
-        if (!Array.isArray(rows)) throw new Error("Invalid stock list response.");
+
+        if (!Array.isArray(rows)) {
+            throw new Error("Invalid stock list response.");
+        }
 
         pinduoduoItems = rows;
         renderPinduoduo();
     } catch (error) {
         console.error("Stock list error:", error);
-        table.innerHTML = `<tr><td colspan="10" class="empty">
+
+        table.innerHTML = `<tr><td colspan="13" class="empty">
             ${escapeHTML(error.message || "Could not load stock list.")}
         </td></tr>`;
+
         showToast(error.message || "Could not load stock list.", true);
     }
 }
@@ -3037,13 +3097,19 @@ function renderPinduoduo() {
 
     const filtered = pinduoduoItems.filter(item =>
         [
-            item.id, item.item_name, item.tracking_code,
-            item.purchase_date, item.cost_cny, item.cost_mmk
+            item.id,
+            item.item_name,
+            item.tracking_code,
+            item.purchase_date,
+            item.cost_cny,
+            item.cost_mmk,
+            item.quantity,
+            item.unit
         ].some(value => String(value ?? "").toLowerCase().includes(keyword))
     );
 
     if (!filtered.length) {
-        table.innerHTML = `<tr><td colspan="10" class="empty">
+        table.innerHTML = `<tr><td colspan="13" class="empty">
             No stock records found.
         </td></tr>`;
         return;
@@ -3053,13 +3119,27 @@ function renderPinduoduo() {
         const id = Number(item.id);
         const costCny = Number(item.cost_cny || 0);
         const costMmk = Number(item.cost_mmk || 0);
+        const quantity = Number(item.quantity || 1);
         const weight = Number(item.weight_kg || 0);
         const shipping = Number(item.shipping_fee || 0);
         const total = costMmk + shipping;
 
+        const imageUrl = String(item.image_url || "");
+        const safeImageUrl = /^https:\/\/res\.cloudinary\.com\//i.test(imageUrl)
+            ? escapeHTML(imageUrl)
+            : "";
+
+        const photoHtml = safeImageUrl
+            ? `<img class="stock-photo" src="${safeImageUrl}"
+                    alt="Item photo" loading="lazy">`
+            : `<span class="stock-photo-empty">No photo</span>`;
+
         return `<tr>
             <td>${id}</td>
-            <td class="product-name">${escapeHTML(item.item_name)}</td>
+            <td>${photoHtml}</td>
+            <td class="product-name">${escapeHTML(item.item_name || "")}</td>
+            <td>${quantity}</td>
+            <td>${escapeHTML(item.unit || "Piece")}</td>
             <td>${escapeHTML(item.tracking_code || "-")}</td>
             <td>${costCny.toLocaleString("en-US")}</td>
             <td>${costMmk.toLocaleString("en-US")}</td>
@@ -3079,56 +3159,100 @@ function renderPinduoduo() {
     }).join("");
 }
 
-document.getElementById("stockSearch").addEventListener("input", renderPinduoduo);
+document.getElementById("stockSearch")
+    .addEventListener("input", renderPinduoduo);
 
-document.getElementById("pinduoduoForm").addEventListener("submit", async function(e) {
+document.getElementById("pinduoduoForm")
+.addEventListener("submit", async function(e) {
     e.preventDefault();
+
+    const form = this;
+    const button = document.getElementById("stockSubmit");
 
     const itemName = document.getElementById("stockName").value.trim();
     const cnyText = document.getElementById("stockCny").value.trim();
     const mmkText = document.getElementById("stockMmk").value.trim();
+    const quantity = Number(document.getElementById("stockQuantity").value);
+    const unit = document.getElementById("stockUnit").value;
+    const photo = document.getElementById("stockPhoto").files[0];
 
     if (!itemName || cnyText === "" || mmkText === "") {
         showToast("Name, Cost CNY and Cost MMK are required.", true);
         return;
     }
 
-    const payload = {
-        item_name: itemName,
-        cost_cny: Number(cnyText),
-        cost_mmk: Number(mmkText),
-        tracking_code: document.getElementById("stockTracking").value.trim(),
-        weight_kg: document.getElementById("stockWeight").value,
-        shipping_fee: document.getElementById("stockShipping").value
-    };
+    if (!Number.isInteger(quantity) || quantity < 1) {
+        showToast("Quantity must be a whole number of at least 1.", true);
+        return;
+    }
+
+    if (!["Piece", "Pair", "Set"].includes(unit)) {
+        showToast("Please select a valid unit.", true);
+        return;
+    }
+
+    const costCny = Number(cnyText);
+    const costMmk = Number(mmkText);
+    const weightText = document.getElementById("stockWeight").value;
+    const shippingText = document.getElementById("stockShipping").value;
 
     if (
-        !Number.isFinite(payload.cost_cny) || payload.cost_cny < 0 ||
-        !Number.isFinite(payload.cost_mmk) || payload.cost_mmk < 0
+        !Number.isFinite(costCny) || costCny < 0 ||
+        !Number.isFinite(costMmk) || costMmk < 0
     ) {
         showToast("Please enter valid costs.", true);
         return;
     }
 
-    const button = document.getElementById("stockSubmit");
+    if (weightText !== "" &&
+        (!Number.isFinite(Number(weightText)) || Number(weightText) < 0)) {
+        showToast("Please enter a valid weight.", true);
+        return;
+    }
+
+    if (shippingText !== "" &&
+        (!Number.isFinite(Number(shippingText)) || Number(shippingText) < 0)) {
+        showToast("Please enter a valid shipping fee.", true);
+        return;
+    }
+
+    if (photo) {
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+        if (!allowedTypes.includes(photo.type)) {
+            showToast("Only JPG, PNG or WEBP images are allowed.", true);
+            return;
+        }
+
+        if (photo.size > 5 * 1024 * 1024) {
+            showToast("Image must be 5 MB or smaller.", true);
+            return;
+        }
+    }
+
+    const formData = new FormData(form);
+
     button.disabled = true;
+    button.innerHTML =
+        '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
 
     try {
-        const url = editingStockId
+        const isEditing = editingStockId !== null;
+        const url = isEditing
             ? `/admin/pinduoduo/${editingStockId}`
             : "/admin/pinduoduo";
 
         const data = await getJSON(url, {
-            method: editingStockId ? "PUT" : "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            method: isEditing ? "PUT" : "POST",
+            body: formData
         });
 
         if (data.success === false) {
             throw new Error(data.message || "Unable to save stock.");
         }
 
-        showToast(editingStockId ? "Stock updated." : "Stock added.");
+        showToast(isEditing ? "Stock updated." : "Stock added.");
+
         resetStockForm();
         await loadPinduoduo();
     } catch (error) {
@@ -3136,27 +3260,44 @@ document.getElementById("pinduoduoForm").addEventListener("submit", async functi
         showToast(error.message || "Unable to save stock.", true);
     } finally {
         button.disabled = false;
+
+        document.getElementById("stockSubmit").innerHTML =
+            editingStockId !== null
+                ? '<i class="fa-solid fa-floppy-disk"></i> Save Changes'
+                : '<i class="fa-solid fa-plus"></i> Add Stock';
     }
 });
 
 function editStock(id) {
-    const item = pinduoduoItems.find(row => Number(row.id) === id);
+    const item = pinduoduoItems.find(row => Number(row.id) === Number(id));
     if (!item) return;
 
-    editingStockId = id;
+    editingStockId = Number(id);
+
     document.getElementById("stockName").value = item.item_name || "";
     document.getElementById("stockCny").value = item.cost_cny ?? "";
     document.getElementById("stockMmk").value = item.cost_mmk ?? "";
+    document.getElementById("stockQuantity").value = item.quantity ?? 1;
+    document.getElementById("stockUnit").value =
+        ["Piece", "Pair", "Set"].includes(item.unit) ? item.unit : "Piece";
+
     document.getElementById("stockTracking").value = item.tracking_code || "";
     document.getElementById("stockWeight").value = item.weight_kg ?? "";
     document.getElementById("stockShipping").value = item.shipping_fee ?? "";
     document.getElementById("stockDateDisplay").value = item.purchase_date || "";
+
+    // File inputs cannot be prefilled. If no new photo is selected,
+    // the server should preserve the existing image_url.
+    document.getElementById("stockPhoto").value = "";
+
     updateStockTotal();
 
     document.getElementById("stockSubmit").innerHTML =
         '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
 
-    document.getElementById("pinduoduo").scrollIntoView({ behavior: "smooth" });
+    document.getElementById("pinduoduo").scrollIntoView({
+        behavior: "smooth"
+    });
 }
 
 async function deleteStock(id) {
@@ -3172,13 +3313,18 @@ async function deleteStock(id) {
         }
 
         showToast("Stock deleted.");
-        if (editingStockId === id) resetStockForm();
+
+        if (Number(editingStockId) === Number(id)) {
+            resetStockForm();
+        }
+
         await loadPinduoduo();
     } catch (error) {
         console.error("Delete stock error:", error);
         showToast(error.message || "Delete failed.", true);
     }
 }
+
 
 
 checkAdmin();

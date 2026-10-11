@@ -118,7 +118,10 @@ const pinduoduoTableReady = (async () => {
     ["shipping_fee", "REAL NOT NULL DEFAULT 0"],
     ["total_mmk", "REAL NOT NULL DEFAULT 0"],
     ["tracking_code", "TEXT DEFAULT ''"],
-    ["purchase_date", "TEXT NOT NULL DEFAULT ''"]
+    ["purchase_date", "TEXT NOT NULL DEFAULT ''"],
+    ["quantity", "INTEGER NOT NULL DEFAULT 1"],
+["unit", "TEXT NOT NULL DEFAULT 'Piece'"],
+["image_url", "TEXT NOT NULL DEFAULT ''"]
   ];
 
   for (const [name, type] of columns) {
@@ -205,9 +208,28 @@ const upload =
     storage
   });
 
-/* =========================================================
-   HELPERS
-========================================================= */
+const pinduoduoStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "acai-shop-pinduoduo",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"]
+  }
+});
+
+const uploadPinduoduo = multer({
+  storage: pinduoduoStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype && file.mimetype.startsWith("image/")) {
+      return cb(null, true);
+    }
+
+    cb(new Error("Please upload an image file."));
+  }
+});
+
 
 function clean(value) {
   return String(value ?? "").trim();
@@ -3364,7 +3386,6 @@ app.get(
    PINDUODUO API ROUTES
 ========================================================= */
 
-// Myanmar date: YYYY-MM-DD
 function getMyanmarDate() {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Yangon",
@@ -3374,15 +3395,22 @@ function getMyanmarDate() {
   }).formatToParts(new Date());
 
   const values = {};
+
   for (const part of parts) {
-    if (part.type !== "literal") values[part.type] = part.value;
+    if (part.type !== "literal") {
+      values[part.type] = part.value;
+    }
   }
 
   return `${values.year}-${values.month}-${values.day}`;
 }
 
 function optionalNumber(value, fieldName) {
-  if (value === undefined || value === null || String(value).trim() === "") {
+  if (
+    value === undefined ||
+    value === null ||
+    String(value).trim() === ""
+  ) {
     return 0;
   }
 
@@ -3395,7 +3423,55 @@ function optionalNumber(value, fieldName) {
   return number;
 }
 
-// Get all purchases
+function getPinduoduoFields(body) {
+  const itemName = String(body.item_name || "").trim();
+  const trackingCode = String(body.tracking_code || "").trim();
+
+  if (!itemName) {
+    throw new Error("Item name is required.");
+  }
+
+  if (
+    body.cost_cny === undefined ||
+    String(body.cost_cny).trim() === "" ||
+    body.cost_mmk === undefined ||
+    String(body.cost_mmk).trim() === ""
+  ) {
+    throw new Error("Cost CNY and Cost MMK are required.");
+  }
+
+  const costCny = optionalNumber(body.cost_cny, "Cost CNY");
+  const costMmk = optionalNumber(body.cost_mmk, "Cost MMK");
+  const weightKg = optionalNumber(body.weight_kg, "Weight");
+  const shippingFee = optionalNumber(body.shipping_fee, "Shipping Fee");
+
+  const quantityText = String(body.quantity ?? "").trim();
+  const quantity = quantityText === "" ? 1 : Number(quantityText);
+
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    throw new Error("Quantity must be a whole number of at least 1.");
+  }
+
+  const unit = String(body.unit || "Piece").trim();
+
+  if (!["Piece", "Pair", "Set"].includes(unit)) {
+    throw new Error("Unit must be Piece, Pair or Set.");
+  }
+
+  return {
+    itemName,
+    trackingCode,
+    costCny,
+    costMmk,
+    weightKg,
+    shippingFee,
+    totalMmk: costMmk + shippingFee,
+    quantity,
+    unit
+  };
+}
+
+// List purchases
 app.get("/admin/pinduoduo", adminAuth, async (req, res) => {
   try {
     await pinduoduoTableReady;
@@ -3403,7 +3479,8 @@ app.get("/admin/pinduoduo", adminAuth, async (req, res) => {
     const result = await tursoClient.execute(`
       SELECT id, item_name, tracking_code,
              cost_cny, cost_mmk, purchase_date,
-             weight_kg, shipping_fee, total_mmk
+             weight_kg, shipping_fee, total_mmk,
+             quantity, unit, image_url
       FROM pinduoduo_orders
       ORDER BY id DESC
     `);
@@ -3418,150 +3495,167 @@ app.get("/admin/pinduoduo", adminAuth, async (req, res) => {
   }
 });
 
-// Add a purchase
-app.post("/admin/pinduoduo", adminAuth, async (req, res) => {
-  try {
-    await pinduoduoTableReady;
+// Add purchase with optional photo
+app.post(
+  "/admin/pinduoduo",
+  adminAuth,
+  (req, res, next) => {
+    uploadPinduoduo.single("item_photo")(req, res, err => {
+      if (err) {
+        return res.status(400).json({
+          success: false,
+          message: err.message || "Image upload failed."
+        });
+      }
+      next();
+    });
+  },
+  async (req, res) => {
+    try {
+      await pinduoduoTableReady;
 
-    const itemName = String(req.body.item_name || "").trim();
-    const trackingCode = String(req.body.tracking_code || "").trim();
+      const fields = getPinduoduoFields(req.body);
+      const purchaseDate = getMyanmarDate();
+      const imageUrl = req.file?.path || "";
 
-    // Require both CNY and MMK cost
-    if (
-      !itemName ||
-      req.body.cost_cny === undefined ||
-      String(req.body.cost_cny).trim() === "" ||
-      req.body.cost_mmk === undefined ||
-      String(req.body.cost_mmk).trim() === ""
-    ) {
-      return res.status(400).json({
+      const result = await tursoClient.execute({
+        sql: `
+          INSERT INTO pinduoduo_orders
+            (item_name, tracking_code, cost_cny, cost_mmk,
+             purchase_date, weight_kg, shipping_fee, total_mmk,
+             quantity, unit, image_url)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `,
+        args: [
+          fields.itemName,
+          fields.trackingCode,
+          fields.costCny,
+          fields.costMmk,
+          purchaseDate,
+          fields.weightKg,
+          fields.shippingFee,
+          fields.totalMmk,
+          fields.quantity,
+          fields.unit,
+          imageUrl
+        ]
+      });
+
+      res.json({
+        success: true,
+        id: Number(result.lastInsertRowid),
+        purchase_date: purchaseDate,
+        total_mmk: fields.totalMmk,
+        image_url: imageUrl
+      });
+    } catch (err) {
+      console.error("Pinduoduo add error:", err);
+      res.status(400).json({
         success: false,
-        message: "Item name, Cost CNY and Cost MMK are required."
+        message: err.message || "Unable to save purchase."
       });
     }
-
-    const costCny = optionalNumber(req.body.cost_cny, "Cost CNY");
-    const costMmk = optionalNumber(req.body.cost_mmk, "Cost MMK");
-    const weightKg = optionalNumber(req.body.weight_kg, "Weight");
-    const shippingFee = optionalNumber(req.body.shipping_fee, "Shipping Fee");
-    const totalMmk = costMmk + shippingFee;
-
-    const purchaseDate = getMyanmarDate();
-
-    const result = await tursoClient.execute({
-      sql: `
-        INSERT INTO pinduoduo_orders
-          (item_name, tracking_code, cost_cny, cost_mmk,
-           purchase_date, weight_kg, shipping_fee, total_mmk)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `,
-      args: [
-        itemName, trackingCode, costCny, costMmk,
-        purchaseDate, weightKg, shippingFee, totalMmk
-      ]
-    });
-
-    res.json({
-      success: true,
-      id: Number(result.lastInsertRowid),
-      purchase_date: purchaseDate,
-      total_mmk: totalMmk
-    });
-  } catch (err) {
-    console.error("Pinduoduo add error:", err);
-
-    res.status(400).json({
-      success: false,
-      message: err.message || "Unable to save purchase."
-    });
   }
-});
+);
 
-// Edit a purchase
-app.put("/admin/pinduoduo/:id", adminAuth, async (req, res) => {
-  try {
-    await pinduoduoTableReady;
+// Edit purchase; keep old photo if no new photo is selected
+app.put(
+  "/admin/pinduoduo/:id",
+  adminAuth,
+  (req, res, next) => {
+    uploadPinduoduo.single("item_photo")(req, res, err => {
+      if (err) {
+        return res.status(400).json({
+          success: false,
+          message: err.message || "Image upload failed."
+        });
+      }
+      next();
+    });
+  },
+  async (req, res) => {
+    try {
+      await pinduoduoTableReady;
 
-    const id = Number(req.params.id);
-    const itemName = String(req.body.item_name || "").trim();
-    const trackingCode = String(req.body.tracking_code || "").trim();
+      const id = Number(req.params.id);
 
-    if (!Number.isInteger(id) || id < 1 || !itemName) {
-      return res.status(400).json({
+      if (!Number.isInteger(id) || id < 1) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid purchase ID."
+        });
+      }
+
+      const fields = getPinduoduoFields(req.body);
+
+      const existing = await tursoClient.execute({
+        sql: "SELECT purchase_date, image_url FROM pinduoduo_orders WHERE id = ?",
+        args: [id]
+      });
+
+      if (!existing.rows.length) {
+        return res.status(404).json({
+          success: false,
+          message: "Purchase not found."
+        });
+      }
+
+      const purchaseDate =
+        String(req.body.purchase_date || "").trim() ||
+        String(existing.rows[0].purchase_date || getMyanmarDate());
+
+      const imageUrl =
+        req.file?.path ||
+        String(existing.rows[0].image_url || "");
+
+      await tursoClient.execute({
+        sql: `
+          UPDATE pinduoduo_orders
+          SET item_name = ?,
+              tracking_code = ?,
+              cost_cny = ?,
+              cost_mmk = ?,
+              purchase_date = ?,
+              weight_kg = ?,
+              shipping_fee = ?,
+              total_mmk = ?,
+              quantity = ?,
+              unit = ?,
+              image_url = ?
+          WHERE id = ?
+        `,
+        args: [
+          fields.itemName,
+          fields.trackingCode,
+          fields.costCny,
+          fields.costMmk,
+          purchaseDate,
+          fields.weightKg,
+          fields.shippingFee,
+          fields.totalMmk,
+          fields.quantity,
+          fields.unit,
+          imageUrl,
+          id
+        ]
+      });
+
+      res.json({
+        success: true,
+        total_mmk: fields.totalMmk,
+        image_url: imageUrl
+      });
+    } catch (err) {
+      console.error("Pinduoduo update error:", err);
+      res.status(400).json({
         success: false,
-        message: "A valid ID and item name are required."
+        message: err.message || "Unable to update purchase."
       });
     }
-
-    if (
-      req.body.cost_cny === undefined ||
-      String(req.body.cost_cny).trim() === "" ||
-      req.body.cost_mmk === undefined ||
-      String(req.body.cost_mmk).trim() === ""
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Cost CNY and Cost MMK are required."
-      });
-    }
-
-    const costCny = optionalNumber(req.body.cost_cny, "Cost CNY");
-    const costMmk = optionalNumber(req.body.cost_mmk, "Cost MMK");
-    const weightKg = optionalNumber(req.body.weight_kg, "Weight");
-    const shippingFee = optionalNumber(req.body.shipping_fee, "Shipping Fee");
-    const totalMmk = costMmk + shippingFee;
-
-    // Keep original purchase date unless a new date is explicitly supplied
-    const existing = await tursoClient.execute({
-      sql: "SELECT purchase_date FROM pinduoduo_orders WHERE id = ?",
-      args: [id]
-    });
-
-    if (existing.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Purchase not found."
-      });
-    }
-
-    const purchaseDate =
-      String(req.body.purchase_date || "").trim() ||
-      String(existing.rows[0].purchase_date || getMyanmarDate());
-
-    await tursoClient.execute({
-      sql: `
-        UPDATE pinduoduo_orders
-        SET item_name = ?,
-            tracking_code = ?,
-            cost_cny = ?,
-            cost_mmk = ?,
-            purchase_date = ?,
-            weight_kg = ?,
-            shipping_fee = ?,
-            total_mmk = ?
-        WHERE id = ?
-      `,
-      args: [
-        itemName, trackingCode, costCny, costMmk,
-        purchaseDate, weightKg, shippingFee, totalMmk, id
-      ]
-    });
-
-    res.json({
-      success: true,
-      total_mmk: totalMmk
-    });
-  } catch (err) {
-    console.error("Pinduoduo update error:", err);
-
-    res.status(400).json({
-      success: false,
-      message: err.message || "Unable to update purchase."
-    });
   }
-});
+);
 
-// Delete a purchase
+// Delete purchase
 app.delete("/admin/pinduoduo/:id", adminAuth, async (req, res) => {
   try {
     await pinduoduoTableReady;
