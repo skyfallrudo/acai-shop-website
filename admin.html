@@ -749,6 +749,62 @@ tr:hover td{
 
 }
 
+/* Pinduoduo Stock List */
+#pinduoduoForm {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+#pinduoduoForm input {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 11px;
+    background: #1E293B;
+    color: white;
+    outline: none;
+}
+
+#pinduoduoForm input:focus {
+    border-color: #2563EB;
+}
+
+#pinduoduoForm button {
+    padding: 12px;
+    border: none;
+    border-radius: 11px;
+    background: #16A34A;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.stock-total {
+    color: #4ADE80;
+    font-weight: 700;
+}
+
+.stock-note {
+    color: #94A3B8;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+
+@media(max-width:1100px) {
+    #pinduoduoForm {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media(max-width:600px) {
+    #pinduoduoForm {
+        grid-template-columns: 1fr;
+    }
+}
+
 </style>
 </head>
 
@@ -817,7 +873,10 @@ tr:hover td{
         <i class="fa-solid fa-users"></i>
         <span>Customers</span>
     </a>
-
+<a href="#pinduoduo">
+    <i class="fa-solid fa-cart-flatbed"></i>
+    <span>Pinduoduo Orders</span>
+</a>
     <a href="#" class="logout-link" onclick="adminLogout();return false;">
         <i class="fa-solid fa-right-from-bracket"></i>
         <span>Logout</span>
@@ -1131,11 +1190,102 @@ tr:hover td{
             </div>
 
         </div>
+    </section>
+
+    <!-- Pinduoduo Stock List -->
+    <section class="section" id="pinduoduo">
+
+        <div class="section-header">
+            <h2><i class="fa-solid fa-cart-flatbed"></i> Stock List</h2>
+
+            <button class="btn refresh" onclick="loadPinduoduo()">
+                <i class="fa-solid fa-rotate"></i>
+                Refresh
+            </button>
+        </div>
+
+        <div class="card">
+
+            <p class="stock-note">
+                Purchase Date uses Myanmar time. Total = Cost MMK + Shipping Fee.
+            </p>
+
+            <form id="pinduoduoForm">
+
+                <input id="stockName" name="item_name"
+                       placeholder="Name (required)" required>
+
+                <input id="stockCny" name="cost_cny"
+                       type="number" min="0" step="any"
+                       placeholder="Cost (CNY)" required>
+
+                <input id="stockMmk" name="cost_mmk"
+                       type="number" min="0" step="any"
+                       placeholder="Cost (MMK)" required>
+
+                <input id="stockTracking" name="tracking_code"
+                       placeholder="Tracking Code (optional)">
+
+                <input id="stockWeight" name="weight_kg"
+                       type="number" min="0" step="any"
+                       placeholder="Weight kg (optional)">
+
+                <input id="stockShipping" name="shipping_fee"
+                       type="number" min="0" step="any"
+                       placeholder="Shipping Fee (MMK)">
+
+                <input id="stockDateDisplay"
+                       placeholder="Purchase Date (Myanmar time)" readonly>
+
+                <input id="stockTotalDisplay"
+                       placeholder="Total (MMK)" readonly>
+
+                <button type="submit" id="stockSubmit">
+                    <i class="fa-solid fa-plus"></i> Add Stock
+                </button>
+
+                <button type="button" class="btn refresh"
+                        onclick="resetStockForm()">
+                    Cancel Edit / Clear
+                </button>
+
+            </form>
+
+            <input class="search" id="stockSearch"
+                   placeholder="Search stock list...">
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Name</th>
+                            <th>Tracking Code</th>
+                            <th>Cost CNY</th>
+                            <th>Cost MMK</th>
+                            <th>Date</th>
+                            <th>Weight kg</th>
+                            <th>Shipping Fee</th>
+                            <th>Total MMK</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="pinduoduoTable">
+                        <tr>
+                            <td colspan="10" class="loading">
+                                Loading stock list...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
 
     </section>
 
 </div>
-
 
 
 <div id="orderPopup">
@@ -1482,6 +1632,7 @@ function startAdmin(){
     adminStarted=true;
 
     loadDashboard();
+    loadPinduoduo();
 
     dashboardInterval=setInterval(()=>{
 
@@ -2821,6 +2972,213 @@ document.querySelectorAll(
     });
 
 });
+
+let pinduoduoItems = [];
+let editingStockId = null;
+
+function stockMyanmarDate() {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Yangon",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).formatToParts(new Date());
+
+    const result = {};
+    parts.forEach(p => {
+        if (p.type !== "literal") result[p.type] = p.value;
+    });
+
+    return `${result.year}-${result.month}-${result.day}`;
+}
+
+function updateStockTotal() {
+    const cost = Number(document.getElementById("stockMmk").value || 0);
+    const shipping = Number(document.getElementById("stockShipping").value || 0);
+
+    document.getElementById("stockTotalDisplay").value =
+        (cost + shipping).toLocaleString("en-US") + " MMK";
+}
+
+function resetStockForm() {
+    editingStockId = null;
+    document.getElementById("pinduoduoForm").reset();
+    document.getElementById("stockDateDisplay").value = stockMyanmarDate();
+    document.getElementById("stockTotalDisplay").value = "0 MMK";
+    document.getElementById("stockSubmit").innerHTML =
+        '<i class="fa-solid fa-plus"></i> Add Stock';
+}
+
+document.getElementById("stockMmk").addEventListener("input", updateStockTotal);
+document.getElementById("stockShipping").addEventListener("input", updateStockTotal);
+document.getElementById("stockDateDisplay").value = stockMyanmarDate();
+
+async function loadPinduoduo() {
+    const table = document.getElementById("pinduoduoTable");
+
+    try {
+        const rows = await getJSON("/admin/pinduoduo");
+        if (!Array.isArray(rows)) throw new Error("Invalid stock list response.");
+
+        pinduoduoItems = rows;
+        renderPinduoduo();
+    } catch (error) {
+        console.error("Stock list error:", error);
+        table.innerHTML = `<tr><td colspan="10" class="empty">
+            ${escapeHTML(error.message || "Could not load stock list.")}
+        </td></tr>`;
+        showToast(error.message || "Could not load stock list.", true);
+    }
+}
+
+function renderPinduoduo() {
+    const table = document.getElementById("pinduoduoTable");
+    const keyword = document.getElementById("stockSearch").value.toLowerCase().trim();
+
+    const filtered = pinduoduoItems.filter(item =>
+        [
+            item.id, item.item_name, item.tracking_code,
+            item.purchase_date, item.cost_cny, item.cost_mmk
+        ].some(value => String(value ?? "").toLowerCase().includes(keyword))
+    );
+
+    if (!filtered.length) {
+        table.innerHTML = `<tr><td colspan="10" class="empty">
+            No stock records found.
+        </td></tr>`;
+        return;
+    }
+
+    table.innerHTML = filtered.map(item => {
+        const id = Number(item.id);
+        const costCny = Number(item.cost_cny || 0);
+        const costMmk = Number(item.cost_mmk || 0);
+        const weight = Number(item.weight_kg || 0);
+        const shipping = Number(item.shipping_fee || 0);
+        const total = costMmk + shipping;
+
+        return `<tr>
+            <td>${id}</td>
+            <td class="product-name">${escapeHTML(item.item_name)}</td>
+            <td>${escapeHTML(item.tracking_code || "-")}</td>
+            <td>${costCny.toLocaleString("en-US")}</td>
+            <td>${costMmk.toLocaleString("en-US")}</td>
+            <td>${escapeHTML(item.purchase_date || "-")}</td>
+            <td>${weight || "-"}</td>
+            <td>${shipping.toLocaleString("en-US")} MMK</td>
+            <td class="stock-total">${total.toLocaleString("en-US")} MMK</td>
+            <td>
+                <button class="btn edit" onclick="editStock(${id})">
+                    <i class="fa-solid fa-pen"></i> Edit
+                </button>
+                <button class="btn delete" onclick="deleteStock(${id})">
+                    <i class="fa-solid fa-trash"></i> Delete
+                </button>
+            </td>
+        </tr>`;
+    }).join("");
+}
+
+document.getElementById("stockSearch").addEventListener("input", renderPinduoduo);
+
+document.getElementById("pinduoduoForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const itemName = document.getElementById("stockName").value.trim();
+    const cnyText = document.getElementById("stockCny").value.trim();
+    const mmkText = document.getElementById("stockMmk").value.trim();
+
+    if (!itemName || cnyText === "" || mmkText === "") {
+        showToast("Name, Cost CNY and Cost MMK are required.", true);
+        return;
+    }
+
+    const payload = {
+        item_name: itemName,
+        cost_cny: Number(cnyText),
+        cost_mmk: Number(mmkText),
+        tracking_code: document.getElementById("stockTracking").value.trim(),
+        weight_kg: document.getElementById("stockWeight").value,
+        shipping_fee: document.getElementById("stockShipping").value
+    };
+
+    if (
+        !Number.isFinite(payload.cost_cny) || payload.cost_cny < 0 ||
+        !Number.isFinite(payload.cost_mmk) || payload.cost_mmk < 0
+    ) {
+        showToast("Please enter valid costs.", true);
+        return;
+    }
+
+    const button = document.getElementById("stockSubmit");
+    button.disabled = true;
+
+    try {
+        const url = editingStockId
+            ? `/admin/pinduoduo/${editingStockId}`
+            : "/admin/pinduoduo";
+
+        const data = await getJSON(url, {
+            method: editingStockId ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (data.success === false) {
+            throw new Error(data.message || "Unable to save stock.");
+        }
+
+        showToast(editingStockId ? "Stock updated." : "Stock added.");
+        resetStockForm();
+        await loadPinduoduo();
+    } catch (error) {
+        console.error("Save stock error:", error);
+        showToast(error.message || "Unable to save stock.", true);
+    } finally {
+        button.disabled = false;
+    }
+});
+
+function editStock(id) {
+    const item = pinduoduoItems.find(row => Number(row.id) === id);
+    if (!item) return;
+
+    editingStockId = id;
+    document.getElementById("stockName").value = item.item_name || "";
+    document.getElementById("stockCny").value = item.cost_cny ?? "";
+    document.getElementById("stockMmk").value = item.cost_mmk ?? "";
+    document.getElementById("stockTracking").value = item.tracking_code || "";
+    document.getElementById("stockWeight").value = item.weight_kg ?? "";
+    document.getElementById("stockShipping").value = item.shipping_fee ?? "";
+    document.getElementById("stockDateDisplay").value = item.purchase_date || "";
+    updateStockTotal();
+
+    document.getElementById("stockSubmit").innerHTML =
+        '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+
+    document.getElementById("pinduoduo").scrollIntoView({ behavior: "smooth" });
+}
+
+async function deleteStock(id) {
+    if (!confirm("Delete this stock record?")) return;
+
+    try {
+        const data = await getJSON(`/admin/pinduoduo/${id}`, {
+            method: "DELETE"
+        });
+
+        if (data.success === false) {
+            throw new Error(data.message || "Delete failed.");
+        }
+
+        showToast("Stock deleted.");
+        if (editingStockId === id) resetStockForm();
+        await loadPinduoduo();
+    } catch (error) {
+        console.error("Delete stock error:", error);
+        showToast(error.message || "Delete failed.", true);
+    }
+}
 
 
 checkAdmin();

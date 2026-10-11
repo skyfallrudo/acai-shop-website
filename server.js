@@ -97,9 +97,42 @@ const db = {
 
 };
 
-/* =========================================================
-   SESSION
-========================================================= */
+const pinduoduoTableReady = (async () => {
+  await tursoClient.execute(`
+    CREATE TABLE IF NOT EXISTS pinduoduo_orders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      item_name TEXT NOT NULL,
+      tracking_code TEXT DEFAULT '',
+      cost_cny REAL NOT NULL DEFAULT 0,
+      cost_mmk REAL NOT NULL DEFAULT 0,
+      weight_kg REAL NOT NULL DEFAULT 0,
+      shipping_fee REAL NOT NULL DEFAULT 0,
+      total_mmk REAL NOT NULL DEFAULT 0,
+      purchase_date TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  const columns = [
+    ["weight_kg", "REAL NOT NULL DEFAULT 0"],
+    ["shipping_fee", "REAL NOT NULL DEFAULT 0"],
+    ["total_mmk", "REAL NOT NULL DEFAULT 0"],
+    ["tracking_code", "TEXT DEFAULT ''"],
+    ["purchase_date", "TEXT NOT NULL DEFAULT ''"]
+  ];
+
+  for (const [name, type] of columns) {
+    try {
+      await tursoClient.execute(
+        `ALTER TABLE pinduoduo_orders ADD COLUMN ${name} ${type}`
+      );
+    } catch (err) {
+      if (!String(err.message).toLowerCase().includes("duplicate column")) {
+        throw err;
+      }
+    }
+  }
+})();
 
 app.use(session({
   secret:
@@ -123,27 +156,15 @@ app.use(session({
   }
 }));
 
-/* =========================================================
-   EMAIL
-========================================================= */
-
 const resend = new Resend(
   process.env.RESEND_API_KEY
 );
-
-/* =========================================================
-   OTP
-========================================================= */
 
 const otpStore =
   Object.create(null);
 
 const resetOtpStore =
-  Object.create(null);
-
-/* =========================================================
-   CLOUDINARY
-========================================================= */
+  Object.create(null);  
 
 cloudinary.config({
 
@@ -3338,6 +3359,243 @@ app.get(
 
   }
 );
+
+/* =========================================================
+   PINDUODUO API ROUTES
+========================================================= */
+
+// Myanmar date: YYYY-MM-DD
+function getMyanmarDate() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Yangon",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(new Date());
+
+  const values = {};
+  for (const part of parts) {
+    if (part.type !== "literal") values[part.type] = part.value;
+  }
+
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function optionalNumber(value, fieldName) {
+  if (value === undefined || value === null || String(value).trim() === "") {
+    return 0;
+  }
+
+  const number = Number(value);
+
+  if (!Number.isFinite(number) || number < 0) {
+    throw new Error(`${fieldName} must be zero or greater.`);
+  }
+
+  return number;
+}
+
+// Get all purchases
+app.get("/admin/pinduoduo", adminAuth, async (req, res) => {
+  try {
+    await pinduoduoTableReady;
+
+    const result = await tursoClient.execute(`
+      SELECT id, item_name, tracking_code,
+             cost_cny, cost_mmk, purchase_date,
+             weight_kg, shipping_fee, total_mmk
+      FROM pinduoduo_orders
+      ORDER BY id DESC
+    `);
+
+    res.json(result.rows.map(row => ({ ...row })));
+  } catch (err) {
+    console.error("Pinduoduo list error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Unable to load Pinduoduo orders."
+    });
+  }
+});
+
+// Add a purchase
+app.post("/admin/pinduoduo", adminAuth, async (req, res) => {
+  try {
+    await pinduoduoTableReady;
+
+    const itemName = String(req.body.item_name || "").trim();
+    const trackingCode = String(req.body.tracking_code || "").trim();
+
+    // Require both CNY and MMK cost
+    if (
+      !itemName ||
+      req.body.cost_cny === undefined ||
+      String(req.body.cost_cny).trim() === "" ||
+      req.body.cost_mmk === undefined ||
+      String(req.body.cost_mmk).trim() === ""
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Item name, Cost CNY and Cost MMK are required."
+      });
+    }
+
+    const costCny = optionalNumber(req.body.cost_cny, "Cost CNY");
+    const costMmk = optionalNumber(req.body.cost_mmk, "Cost MMK");
+    const weightKg = optionalNumber(req.body.weight_kg, "Weight");
+    const shippingFee = optionalNumber(req.body.shipping_fee, "Shipping Fee");
+    const totalMmk = costMmk + shippingFee;
+
+    const purchaseDate = getMyanmarDate();
+
+    const result = await tursoClient.execute({
+      sql: `
+        INSERT INTO pinduoduo_orders
+          (item_name, tracking_code, cost_cny, cost_mmk,
+           purchase_date, weight_kg, shipping_fee, total_mmk)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      args: [
+        itemName, trackingCode, costCny, costMmk,
+        purchaseDate, weightKg, shippingFee, totalMmk
+      ]
+    });
+
+    res.json({
+      success: true,
+      id: Number(result.lastInsertRowid),
+      purchase_date: purchaseDate,
+      total_mmk: totalMmk
+    });
+  } catch (err) {
+    console.error("Pinduoduo add error:", err);
+
+    res.status(400).json({
+      success: false,
+      message: err.message || "Unable to save purchase."
+    });
+  }
+});
+
+// Edit a purchase
+app.put("/admin/pinduoduo/:id", adminAuth, async (req, res) => {
+  try {
+    await pinduoduoTableReady;
+
+    const id = Number(req.params.id);
+    const itemName = String(req.body.item_name || "").trim();
+    const trackingCode = String(req.body.tracking_code || "").trim();
+
+    if (!Number.isInteger(id) || id < 1 || !itemName) {
+      return res.status(400).json({
+        success: false,
+        message: "A valid ID and item name are required."
+      });
+    }
+
+    if (
+      req.body.cost_cny === undefined ||
+      String(req.body.cost_cny).trim() === "" ||
+      req.body.cost_mmk === undefined ||
+      String(req.body.cost_mmk).trim() === ""
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Cost CNY and Cost MMK are required."
+      });
+    }
+
+    const costCny = optionalNumber(req.body.cost_cny, "Cost CNY");
+    const costMmk = optionalNumber(req.body.cost_mmk, "Cost MMK");
+    const weightKg = optionalNumber(req.body.weight_kg, "Weight");
+    const shippingFee = optionalNumber(req.body.shipping_fee, "Shipping Fee");
+    const totalMmk = costMmk + shippingFee;
+
+    // Keep original purchase date unless a new date is explicitly supplied
+    const existing = await tursoClient.execute({
+      sql: "SELECT purchase_date FROM pinduoduo_orders WHERE id = ?",
+      args: [id]
+    });
+
+    if (existing.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Purchase not found."
+      });
+    }
+
+    const purchaseDate =
+      String(req.body.purchase_date || "").trim() ||
+      String(existing.rows[0].purchase_date || getMyanmarDate());
+
+    await tursoClient.execute({
+      sql: `
+        UPDATE pinduoduo_orders
+        SET item_name = ?,
+            tracking_code = ?,
+            cost_cny = ?,
+            cost_mmk = ?,
+            purchase_date = ?,
+            weight_kg = ?,
+            shipping_fee = ?,
+            total_mmk = ?
+        WHERE id = ?
+      `,
+      args: [
+        itemName, trackingCode, costCny, costMmk,
+        purchaseDate, weightKg, shippingFee, totalMmk, id
+      ]
+    });
+
+    res.json({
+      success: true,
+      total_mmk: totalMmk
+    });
+  } catch (err) {
+    console.error("Pinduoduo update error:", err);
+
+    res.status(400).json({
+      success: false,
+      message: err.message || "Unable to update purchase."
+    });
+  }
+});
+
+// Delete a purchase
+app.delete("/admin/pinduoduo/:id", adminAuth, async (req, res) => {
+  try {
+    await pinduoduoTableReady;
+
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id < 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid purchase ID."
+      });
+    }
+
+    const result = await tursoClient.execute({
+      sql: "DELETE FROM pinduoduo_orders WHERE id = ?",
+      args: [id]
+    });
+
+    if (Number(result.rowsAffected) === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Purchase not found."
+      });
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Pinduoduo delete error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Unable to delete purchase."
+    });
+  }
+});
 
 /* =========================================================
    START SERVER
