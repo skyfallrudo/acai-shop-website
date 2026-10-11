@@ -3136,7 +3136,7 @@ function renderPinduoduo() {
         const quantity = Number(item.quantity || 1);
         const weight = Number(item.weight_kg || 0);
         const shipping = Number(item.shipping_fee || 0);
-       const total = (costMmk * quantity) + shipping;f
+       const total = (costMmk * quantity) + shipping;
 
         const imageUrl = String(item.image_url || "");
         const safeImageUrl = /^https:\/\/res\.cloudinary\.com\//i.test(imageUrl)
