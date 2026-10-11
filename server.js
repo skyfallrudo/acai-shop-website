@@ -3465,7 +3465,7 @@ function getPinduoduoFields(body) {
     costMmk,
     weightKg,
     shippingFee,
-    totalMmk: costMmk + shippingFee,
+    totalMmk: (costMmk * quantity) + shippingFee,
     quantity,
     unit
   };
