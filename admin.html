@@ -1236,9 +1236,10 @@ tr:hover td{
         </div>
 
         <div class="card">
-
+   Only Rudox and Valrqx are authorized to edit this database.
+   Unauthorized modifications are subject to legal action.
             <p class="stock-note">
-                Purchase Date uses Myanmar time. Total = Cost MMK + Shipping Fee.
+              
             </p>
 
 <form id="pinduoduoForm" enctype="multipart/form-data">
@@ -3042,12 +3043,24 @@ function stockMyanmarDate() {
 }
 
 function updateStockTotal() {
-    const cost = Number(document.getElementById("stockMmk").value || 0);
-    const shipping = Number(document.getElementById("stockShipping").value || 0);
+    const cost = Number(
+        document.getElementById("stockMmk").value || 0
+    );
+
+    const quantity = Number(
+        document.getElementById("stockQuantity").value || 1
+    );
+
+    const shipping = Number(
+        document.getElementById("stockShipping").value || 0
+    );
+
+    const total = (cost * quantity) + shipping;
 
     document.getElementById("stockTotalDisplay").value =
-        (cost + shipping).toLocaleString("en-US") + " MMK";
+        total.toLocaleString("en-US") + " MMK";
 }
+
 
 function resetStockForm() {
     editingStockId = null;
@@ -3066,6 +3079,7 @@ function resetStockForm() {
 
 document.getElementById("stockMmk").addEventListener("input", updateStockTotal);
 document.getElementById("stockShipping").addEventListener("input", updateStockTotal);
+document.getElementById("stockQuantity").addEventListener("input", updateStockTotal);
 document.getElementById("stockDateDisplay").value = stockMyanmarDate();
 
 async function loadPinduoduo() {
@@ -3122,7 +3136,7 @@ function renderPinduoduo() {
         const quantity = Number(item.quantity || 1);
         const weight = Number(item.weight_kg || 0);
         const shipping = Number(item.shipping_fee || 0);
-        const total = costMmk + shipping;
+       const total = (costMmk * quantity) + shipping;f
 
         const imageUrl = String(item.image_url || "");
         const safeImageUrl = /^https:\/\/res\.cloudinary\.com\//i.test(imageUrl)
