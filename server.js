@@ -121,7 +121,8 @@ const pinduoduoTableReady = (async () => {
     ["purchase_date", "TEXT NOT NULL DEFAULT ''"],
     ["quantity", "INTEGER NOT NULL DEFAULT 1"],
 ["unit", "TEXT NOT NULL DEFAULT 'Piece'"],
-["image_url", "TEXT NOT NULL DEFAULT ''"]
+["image_url", "TEXT NOT NULL DEFAULT ''"],
+["color", "TEXT NOT NULL DEFAULT ''"]
   ];
 
   for (const [name, type] of columns) {
@@ -3426,6 +3427,7 @@ function optionalNumber(value, fieldName) {
 function getPinduoduoFields(body) {
   const itemName = String(body.item_name || "").trim();
   const trackingCode = String(body.tracking_code || "").trim();
+  const color = String(body.color || "").trim();
 
   if (!itemName) {
     throw new Error("Item name is required.");
@@ -3460,6 +3462,7 @@ function getPinduoduoFields(body) {
 
   return {
     itemName,
+      color,
     trackingCode,
     costCny,
     costMmk,
@@ -3477,7 +3480,7 @@ app.get("/admin/pinduoduo", adminAuth, async (req, res) => {
     await pinduoduoTableReady;
 
     const result = await tursoClient.execute(`
-      SELECT id, item_name, tracking_code,
+      SELECT id, item_name, color, tracking_code,
              cost_cny, cost_mmk, purchase_date,
              weight_kg, shipping_fee, total_mmk,
              quantity, unit, image_url
@@ -3521,13 +3524,14 @@ app.post(
       const result = await tursoClient.execute({
         sql: `
           INSERT INTO pinduoduo_orders
-            (item_name, tracking_code, cost_cny, cost_mmk,
+            (item_name,color,tracking_code, cost_cny, cost_mmk,
              purchase_date, weight_kg, shipping_fee, total_mmk,
              quantity, unit, image_url)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         args: [
           fields.itemName,
+            fields.color,
           fields.trackingCode,
           fields.costCny,
           fields.costMmk,
@@ -3612,6 +3616,7 @@ app.put(
         sql: `
           UPDATE pinduoduo_orders
           SET item_name = ?,
+           color = ?,
               tracking_code = ?,
               cost_cny = ?,
               cost_mmk = ?,
@@ -3626,6 +3631,7 @@ app.put(
         `,
         args: [
           fields.itemName,
+            fields.color,
           fields.trackingCode,
           fields.costCny,
           fields.costMmk,
