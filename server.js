@@ -122,7 +122,8 @@ const pinduoduoTableReady = (async () => {
     ["quantity", "INTEGER NOT NULL DEFAULT 1"],
 ["unit", "TEXT NOT NULL DEFAULT 'Piece'"],
 ["image_url", "TEXT NOT NULL DEFAULT ''"],
-["color", "TEXT NOT NULL DEFAULT ''"]
+["color", "TEXT NOT NULL DEFAULT ''"],
+ ["status", "TEXT NOT NULL DEFAULT 'Available'"]
   ];
 
   for (const [name, type] of columns) {
@@ -3429,8 +3430,16 @@ function getPinduoduoFields(body) {
   const trackingCode = String(body.tracking_code || "").trim();
   const color = String(body.color || "").trim();
 
+  const status = String(
+    body.status || "Available"
+  ).trim();
+
   if (!itemName) {
     throw new Error("Item name is required.");
+  }
+
+  if (!["Available", "Sold"].includes(status)) {
+    throw new Error("Status must be Available or Sold.");
   }
 
   if (
@@ -3462,7 +3471,7 @@ function getPinduoduoFields(body) {
 
   return {
     itemName,
-      color,
+    color,
     trackingCode,
     costCny,
     costMmk,
@@ -3470,7 +3479,8 @@ function getPinduoduoFields(body) {
     shippingFee,
     totalMmk: (costMmk * quantity) + shippingFee,
     quantity,
-    unit
+    unit,
+    status
   };
 }
 
@@ -3480,10 +3490,21 @@ app.get("/admin/pinduoduo", adminAuth, async (req, res) => {
     await pinduoduoTableReady;
 
     const result = await tursoClient.execute(`
-      SELECT id, item_name, color, tracking_code,
-             cost_cny, cost_mmk, purchase_date,
-             weight_kg, shipping_fee, total_mmk,
-             quantity, unit, image_url
+      SELECT
+        id,
+        item_name,
+        color,
+        tracking_code,
+        cost_cny,
+        cost_mmk,
+        purchase_date,
+        weight_kg,
+        shipping_fee,
+        total_mmk,
+        quantity,
+        unit,
+        image_url,
+        status
       FROM pinduoduo_orders
       ORDER BY id DESC
     `);
@@ -3491,6 +3512,7 @@ app.get("/admin/pinduoduo", adminAuth, async (req, res) => {
     res.json(result.rows.map(row => ({ ...row })));
   } catch (err) {
     console.error("Pinduoduo list error:", err);
+
     res.status(500).json({
       success: false,
       message: "Unable to load Pinduoduo orders."
@@ -3498,7 +3520,7 @@ app.get("/admin/pinduoduo", adminAuth, async (req, res) => {
   }
 });
 
-// Add purchase with optional photo
+// Add purchase
 app.post(
   "/admin/pinduoduo",
   adminAuth,
@@ -3510,6 +3532,7 @@ app.post(
           message: err.message || "Image upload failed."
         });
       }
+
       next();
     });
   },
@@ -3523,15 +3546,26 @@ app.post(
 
       const result = await tursoClient.execute({
         sql: `
-          INSERT INTO pinduoduo_orders
-            (item_name,color,tracking_code, cost_cny, cost_mmk,
-             purchase_date, weight_kg, shipping_fee, total_mmk,
-             quantity, unit, image_url)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO pinduoduo_orders (
+            item_name,
+            color,
+            tracking_code,
+            cost_cny,
+            cost_mmk,
+            purchase_date,
+            weight_kg,
+            shipping_fee,
+            total_mmk,
+            quantity,
+            unit,
+            image_url,
+            status
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         args: [
           fields.itemName,
-            fields.color,
+          fields.color,
           fields.trackingCode,
           fields.costCny,
           fields.costMmk,
@@ -3541,7 +3575,8 @@ app.post(
           fields.totalMmk,
           fields.quantity,
           fields.unit,
-          imageUrl
+          imageUrl,
+          fields.status
         ]
       });
 
@@ -3550,10 +3585,12 @@ app.post(
         id: Number(result.lastInsertRowid),
         purchase_date: purchaseDate,
         total_mmk: fields.totalMmk,
-        image_url: imageUrl
+        image_url: imageUrl,
+        status: fields.status
       });
     } catch (err) {
       console.error("Pinduoduo add error:", err);
+
       res.status(400).json({
         success: false,
         message: err.message || "Unable to save purchase."
@@ -3574,6 +3611,7 @@ app.put(
           message: err.message || "Image upload failed."
         });
       }
+
       next();
     });
   },
@@ -3593,7 +3631,11 @@ app.put(
       const fields = getPinduoduoFields(req.body);
 
       const existing = await tursoClient.execute({
-        sql: "SELECT purchase_date, image_url FROM pinduoduo_orders WHERE id = ?",
+        sql: `
+          SELECT purchase_date, image_url, status
+          FROM pinduoduo_orders
+          WHERE id = ?
+        `,
         args: [id]
       });
 
@@ -3604,34 +3646,45 @@ app.put(
         });
       }
 
+      const oldItem = existing.rows[0];
+
       const purchaseDate =
         String(req.body.purchase_date || "").trim() ||
-        String(existing.rows[0].purchase_date || getMyanmarDate());
+        String(oldItem.purchase_date || getMyanmarDate());
 
       const imageUrl =
         req.file?.path ||
-        String(existing.rows[0].image_url || "");
+        String(oldItem.image_url || "");
+
+      // If an older form does not send status,
+      // preserve the item's current status.
+      const status =
+        req.body.status === undefined
+          ? String(oldItem.status || "Available")
+          : fields.status;
 
       await tursoClient.execute({
         sql: `
           UPDATE pinduoduo_orders
-          SET item_name = ?,
-           color = ?,
-              tracking_code = ?,
-              cost_cny = ?,
-              cost_mmk = ?,
-              purchase_date = ?,
-              weight_kg = ?,
-              shipping_fee = ?,
-              total_mmk = ?,
-              quantity = ?,
-              unit = ?,
-              image_url = ?
+          SET
+            item_name = ?,
+            color = ?,
+            tracking_code = ?,
+            cost_cny = ?,
+            cost_mmk = ?,
+            purchase_date = ?,
+            weight_kg = ?,
+            shipping_fee = ?,
+            total_mmk = ?,
+            quantity = ?,
+            unit = ?,
+            image_url = ?,
+            status = ?
           WHERE id = ?
         `,
         args: [
           fields.itemName,
-            fields.color,
+          fields.color,
           fields.trackingCode,
           fields.costCny,
           fields.costMmk,
@@ -3642,6 +3695,7 @@ app.put(
           fields.quantity,
           fields.unit,
           imageUrl,
+          status,
           id
         ]
       });
@@ -3649,10 +3703,12 @@ app.put(
       res.json({
         success: true,
         total_mmk: fields.totalMmk,
-        image_url: imageUrl
+        image_url: imageUrl,
+        status
       });
     } catch (err) {
       console.error("Pinduoduo update error:", err);
+
       res.status(400).json({
         success: false,
         message: err.message || "Unable to update purchase."
@@ -3690,6 +3746,7 @@ app.delete("/admin/pinduoduo/:id", adminAuth, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error("Pinduoduo delete error:", err);
+
     res.status(500).json({
       success: false,
       message: "Unable to delete purchase."
