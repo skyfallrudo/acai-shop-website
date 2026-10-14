@@ -42,28 +42,46 @@ body{
     color:white;
     min-height:100vh;
 }
-
-
-
-#loginOverlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.88);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    z-index:99999;
-    padding:20px;
+#loginOverlay {
+    position: fixed;
+    inset: 0;
+    background: #f1f5f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    padding: 20px;
 }
 
-.loginBox{
-    width:100%;
-    max-width:380px;
-    background:rgba(15,23,42,.97);
-    border:1px solid rgba(255,255,255,.1);
-    padding:32px;
-    border-radius:24px;
-    box-shadow:0 25px 70px rgba(0,0,0,.6);
+.loginBox {
+    width: 100%;
+    max-width: 380px;
+    background: #ffffff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, .12);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.loginBox h1 {
+    color: #2563eb;
+}
+
+.loginBox p {
+    color: #475569;
+}
+
+.loginBox input {
+    background: #f8fafc;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
+}
+
+.loginBox input::placeholder {
+    color: #64748b;
 }
 
 .loginLogo{
@@ -863,7 +881,31 @@ tr:hover td{
     opacity: .6;
     cursor: wait;
 }
+.restricted-marquee {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 12px 0 25px;
+    color: #facc15;
+    font-size: 12px;
+    font-weight: 600;
+}
 
+.restricted-track {
+    display: flex;
+    width: max-content;
+    animation: restrictedScroll 20s linear infinite;
+}
+
+.restricted-track span {
+    flex-shrink: 0;
+    padding-right: 50px;
+}
+
+@keyframes restrictedScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
 </style>
 </head>
 
@@ -879,8 +921,12 @@ tr:hover td{
 
         <h1>Admin Login</h1>
 
-        <p>Restricted Access: Rudox & Valrqx only. Unauthorized modifications are punishable under the Electronic Transactions Law</p>
-
+   <div class="restricted-marquee">
+    <div class="restricted-track">
+        <span>🔒 Restricted Access: Rudox &amp; Valrqx only. Unauthorized modifications are punishable under the Electronic Transactions Law</span>
+        <span aria-hidden="true">🔒 Restricted Access: Rudox &amp; Valrqx only. Unauthorized modifications are punishable under the Electronic Transactions Law</span>
+    </div>
+</div>
         <input
             id="adminUsername"
             type="text"
