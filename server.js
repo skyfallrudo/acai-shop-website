@@ -571,9 +571,6 @@ app.post(
 
     try {
 
-      const username =
-        clean(req.body.username);
-
       const email =
         clean(req.body.email)
           .toLowerCase();
@@ -591,7 +588,6 @@ app.post(
         clean(req.body.otp);
 
       if (
-        !username ||
         !email ||
         !password
       ) {
@@ -599,7 +595,7 @@ app.post(
         return sendJSONError(
           res,
           400,
-          "Username, email and password are required."
+          "Email and password are required."
         );
 
       }
@@ -636,12 +632,14 @@ app.post(
         );
 
       }
-
-      const hashedPassword =
+const hashedPassword =
         await bcrypt.hash(
           password,
           10
         );
+
+      
+      const username = email.split("@")[0];
 
       await db.run(
         `INSERT INTO customers
@@ -656,12 +654,11 @@ app.post(
         [
           username,
           email,
-          phone,
+          phone || "",
           hashedPassword,
-          address
+          address || ""
         ]
       );
-
       delete otpStore[email];
 
       const user =
@@ -977,7 +974,7 @@ if (
           password,
           10
         );
-
+const username = email.split("@")[0];
       const result =
         await db.run(
           `UPDATE customers
