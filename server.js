@@ -8,6 +8,7 @@ const { Resend } = require("resend");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,21 @@ app.use(express.urlencoded({
 
 app.use(express.static(__dirname));
 
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { success: false, message: "Too many attempts, please try again later." }
+});
+const passwordResetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { success: false, message: "Too many password reset attempts, please try again later." }
+});
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { success: false, message: "Too many admin login attempts, please try again later." }
+});
 /* =========================================================
    DATABASE
 ========================================================= */
@@ -312,9 +328,9 @@ function adminAuth(req, res, next) {
 /* =========================================================
    SEND OTP
 ========================================================= */
-
 app.post(
   "/send-otp",
+  registerLimiter,
   async (req, res) => {
 
     try {
@@ -729,6 +745,7 @@ app.post(
 
 app.post(
   "/forgot-password",
+  passwordResetLimiter,
   async (req, res) => {
 
     try {
@@ -2500,6 +2517,7 @@ app.get(
 
 app.post(
   "/admin-login",
+  adminLoginLimiter,
   async (req, res) => {
 
     try {
