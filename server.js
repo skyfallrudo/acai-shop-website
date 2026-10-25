@@ -1813,7 +1813,6 @@ app.put(
 
   }
 );
-
 /* =========================================================
    PLACE ORDER
    - Uses real DB price
@@ -2166,6 +2165,24 @@ app.post(
 
       }
 
+      // Random Tracking / Order Code ဖန်တီးခြင်း (ဥပမာ - ORD-A8F2K9)
+      const generateRandomCode = () => {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let result = "";
+        for (let i = 0; i < 6; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return "ORD-" + result;
+      };
+
+      const orderCode = generateRandomCode();
+
+      // Database ထဲသို့ order_code ကို UPDATE ပြန်လုပ်ပါ
+      await tursoClient.execute({
+        sql: `UPDATE orders SET order_code = ? WHERE id = ?`,
+        args: [orderCode, orderId]
+      });
+
       /* -----------------------------------------
          HTML EMAIL ONLY
          NO PDF ATTACHMENT
@@ -2227,7 +2244,7 @@ ${(
             customer.email,
 
           subject:
-            `Order Confirmation #${orderId} - Acai Shop`,
+            `Order Confirmation #${orderCode} - Acai Shop`,
 
           html: `
 
@@ -2288,8 +2305,8 @@ margin:20px 0;
 ">
 
 <p>
-<b>Order ID:</b>
-#${orderId}
+<b>Order Code:</b>
+${orderCode}
 </p>
 
 <p>
@@ -2402,18 +2419,14 @@ Best regards,<br>
           emailError
         );
 
-        /*
-          Email failure should NOT cancel
-          an already-created order.
-        */
-
       }
 
       return res.json({
 
         success: true,
 
-        orderId
+        orderId,
+        orderCode
 
       });
 
@@ -2423,11 +2436,6 @@ Best regards,<br>
         "PLACE ORDER ERROR:",
         error
       );
-
-      /*
-        Restore stock if something failed
-        after stock was reduced.
-      */
 
       for (
         const changed
@@ -2474,7 +2482,6 @@ Best regards,<br>
 
   }
 );
-
 /* =========================================================
    MY ORDERS
 ========================================================= */
