@@ -560,7 +560,6 @@ app.post(
 
   }
 );
-
 /* =========================================================
    REGISTER
 ========================================================= */
@@ -632,16 +631,17 @@ app.post(
         );
 
       }
-const hashedPassword =
+
+      const hashedPassword =
         await bcrypt.hash(
           password,
           10
         );
-
       
       const username = email.split("@")[0];
 
-      await db.run(
+      // ၁။ Customer အသစ်ကို Database ထဲ အရင် INSERT လုပ်ပါ (id က Auto increment ဖြစ်ပါမည်)
+      const insertResult = await db.run(
         `INSERT INTO customers
         (
           username,
@@ -659,20 +659,42 @@ const hashedPassword =
           address || ""
         ]
       );
+
+      const newId = insertResult.lastID;
+
+      if (!newId) {
+        throw new Error("Failed to generate customer ID.");
+      }
+
+      // ၂။ လက်ရှိနှစ်ကို ယူပါ (ဥပမာ- 2026 ဆိုရင် '26')[cite: 2]
+      const yearCode = new Date().getFullYear().toString().slice(-2);
+
+      // ၃။ AC26-0001 ပုံစံ Format ဖန်တီးပါ[cite: 2]
+      const customerCode = "AC" + yearCode + "-" + String(newId).padStart(4, "0");
+
+      // ၄။ ဖန်တီးလိုက်တဲ့ customer_code ကို Database ထဲ UPDATE ပြန်လုပ်ပါ[cite: 2]
+      await db.run(
+        `UPDATE customers
+         SET customer_code = ?
+         WHERE id = ?`,
+        [customerCode, newId]
+      );
+
       delete otpStore[email];
 
       const user =
         await db.get(
           `SELECT
              id,
+             customer_code,
              username,
              email,
              phone,
              address,
              created_at
            FROM customers
-           WHERE LOWER(email)=LOWER(?)`,
-          [email]
+           WHERE id=?`,
+          [newId]
         );
 
       if (!user) {
@@ -735,7 +757,6 @@ const hashedPassword =
 
   }
 );
-
 /* =========================================================
    FORGOT PASSWORD
 ========================================================= */
@@ -1178,6 +1199,7 @@ app.get(
         await db.get(
           `SELECT
              id,
+             customer_code,
              username,
              email,
              phone,
@@ -1677,6 +1699,7 @@ app.get(
         await db.get(
           `SELECT
              id,
+             customer_code,
              username,
              email,
              phone,

@@ -1,357 +1,402 @@
 <!DOCTYPE html>
-<html lang="my">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Açaí Shop - Welcome</title>
+    <title>Açaí Shop — Organic & Fresh</title>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #080612;
-            --primary-violet: #8b5cf6;
-            --neon-magenta: #d946ef;
-            --neon-cyan: #06b6d4;
-            --glass-bg: rgba(255, 255, 255, 0.04);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --text-glow: 0 0 25px rgba(139, 92, 246, 0.6);
-        }
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: #ffffff;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-        }
-
-        /* Particle Background Canvas */
-        #particle-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* Top Bar Navigation */
-        header {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 1200px;
-            padding: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .nav-pills {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .pill-btn {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: #d1d5db;
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            text-decoration: none;
-            backdrop-filter: blur(12px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .pill-btn:hover {
-            background: rgba(139, 92, 246, 0.25);
-            border-color: var(--primary-violet);
-            color: #ffffff;
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
-            transform: translateY(-2px);
-        }
-
-        /* Center Main Section */
-        main {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px 20px;
-            margin: auto 0;
-        }
-
-        .badge {
-            background: linear-gradient(90deg, rgba(139,92,246,0.2), rgba(217,70,239,0.2));
-            border: 1px solid rgba(217,70,239,0.4);
-            color: #e9d5ff;
-            padding: 6px 18px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            animation: floatBadge 3s ease-in-out infinite;
-        }
-
-        .brand-title {
-            font-family: 'Syne', sans-serif;
-            font-size: clamp(4rem, 11vw, 8rem);
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 0%, #c084fc 50%, #f472b6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: var(--text-glow);
-            letter-spacing: -2px;
-            line-height: 1;
-        }
-
-        /* Dynamic Wave Lines */
-        .wave-accent {
-            width: clamp(220px, 45vw, 420px);
-            margin: 10px 0 35px 0;
-            filter: drop-shadow(0 0 12px var(--neon-magenta));
-        }
-
-        .wave-path {
-            stroke: url(#wave-grad);
-            stroke-dasharray: 600;
-            stroke-dashoffset: 600;
-            animation: drawWave 3s ease-in-out forwards infinite alternate;
-        }
-
-        /* Glowing SHOP NOW Button */
-        .shop-now-container {
-            position: relative;
-            margin-top: 10px;
-        }
-
-        .shop-btn {
-            position: relative;
-            display: inline-block;
-            padding: 18px 56px;
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: #ffffff;
-            text-decoration: none;
-            background: rgba(13, 10, 26, 0.7);
-            border-radius: 50px;
-            border: 2px solid transparent;
-            background-image: linear-gradient(rgba(13, 10, 26, 0.8), rgba(13, 10, 26, 0.8)), 
-                              linear-gradient(90deg, #8b5cf6, #d946ef, #06b6d4);
-            background-origin: border-box;
-            background-clip: padding-box, border-box;
-            box-shadow: 0 0 25px rgba(139, 92, 246, 0.35);
-            backdrop-filter: blur(10px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            overflow: hidden;
-        }
-
-        .shop-btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: 0.5s;
-        }
-
-        .shop-btn:hover::before {
-            left: 100%;
-        }
-
-        .shop-btn:hover {
-            transform: scale(1.08) translateY(-3px);
-            box-shadow: 0 0 45px rgba(217, 70, 239, 0.75), 0 0 15px rgba(6, 182, 212, 0.5);
-            letter-spacing: 4px;
-        }
-
-        /* Categories Bar */
-        .category-bar {
-            display: flex;
-            gap: 12px;
-            margin-top: 40px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .cat-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: #a1a1aa;
-            transition: all 0.3s;
-        }
-
-        .cat-item:hover {
-            color: #f472b6;
-            border-color: rgba(244, 114, 182, 0.4);
-            background: rgba(244, 114, 182, 0.1);
-        }
-
-        footer {
-            position: relative;
-            z-index: 10;
-            padding: 20px;
-            font-size: 0.8rem;
-            color: #6b7280;
-            letter-spacing: 1px;
-        }
-
-        @keyframes floatBadge {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-
-        @keyframes drawWave {
-            0% { stroke-dashoffset: 600; }
-            100% { stroke-dashoffset: 0; }
-        }
-    </style>
-</head>
-<body>
-
-    <canvas id="particle-canvas"></canvas>
-
-    <header>
-        <div class="nav-pills">
-            <a href="#" class="pill-btn">✨ Welcome to Açaí</a>
-            <a href="index.html" class="pill-btn">📦 My Orders</a>
-            <a href="index.html" class="pill-btn">💬 Support</a>
-        </div>
-        <div class="nav-pills">
-            <a href="#" class="pill-btn">🌐 ENG / MYA</a>
-        </div>
-    </header>
-
-    <main>
-        <div class="badge">✦ OFFICIAL STORE LANDING ✦</div>
-        
-        <h1 class="brand-title">Açaí</h1>
-
-        <svg class="wave-accent" viewBox="0 0 300 40" fill="none">
-            <defs>
-                <linearGradient id="wave-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#8b5cf6" />
-                    <stop offset="50%" stop-color="#d946ef" />
-                    <stop offset="100%" stop-color="#06b6d4" />
-                </linearGradient>
-            </defs>
-            <path class="wave-path" d="M 10 20 Q 75 5, 150 20 T 290 20" stroke-width="6" stroke-linecap="round" />
-        </svg>
-
-        <div class="shop-now-container">
-            <a href="index.html" class="shop-btn">SHOP NOW</a>
-        </div>
-
-        <div class="category-bar">
-            <span class="cat-item">Keychains</span>
-            <span class="cat-item">Phone Cases</span>
-            <span class="cat-item">Jewelry</span>
-            <span class="cat-item">Wallets</span>
-            <span class="cat-item">Bags</span>
-        </div>
-    </main>
-
-    <footer>
-        &copy; 2026 Açaí Shop. All rights reserved.
-    </footer>
-
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-
-        let particles = [];
-        let mouse = { x: null, y: null };
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-        });
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 3 + 1;
-                this.speedX = Math.random() * 1 - 0.5;
-                this.speedY = Math.random() * 1 - 0.5;
-                this.color = `hsla(${Math.random() * 60 + 260}, 80%, 70%, ${Math.random() * 0.5 + 0.3})`;
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-
-                if (mouse.x && mouse.y) {
-                    let dx = mouse.x - this.x;
-                    let dy = mouse.y - this.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < 100) {
-                        this.x -= dx * 0.02;
-                        this.y -= dy * 0.02;
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#6C83DB',
+                            darkBlue: '#4B62B8',
+                            bg: '#F4F7F4',
+                            cardBg: '#FFFFFF',
+                            emerald: '#0F2C23',
+                            sage: '#2D5A4C',
+                            accent: '#F39C12'
+                        }
+                    },
+                    fontFamily: {
+                        logo: ['Pacifico', 'cursive'],
+                        head: ['Fredoka', 'sans-serif'],
+                        body: ['Plus Jakarta Sans', 'sans-serif'],
                     }
                 }
             }
+        }
+    </script>
 
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            background-color: #F4F7F4;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #1E293B;
+            overflow-x: hidden;
         }
 
-        function initParticles() {
-            particles = [];
-            for (let i = 0; i < 70; i++) {
-                particles.push(new Particle());
-            }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
         }
 
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
+        .brand-logo-text {
+            font-family: 'Pacifico', cursive;
+            color: #6C83DB;
+            text-shadow: 2px 2px 0px rgba(75, 98, 184, 0.15);
+        }
+
+        .wave-line {
+            stroke: #222;
+            stroke-dasharray: 400;
+            stroke-dashoffset: 400;
+            animation: drawWave 2s ease forwards infinite alternate;
+        }
+
+        @keyframes drawWave {
+            0% { stroke-dashoffset: 400; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .btn-modern {
+            background: linear-gradient(135deg, #2D5A4C 0%, #0F2C23 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px 0 rgba(15, 44, 35, 0.25);
+        }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 rgba(15, 44, 35, 0.35);
+        }
+
+        .btn-outline-glow {
+            border: 2px solid #2D5A4C;
+            color: #2D5A4C;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-glow:hover {
+            background: #2D5A4C;
+            color: #FFFFFF;
+            box-shadow: 0 0 15px rgba(45, 90, 76, 0.3);
+        }
+
+        .product-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-brand-emerald text-white text-xs py-2 text-center font-medium tracking-wide">
+        ✨ FREE SHIPPING ON ORDERS OVER 25,000 MMK • FRESH DAILY AÇAÍ BOWLS ✨
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-40 glass-nav px-4 lg:px-12 py-3 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- Nav Links -->
+            <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-600">
+                <a href="#home" class="hover:text-brand-sage transition-colors">Homepage</a>
+                <a href="#menu" class="hover:text-brand-sage transition-colors">Bowls & Smoothies</a>
+                <a href="#tracking" onclick="openTracker()" class="hover:text-brand-sage transition-colors">Track Order</a>
+            </div>
+
+            <!-- Mini Logo Text for Nav -->
+            <div class="flex items-center space-x-2">
+                <span class="brand-logo-text text-2xl">Açaí</span>
+                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Shop</span>
+            </div>
+
+            <!-- Right Actions -->
+            <div class="flex items-center space-x-4">
+                <button onclick="openTracker()" class="p-2 text-slate-600 hover:text-brand-sage rounded-full hover:bg-slate-100 transition-all md:hidden" title="Track Order">
+                    <i data-lucide="truck" class="w-5 h-5"></i>
+                </button>
+
+                <button onclick="toggleCart()" class="relative p-2 bg-white border border-slate-200 rounded-full hover:border-brand-sage text-slate-700 transition-all shadow-sm flex items-center space-x-2 px-3">
+                    <i data-lucide="shopping-bag" class="w-4 h-4 text-brand-sage"></i>
+                    <span class="text-xs font-bold" id="cart-count">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section id="home" class="relative pt-12 pb-20 px-4 max-w-7xl mx-auto">
+        <div class="flex flex-col items-center text-center">
+            
+            <!-- ORIGINAL LOGO DISPLAY SECTION -->
+            <div class="relative mb-6 hero-logo-box">
+                <!-- Stars Deco -->
+                <div class="text-slate-400 text-xs tracking-[0.3em] font-light mb-1 select-none">
+                    — ★ ✧ ☆ ✧ ★ —
+                </div>
+
+                <!-- Main Cursive Logo -->
+                <h1 class="brand-logo-text text-6xl md:text-8xl select-none py-1">
+                    Açaí
+                </h1>
+
+                <!-- Curved Wave Lines -->
+                <div class="w-48 md:w-64 mx-auto mt-1">
+                    <svg viewBox="0 0 200 30" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+                        <path d="M5 10 Q 50 25, 100 10 T 195 10" stroke="#1E293B" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                        <path d="M10 20 Q 55 32, 105 18 T 190 20" stroke="#1E293B" stroke-width="3" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Tagline -->
+            <p class="hero-text text-slate-600 max-w-md text-sm md:text-base mb-8 leading-relaxed">
+                Fresh, organic Amazonian Açaí bowls crafted with pure fruit, crunchy granola, and natural honey.
+            </p>
+
+            <!-- SHOP NOW BUTTON -->
+            <div class="hero-btn">
+                <a href="#menu" class="btn-modern text-white px-10 py-4 rounded-full font-semibold text-base tracking-wide inline-flex items-center space-x-3 group">
+                    <span>SHOP NOW</span>
+                    <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Floating Hero Banner Image -->
+        <div class="mt-14 relative max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+            <img src="https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=1200&q=80" alt="Fresh Acai Bowl" class="w-full h-[350px] md:h-[480px] object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent flex items-end p-6 md:p-10">
+                <div class="text-left text-white">
+                    <span class="bg-amber-400 text-slate-900 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 inline-block">100% Organic</span>
+                    <h2 class="text-2xl md:text-4xl font-bold font-head">Pure Superfood Goodness</h2>
+                    <p class="text-slate-200 text-xs md:text-sm mt-1">Made fresh daily upon your order.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCTS SECTION -->
+    <section id="menu" class="py-16 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold font-head text-brand-emerald">Our Signature Bowls</h2>
+            <p class="text-slate-500 text-sm mt-2">Pick your favorite blend of fresh fruits and toppings</p>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <!-- Card 1 -->
+            <div class="product-card bg-white rounded-2xl overflow-hidden p-4 flex flex-col justify-between">
+                <div>
+                    <div class="relative h-52 rounded-xl overflow-hidden mb-4">
+                        <img src="https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                        <span class="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-xs font-bold px-2.5 py-1 rounded-full text-slate-700">★ 4.9</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800">Classic Berry Bowl</h3>
+                    <p class="text-xs text-slate-500 mt-1 line-clamp-2">Organic Açaí base, topped with fresh strawberries, blueberries, banana, and chia seeds.</p>
+                </div>
+                <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                    <span class="font-bold text-lg text-brand-sage">12,500 MMK</span>
+                    <button onclick="addToCart('Classic Berry Bowl', 12500)" class="btn-outline-glow px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Add</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="product-card bg-white rounded-2xl overflow-hidden p-4 flex flex-col justify-between">
+                <div>
+                    <div class="relative h-52 rounded-xl overflow-hidden mb-4">
+                        <img src="https://images.unsplash.com/photo-1577805947697-89e18249d767?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                        <span class="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-xs font-bold px-2.5 py-1 rounded-full text-slate-700">★ 5.0</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800">Tropical Crunch Açaí</h3>
+                    <p class="text-xs text-slate-500 mt-1 line-clamp-2">Blend of Açaí & Mango, topped with toasted coconut flakes, kiwi, and almond butter.</p>
+                </div>
+                <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                    <span class="font-bold text-lg text-brand-sage">14,000 MMK</span>
+                    <button onclick="addToCart('Tropical Crunch Açaí', 14000)" class="btn-outline-glow px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Add</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="product-card bg-white rounded-2xl overflow-hidden p-4 flex flex-col justify-between">
+                <div>
+                    <div class="relative h-52 rounded-xl overflow-hidden mb-4">
+                        <img src="https://images.unsplash.com/photo-1588725838027-e4359be2b651?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                        <span class="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-xs font-bold px-2.5 py-1 rounded-full text-slate-700">★ 4.8</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800">Nutty Peanut Butter Bowl</h3>
+                    <p class="text-xs text-slate-500 mt-1 line-clamp-2">Rich Açaí base, layered with house-made peanut butter, sliced banana, and dark chocolate chips.</p>
+                </div>
+                <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                    <span class="font-bold text-lg text-brand-sage">15,000 MMK</span>
+                    <button onclick="addToCart('Nutty Peanut Butter Bowl', 15000)" class="btn-outline-glow px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Add</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SHOPPING CART DRAWER -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="toggleCart()"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl p-6 flex flex-col justify-between transform translate-x-full transition-transform duration-300 ease-in-out pointer-events-auto" id="cart-panel">
+            <div>
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                    <h3 class="font-bold text-lg text-slate-800 flex items-center space-x-2">
+                        <i data-lucide="shopping-bag" class="w-5 h-5 text-brand-sage"></i>
+                        <span>Your Order Bag</span>
+                    </h3>
+                    <button onclick="toggleCart()" class="p-1 text-slate-400 hover:text-slate-600 rounded-full">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <div id="cart-items" class="py-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                    <p class="text-center text-slate-400 text-sm py-8">Your bag is currently empty.</p>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-slate-500 text-sm">Subtotal:</span>
+                    <span class="font-bold text-lg text-brand-emerald" id="cart-total">0 MMK</span>
+                </div>
+                <button onclick="alert('Checkout integration ready!')" class="w-full btn-modern text-white py-3.5 rounded-full font-bold text-sm tracking-wide">
+                    PROCEED TO CHECKOUT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRACK ORDER MODAL -->
+    <div id="tracker-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
+            <button onclick="closeTracker()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h3 class="font-bold text-xl text-slate-800 mb-1">Track Your Order</h3>
+            <p class="text-xs text-slate-500 mb-4">Enter your tracking code or phone number below.</p>
+            
+            <input type="text" placeholder="e.g. ACAI-8821" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-sage mb-3">
+            <button onclick="alert('Searching for order...')" class="w-full btn-modern text-white py-3 rounded-xl font-bold text-sm">
+                TRACK STATUS
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-brand-emerald text-white py-12 px-4 mt-20">
+        <div class="max-w-7xl mx-auto text-center">
+            <span class="brand-logo-text text-4xl text-white">Açaí</span>
+            <p class="text-emerald-200 text-xs mt-2">© 2026 Açaí Shop. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript & Animations -->
+    <script>
+        lucide.createIcons();
+
+        // GSAP Animations
+        window.addEventListener('DOMContentLoaded', () => {
+            gsap.from(".hero-logo-box", { opacity: 0, y: -30, duration: 1.2, ease: "power3.out" });
+            gsap.from(".hero-text", { opacity: 0, y: 20, duration: 1, delay: 0.3, ease: "power3.out" });
+            gsap.from(".hero-btn", { opacity: 0, scale: 0.9, duration: 0.8, delay: 0.5, ease: "back.out(1.7)" });
+        });
+
+        // Cart Functionality
+        let cart = [];
+        
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCart();
+            toggleCart(true);
+        }
+
+        function updateCart() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const container = document.getElementById('cart-items');
+            
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 text-sm py-8">Your bag is currently empty.</p>`;
+                document.getElementById('cart-total').innerText = `0 MMK`;
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price;
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800">${item.name}</h4>
+                            <span class="text-xs text-brand-sage font-medium">${item.price.toLocaleString()} MMK</span>
+                        </div>
+                        <button onclick="removeItem(${index})" class="text-red-400 hover:text-red-600 text-xs font-bold">Remove</button>
+                    </div>
+                `;
             });
-            requestAnimationFrame(animateParticles);
+            container.innerHTML = html;
+            document.getElementById('cart-total').innerText = `${total.toLocaleString()} MMK`;
         }
 
-        initParticles();
-        animateParticles();
+        function removeItem(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function toggleCart(openOnly = false) {
+            const drawer = document.getElementById('cart-drawer');
+            const panel = document.getElementById('cart-panel');
+            
+            if (openOnly || drawer.classList.contains('opacity-0')) {
+                drawer.classList.remove('opacity-0', 'pointer-events-none');
+                panel.classList.remove('translate-x-full');
+            } else {
+                drawer.classList.add('opacity-0', 'pointer-events-none');
+                panel.classList.add('translate-x-full');
+            }
+        }
+
+        function openTracker() {
+            document.getElementById('tracker-modal').classList.remove('hidden');
+        }
+
+        function closeTracker() {
+            document.getElementById('tracker-modal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
