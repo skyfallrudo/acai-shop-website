@@ -994,7 +994,7 @@ async function addToCart(id, name, price, stock){
         return;
     }
 
-    // Check stock
+   
     const item = cart.find(i => i.id === id);
     const currentQty = item ? item.qty : 0;
 
@@ -1043,7 +1043,7 @@ async function loadUser(){
         if(data.loggedIn){
             guestArea.style.display="none";
             profileArea.style.display="block";
-            userEmail.innerText=data.user.email;
+            userEmail.innerText=data.customer_code;
         }
     }catch{}
 }
