@@ -1079,6 +1079,7 @@ app.post(
         await db.get(
           `SELECT
              id,
+             customer_code,
              username,
              email,
              phone,
