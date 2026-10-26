@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acai Shop</title>s
+    <title>Acai Shop</title>
     
     <link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -502,15 +502,100 @@
             color: var(--subtext-color);
             font-size: 13px;
         }
+@media (max-width: 768px) {
+    nav {
+        padding: 10px 4% !important;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
 
-        @media (max-width: 768px) {
-            nav { padding: 12px 4%; }
-            .logo h2 { display: none; }
-            .hero { padding: 40px 4% 20px; }
-            .products { grid-template-columns: repeat(2, minmax(145px, 1fr)); gap: 12px; }
-            .card img { height: 160px; }
-            .card-content { padding: 12px; }
-        }
+    .logo img {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .logo h2 {
+        display: none !important;
+    }
+
+    .nav-right {
+        gap: 6px !important;
+    }
+
+   
+    .language-select {
+        padding: 5px 8px !important;
+        font-size: 11px !important;
+        border-radius: 8px;
+    }
+
+    .icon-btn {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 13px !important;
+    }
+
+    .sign-btn {
+        padding: 6px 12px !important;
+        font-size: 11px !important;
+        border-radius: 8px;
+    }
+
+
+    .sub-nav {
+        top: 58px !important;
+        padding: 8px 3% !important;
+        gap: 6px !important;
+    }
+
+    .sub-nav a {
+        padding: 6px 12px !important;
+        font-size: 11px !important;
+    }
+
+    .hero {
+        padding: 30px 4% 15px !important;
+    }
+
+    .hero-logo {
+        width: 130px;
+        max-width: 45%;
+        margin: 15px auto 0;
+    }
+
+    .search {
+        max-width: 100%;
+        padding: 4px 12px;
+    }
+
+    .search input {
+        height: 40px;
+        padding: 0 10px 0 34px !important;
+        font-size: 13px;
+    }
+
+    .search i {
+        left: 14px;
+        font-size: 13px;
+    }
+
+   
+    .categories {
+        padding: 12px 4% !important;
+        gap: 6px !important;
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+    }
+
+    .categories button {
+        flex: 0 0 auto;
+        padding: 7px 14px !important;
+        font-size: 11px !important;
+        white-space: nowrap;
+    }
+}
     </style>
 </head>
 <body data-theme="dark">
