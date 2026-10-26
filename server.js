@@ -276,7 +276,26 @@ function sendJSONError(
   });
 
 }
-
+function getMyanmarDateTime() {
+  const options = {
+    timeZone: "Asia/Yangon",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  };
+  const parts = new Intl.DateTimeFormat("en-CA", options).formatToParts(new Date());
+  const values = {};
+  for (const part of parts) {
+    if (part.type !== "literal") {
+      values[part.type] = part.value;
+    }
+  }
+  return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second}`;
+}
 /* =========================================================
    AUTH MIDDLEWARE
 ========================================================= */
@@ -1814,15 +1833,6 @@ app.put(
 
   }
 );
-/* =========================================================
-   PLACE ORDER
-   - Uses real DB price
-   - Checks stock
-   - Saves delivery fee
-   - Sends HTML email
-   - NO PDF
-========================================================= */
-
 app.post(
   "/place-order",
   auth,
@@ -2087,8 +2097,20 @@ app.post(
       }
 
       /* -----------------------------------------
-         INSERT ORDER
+         INSERT ORDER (WITH ORDER CODE & MYANMAR TIME)
       ----------------------------------------- */
+
+      const generateRandomCode = () => {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let result = "";
+        for (let i = 0; i < 6; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return "ORD-" + result;
+      };
+
+      const orderCode = generateRandomCode();
+      const myanmarTime = getMyanmarDateTime();
 
       const inserted =
         await tursoClient.execute({
@@ -2110,10 +2132,12 @@ app.post(
               road,
               building,
               deli_fee,
-              payment_method
+              payment_method,
+              order_code,
+              created_at
             )
             VALUES
-            (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+            (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 
           args: [
 
@@ -2147,7 +2171,11 @@ app.post(
 
             deliveryFee,
 
-            paymentMethod
+            paymentMethod,
+
+            orderCode,
+
+            myanmarTime
 
           ]
 
@@ -2165,24 +2193,6 @@ app.post(
         );
 
       }
-
-      // Random Tracking / Order Code ဖန်တီးခြင်း (ဥပမာ - ORD-A8F2K9)
-      const generateRandomCode = () => {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        let result = "";
-        for (let i = 0; i < 6; i++) {
-          result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return "ORD-" + result;
-      };
-
-      const orderCode = generateRandomCode();
-
-      // Database ထဲသို့ order_code ကို UPDATE ပြန်လုပ်ပါ
-      await tursoClient.execute({
-        sql: `UPDATE orders SET order_code = ? WHERE id = ?`,
-        args: [orderCode, orderId]
-      });
 
       /* -----------------------------------------
          HTML EMAIL ONLY
