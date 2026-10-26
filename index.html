@@ -1035,7 +1035,6 @@ const profileBtn=document.getElementById("profile-btn");
 const profileMenu=document.getElementById("profile-menu");
 const userEmail=document.getElementById("user-email");
 const logoutBtn=document.getElementById("logoutBtn");
-
 async function loadUser(){
     try{
         const res=await fetch("/me");
@@ -1043,7 +1042,7 @@ async function loadUser(){
         if(data.loggedIn){
             guestArea.style.display="none";
             profileArea.style.display="block";
-            userEmail.innerText=data.customer_code;
+            userEmail.innerText = data.user.customer_code;
         }
     }catch{}
 }
