@@ -159,20 +159,6 @@ h1 {
     overflow: hidden;
 }
 
-.card::before {
-    content: '';
-    position: absolute;
-    top: -150%;
-    left: -50%;
-    width: 200%;
-    height: 400%;
-    background: conic-gradient(#F09EA7, #F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB, #F6C2F3);
-    animation: spin 3s linear infinite;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 0;
-}
-
 .card:hover::before { opacity: 1; }
 
 .card > * {
