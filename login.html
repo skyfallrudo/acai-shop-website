@@ -21,12 +21,37 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
+/* --- Light Mode (Default) --- */
+:root {
+    --bg-color: #f8fafc;
+    --text-color: #0f172a;
+    --card-bg: #ffffff;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --primary-blue: #2563eb;
+    --accent-text: #2563eb;
+    --subtext-color: #64748b;
+    --input-bg: #f1f5f9;
+}
+
+/* --- Dark Mode --- */
+[data-theme="dark"] {
+    --bg-color: #05080f;
+    --text-color: #ffffff;
+    --card-bg: rgba(15, 23, 42, 0.82);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --primary-blue: #2563eb;
+    --accent-text: #60A5FA;
+    --subtext-color: #94A3B8;
+    --input-bg: #1E293B;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
     -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 html, body {
@@ -40,60 +65,49 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
-    background-color: #05080f;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     min-height: 100vh;
     padding: 20px 0;
 }
 
-body::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: -2;
-}
-
-@media (min-width: 769px) {
-    body::after {
-        background-image: url("bg-desktop.jpg");
-    }
-}
-
-@media (max-width: 768px) {
-    body::after {
-        background-image: url("bg-mobile.jpg") !important;
-    }
-}
-
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(5, 8, 15, 0.45);
-    z-index: -1;
-}
-
-.lang-container {
+/* Top Right Controls Container */
+.top-controls {
     position: absolute;
     top: 20px;
     right: 20px;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-btn {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.icon-btn:hover {
+    background: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
 }
 
 .language-select {
     padding: 8px 12px;
     border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.15);
-    background: rgba(15, 23, 42, 0.85);
-    color: white;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
     outline: none;
     cursor: pointer;
     font-family: Poppins, sans-serif;
@@ -114,7 +128,7 @@ body::before {
     transform: translateX(-50%);
     width: 550px;
     height: 180px;
-    background: radial-gradient(circle, rgba(255, 245, 210, 0.15), transparent 75%);
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.1), transparent 75%);
     filter: blur(22px);
     pointer-events: none;
     z-index: 1;
@@ -126,11 +140,11 @@ body::before {
     width: 420px;
     padding: 38px;
     border-radius: 26px;
-    background: rgba(15, 23, 42, 0.82);
+    background: var(--card-bg);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
     animation: fade .5s ease;
 }
 
@@ -152,13 +166,13 @@ body::before {
     padding: 6px;
     background: white;
     margin: 0 auto 18px auto;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     object-fit: cover;
     display: block;
 }
 
 h1 {
-    color: white;
+    color: var(--text-color);
     text-align: center;
     font-size: 30px;
     margin-bottom: 8px;
@@ -166,7 +180,7 @@ h1 {
 
 .subtitle {
     text-align: center;
-    color: #94A3B8;
+    color: var(--subtext-color);
     margin-bottom: 28px;
     font-size: 14px;
 }
@@ -181,23 +195,23 @@ h1 {
     left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94A3B8;
+    color: var(--subtext-color);
 }
 
 .input-box input {
     width: 100%;
     padding: 15px 18px 15px 48px;
-    background: #1E293B;
-    border: 1px solid transparent;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
     border-radius: 14px;
     outline: none;
-    color: white;
+    color: var(--text-color);
     font-size: 15px;
     transition: .3s;
 }
 
 .input-box input::placeholder {
-    color: #64748B;
+    color: var(--subtext-color);
 }
 
 .input-box input:focus {
@@ -211,7 +225,7 @@ h1 {
     margin-top: -8px;
     margin-bottom: 20px;
     font-size: 13px;
-    color: #60A5FA;
+    color: var(--accent-text);
     text-decoration: none;
     transition: .2s;
 }
@@ -246,11 +260,11 @@ button:hover {
     text-align: center;
     margin-top: 20px;
     font-size: 14px;
-    color: #94A3B8;
+    color: var(--subtext-color);
 }
 
 .link a {
-    color: #60A5FA;
+    color: var(--accent-text);
     text-decoration: none;
     font-weight: 500;
 }
@@ -258,7 +272,6 @@ button:hover {
 .link a:hover {
     text-decoration: underline;
 }
-
 
 .loading-overlay {
     position: fixed;
@@ -273,10 +286,10 @@ button:hover {
 }
 
 .loading-box {
-    background: rgba(15, 23, 42, 0.92);
+    background: var(--card-bg);
     padding: 35px;
     border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-color);
     text-align: center;
     min-width: 300px;
 }
@@ -296,15 +309,14 @@ button:hover {
 }
 
 .loading-box h3 {
-    color: white;
+    color: var(--text-color);
     margin: 18px 0 8px;
 }
 
 .loading-box p {
-    color: #94A3B8;
+    color: var(--subtext-color);
     margin: 0;
 }
-
 
 .captcha-overlay {
     position: fixed;
@@ -320,13 +332,13 @@ button:hover {
 }
 
 .captcha-box {
-    background: rgba(15, 23, 42, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     padding: 28px;
     border-radius: 24px;
     width: 100%;
     max-width: 360px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
     position: relative;
 }
 
@@ -338,7 +350,7 @@ button:hover {
 }
 
 .captcha-header h3 {
-    color: #ffffff;
+    color: var(--text-color);
     font-size: 17px;
     font-weight: 600;
     display: flex;
@@ -353,7 +365,7 @@ button:hover {
 .captcha-close {
     background: transparent;
     border: none;
-    color: #94A3B8;
+    color: var(--subtext-color);
     font-size: 18px;
     cursor: pointer;
     width: auto;
@@ -361,13 +373,13 @@ button:hover {
 }
 
 .captcha-close:hover {
-    color: #ffffff;
+    color: var(--text-color);
     transform: none;
     box-shadow: none;
 }
 
 .captcha-desc {
-    color: #94A3B8;
+    color: var(--subtext-color);
     font-size: 12.5px;
     text-align: left;
     margin-bottom: 16px;
@@ -384,9 +396,9 @@ button:hover {
 #captchaCanvas {
     width: 100%;
     height: 46px;
-    background: #0F172A;
+    background: var(--input-bg);
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     cursor: pointer;
 }
 
@@ -395,13 +407,14 @@ button:hover {
     height: 46px;
     padding: 0;
     border-radius: 12px;
-    background: #1E293B;
-    color: #94A3B8;
+    background: var(--input-bg);
+    color: var(--subtext-color);
     flex-shrink: 0;
+    border: 1px solid var(--border-color);
 }
 
 .btn-refresh:hover {
-    color: white;
+    color: var(--text-color);
     background: #334155;
     transform: none;
     box-shadow: none;
@@ -415,10 +428,10 @@ button:hover {
     width: 100%;
     height: 48px;
     padding: 0 14px;
-    background: #0F172A;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
-    color: white;
+    color: var(--text-color);
     font-size: 16px;
     letter-spacing: 4px;
     text-transform: uppercase;
@@ -437,7 +450,6 @@ button:hover {
     display: none;
     text-align: left;
 }
-
 
 .captcha-actions {
     display: flex;
@@ -459,8 +471,9 @@ button:hover {
 }
 
 .btn-cancel {
-    background: #1E293B !important;
-    color: #94A3B8 !important;
+    background: var(--input-bg) !important;
+    color: var(--subtext-color) !important;
+    border: 1px solid var(--border-color);
 }
 
 .btn-cancel:hover {
@@ -476,7 +489,7 @@ button:hover {
         align-items: flex-start !important;
     }
 
-    .lang-container {
+    .top-controls {
         top: 12px !important;
         right: 12px !important;
     }
@@ -585,9 +598,13 @@ button:hover {
 </style>
 </head>
 
-<body>
+<body data-theme="dark">
 
-<div class="lang-container">
+<div class="top-controls">
+    <!-- Dark / Light Mode Toggle Button -->
+    <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
+        <i class="fa-solid fa-sun" id="theme-icon"></i>
+    </button>
     <select class="language-select" onchange="changeLanguage(this.value)">
         <option value="en">English</option>
         <option value="mm">မြန်မာ</option>
@@ -601,7 +618,6 @@ button:hover {
 
     <h1 data-lang="welcomeBack">Welcome Back</h1>
     <p class="subtitle" data-lang="signInSubtitle">Sign in to continue shopping.</p>
-
    
     <form id="loginForm" onsubmit="event.preventDefault(); openCaptchaModal();">
         <div class="input-box">
@@ -627,7 +643,6 @@ button:hover {
         <a href="register.html" data-lang="registerLink">Register</a>
     </div>
 </div>
-
 
 <div id="captchaOverlay" class="captcha-overlay">
     <div class="captcha-box">
@@ -663,7 +678,6 @@ button:hover {
     </div>
 </div>
 
-
 <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-box">
         <div class="spinner"></div>
@@ -673,8 +687,32 @@ button:hover {
 </div>
 
 <script>
-let generatedCaptcha = "";
+/* --- Dark/Light Mode Toggle Logic --- */
+const themeToggleBtn = document.getElementById("theme-toggle");
+const themeIcon = document.getElementById("theme-icon");
+const currentTheme = localStorage.getItem("theme") || "dark";
 
+document.body.setAttribute("data-theme", currentTheme);
+updateThemeIcon(currentTheme);
+
+themeToggleBtn.addEventListener("click", () => {
+    let theme = document.body.getAttribute("data-theme");
+    let newTheme = theme === "dark" ? "light" : "dark";
+    
+    document.body.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateThemeIcon(newTheme);
+});
+
+function updateThemeIcon(theme) {
+    if (theme === "dark") {
+        themeIcon.className = "fa-solid fa-sun";
+    } else {
+        themeIcon.className = "fa-solid fa-moon";
+    }
+}
+
+let generatedCaptcha = "";
 
 function openCaptchaModal() {
     const email = document.getElementById("email").value.trim();
@@ -688,11 +726,9 @@ function openCaptchaModal() {
     document.getElementById("captchaOverlay").style.display = "flex";
 }
 
-
 function closeCaptchaModal() {
     document.getElementById("captchaOverlay").style.display = "none";
 }
-
 
 function generateCaptcha() {
     const canvas = document.getElementById("captchaCanvas");
@@ -705,10 +741,8 @@ function generateCaptcha() {
         generatedCaptcha += chars.charAt(Math.floor(Math.random() * chars.length));
     }
 
-
-    ctx.fillStyle = "#0F172A";
+    ctx.fillStyle = document.body.getAttribute("data-theme") === "dark" ? "#0F172A" : "#e2e8f0";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
 
     for (let i = 0; i < 4; i++) {
         ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
@@ -718,7 +752,6 @@ function generateCaptcha() {
         ctx.stroke();
     }
 
-   
     ctx.font = "bold 22px 'Poppins', sans-serif";
     for (let i = 0; i < generatedCaptcha.length; i++) {
         ctx.fillStyle = ['#60A5FA', '#F472B6', '#34D399', '#FBBF24', '#A78BFA'][i % 5];
@@ -729,7 +762,6 @@ function generateCaptcha() {
         ctx.restore();
     }
 }
-
 
 function verifyAndLogin() {
     const userInput = document.getElementById("captchaInput").value.trim().toUpperCase();
@@ -744,7 +776,6 @@ function verifyAndLogin() {
         generateCaptcha();
     }
 }
-
 
 async function login(){
     const email = document.getElementById("email").value.trim();

@@ -24,11 +24,36 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
+/* --- Light Mode (Default) --- */
+:root {
+    --bg-color: #f8fafc;
+    --text-color: #0f172a;
+    --card-bg: #ffffff;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --primary-blue: #2563eb;
+    --accent-text: #2563eb;
+    --subtext-color: #64748b;
+    --qty-bg: #f1f5f9;
+}
+
+/* --- Dark Mode --- */
+[data-theme="dark"] {
+    --bg-color: #05080f;
+    --text-color: #ffffff;
+    --card-bg: rgba(15, 23, 42, 0.85);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --primary-blue: #2563eb;
+    --accent-text: #60A5FA;
+    --subtext-color: #94A3B8;
+    --qty-bg: rgba(30, 41, 59, 0.7);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     font-family: "Poppins", sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 html, body {
@@ -38,9 +63,9 @@ html, body {
 }
 
 body {
-    background-color: #05080f;
+    background-color: var(--bg-color);
     min-height: 100vh;
-    color: white;
+    color: var(--text-color);
     padding: 30px 20px;
     position: relative;
     display: flex;
@@ -48,55 +73,43 @@ body {
     align-items: flex-start;
 }
 
-body::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: -2;
-}
-
-@media (min-width: 769px) {
-    body::after {
-        background-image: url("bg-desktop.jpg");
-    }
-}
-
-@media (max-width: 768px) {
-    body::after {
-        background-image: url("bg-mobile.jpg");
-    }
-}
-
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(5, 8, 15, 0.68);
-    z-index: -1;
-}
-
-.lang-container {
+/* Top Right Controls Container */
+.top-controls {
     position: absolute;
     top: 20px;
     right: 20px;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-btn {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.icon-btn:hover {
+    background: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
 }
 
 .language-select {
     padding: 8px 12px;
     border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.15);
-    background: rgba(15, 23, 42, 0.85);
-    color: white;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
     outline: none;
     cursor: pointer;
     font-family: Poppins, sans-serif;
@@ -123,7 +136,7 @@ body::before {
     align-items: center;
     gap: 8px;
     margin-bottom: 22px;
-    color: #93C5FD;
+    color: var(--accent-text);
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
@@ -131,7 +144,7 @@ body::before {
 }
 
 .back:hover {
-    color: white;
+    opacity: 0.8;
     transform: translateX(-3px);
 }
 
@@ -146,14 +159,14 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(15, 23, 42, 0.85);
+    background: var(--card-bg);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     padding: 20px;
     border-radius: 20px;
     margin-bottom: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     gap: 15px;
 }
 
@@ -164,14 +177,14 @@ h1 {
 }
 
 .item-details .price {
-    color: #93C5FD;
+    color: var(--accent-text);
     font-size: 15px;
     font-weight: 600;
     margin-bottom: 4px;
 }
 
 .item-details .stock-info {
-    color: #94A3B8;
+    color: var(--subtext-color);
     font-size: 12.5px;
     display: flex;
     align-items: center;
@@ -189,8 +202,8 @@ h1 {
 .qty-controls {
     display: flex;
     align-items: center;
-    background: rgba(30, 41, 59, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--qty-bg);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 3px;
 }
@@ -251,7 +264,7 @@ h1 {
 
 .total-box {
     margin-top: 24px;
-    background: rgba(15, 23, 42, 0.88);
+    background: var(--card-bg);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     padding: 22px 25px;
@@ -261,12 +274,12 @@ h1 {
     align-items: center;
     font-size: 18px;
     font-weight: 700;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 .total-box #total {
-    color: #60A5FA;
+    color: var(--accent-text);
     font-size: 22px;
 }
 
@@ -299,16 +312,16 @@ h1 {
 .empty {
     text-align: center;
     padding: 60px 20px;
-    background: rgba(15, 23, 42, 0.85);
+    background: var(--card-bg);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-color);
 }
 
 .empty i {
     font-size: 48px;
-    color: #64748B;
+    color: var(--subtext-color);
     margin-bottom: 16px;
     display: block;
 }
@@ -338,14 +351,14 @@ h1 {
         font-size: 24px;
     }
 }
-/* ===== Final Mobile Responsive Fix ===== */
-@media (max-width:768px){
 
+/* ===== Mobile Responsive Fix ===== */
+@media (max-width:768px){
   body{
     padding:16px !important;
   }
 
-  .lang-container{
+  .top-controls{
     top:12px !important;
     right:12px !important;
   }
@@ -456,7 +469,6 @@ h1 {
 }
 
 @media (max-width:360px){
-
   .item{
     padding:14px !important;
   }
@@ -486,9 +498,13 @@ h1 {
 </style>
 </head>
 
-<body>
+<body data-theme="dark">
 
-<div class="lang-container">
+<div class="top-controls">
+    <!-- Dark / Light Mode Toggle Button -->
+    <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
+        <i class="fa-solid fa-sun" id="theme-icon"></i>
+    </button>
     <select class="language-select" onchange="changeLanguage(this.value)">
         <option value="en">English</option>
         <option value="mm">မြန်မာ</option>
@@ -517,6 +533,30 @@ h1 {
 </div>
 
 <script>
+/* --- Dark/Light Mode Toggle Logic --- */
+const themeToggleBtn = document.getElementById("theme-toggle");
+const themeIcon = document.getElementById("theme-icon");
+const currentTheme = localStorage.getItem("theme") || "dark";
+
+document.body.setAttribute("data-theme", currentTheme);
+updateThemeIcon(currentTheme);
+
+themeToggleBtn.addEventListener("click", () => {
+    let theme = document.body.getAttribute("data-theme");
+    let newTheme = theme === "dark" ? "light" : "dark";
+    
+    document.body.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateThemeIcon(newTheme);
+});
+
+function updateThemeIcon(theme) {
+    if (theme === "dark") {
+        themeIcon.className = "fa-solid fa-sun";
+    } else {
+        themeIcon.className = "fa-solid fa-moon";
+    }
+}
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let products = [];
@@ -539,7 +579,6 @@ function saveCart(){
 }
 
 function renderCart(){
-
     const list = document.getElementById("cartItems");
     const totalBox = document.getElementById("total");
 
@@ -555,26 +594,22 @@ function renderCart(){
     const emptyText = t.cartEmpty || "Your cart is empty";
 
     if(cart.length===0){
-
         list.innerHTML = `
             <div class="empty">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <h2>${emptyText}</h2>
             </div>
         `;
-
         totalBox.innerText="0 MMK";
         return;
     }
 
     cart.forEach((item,index)=>{
-
         total += item.price * item.qty;
         const stock = getStock(item.name);
 
         list.innerHTML += `
             <div class="item">
-
                 <div class="item-details">
                     <h3>${item.name}</h3>
                     <p class="price">${Number(item.price).toLocaleString()} MMK</p>
@@ -582,7 +617,6 @@ function renderCart(){
                 </div>
 
                 <div class="qty">
-
                     <div class="qty-controls">
                         <button onclick="changeQty(${index},-1)" class="btn-qty">-</button>
                         <span class="qty-val">${item.qty}</span>
@@ -601,19 +635,15 @@ function renderCart(){
                     >
                         <i class="fa-solid fa-trash-can"></i> ${removeLabel}
                     </button>
-
                 </div>
-
             </div>
         `;
     });
 
-    totalBox.innerText =
-        Number(total).toLocaleString()+" MMK";
+    totalBox.innerText = Number(total).toLocaleString()+" MMK";
 }
 
 function changeQty(index,change){
-
     const stock = getStock(cart[index].name);
 
     if(change===1 && cart[index].qty>=stock){
@@ -637,22 +667,17 @@ function removeItem(index){
     renderCart();
 }
 
-document.getElementById("checkoutBtn")
-.addEventListener("click",()=>{
-
+document.getElementById("checkoutBtn").addEventListener("click",()=>{
     if(cart.length===0){
         alert("Your cart is empty.");
         return;
     }
-
     window.location="checkout.html";
 });
 
 (async()=>{
-
     await loadProducts();
     renderCart();
-
 })();
 </script>
 

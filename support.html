@@ -5,13 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Customer Support | Acai Shop</title>
 
-
+<link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-
 <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -24,17 +20,41 @@
   gtag('config', 'G-F00XQ96WFJ');
 </script>
 
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="language.js"></script>
 
 <style>
+/* --- Light Mode (Default) --- */
+:root {
+    --bg-color: #f8fafc;
+    --text-color: #0f172a;
+    --card-bg: #ffffff;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --primary-blue: #2563eb;
+    --accent-text: #2563eb;
+    --subtext-color: #64748b;
+    --btn-bg: #ffffff;
+}
+
+/* --- Dark Mode --- */
+[data-theme="dark"] {
+    --bg-color: #05080f;
+    --text-color: #ffffff;
+    --card-bg: rgba(15, 23, 42, 0.85);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --primary-blue: #2563eb;
+    --accent-text: #38bdf8;
+    --subtext-color: #94A3B8;
+    --btn-bg: rgba(15, 23, 42, 0.92);
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
     -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 html, body {
@@ -48,75 +68,60 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
-    background-color: #05080f;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     min-height: 100vh;
     padding: 16px;
 }
-
-body::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: -2;
-}
-
-@media (min-width: 769px) {
-    body::after {
-        background-image: url("bg-desktop.jpg");
-    }
-}
-
-@media (max-width: 768px) {
-    body::after {
-        background-image: url("bg-mobile.jpg");
-    }
-}
-
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(5, 8, 15, 0.75);
-    z-index: -1;
-}
-
 
 .card {
     position: relative;
     z-index: 2;
     width: min(100%, 420px);
-    background: rgba(15, 23, 42, 0.85);
+    background: var(--card-bg);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     border-radius: 26px;
     padding: 28px 22px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
     text-align: center;
 }
 
-
-.lang-box {
+.top-bar {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
     margin-bottom: 12px;
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.icon-btn:hover {
+    background: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
 }
 
 .language-select {
     padding: 6px 12px;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
     outline: none;
     cursor: pointer;
     font-size: 13px;
@@ -128,7 +133,6 @@ body::before {
     color: white;
 }
 
-
 .logo {
     width: 76px;
     height: 76px;
@@ -136,13 +140,13 @@ body::before {
     background: white;
     padding: 5px;
     margin: 0 auto 16px auto;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     object-fit: cover;
     display: block;
 }
 
 h1 {
-    color: white;
+    color: var(--text-color);
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 8px;
@@ -150,15 +154,14 @@ h1 {
 }
 
 .subtitle {
-    color: #94A3B8;
+    color: var(--subtext-color);
     margin-bottom: 24px;
     font-size: 13.5px;
     line-height: 1.5;
     padding: 0 5px;
 }
 
-
-
+/* --- Rainbow Gradient Border Wrapper --- */
 .rgb-wrapper {
     position: relative;
     border-radius: 16px;
@@ -183,7 +186,8 @@ h1 {
         from 0deg,
         #eeafff, 
         #afd6ff, 
-        #afb0ff 
+        #afb0ff,
+        #eeafff
     );
     animation: rotateRgb 3s linear infinite;
 }
@@ -192,7 +196,6 @@ h1 {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
 
 .support-btn {
     position: relative;
@@ -205,11 +208,11 @@ h1 {
     min-height: 50px;
     padding: 12px 18px;
     border-radius: 14px;
-    color: white;
+    color: var(--text-color);
     text-decoration: none;
     font-size: 15px;
     font-weight: 600;
-    background: rgba(15, 23, 42, 0.92); 
+    background: var(--btn-bg);
     backdrop-filter: blur(10px);
 }
 
@@ -220,7 +223,6 @@ h1 {
 .support-btn.viber {
     color: #c084fc; 
 }
-
 
 .rgb-wrapper:hover,
 .rgb-wrapper:active {
@@ -236,11 +238,10 @@ h1 {
     width: 100%;
     min-height: 48px;
     padding: 12px 18px;
-    border: none;
     border-radius: 14px;
-    background: rgba(51, 65, 85, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: white;
+    background: rgba(51, 65, 85, 0.2);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
     font-size: 14.5px;
     font-weight: 600;
     cursor: pointer;
@@ -249,27 +250,24 @@ h1 {
     margin-top: 6px;
 }
 
-.back-btn:hover,
-.back-btn:active {
+.back-btn:hover {
     transform: translateY(-2px);
-    background: #475569;
+    background: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
 }
-
 
 @media (max-width: 380px) {
     .card {
         padding: 22px 16px;
         border-radius: 20px;
     }
-
     h1 {
         font-size: 21px;
     }
-
     .subtitle {
         font-size: 12.5px;
     }
-
     .support-btn, .back-btn {
         font-size: 14px;
         min-height: 46px;
@@ -278,26 +276,28 @@ h1 {
 </style>
 </head>
 
-<body>
+<body data-theme="dark">
 
 <div class="card">
 
-  
-  <div class="lang-box">
+  <!-- Top Controls: Theme Toggle & Language Select -->
+  <div class="top-bar">
+    <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
+        <i class="fa-solid fa-sun" id="theme-icon"></i>
+    </button>
+
     <select class="language-select" onchange="changeLanguage(this.value)">
       <option value="en">English</option>
       <option value="mm">မြန်မာ</option>
     </select>
   </div>
 
- 
   <img src="logo.jpg" class="logo" alt="Acai Shop">
 
-  
   <h1 data-lang="customerSupport">Customer Support</h1>
   <p class="subtitle" data-lang="supportSubtitle">Need help with your order? Contact us directly via Telegram or Viber.</p>
 
-
+  <!-- Telegram Support Button with Rainbow Border -->
   <div class="rgb-wrapper">
     <a href="https://t.me/acaishopsupport" target="_blank" class="support-btn telegram">
         <i class="fa-brands fa-telegram fa-lg"></i>
@@ -305,7 +305,7 @@ h1 {
     </a>
   </div>
 
-
+  <!-- Viber Support Button with Rainbow Border -->
   <div class="rgb-wrapper">
     <a href="viber://chat?number=%2B959885411280" class="support-btn viber">
         <i class="fa-brands fa-viber fa-lg"></i>
@@ -313,7 +313,7 @@ h1 {
     </a>
   </div>
 
- 
+  <!-- Back to Home Button -->
   <a href="index.html" class="back-btn">
       <i class="fa-solid fa-arrow-left"></i>
       <span data-lang="backToHome">Back to Home</span>
@@ -322,6 +322,30 @@ h1 {
 </div>
 
 <script>
+/* --- Dark/Light Mode Toggle Logic --- */
+const themeToggleBtn = document.getElementById("theme-toggle");
+const themeIcon = document.getElementById("theme-icon");
+const currentTheme = localStorage.getItem("theme") || "dark";
+
+document.body.setAttribute("data-theme", currentTheme);
+updateThemeIcon(currentTheme);
+
+themeToggleBtn.addEventListener("click", () => {
+    let theme = document.body.getAttribute("data-theme");
+    let newTheme = theme === "dark" ? "light" : "dark";
+    
+    document.body.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateThemeIcon(newTheme);
+});
+
+function updateThemeIcon(theme) {
+    if (theme === "dark") {
+        themeIcon.className = "fa-solid fa-sun";
+    } else {
+        themeIcon.className = "fa-solid fa-moon";
+    }
+}
 
 if (typeof translations !== 'undefined') {
   translations.en.supportSubtitle = "Need help with your order? Contact us directly via Telegram or Viber.";
@@ -335,9 +359,11 @@ if (typeof translations !== 'undefined') {
   translations.mm.backToHome = "ပင်မစာမျက်နှာသို့ ပြန်ရန်";
 }
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const currentLang = localStorage.getItem("language") || "en";
+  const langSelect = document.querySelector(".language-select");
+  if (langSelect) langSelect.value = currentLang;
+
   if (typeof changeLanguage === "function") {
     changeLanguage(currentLang);
   }

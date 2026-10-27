@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>My Orders | Acai Shop</title>
 
-
+<link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
@@ -16,6 +16,32 @@
 <script src="language.js"></script>
 
 <style>
+/* --- Light Mode (Default) --- */
+:root {
+    --bg-color: #f8fafc;
+    --text-color: #0f172a;
+    --card-bg: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.85);
+    --border-color: rgba(0, 0, 0, 0.08);
+    --primary-blue: #2563eb;
+    --accent-text: #2563eb;
+    --subtext-color: #64748b;
+    --item-bg: rgba(241, 245, 249, 0.8);
+}
+
+/* --- Dark Mode --- */
+[data-theme="dark"] {
+    --bg-color: #05080f;
+    --text-color: #ffffff;
+    --card-bg: rgba(15, 23, 42, 0.86);
+    --nav-bg: rgba(3, 7, 18, 0.9);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --primary-blue: #2563eb;
+    --accent-text: #38BDF8;
+    --subtext-color: #94A3B8;
+    --item-bg: rgba(30, 41, 59, 0.45);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -25,34 +51,18 @@
 }
 
 body {
-    background: #05080f;
-    color: #fff;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     padding: 20px 16px;
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: url("bg-desktop.jpg") center/cover no-repeat;
-    z-index: -2;
-}
-
-@media(max-width: 768px) {
-    body::after {
-        background-image: url("bg-mobile.jpg");
-    }
-}
-
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(5, 8, 15, 0.72);
-    z-index: -1;
+/* Background Animations & Glow */
+@keyframes spin {
+    100% { transform: rotate(360deg); }
 }
 
 .container {
@@ -71,7 +81,7 @@ body::before {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #CBD5E1;
+    color: var(--subtext-color);
     text-decoration: none;
     font-weight: 500;
     font-size: 15px;
@@ -79,15 +89,42 @@ body::before {
 }
 
 .back:hover {
-    color: #60A5FA;
+    color: var(--accent-text);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-btn {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.icon-btn:hover {
+    background: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
 }
 
 .language-select {
     padding: 6px 12px;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
     outline: none;
     cursor: pointer;
     font-size: 13px;
@@ -108,16 +145,39 @@ h1 {
     font-weight: 600;
 }
 
-
+/* Card with Rainbow Hover Effect */
 .card {
-    background: rgba(15, 23, 42, 0.86);
+    position: relative;
+    background: var(--card-bg);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-color);
     border-radius: 24px;
     padding: 22px;
     margin-bottom: 22px;
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: -150%;
+    left: -50%;
+    width: 200%;
+    height: 400%;
+    background: conic-gradient(#F09EA7, #F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB, #F6C2F3);
+    animation: spin 3s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.card:hover::before { opacity: 1; }
+
+.card > * {
+    position: relative;
+    z-index: 1;
 }
 
 .top {
@@ -131,15 +191,14 @@ h1 {
 .order-id {
     font-size: 24px;
     font-weight: 700;
-    color: #38BDF8;
+    color: var(--accent-text);
 }
 
 .time {
-    color: #94A3B8;
+    color: var(--subtext-color);
     font-size: 13px;
     margin-top: 4px;
 }
-
 
 .badge {
     padding: 6px 16px;
@@ -150,20 +209,19 @@ h1 {
     display: inline-block;
 }
 
-.Pending { background: rgba(100, 116, 139, 0.3); color: #CBD5E1; border: 1px solid rgba(203, 213, 225, 0.3); }
-.Confirmed { background: rgba(37, 99, 235, 0.3); color: #60A5FA; border: 1px solid rgba(96, 165, 250, 0.3); }
-.Processing { background: rgba(234, 88, 12, 0.3); color: #FB923C; border: 1px solid rgba(251, 146, 60, 0.3); }
-.Shipped { background: rgba(147, 51, 234, 0.3); color: #C084FC; border: 1px solid rgba(192, 132, 252, 0.3); }
-.Delivered { background: rgba(22, 163, 74, 0.3); color: #4ADE80; border: 1px solid rgba(74, 222, 128, 0.3); }
-.Cancelled { background: rgba(220, 38, 38, 0.3); color: #F87171; border: 1px solid rgba(248, 113, 113, 0.3); }
-
+.Pending { background: rgba(100, 116, 139, 0.2); color: #CBD5E1; border: 1px solid rgba(203, 213, 225, 0.3); }
+.Confirmed { background: rgba(37, 99, 235, 0.2); color: #60A5FA; border: 1px solid rgba(96, 165, 250, 0.3); }
+.Processing { background: rgba(234, 88, 12, 0.2); color: #FB923C; border: 1px solid rgba(251, 146, 60, 0.3); }
+.Shipped { background: rgba(147, 51, 234, 0.2); color: #C084FC; border: 1px solid rgba(192, 132, 252, 0.3); }
+.Delivered { background: rgba(22, 163, 74, 0.2); color: #4ADE80; border: 1px solid rgba(74, 222, 128, 0.3); }
+.Cancelled { background: rgba(220, 38, 38, 0.2); color: #F87171; border: 1px solid rgba(248, 113, 113, 0.3); }
 
 .items {
     margin: 18px 0;
     padding: 14px 16px;
-    background: rgba(30, 41, 59, 0.45);
+    background: var(--item-bg);
     border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
 }
 
 .item {
@@ -171,12 +229,11 @@ h1 {
     justify-content: space-between;
     align-items: center;
     padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--border-color);
     font-size: 14px;
 }
 
 .item:last-child { border: none; }
-
 
 .info {
     display: grid;
@@ -186,29 +243,29 @@ h1 {
 }
 
 .info div {
-    background: rgba(30, 41, 59, 0.35);
+    background: var(--item-bg);
     padding: 10px 12px;
     border-radius: 12px;
     font-size: 13.5px;
-    color: #E2E8F0;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     word-break: break-word;
 }
 
 .info i {
     width: 20px;
-    color: #38BDF8;
+    color: var(--accent-text);
 }
 
 .summary {
     margin-top: 18px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--border-color);
     padding-top: 14px;
     display: flex;
     flex-direction: column;
     gap: 8px;
     font-size: 14px;
-    color: #CBD5E1;
+    color: var(--subtext-color);
 }
 
 .row {
@@ -217,24 +274,23 @@ h1 {
 }
 
 .final {
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--border-color);
     padding-top: 10px;
     font-size: 18px;
     font-weight: 700;
-    color: #FFF;
+    color: var(--text-color);
 }
-
 
 .empty {
     text-align: center;
     padding: 60px 20px;
-    background: rgba(15, 23, 42, 0.86);
+    background: var(--card-bg);
     border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-color);
 }
 
 .empty h2 { font-size: 20px; margin-bottom: 6px; }
-.empty p { color: #94A3B8; font-size: 14px; }
+.empty p { color: var(--subtext-color); font-size: 14px; }
 
 @media (max-width: 480px) {
     h1 { font-size: 22px; }
@@ -245,10 +301,9 @@ h1 {
 </style>
 </head>
 
-<body>
+<body data-theme="dark">
 
 <div class="container">
-
 
   <div class="header-bar">
     <a href="index.html" class="back">
@@ -256,24 +311,53 @@ h1 {
       <span data-lang="backToShop">Back to Shop</span>
     </a>
 
-    <select class="language-select" onchange="changeLanguage(this.value)">
-      <option value="en">English</option>
-      <option value="mm">မြန်မာ</option>
-    </select>
+    <div class="header-right">
+      <!-- Light / Dark Mode Toggle Button -->
+      <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
+          <i class="fa-solid fa-sun" id="theme-icon"></i>
+      </button>
+
+      <select class="language-select" onchange="changeLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="mm">မြန်မာ</option>
+      </select>
+    </div>
   </div>
 
-
   <h1>
-    <i class="fa-solid fa-box-archive" style="color: #38BDF8;"></i>
+    <i class="fa-solid fa-box-archive" style="color: var(--accent-text);"></i>
     <span data-lang="myOrders">My Orders</span>
   </h1>
-
 
   <div id="orders"></div>
 
 </div>
 
 <script>
+/* --- Dark/Light Mode Toggle Logic --- */
+const themeToggleBtn = document.getElementById("theme-toggle");
+const themeIcon = document.getElementById("theme-icon");
+const currentTheme = localStorage.getItem("theme") || "dark";
+
+document.body.setAttribute("data-theme", currentTheme);
+updateThemeIcon(currentTheme);
+
+themeToggleBtn.addEventListener("click", () => {
+    let theme = document.body.getAttribute("data-theme");
+    let newTheme = theme === "dark" ? "light" : "dark";
+    
+    document.body.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateThemeIcon(newTheme);
+});
+
+function updateThemeIcon(theme) {
+    if (theme === "dark") {
+        themeIcon.className = "fa-solid fa-sun";
+    } else {
+        themeIcon.className = "fa-solid fa-moon";
+    }
+}
 
 if (typeof translations !== 'undefined') {
   translations.en.myOrders = "My Orders";
@@ -384,7 +468,7 @@ function loadMyOrders() {
       <div class="card">
         <div class="top">
           <div>
-          <div class="order-id">${order.order_code || ("Order #" + order.id)}</div>
+            <div class="order-id">${order.order_code || ("Order #" + order.id)}</div>
             <div class="time">${order.created_at || ""}</div>
           </div>
           <div class="badge ${statusClass}">
@@ -435,7 +519,6 @@ function loadMyOrders() {
     </div>`;
   });
 }
-
 
 document.addEventListener("DOMContentLoaded", () => {
   const savedLang = localStorage.getItem("language") || "en";
