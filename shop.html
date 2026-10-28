@@ -404,6 +404,7 @@
             max-width: 280px;
             margin: 0 auto;
             padding: 2px;
+            cursor: pointer;
         }
 
         .card::before {
@@ -475,10 +476,13 @@
             font-weight: 600;
             font-size: 13px;
             transition: 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
         }
 
         .buy-btn:hover { opacity: 0.9; }
-        .buy-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
 
         .banner {
             margin: 40px 6%;
@@ -601,7 +605,7 @@
 <body data-theme="dark">
 
 <nav>
-    <div class="logo" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+    <div class="logo" onclick="window.location.href='index.html'">
         <img src="logo.jpg" alt="Acai Shop">
         <h2>Acai Shop</h2>
     </div>
@@ -740,43 +744,8 @@ function updateThemeIcon(theme) {
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 function updateCartCount(){
-    const count = cart.reduce((t,i)=>t+i.qty,0);
+    const count = cart.reduce((t,i)=>t + (Number(i.qty) || 1), 0);
     document.getElementById("cart-count").innerText = count;
-}
-
-async function addToCart(id, name, price, stock){
-    try {
-        const res = await fetch("/me", { credentials: "include" });
-        const data = await res.json();
-        if (!data.loggedIn) {
-            alert("Login your account first.");
-            window.location.href = "login.html";
-            return;
-        }
-    } catch (err) {
-        console.error("Login check error:", err);
-        alert("Login your account first.");
-        window.location.href = "login.html";
-        return;
-    }
-
-    const item = cart.find(i => i.id === id);
-    const currentQty = item ? item.qty : 0;
-
-    if(currentQty >= stock){
-        alert("Only " + stock + " items left in stock.");
-        return;
-    }
-
-    if(item){
-        item.qty++;
-    }else{
-        cart.push({ id: id, name: name, price: Number(price), qty: 1 });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCount();
-    alert(name + " added to cart!");
 }
 
 document.getElementById("searchInput").addEventListener("input", function(){
@@ -796,7 +765,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 
 async function loadUser(){
     try{
-        const res = await fetch("/me");
+        const res = await fetch("/me", { credentials: "include" });
         const data = await res.json();
         if(data.loggedIn){
             guestArea.style.display = "none";
@@ -817,7 +786,7 @@ document.addEventListener("click", function(){
 
 logoutBtn.addEventListener("click", async function(){
     try {
-        await fetch("/logout", { method: "POST" });
+        await fetch("/logout", { method: "POST", credentials: "include" });
         window.location.reload();
     } catch(err) {
         console.log(err);
@@ -829,6 +798,10 @@ function initLanguage() {
     const langSelect = document.querySelector(".language-select");
     if (langSelect) langSelect.value = savedLang;
     if (typeof changeLanguage === "function") changeLanguage(savedLang);
+}
+
+function goToDetail(id) {
+    window.location.href = `product-detail.html?id=${encodeURIComponent(id)}`;
 }
 
 async function loadProducts(){ 
@@ -843,22 +816,29 @@ async function loadProducts(){
         const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : {};
 
         products.forEach(p => { 
-            const imageUrl = p.image ? (p.image.startsWith("http") ? p.image : "/uploads/" + p.image) : "logo.jpg"; 
+            let firstImg = p.image || "";
+            try {
+                if (p.images) {
+                    const parsed = JSON.parse(p.images);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        firstImg = parsed[0];
+                    }
+                }
+            } catch (e) {}
+
+            const imageUrl = firstImg ? (firstImg.startsWith("http") ? firstImg : "/uploads/" + firstImg) : "logo.jpg"; 
             const stockText = t.stock || (lang === 'mm' ? "လက်ကျန်" : "Stock");
-            const addText = t.addToCart || (lang === 'mm' ? "ခြင်းတောင်းထဲထည့်ရန်" : "Add to Cart");
-            const outText = t.outOfStock || (lang === 'mm' ? "ပစ္စည်းပြတ်နေသည်" : "Out of Stock");
+            const detailsText = t.details || (lang === 'mm' ? "အသေးစိတ်ကြည့်ရန်" : "Details");
 
             list.innerHTML += ` 
-            <div class="card"> 
-                <img src="${imageUrl}" alt="${p.name}"> 
+            <div class="card" onclick="goToDetail('${p.id}')"> 
+                <img src="${imageUrl}" onerror="this.src='logo.jpg'" alt="${p.name}"> 
                 <div class="card-content"> 
                     <h3>${p.name}</h3> 
                     <div class="price">${Number(p.price).toLocaleString()} MMK</div> 
                     <div class="stock">${stockText}: ${p.stock}</div> 
-                    <button class="buy-btn" 
-                      onclick="addToCart('${p.id}','${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})"
-                        ${Number(p.stock) <= 0 ? "disabled" : ""}>
-                        ${Number(p.stock) <= 0 ? outText : addText}
+                    <button class="buy-btn" onclick="event.stopPropagation(); goToDetail('${p.id}')">
+                        <i class="fa-solid fa-circle-info"></i> ${detailsText}
                     </button> 
                 </div> 
             </div>`; 
