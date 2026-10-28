@@ -405,7 +405,10 @@
             margin: 0 auto;
             padding: 2px;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
         }
+        
 
         .card::before {
             content: '';
@@ -444,6 +447,9 @@
             z-index: 1;
             background: var(--card-bg);
             border-radius: 0 0 20px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .card-content h3 {
@@ -480,6 +486,7 @@
             justify-content: center;
             align-items: center;
             gap: 8px;
+            margin-top: auto;
         }
 
         .buy-btn:hover { opacity: 0.9; }
