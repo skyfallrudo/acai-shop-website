@@ -119,29 +119,31 @@ const productsTableReady = (async () => {
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
+      category TEXT DEFAULT 'accessories',
       description TEXT,
       price REAL NOT NULL,
       stock INTEGER NOT NULL,
       image TEXT,
       colors TEXT DEFAULT '',
-      images TEXT DEFAULT '',
-      category TEXT DEFAULT '',
-      pricing_rules TEXT DEFAULT '',
+      images TEXT DEFAULT '[]',
+      pricing_rules TEXT DEFAULT '[]',
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
-  for (const [name, type] of [
+  const productColumns = [
+    ["category", "TEXT DEFAULT 'accessories'"],
     ["colors", "TEXT DEFAULT ''"],
-    ["images", "TEXT DEFAULT ''"],
-    ["category", "TEXT DEFAULT ''"],
-    ["pricing_rules", "TEXT DEFAULT ''"]
-  ]) {
+    ["images", "TEXT DEFAULT '[]'"],
+    ["pricing_rules", "TEXT DEFAULT '[]'"]
+  ];
+
+  for (const [name, type] of productColumns) {
     try {
       await tursoClient.execute(`ALTER TABLE products ADD COLUMN ${name} ${type}`);
     } catch (err) {
       if (!String(err.message).toLowerCase().includes("duplicate column")) {
-        console.error("Products table migration error:", err);
+        console.error("Products column migration warning:", err.message);
       }
     }
   }
@@ -332,53 +334,66 @@ function getMyanmarDateTime() {
   return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second}`;
 }
 
-/* Custom Pricing Rules တွက်ချက်ပေးသည့် Function */
-function calculateTieredLineTotal(basePrice, pricingRulesStr, qty) {
-  const unitPrice = Number(basePrice) || 0;
-  const count = Number(qty) || 0;
-  if (count <= 0) return 0;
-
-  let rules = {};
+/* Helper: Parse Pricing Rules JSON safely */
+function parsePricingRules(raw) {
+  if (!raw) return [];
   try {
-    if (pricingRulesStr) {
-      rules = JSON.parse(pricingRulesStr) || {};
-    }
-  } catch (e) {
-    rules = {};
+    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map(r => ({ qty: Number(r.qty), price: Number(r.price) }))
+      .filter(r => Number.isInteger(r.qty) && r.qty >= 2 && Number.isFinite(r.price) && r.price >= 0)
+      .sort((a, b) => a.qty - b.qty);
+  } catch {
+    return [];
+  }
+}
+
+/* Helper: Calculate Bundle Price for a Given Quantity */
+function calculateBundleTotal(qty, unitPrice, rules) {
+  const cleanQty = Number(qty) || 0;
+  const cleanUnit = Number(unitPrice) || 0;
+  const validRules = parsePricingRules(rules);
+
+  if (validRules.length === 0 || cleanQty <= 1) {
+    return cleanQty * cleanUnit;
   }
 
-  // အကယ်၍ ရွေးထားသော အရေအတွက်အတိအကျအတွက် သတ်မှတ်ဈေးရှိလျှင် ထိုဈေးကို တိုက်ရိုက်ယူမည်
-  if (rules[String(count)] !== undefined && Number(rules[String(count)]) >= 0) {
-    return Number(rules[String(count)]);
-  }
-
-  // အရေအတွက် များသွားပါက အကြီးဆုံး Bundle ဈေးများဖြင့် အလိုအလျောက် တွက်ပေးမည်
-  const tiers = Object.keys(rules)
-    .map(k => ({ q: Number(k), p: Number(rules[k]) }))
-    .filter(t => Number.isInteger(t.q) && t.q > 0 && Number.isFinite(t.p) && t.p >= 0)
-    .sort((a, b) => b.q - a.q);
-
-  if (tiers.length === 0) {
-    return unitPrice * count;
-  }
-
-  let remaining = count;
+  const sortedDesc = [...validRules].sort((a, b) => b.qty - a.qty);
+  let remaining = cleanQty;
   let total = 0;
 
-  for (const tier of tiers) {
-    if (remaining >= tier.q) {
-      const bundles = Math.floor(remaining / tier.q);
-      total += bundles * tier.p;
-      remaining = remaining % tier.q;
+  for (const rule of sortedDesc) {
+    if (rule.qty > 0 && remaining >= rule.qty) {
+      const bundleCount = Math.floor(remaining / rule.qty);
+      total += bundleCount * rule.price;
+      remaining = remaining % rule.qty;
     }
   }
 
-  if (remaining > 0) {
-    const singleRulePrice = rules["1"] !== undefined ? Number(rules["1"]) : unitPrice;
-    total += remaining * singleRulePrice;
+  total += remaining * cleanUnit;
+  return total;
+}
+
+/* Helper: Calculate Total Stock from Color Variants if formatted like "Black:5, White:3" */
+function computeStockFromColors(colorsStr, fallbackStock) {
+  const parts = String(colorsStr || "").split(",").map(s => s.trim()).filter(Boolean);
+  let sum = 0;
+  let hasVariantQty = false;
+
+  for (const part of parts) {
+    if (part.includes(":")) {
+      const qty = Number(part.split(":")[1]);
+      if (Number.isFinite(qty) && qty >= 0) {
+        sum += Math.floor(qty);
+        hasVariantQty = true;
+      }
+    }
   }
 
-  return total;
+  if (hasVariantQty) return sum;
+  const numericFallback = Number(fallbackStock);
+  return Number.isFinite(numericFallback) && numericFallback >= 0 ? Math.floor(numericFallback) : 0;
 }
 
 /* =========================================================
@@ -1432,7 +1447,7 @@ app.get(
 );
 
 /* =========================================================
-   ADD PRODUCT (Supports Multiple Images, Category & Pricing Rules)
+   ADD PRODUCT (Supports Category, Multiple Images, Variant Stock, Bundle Rules)
 ========================================================= */
 
 app.post(
@@ -1459,27 +1474,19 @@ app.post(
       await productsTableReady;
 
       const name = clean(req.body.name);
+      const category = clean(req.body.category || "accessories").toLowerCase();
       const description = clean(req.body.description);
       const price = Number(req.body.price);
-      const stock = Number(req.body.stock);
       const colors = clean(req.body.colors);
-      const category = clean(req.body.category);
-      const pricing_rules = clean(req.body.pricing_rules);
+      const stock = computeStockFromColors(colors, req.body.stock);
+      const pricingRules = JSON.stringify(parsePricingRules(req.body.pricing_rules));
 
       if (!name) {
         return sendJSONError(res, 400, "Product name is required.");
       }
 
-      if (!category) {
-        return sendJSONError(res, 400, "Product category is required.");
-      }
-
       if (!Number.isFinite(price) || price < 0) {
         return sendJSONError(res, 400, "Invalid product price.");
-      }
-
-      if (!Number.isInteger(stock) || stock < 0) {
-        return sendJSONError(res, 400, "Invalid stock quantity.");
       }
 
       const imageUrls = (req.files || [])
@@ -1493,26 +1500,26 @@ app.post(
         `INSERT INTO products
         (
           name,
+          category,
           description,
           price,
           stock,
           image,
           colors,
           images,
-          category,
           pricing_rules
         )
         VALUES (?,?,?,?,?,?,?,?,?)`,
         [
           name,
+          category,
           description,
           price,
           stock,
           primaryImage,
           colors,
           imagesJson,
-          category,
-          pricing_rules
+          pricingRules
         ]
       );
 
@@ -1533,7 +1540,7 @@ app.post(
 );
 
 /* =========================================================
-   UPDATE PRODUCT (Supports Multiple Images, Category & Pricing Rules)
+   UPDATE PRODUCT (Supports Category, Multiple Images, Variant Stock, Bundle Rules)
 ========================================================= */
 
 app.put(
@@ -1560,10 +1567,6 @@ app.put(
       const name = clean(req.body.name);
       const description = clean(req.body.description);
       const price = Number(req.body.price);
-      const stock = Number(req.body.stock);
-      const colors = clean(req.body.colors);
-      const category = clean(req.body.category);
-      const pricing_rules = clean(req.body.pricing_rules);
 
       if (!Number.isInteger(id) || id <= 0) {
         return sendJSONError(res, 400, "Invalid product ID.");
@@ -1573,26 +1576,25 @@ app.put(
         return sendJSONError(res, 400, "Product name is required.");
       }
 
-      if (!category) {
-        return sendJSONError(res, 400, "Product category is required.");
-      }
-
       if (!Number.isFinite(price) || price < 0) {
         return sendJSONError(res, 400, "Invalid product price.");
       }
 
-      if (!Number.isInteger(stock) || stock < 0) {
-        return sendJSONError(res, 400, "Invalid stock quantity.");
-      }
-
       const product = await db.get(
-        "SELECT id, image, images, colors, category, pricing_rules FROM products WHERE id=?",
+        "SELECT * FROM products WHERE id=?",
         [id]
       );
 
       if (!product) {
         return sendJSONError(res, 404, "Product not found.");
       }
+
+      const updatedColors = req.body.colors !== undefined ? clean(req.body.colors) : (product.colors || "");
+      const stock = computeStockFromColors(updatedColors, req.body.stock ?? product.stock);
+      const updatedCategory = req.body.category ? clean(req.body.category).toLowerCase() : (product.category || "accessories");
+      const updatedPricingRules = req.body.pricing_rules !== undefined
+        ? JSON.stringify(parsePricingRules(req.body.pricing_rules))
+        : (product.pricing_rules || "[]");
 
       const newImageUrls = (req.files || [])
         .map(f => f.path || f.secure_url || f.url)
@@ -1606,32 +1608,28 @@ app.put(
         imagesJson = JSON.stringify(newImageUrls);
       }
 
-      const updatedColors = req.body.colors !== undefined ? colors : (product.colors || "");
-      const updatedCategory = req.body.category !== undefined ? category : (product.category || "");
-      const updatedPricingRules = req.body.pricing_rules !== undefined ? pricing_rules : (product.pricing_rules || "");
-
       await db.run(
         `UPDATE products
          SET
            name=?,
+           category=?,
            price=?,
            stock=?,
            description=?,
            colors=?,
            image=?,
            images=?,
-           category=?,
            pricing_rules=?
          WHERE id=?`,
         [
           name,
+          updatedCategory,
           price,
           stock,
           description,
           updatedColors,
           primaryImage,
           imagesJson,
-          updatedCategory,
           updatedPricingRules,
           id
         ]
@@ -1859,7 +1857,7 @@ app.put(
 );
 
 /* =========================================================
-   PLACE ORDER (With Color/Design Variant Stock & Pricing Rules)
+   PLACE ORDER (With Variant Stock Check & Bundle Pricing)
 ========================================================= */
 
 app.post(
@@ -1873,182 +1871,70 @@ app.post(
 
       await productsTableReady;
 
-      const name =
-        clean(req.body.name);
+      const name = clean(req.body.name);
+      const phone = clean(req.body.phone);
+      const telegram = clean(req.body.telegram);
+      const altSocial = clean(req.body.altSocial);
+      const city = clean(req.body.city);
+      const township = clean(req.body.township);
+      const road = clean(req.body.road);
+      const building = clean(req.body.building);
+      const address = clean(req.body.address);
+      const paymentMethod = clean(req.body.payment_method || "COD");
+      const deliveryFee = Number(req.body.deliFee || 0);
+      const cart = req.body.cart;
 
-      const phone =
-        clean(req.body.phone);
-
-      const telegram =
-        clean(req.body.telegram);
-
-      const altSocial =
-        clean(req.body.altSocial);
-
-      const city =
-        clean(req.body.city);
-
-      const township =
-        clean(req.body.township);
-
-      const road =
-        clean(req.body.road);
-
-      const building =
-        clean(req.body.building);
-
-      const address =
-        clean(req.body.address);
-
-      const paymentMethod =
-        clean(
-          req.body.payment_method ||
-          "COD"
-        );
-
-      const deliveryFee =
-        Number(req.body.deliFee || 0);
-
-      const cart =
-        req.body.cart;
-
-      if (
-        !Array.isArray(cart) ||
-        cart.length === 0
-      ) {
-
-        return sendJSONError(
-          res,
-          400,
-          "Cart is empty."
-        );
-
+      if (!Array.isArray(cart) || cart.length === 0) {
+        return sendJSONError(res, 400, "Cart is empty.");
       }
 
-      if (
-        !Number.isFinite(deliveryFee) ||
-        deliveryFee < 0
-      ) {
-
-        return sendJSONError(
-          res,
-          400,
-          "Invalid delivery fee."
-        );
-
+      if (!Number.isFinite(deliveryFee) || deliveryFee < 0) {
+        return sendJSONError(res, 400, "Invalid delivery fee.");
       }
 
-      const customer =
-        await db.get(
-          `SELECT
-             id,
-             username,
-             email
-           FROM customers
-           WHERE id=?`,
-          [req.session.userId]
-        );
+      const customer = await db.get(
+        `SELECT id, username, email FROM customers WHERE id=?`,
+        [req.session.userId]
+      );
 
       if (!customer) {
-
-        return sendJSONError(
-          res,
-          404,
-          "User not found."
-        );
-
+        return sendJSONError(res, 404, "User not found.");
       }
 
       const verifiedCart = [];
-
-      let subtotal = 0;
+      const productQtyMap = {};
+      const productDataMap = {};
 
       for (const item of cart) {
+        const productId = Number(item.id || item.productId);
+        const qty = Number(item.qty);
 
-        const productId =
-          Number(
-            item.id ||
-            item.productId
-          );
-
-        const qty =
-          Number(item.qty);
-
-        const selectedColor =
-          clean(item.color || "Default");
-
-        if (
-          !Number.isInteger(productId) ||
-          productId <= 0
-        ) {
-
-          return sendJSONError(
-            res,
-            400,
-            `Invalid product ID for ${item.name || "item"}.`
-          );
-
+        if (!Number.isInteger(productId) || productId <= 0) {
+          return sendJSONError(res, 400, `Invalid product ID for ${item.name || "item"}.`);
         }
 
-        if (
-          !Number.isInteger(qty) ||
-          qty <= 0
-        ) {
-
-          return sendJSONError(
-            res,
-            400,
-            `Invalid quantity for ${item.name || "item"}.`
-          );
-
+        if (!Number.isInteger(qty) || qty <= 0) {
+          return sendJSONError(res, 400, `Invalid quantity for ${item.name || "item"}.`);
         }
 
-        const product =
-          await db.get(
-            `SELECT
-               id,
-               name,
-               price,
-               stock,
-               image,
-               colors,
-               pricing_rules
-             FROM products
-             WHERE id=?`,
-            [productId]
-          );
-
-        if (!product) {
-
-          return sendJSONError(
-            res,
-            400,
-            `${item.name || "Product"} no longer exists.`
-          );
-
-        }
-
-        if (
-          Number(product.stock) < qty
-        ) {
-
-          return sendJSONError(
-            res,
-            400,
-            `${product.name} out of stock. Only ${product.stock} left.`
-          );
-
-        }
-
-        const lineTotal = calculateTieredLineTotal(
-          product.price,
-          product.pricing_rules,
-          qty
+        const product = await db.get(
+          `SELECT id, name, price, stock, image, colors, pricing_rules FROM products WHERE id=?`,
+          [productId]
         );
 
-        const effectiveUnitPrice = Math.round((lineTotal / qty) * 100) / 100;
+        if (!product) {
+          return sendJSONError(res, 400, `${item.name || "Product"} no longer exists.`);
+        }
 
-        subtotal += lineTotal;
+        /* Determine selected color from item.color or from item.name "(Color)" */
+        let selectedColor = clean(item.color);
+        if (!selectedColor) {
+          const parenMatch = String(item.name || "").match(/\(([^)]+)\)\s*$/);
+          selectedColor = parenMatch ? clean(parenMatch[1]) : "Default";
+        }
+
+        productDataMap[productId] = product;
+        productQtyMap[productId] = (productQtyMap[productId] || 0) + qty;
 
         const displayName =
           selectedColor && selectedColor !== "Default" && !String(product.name).includes(`(${selectedColor})`)
@@ -2056,77 +1942,78 @@ app.post(
             : product.name;
 
         verifiedCart.push({
-
-          id:
-            Number(product.id),
-
-          productId:
-            Number(product.id),
-
-          name:
-            displayName,
-
-          color:
-            selectedColor,
-
-          price:
-            effectiveUnitPrice,
-
-          lineTotal,
-
+          id: Number(product.id),
+          productId: Number(product.id),
+          name: displayName,
+          color: selectedColor,
+          price: Number(product.price),
           qty,
-
-          image:
-            item.image ||
-            product.image ||
-            ""
-
+          image: item.image || product.image || ""
         });
-
       }
 
-      const total =
-        subtotal + deliveryFee;
+      /* Calculate Subtotal with Bundle Pricing Rules per Product */
+      let subtotal = 0;
+      for (const [pidStr, totalQty] of Object.entries(productQtyMap)) {
+        const prod = productDataMap[pidStr];
+        if (Number(prod.stock) < totalQty) {
+          return sendJSONError(res, 400, `${prod.name} out of stock. Only ${prod.stock} left.`);
+        }
 
-      const fullAddress =
-        [
-          road,
-          building,
-          address,
-          township,
-          city
-        ]
+        let rules = parsePricingRules(prod.pricing_rules);
+        if (rules.length === 0 && prod.description) {
+          const metaMatch = String(prod.description).match(/<!--ACAI_META:([\s\S]*?)-->/);
+          if (metaMatch) {
+            try {
+              const parsedMeta = JSON.parse(metaMatch[1]);
+              rules = parsePricingRules(parsedMeta.pricing_rules);
+            } catch {}
+          }
+        }
+
+        const prodBundleSubtotal = calculateBundleTotal(totalQty, prod.price, rules);
+        subtotal += prodBundleSubtotal;
+
+        const effectiveUnitPrice = Number((prodBundleSubtotal / totalQty).toFixed(2));
+        verifiedCart.forEach(cItem => {
+          if (Number(cItem.productId) === Number(pidStr)) {
+            cItem.price = effectiveUnitPrice;
+          }
+        });
+      }
+
+      const total = Math.round(subtotal) + deliveryFee;
+      const fullAddress = [road, building, address, township, city]
         .filter(v => clean(v))
         .join(", ");
 
       /* -----------------------------------------
-         REDUCE STOCK (TOTAL & PER COLOR/DESIGN)
+         REDUCE STOCK (TOTAL & PER COLOR/VARIANT)
       ----------------------------------------- */
-
-      for (
-        const item of verifiedCart
-      ) {
-
+      for (const item of verifiedCart) {
         const currentProd = await db.get(
           `SELECT stock, colors FROM products WHERE id=?`,
           [item.productId]
         );
 
         if (!currentProd || Number(currentProd.stock) < item.qty) {
-          throw new Error(
-            `${item.name} is no longer available in the requested quantity.`
-          );
+          throw new Error(`${item.name} is no longer available in the requested quantity.`);
         }
 
         const previousColors = String(currentProd.colors || "");
+        const previousStock = Number(currentProd.stock);
         let updatedColors = previousColors;
+        let newTotalStock = previousStock - item.qty;
 
         if (previousColors.includes(":") && item.color && item.color !== "Default") {
           const parts = previousColors.split(",").map(s => s.trim()).filter(Boolean);
+          let colorMatched = false;
+
           const newParts = parts.map(part => {
             if (!part.includes(":")) return part;
             const [cName, cQty] = part.split(":");
             if (cName.trim().toLowerCase() === String(item.color).trim().toLowerCase()) {
+              colorMatched = true;
               const avail = Number(cQty) || 0;
               if (avail < item.qty) {
                 throw new Error(`${item.name} only has ${avail} left in stock.`);
@@ -2135,55 +2022,32 @@ app.post(
             }
             return part;
           });
-          updatedColors = newParts.join(", ");
+
+          if (colorMatched) {
+            updatedColors = newParts.join(", ");
+            newTotalStock = computeStockFromColors(updatedColors, newTotalStock);
+          }
         }
 
-        const result =
-          await tursoClient.execute({
+        const result = await tursoClient.execute({
+          sql: `UPDATE products SET stock=?, colors=? WHERE id=? AND stock>=?`,
+          args: [newTotalStock, updatedColors, item.productId, item.qty]
+        });
 
-            sql:
-              `UPDATE products
-               SET stock=stock-?, colors=?
-               WHERE id=?
-               AND stock>=?`,
-
-            args: [
-              item.qty,
-              updatedColors,
-              item.productId,
-              item.qty
-            ]
-
-          });
-
-        if (
-          Number(result.rowsAffected) !== 1
-        ) {
-
-          throw new Error(
-            `${item.name} is no longer available in the requested quantity.`
-          );
-
+        if (Number(result.rowsAffected) !== 1) {
+          throw new Error(`${item.name} is no longer available in the requested quantity.`);
         }
 
         changedProducts.push({
-
-          id:
-            item.productId,
-
-          qty:
-            item.qty,
-
+          id: item.productId,
+          previousStock,
           previousColors
-
         });
-
       }
 
       /* -----------------------------------------
          INSERT ORDER (WITH ORDER CODE & MYANMAR TIME)
       ----------------------------------------- */
-
       const generateRandomCode = () => {
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         let result = "";
@@ -2196,385 +2060,136 @@ app.post(
       const orderCode = generateRandomCode();
       const myanmarTime = getMyanmarDateTime();
 
-      const inserted =
-        await tursoClient.execute({
+      const inserted = await tursoClient.execute({
+        sql: `INSERT INTO orders
+        (
+          customer,
+          email,
+          phone,
+          telegram,
+          alt_social,
+          address,
+          items,
+          total,
+          status,
+          city,
+          township,
+          road,
+          building,
+          deli_fee,
+          payment_method,
+          order_code,
+          created_at
+        )
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        args: [
+          name,
+          customer.email,
+          phone,
+          telegram,
+          altSocial,
+          fullAddress,
+          JSON.stringify(verifiedCart),
+          total,
+          "Pending",
+          city,
+          township,
+          road,
+          building,
+          deliveryFee,
+          paymentMethod,
+          orderCode,
+          myanmarTime
+        ]
+      });
 
-          sql:
-            `INSERT INTO orders
-            (
-              customer,
-              email,
-              phone,
-              telegram,
-              alt_social,
-              address,
-              items,
-              total,
-              status,
-              city,
-              township,
-              road,
-              building,
-              deli_fee,
-              payment_method,
-              order_code,
-              created_at
-            )
-            VALUES
-            (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-
-          args: [
-
-            name,
-
-            customer.email,
-
-            phone,
-
-            telegram,
-
-            altSocial,
-
-            fullAddress,
-
-            JSON.stringify(
-              verifiedCart
-            ),
-
-            total,
-
-            "Pending",
-
-            city,
-
-            township,
-
-            road,
-
-            building,
-
-            deliveryFee,
-
-            paymentMethod,
-
-            orderCode,
-
-            myanmarTime
-
-          ]
-
-        });
-
-      const orderId =
-        Number(
-          inserted.lastInsertRowid
-        );
-
+      const orderId = Number(inserted.lastInsertRowid);
       if (!orderId) {
-
-        throw new Error(
-          "Order ID was not generated."
-        );
-
+        throw new Error("Order ID was not generated.");
       }
 
       /* -----------------------------------------
-         HTML EMAIL ONLY
-         NO PDF ATTACHMENT
+         ORDER CONFIRMATION EMAIL
       ----------------------------------------- */
-
       try {
-
-        const itemRows =
-          verifiedCart
-            .map(item => `
-
-<tr>
-
-<td style="
-padding:10px;
-border-bottom:1px solid #E2E8F0;
-">
-${escapeHTML(item.name)}
-</td>
-
-<td style="
-padding:10px;
-text-align:center;
-border-bottom:1px solid #E2E8F0;
-">
-${item.qty}
-</td>
-
-<td style="
-padding:10px;
-text-align:right;
-border-bottom:1px solid #E2E8F0;
-">
-${Number(item.price).toLocaleString()} MMK
-</td>
-
-<td style="
-padding:10px;
-text-align:right;
-border-bottom:1px solid #E2E8F0;
-">
-${Number(
-  item.lineTotal !== undefined
-    ? item.lineTotal
-    : Number(item.price) * Number(item.qty)
-).toLocaleString()} MMK
-</td>
-
-</tr>
-
-`)
-            .join("");
+        const itemRows = verifiedCart
+          .map(item => `
+            <tr>
+              <td style="padding:10px;border-bottom:1px solid #E2E8F0;">${escapeHTML(item.name)}</td>
+              <td style="padding:10px;text-align:center;border-bottom:1px solid #E2E8F0;">${item.qty}</td>
+              <td style="padding:10px;text-align:right;border-bottom:1px solid #E2E8F0;">${Math.round(Number(item.price)).toLocaleString()} MMK</td>
+              <td style="padding:10px;text-align:right;border-bottom:1px solid #E2E8F0;">${Math.round(Number(item.price) * Number(item.qty)).toLocaleString()} MMK</td>
+            </tr>
+          `)
+          .join("");
 
         await resend.emails.send({
-
-          from:
-            "Acai Shop <support@acaishopmm.store>",
-
-          to:
-            customer.email,
-
-          subject:
-            `Order Confirmation #${orderCode} - Acai Shop`,
-
+          from: "Acai Shop <support@acaishopmm.store>",
+          to: customer.email,
+          subject: `Order Confirmation #${orderCode} - Acai Shop`,
           html: `
-
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1">
-
-</head>
-
-<body style="
-margin:0;
-padding:20px;
-background:#F1F5F9;
-font-family:Arial,sans-serif;
-color:#1E293B;
-">
-
-<div style="
-max-width:680px;
-margin:auto;
-background:white;
-border-radius:18px;
-padding:25px;
-">
-
-<h2 style="
-color:#2563EB;
-margin-top:0;
-">
-Order Confirmed!
-</h2>
-
-<p>
-Dear
-<b>${escapeHTML(
-  name || "Customer"
-)}</b>,
-</p>
-
-<p>
-Thank you for shopping with
-<b>Acai Shop</b>.
-Your order has been received successfully.
-</p>
-
-<div style="
-background:#EFF6FF;
-border-radius:12px;
-padding:15px;
-margin:20px 0;
-">
-
-<p>
-<b>Order Code:</b>
-${orderCode}
-</p>
-
-<p>
-<b>Payment:</b>
-${escapeHTML(
-  paymentMethod
-)}
-</p>
-
-<p>
-<b>Delivery Fee:</b>
-${deliveryFee.toLocaleString()} MMK
-</p>
-
-<p>
-<b>Total:</b>
-${total.toLocaleString()} MMK
-</p>
-
-</div>
-
-<p>
-<b>Shipping Address:</b>
-<br>
-${escapeHTML(
-  fullAddress || "N/A"
-)}
-</p>
-
-<table style="
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-">
-
-<thead>
-
-<tr style="
-background:#2563EB;
-color:white;
-">
-
-<th style="
-padding:10px;
-text-align:left;
-">
-Item
-</th>
-
-<th style="
-padding:10px;
-">
-Qty
-</th>
-
-<th style="
-padding:10px;
-text-align:right;
-">
-Price
-</th>
-
-<th style="
-padding:10px;
-text-align:right;
-">
-Total
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-${itemRows}
-
-</tbody>
-
-</table>
-
-<p style="
-margin-top:25px;
-">
-
-We will process your order and update
-the order status when there is a change.
-
-</p>
-
-<p>
-Best regards,<br>
-<b>Acai Shop Team</b>
-</p>
-
-</div>
-
-</body>
-
-</html>
-
-`
-
+            <!DOCTYPE html>
+            <html>
+            <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+            <body style="margin:0;padding:20px;background:#F1F5F9;font-family:Arial,sans-serif;color:#1E293B;">
+              <div style="max-width:680px;margin:auto;background:white;border-radius:18px;padding:25px;">
+                <h2 style="color:#2563EB;margin-top:0;">Order Confirmed!</h2>
+                <p>Dear <b>${escapeHTML(name || "Customer")}</b>,</p>
+                <p>Thank you for shopping with <b>Acai Shop</b>. Your order has been received successfully.</p>
+                <div style="background:#EFF6FF;border-radius:12px;padding:15px;margin:20px 0;">
+                  <p><b>Order Code:</b> ${orderCode}</p>
+                  <p><b>Payment:</b> ${escapeHTML(paymentMethod)}</p>
+                  <p><b>Delivery Fee:</b> ${deliveryFee.toLocaleString()} MMK</p>
+                  <p><b>Total:</b> ${total.toLocaleString()} MMK</p>
+                </div>
+                <p><b>Shipping Address:</b><br>${escapeHTML(fullAddress || "N/A")}</p>
+                <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+                  <thead>
+                    <tr style="background:#2563EB;color:white;">
+                      <th style="padding:10px;text-align:left;">Item</th>
+                      <th style="padding:10px;">Qty</th>
+                      <th style="padding:10px;text-align:right;">Price</th>
+                      <th style="padding:10px;text-align:right;">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>${itemRows}</tbody>
+                </table>
+                <p style="margin-top:25px;">We will process your order and update the order status when there is a change.</p>
+                <p>Best regards,<br><b>Acai Shop Team</b></p>
+              </div>
+            </body>
+            </html>
+          `
         });
-
       } catch (emailError) {
-
-        console.error(
-          "ORDER EMAIL ERROR:",
-          emailError
-        );
-
+        console.error("ORDER EMAIL ERROR:", emailError);
       }
 
       return res.json({
-
         success: true,
-
         orderId,
         orderCode
-
       });
 
     } catch (error) {
+      console.error("PLACE ORDER ERROR:", error);
 
-      console.error(
-        "PLACE ORDER ERROR:",
-        error
-      );
-
-      for (
-        const changed
-        of changedProducts
-      ) {
-
+      for (const changed of changedProducts.reverse()) {
         try {
-
           await tursoClient.execute({
-
-            sql:
-              `UPDATE products
-               SET stock=stock+?, colors=?
-               WHERE id=?`,
-
-            args: [
-              changed.qty,
-              changed.previousColors,
-              changed.id
-            ]
-
+            sql: `UPDATE products SET stock=?, colors=? WHERE id=?`,
+            args: [changed.previousStock, changed.previousColors, changed.id]
           });
-
-        } catch (
-          restoreError
-        ) {
-
-          console.error(
-            "STOCK RESTORE ERROR:",
-            restoreError
-          );
-
+        } catch (restoreError) {
+          console.error("STOCK RESTORE ERROR:", restoreError);
         }
-
       }
 
       return sendJSONError(
         res,
         500,
-        error.message ||
-        "Failed to place order."
+        error.message || "Failed to place order."
       );
-
     }
 
   }

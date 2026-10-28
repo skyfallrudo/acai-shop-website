@@ -2256,12 +2256,10 @@ document.getElementById("productForm")
     formData.append("stock", stock);
     formData.append("colors", colors);
     formData.append("description", description);
-
-    if(files.length > 0){
+if(files.length > 0){
         files.forEach(file => {
             formData.append("images", file);
         });
-        formData.append("image", files[0]);
     }
 
 
@@ -3505,6 +3503,25 @@ async function deleteStock(id) {
         showToast(error.message || "Delete failed.", true);
     }
 }
+document.getElementById("productColors").addEventListener("input", function() {
+    const parts = this.value.split(",").map(s => s.trim()).filter(Boolean);
+    let totalVariantStock = 0;
+    let hasVariantNumbers = false;
+
+    parts.forEach(part => {
+        if (part.includes(":")) {
+            const qty = Number(part.split(":")[1]);
+            if (Number.isFinite(qty) && qty >= 0) {
+                totalVariantStock += qty;
+                hasVariantNumbers = true;
+            }
+        }
+    });
+
+    if (hasVariantNumbers) {
+        document.getElementById("productStock").value = totalVariantStock;
+    }
+});
 
 checkAdmin();
 
