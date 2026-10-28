@@ -15,7 +15,17 @@
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css">
 
+<!-- Google tag -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F00XQ96WFJ"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-F00XQ96WFJ');
+</script>
+
 <style>
+
 *{
     margin:0;
     padding:0;
@@ -52,42 +62,26 @@ body{
     border-radius: 24px;
     padding: 32px;
     box-shadow: 0 15px 45px rgba(0, 0, 0, .12);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
 }
 
 .loginBox h1 {
     color: #2563eb;
-    text-align:center;
-    margin-bottom:6px;
 }
 
 .loginBox p {
     color: #475569;
-    text-align:center;
-    font-size:13px;
-    margin-bottom:25px;
 }
 
 .loginBox input {
-    width:100%;
-    padding:14px;
-    margin-bottom:14px;
-    border:1px solid #cbd5e1;
-    border-radius:12px;
-    background:#f8fafc;
-    color:#1e293b;
-    outline:none;
-    font-size:14px;
+    background: #f8fafc;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
 }
 
-.loginBox button {
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    background:#2563EB;
-    color:white;
-    font-weight:600;
-    cursor:pointer;
+.loginBox input::placeholder {
+    color: #64748b;
 }
 
 .loginLogo{
@@ -101,6 +95,51 @@ body{
     padding:4px;
 }
 
+.loginBox h1{
+    text-align:center;
+    margin-bottom:6px;
+    color:#60A5FA;
+}
+
+.loginBox p{
+    text-align:center;
+    color:#94A3B8;
+    font-size:13px;
+    margin-bottom:25px;
+}
+
+.loginBox input{
+    width:100%;
+    padding:14px;
+    margin-bottom:14px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:12px;
+    background:#1E293B;
+    color:white;
+    outline:none;
+    font-size:14px;
+}
+
+.loginBox input:focus{
+    border-color:#2563EB;
+}
+
+.loginBox button{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#2563EB;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.loginBox button:hover{
+    background:#1D4ED8;
+}
+
 .loginError{
     color:#F87171;
     font-size:13px;
@@ -108,6 +147,8 @@ body{
     min-height:20px;
     margin-top:10px;
 }
+
+
 
 .sidebar{
     width:230px;
@@ -171,6 +212,12 @@ body{
     color:#F87171 !important;
 }
 
+.logout-link i{
+    color:#F87171 !important;
+}
+
+
+
 .main{
     margin-left:230px;
     padding:28px;
@@ -190,6 +237,8 @@ body{
     font-size:13px;
     margin-top:4px;
 }
+
+
 
 .cards{
     display:grid;
@@ -233,6 +282,7 @@ body{
 
 .stat-card h2{
     font-size:24px;
+    padding-right:45px;
 }
 
 .section{
@@ -251,14 +301,36 @@ body{
     font-size:20px;
 }
 
+.section-header span{
+    color:#64748B;
+    font-size:12px;
+}
+
+
+.chart-card{
+    overflow:hidden;
+}
+
+.chart-wrap{
+    width:100%;
+    overflow-x:auto;
+}
+
+#chart{
+    width:100%;
+    min-width:600px;
+    height:210px;
+}
+
+
 #productForm{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:12px;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
     margin-bottom:18px;
 }
 
-#productForm input, #productForm textarea {
+#productForm input{
     width:100%;
     padding:12px 13px;
     border:1px solid rgba(255,255,255,.07);
@@ -268,13 +340,7 @@ body{
     outline:none;
 }
 
-#productForm textarea {
-    grid-column: span 3;
-    resize: vertical;
-    height: 80px;
-}
-
-#productForm input:focus, #productForm textarea:focus{
+#productForm input:focus{
     border-color:#2563EB;
 }
 
@@ -283,7 +349,6 @@ body{
 }
 
 #productForm button{
-    grid-column: span 3;
     padding:12px;
     border:none;
     border-radius:11px;
@@ -291,6 +356,10 @@ body{
     color:white;
     font-weight:600;
     cursor:pointer;
+}
+
+#productForm button:hover{
+    background:#15803D;
 }
 
 .search{
@@ -302,6 +371,10 @@ body{
     color:white;
     outline:none;
     margin-bottom:15px;
+}
+
+.search:focus{
+    border-color:#2563EB;
 }
 
 .table-wrap{
@@ -316,9 +389,10 @@ table{
     border-collapse:collapse;
 }
 
-th, td{
+th,
+td{
     padding:13px;
-    border-bottom:1px solid rgba(255,255,257,.07);
+    border-bottom:1px solid rgba(255,255,255,.07);
     text-align:left;
     font-size:13px;
 }
@@ -333,6 +407,36 @@ td{
     background:#111827;
 }
 
+tr:hover td{
+    background:#172033;
+}
+
+.product-name{
+    font-weight:500;
+}
+
+.product-id{
+    color:#64748B;
+}
+
+.price-text{
+    color:#60A5FA;
+    font-weight:600;
+}
+
+.stock-good{
+    color:#4ADE80;
+}
+
+.stock-low{
+    color:#FBBF24;
+}
+
+.stock-out{
+    color:#F87171;
+}
+
+
 .btn{
     border:none;
     padding:8px 11px;
@@ -343,9 +447,175 @@ td{
     margin:2px;
 }
 
-.edit{ background:#2563EB; }
-.delete{ background:#DC2626; }
-.refresh{ background:#475569; }
+.btn i{
+    margin-right:4px;
+}
+
+.edit{
+    background:#2563EB;
+}
+
+.edit:hover{
+    background:#1D4ED8;
+}
+
+.delete{
+    background:#DC2626;
+}
+
+.delete:hover{
+    background:#B91C1C;
+}
+
+.details{
+    background:#0EA5E9;
+}
+
+.details:hover{
+    background:#0284C7;
+}
+
+.refresh{
+    background:#475569;
+}
+
+.refresh:hover{
+    background:#334155;
+}
+
+
+.status{
+    padding:8px 10px;
+    border:none;
+    border-radius:8px;
+    background:#1E293B;
+    color:white;
+    outline:none;
+    cursor:pointer;
+}
+
+
+.empty{
+    text-align:center;
+    color:#64748B;
+    padding:30px;
+}
+
+.loading{
+    text-align:center;
+    color:#60A5FA;
+    padding:25px;
+}
+
+
+
+#orderPopup{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.78);
+    justify-content:center;
+    align-items:center;
+    z-index:9998;
+    padding:20px;
+}
+
+.order-modal{
+    width:100%;
+    max-width:600px;
+    max-height:90vh;
+    overflow-y:auto;
+    background:#111827;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:22px;
+    padding:25px;
+    box-shadow:0 25px 70px rgba(0,0,0,.6);
+}
+
+.order-modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.order-modal-header h2{
+    font-size:20px;
+}
+
+.close-btn{
+    width:35px;
+    height:35px;
+    border:none;
+    border-radius:9px;
+    background:#DC2626;
+    color:white;
+    cursor:pointer;
+}
+
+.order-info{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.info-box{
+    background:#1E293B;
+    padding:12px;
+    border-radius:10px;
+}
+
+.info-box small{
+    display:block;
+    color:#64748B;
+    font-size:11px;
+    margin-bottom:4px;
+}
+
+.info-box span{
+    font-size:13px;
+    word-break:break-word;
+}
+
+.items-title{
+    margin-bottom:10px;
+}
+
+.order-item{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    padding:12px;
+    margin-bottom:7px;
+    background:#1E293B;
+    border-radius:10px;
+}
+
+.order-item-name{
+    font-size:13px;
+}
+
+.order-item-qty{
+    color:#60A5FA;
+    white-space:nowrap;
+}
+
+.order-total{
+    display:flex;
+    justify-content:space-between;
+    padding-top:15px;
+    margin-top:15px;
+    border-top:1px solid #334155;
+    font-size:18px;
+    font-weight:600;
+}
+
+.order-total span:last-child{
+    color:#60A5FA;
+}
+
+
 
 #toast{
     position:fixed;
@@ -357,228 +627,2887 @@ td{
     border-radius:12px;
     display:none;
     z-index:100000;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+    font-size:13px;
 }
-#toast.error{ background:#DC2626; }
+
+#toast.error{
+    background:#DC2626;
+}
+
+
+
+@media(max-width:1100px){
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    #productForm{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
 
 @media(max-width:900px){
-    .sidebar{ width:100%; height:auto; position:sticky; display:flex; overflow-x:auto; }
-    .main{ margin-left:0; }
-    #productForm{ grid-template-columns:1fr; }
-    #productForm textarea, #productForm button { grid-column: span 1; }
+
+    body{
+        display:block;
+    }
+
+    .sidebar{
+        position:sticky;
+        top:0;
+        left:0;
+        width:100%;
+        height:auto;
+        padding:10px;
+        display:flex;
+        align-items:center;
+        gap:5px;
+        overflow-x:auto;
+        border-right:none;
+        border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    .sidebar-logo{
+        display:none;
+    }
+
+    .sidebar a{
+        flex:0 0 auto;
+        margin:0;
+        padding:10px 12px;
+        font-size:11px;
+        gap:6px;
+    }
+
+    .logout-link{
+        margin-top:0 !important;
+    }
+
+    .main{
+        margin-left:0;
+        padding:18px 12px;
+    }
+
+    .page-title h1{
+        font-size:23px;
+    }
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+        gap:10px;
+    }
+
+    .card{
+        padding:15px;
+        border-radius:15px;
+    }
+
+    .stat-card h2{
+        font-size:19px;
+    }
+
+    .stat-icon{
+        width:32px;
+        height:32px;
+        right:12px;
+        top:12px;
+        font-size:12px;
+    }
+
+}
+
+@media(max-width:600px){
+
+    .loginBox{
+        padding:25px 20px;
+    }
+
+    .cards{
+        grid-template-columns:1fr 1fr;
+    }
+
+    #productForm{
+        grid-template-columns:1fr;
+    }
+
+    .section-header{
+        align-items:flex-start;
+    }
+
+    .section-header h2{
+        font-size:18px;
+    }
+
+    .order-info{
+        grid-template-columns:1fr;
+    }
+
+    .order-modal{
+        padding:18px;
+    }
+
+    #chart{
+        min-width:500px;
+    }
+
+}
+
+@media(max-width:380px){
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+    .sidebar a{
+        padding:9px 10px;
+    }
+
+}
+
+/* Pinduoduo Stock List */
+#pinduoduoForm {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+#pinduoduoForm input {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 11px;
+    background: #1E293B;
+    color: white;
+    outline: none;
+}
+
+#pinduoduoForm input:focus {
+    border-color: #2563EB;
+}
+
+#pinduoduoForm button {
+    padding: 12px;
+    border: none;
+    border-radius: 11px;
+    background: #16A34A;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.stock-total {
+    color: #4ADE80;
+    font-weight: 700;
+}
+
+.stock-note {
+    color: #94A3B8;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+
+@media(max-width:1100px) {
+    #pinduoduoForm {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media(max-width:600px) {
+    #pinduoduoForm {
+        grid-template-columns: 1fr;
+    }
+}
+#pinduoduoForm select {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 11px;
+    background: #1E293B;
+    color: white;
+    outline: none;
+}
+
+#pinduoduoForm input[type="file"] {
+    font-size: 12px;
+}
+
+.stock-photo {
+    width: 55px;
+    height: 55px;
+    object-fit: cover;
+    border-radius: 9px;
+    border: 1px solid #334155;
+}
+
+.stock-photo-empty {
+    color: #64748B;
+    font-size: 12px;
+}
+
+#pinduoduoForm button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.stock-status {
+    padding: 6px 9px;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    background: #1E293B;
+    color: white;
+    font-size: 12px;
+    min-width: 105px;
+    cursor: pointer;
+    outline: none;
+}
+
+.stock-status.available {
+    border-color: #166534;
+    color: #4ADE80;
+}
+
+.stock-status.sold {
+    border-color: #991B1B;
+    color: #F87171;
+}
+
+.stock-status:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+.restricted-marquee {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 12px 0 25px;
+    color: #facc15;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.restricted-track {
+    display: flex;
+    width: max-content;
+    animation: restrictedScroll 20s linear infinite;
+}
+
+.restricted-track span {
+    flex-shrink: 0;
+    padding-right: 50px;
+}
+
+@keyframes restrictedScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
 }
 </style>
 </head>
 
 <body>
 
+
+
 <div id="loginOverlay">
+
     <div class="loginBox">
+
         <img src="logo.jpg" class="loginLogo" alt="Acai Shop">
+
         <h1>Admin Login</h1>
-        <input id="adminUsername" type="text" placeholder="Username" autocomplete="username">
-        <input id="adminPassword" type="password" placeholder="Password" autocomplete="current-password">
-        <button id="loginButton" onclick="adminLogin()">Login</button>
-        <div id="loginError" class="loginError"></div>
+
+   <div class="restricted-marquee">
+    <div class="restricted-track">
+        <span>🔒 Restricted Access: Rudox &amp; Valrqx only. Unauthorized modifications are punishable under the Electronic Transactions Law</span>
+        <span aria-hidden="true">🔒 Restricted Access: Rudox &amp; Valrqx only. Unauthorized modifications are punishable under the Electronic Transactions Law</span>
     </div>
+</div>
+        <input
+            id="adminUsername"
+            type="text"
+            placeholder="Username"
+            autocomplete="username"
+        >
+
+        <input
+            id="adminPassword"
+            type="password"
+            placeholder="Password"
+            autocomplete="current-password"
+        >
+
+        <button id="loginButton" onclick="adminLogin()">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Login
+        </button>
+
+        <div id="loginError" class="loginError"></div>
+
+    </div>
+
 </div>
 
 <div class="sidebar">
+
     <div class="sidebar-logo">
         <img src="logo.jpg" alt="Acai Shop">
         <h2>Acai Admin</h2>
     </div>
-    <a href="#products" class="active"><i class="fa-solid fa-box"></i><span>Products</span></a>
-    <a href="#" class="logout-link" onclick="adminLogout();return false;"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+
+    <a href="#dashboard" class="active">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Dashboard</span>
+    </a>
+
+    <a href="#products">
+        <i class="fa-solid fa-box"></i>
+        <span>Products</span>
+    </a>
+
+    <a href="#orders">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>Orders</span>
+    </a>
+
+    <a href="#customers">
+        <i class="fa-solid fa-users"></i>
+        <span>Customers</span>
+    </a>
+<a href="#pinduoduo">
+    <i class="fa-solid fa-cart-flatbed"></i>
+    <span>Pinduoduo Orders</span>
+</a>
+    <a href="#" class="logout-link" onclick="adminLogout();return false;">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+    </a>
+
 </div>
 
+
+
+
 <div class="main">
+
     <div class="page-title">
         <h1>Acai Shop Admin Dashboard</h1>
-        <p>Manage products with variant colors and multiple image uploads.</p>
+        <p>Manage products, orders and customers.</p>
     </div>
 
-    <section class="section" id="products">
-        <div class="section-header">
-            <h2>Products Management</h2>
-            <button class="btn refresh" onclick="loadProducts()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+
+
+    <section id="dashboard">
+
+        <div class="cards">
+
+            <div class="card stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
+
+                <h3>Product Revenue</h3>
+                <h2 id="totalRevenue">0 MMK</h2>
+
+            </div>
+
+
+            <div class="card stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-truck"></i>
+                </div>
+
+                <h3>Delivery Fee</h3>
+                <h2 id="deliveryRevenue">0 MMK</h2>
+
+            </div>
+
+
+            <div class="card stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-calendar-day"></i>
+                </div>
+
+                <h3>Today's Revenue</h3>
+                <h2 id="todayRevenue">0 MMK</h2>
+
+            </div>
+
+
+            <div class="card stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </div>
+
+                <h3>Orders</h3>
+                <h2 id="todayOrders">0</h2>
+
+            </div>
+
         </div>
 
+
+        <div class="card chart-card">
+
+            <div class="section-header">
+                <h2>Weekly Sales</h2>
+                <span>Last 7 days</span>
+            </div>
+
+            <div class="chart-wrap">
+                <svg id="chart" viewBox="0 0 600 210"></svg>
+            </div>
+
+        </div>
+
+
+        <div class="card" style="margin-top:18px;">
+
+            <div class="section-header">
+                <h2>Best Seller</h2>
+            </div>
+
+            <div id="bestProduct"
+                 style="color:#60A5FA;font-size:18px;font-weight:600;">
+                -
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="section" id="products">
+
+        <div class="section-header">
+            <h2>Products</h2>
+
+            <button class="btn refresh" onclick="loadProducts()">
+                <i class="fa-solid fa-rotate"></i>
+                Refresh
+            </button>
+        </div>
+
+
         <div class="card">
-            <!-- Product Form with Color Options and Multiple Images Support -->
+
             <form id="productForm" enctype="multipart/form-data">
-                <input name="name" id="productName" placeholder="Product Name" required>
-                <input name="price" id="productPrice" type="number" min="0" placeholder="Price (MMK)" required>
-                <input name="stock" id="productStock" type="number" min="0" placeholder="Stock Quantity" required>
-                
-                <!-- Color / Variant Options Field (Comma separated: ဥပမာ - Black, Blue, White) -->
-                <input name="colors" id="productColors" placeholder="Colors / Variants (comma separated, e.g. Black, Blue)">
 
-                <!-- Multiple Images Upload Field -->
-                <input name="images" id="productImages" type="file" multiple accept="image/png,image/jpeg,image/webp" placeholder="Upload Multiple Images">
+                <input
+                    name="name"
+                    id="productName"
+                    placeholder="Product Name"
+                    required
+                >
 
-                <textarea name="description" id="productDescription" placeholder="Product Description..."></textarea>
+                <input
+                    name="price"
+                    id="productPrice"
+                    type="number"
+                    min="0"
+                    placeholder="Price"
+                    required
+                >
+
+                <input
+                    name="stock"
+                    id="productStock"
+                    type="number"
+                    min="0"
+                    placeholder="Stock"
+                    required
+                >
+
+                <input
+                    name="description"
+                    id="productDescription"
+                    placeholder="Description"
+                >
+
+                <input
+                    name="image"
+                    id="productImage"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                >
 
                 <button type="submit" id="productSubmitButton">
-                    <i class="fa-solid fa-plus"></i> Add Product
+                    <i class="fa-solid fa-plus"></i>
+                    Add Product
                 </button>
+
             </form>
 
-            <input class="search" id="productSearch" placeholder="Search products...">
+
+            <input
+                class="search"
+                id="productSearch"
+                placeholder="Search products..."
+            >
+
 
             <div class="table-wrap">
+
                 <table>
+
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
                             <th>Price</th>
                             <th>Stock</th>
-                            <th>Colors</th>
                             <th>Action</th>
                         </tr>
                     </thead>
+
                     <tbody id="productTable">
-                        <tr><td colspan="6" style="text-align:center;">Loading products...</td></tr>
+
+                        <tr>
+                            <td colspan="5" class="loading">
+                                Loading products...
+                            </td>
+                        </tr>
+
                     </tbody>
+
                 </table>
+
             </div>
+
+        </div>
+
+    </section>
+
+
+
+    <section class="section" id="orders">
+
+        <div class="section-header">
+            <h2>Orders</h2>
+
+            <button class="btn refresh" onclick="loadOrders()">
+                <i class="fa-solid fa-rotate"></i>
+                Refresh
+            </button>
+        </div>
+
+
+        <div class="card">
+
+            <input
+                class="search"
+                id="orderSearch"
+                placeholder="Search customer or order..."
+            >
+
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="orderTable">
+
+                        <tr>
+                            <td colspan="5" class="loading">
+                                Loading orders...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <section class="section" id="customers">
+
+        <div class="section-header">
+            <h2>Customers</h2>
+
+            <button class="btn refresh" onclick="loadCustomers()">
+                <i class="fa-solid fa-rotate"></i>
+                Refresh
+            </button>
+        </div>
+
+
+        <div class="card">
+
+            <input
+                class="search"
+                id="customerSearch"
+                placeholder="Search customers..."
+            >
+
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Address</th>
+                            <th>Joined</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="customerTable">
+
+                        <tr>
+                            <td colspan="5" class="loading">
+                                Loading customers...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
         </div>
     </section>
+
+    <!-- Pinduoduo Stock List -->
+    <section class="section" id="pinduoduo">
+
+        <div class="section-header">
+            <h2><i class="fa-solid fa-cart-flatbed"></i> Stock List</h2>
+
+            <button class="btn refresh" onclick="loadPinduoduo()">
+                <i class="fa-solid fa-rotate"></i>
+                Refresh
+            </button>
+        </div>
+
+        <div class="card">
+   Only Rudox and Valrqx are authorized to edit this database.
+   Unauthorized modifications are subject to legal action.
+            <p class="stock-note">
+              
+            </p>
+
+<form id="pinduoduoForm" enctype="multipart/form-data">
+
+    <input id="stockName" name="item_name"
+           placeholder="Name (required)" required>
+
+           <input id="stockColor" name="color"
+       placeholder="Color (optional)">
+
+    <input id="stockCny" name="cost_cny"
+           type="number" min="0" step="any"
+           placeholder="Cost (CNY)" required>
+
+    <input id="stockMmk" name="cost_mmk"
+           type="number" min="0" step="any"
+           placeholder="Cost (MMK)" required>
+
+    <input id="stockQuantity" name="quantity"
+           type="number" min="1" step="1"
+           value="1" placeholder="Quantity" required>
+
+    <select id="stockUnit" name="unit">
+        <option value="Piece">Piece</option>
+        <option value="Pair">Pair</option>
+        <option value="Set">Set</option>
+    </select>
+
+<select id="stockStatus" name="status">
+    <option value="Available">Available</option>
+    <option value="Sold">Sold</option>
+</select>
+
+    <input id="stockPhoto" name="item_photo"
+           type="file"
+           accept="image/jpeg,image/png,image/webp">
+
+    <input id="stockTracking" name="tracking_code"
+           placeholder="Tracking Code (optional)">
+
+    <input id="stockWeight" name="weight_kg"
+           type="number" min="0" step="any"
+           placeholder="Weight kg (optional)">
+
+    <input id="stockShipping" name="shipping_fee"
+           type="number" min="0" step="any"
+           placeholder="Shipping Fee (MMK)">
+
+    <input id="stockDateDisplay" name="purchase_date"
+           placeholder="Purchase Date (Myanmar time)" readonly>
+
+    <input id="stockTotalDisplay"
+           placeholder="Total (MMK)" readonly>
+
+    <button type="submit" id="stockSubmit">
+        <i class="fa-solid fa-plus"></i> Add Stock
+    </button>
+
+    <button type="button" class="btn refresh"
+            onclick="resetStockForm()">
+        Cancel Edit / Clear
+    </button>
+
+</form>
+
+<input class="search" id="stockSearch"
+       placeholder="Search stock list...">
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Color</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Tracking Code</th>
+                <th>Cost CNY</th>
+                <th>Cost MMK</th>
+                <th>Date</th>
+                <th>Weight kg</th>
+                <th>Shipping Fee</th>
+                <th>Total MMK</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="pinduoduoTable">
+            <tr>
+                <td colspan="15" class="loading">
+                    Loading stock list...
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
+
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<div id="orderPopup">
+
+    <div class="order-modal">
+
+        <div class="order-modal-header">
+
+            <h2>
+                <i class="fa-solid fa-receipt"></i>
+                Order Details
+            </h2>
+
+            <button
+                class="close-btn"
+                onclick="closeOrderPopup()"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+
+        <div class="order-info">
+
+            <div class="info-box">
+                <small>Customer</small>
+                <span id="dCustomer">-</span>
+            </div>
+<div class="info-box">
+    <small>Email</small>
+    <span id="dEmail">-</span>
+</div>
+            <div class="info-box">
+                <small>Phone</small>
+                <span id="dPhone">-</span>
+            </div>
+
+            <div class="info-box">
+                <small>Address</small>
+                <span id="dAddress">-</span>
+            </div>
+            <div class="info-box">
+    <small>Telegram</small>
+    <span id="dTelegram">-</span>
+</div>
+
+<div class="info-box">
+    <small>Alternative Social</small>
+    <span id="dAltSocial">-</span>
+</div>
+<div class="info-box">
+    <small>Road</small>
+    <span id="dRoad">-</span>
+</div>
+
+<div class="info-box">
+    <small>Building</small>
+    <span id="dBuilding">-</span>
+</div>
+            <div class="info-box">
+                <small>Township</small>
+                <span id="dTownship">-</span>
+            </div>
+
+            <div class="info-box">
+                <small>Payment</small>
+                <span id="dPayment">-</span>
+            </div>
+
+            <div class="info-box">
+                <small>Delivery Fee</small>
+                <span id="dDeliveryFee">0 MMK</span>
+            </div>
+
+        </div>
+
+
+        <h3 class="items-title">Items</h3>
+
+        <div id="dItems"></div>
+
+
+        <div class="order-total">
+
+            <span>Total</span>
+
+            <span id="dTotal">
+                0 MMK
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
 
 <div id="toast"></div>
 
+
 <script>
-function showToast(message, error=false){
-    const toast = document.getElementById("toast");
-    toast.innerText = message;
-    toast.classList.toggle("error", error);
-    toast.style.display = "block";
-    setTimeout(() => { toast.style.display = "none"; }, 2500);
+
+
+let lastOrderCount = 0;
+let adminStarted = false;
+let dashboardInterval = null;
+
+
+
+function escapeHTML(value){
+
+    if(value === null || value === undefined){
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 }
 
-async function getJSON(url, options={}){
-    const res = await fetch(url, { credentials: "include", ...options });
-    const data = await res.json().catch(() => ({}));
-    if(!res.ok) throw new Error(data.message || data.error || "Request failed");
-    return data;
+
+function money(value){
+
+    return Number(value || 0).toLocaleString() + " MMK";
+
 }
+
+
+function showToast(message,error=false){
+
+    const toast=document.getElementById("toast");
+
+    toast.innerText=message;
+
+    toast.classList.toggle("error",error);
+
+    toast.style.display="block";
+
+    clearTimeout(window.toastTimer);
+
+    window.toastTimer=setTimeout(()=>{
+
+        toast.style.display="none";
+
+    },2500);
+
+}
+
+
+async function getJSON(url,options={}){
+
+    const response=await fetch(url,{
+        credentials:"include",
+        ...options
+    });
+
+    let data;
+
+    try{
+
+        data=await response.json();
+
+    }catch{
+
+        throw new Error(
+            "Server returned an invalid response ("+
+            response.status+")"
+        );
+
+    }
+
+    if(!response.ok){
+
+        throw new Error(
+            data.message ||
+            data.error ||
+            "Request failed ("+response.status+")"
+        );
+
+    }
+
+    return data;
+
+}
+
+
 
 async function checkAdmin(){
-    try {
-        const data = await getJSON("/admin-check");
+
+    try{
+
+        const data=await getJSON("/admin-check");
+
         if(data.loggedIn){
-            document.getElementById("loginOverlay").style.display = "none";
-            loadProducts();
-        } else {
-            document.getElementById("loginOverlay").style.display = "flex";
+
+            document.getElementById("loginOverlay").style.display="none";
+
+            startAdmin();
+
+        }else{
+
+            document.getElementById("loginOverlay").style.display="flex";
+
         }
-    } catch {
-        document.getElementById("loginOverlay").style.display = "flex";
+
+    }catch(error){
+
+        console.error("Admin check error:",error);
+
+        document.getElementById("loginOverlay").style.display="flex";
+
     }
+
 }
+
 
 async function adminLogin(){
-    const username = document.getElementById("adminUsername").value.trim();
-    const password = document.getElementById("adminPassword").value;
-    const errorBox = document.getElementById("loginError");
 
-    try {
-        const data = await getJSON("/admin-login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
-        });
-        if(data.success){
-            document.getElementById("loginOverlay").style.display = "none";
-            loadProducts();
-        } else {
-            errorBox.innerText = data.message || "Wrong credentials.";
-        }
-    } catch(err) {
-        errorBox.innerText = err.message || "Login failed.";
+    const username=
+        document.getElementById("adminUsername").value.trim();
+
+    const password=
+        document.getElementById("adminPassword").value;
+
+    const errorBox=
+        document.getElementById("loginError");
+
+    const button=
+        document.getElementById("loginButton");
+
+
+    errorBox.innerText="";
+
+
+    if(!username || !password){
+
+        errorBox.innerText="Username and password are required.";
+
+        return;
+
     }
+
+
+    button.disabled=true;
+
+    button.innerHTML=
+        '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
+
+
+    try{
+
+        const data=await getJSON("/admin-login",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                username,
+                password
+            })
+
+        });
+
+
+        if(data.success){
+
+            document.getElementById("loginOverlay").style.display="none";
+
+            document.getElementById("adminPassword").value="";
+
+            startAdmin();
+
+        }else{
+
+            errorBox.innerText=
+                data.message || "Wrong username or password.";
+
+        }
+
+    }catch(error){
+
+        console.error("Admin login error:",error);
+
+        errorBox.innerText=
+            error.message || "Login failed.";
+
+    }
+
+
+    button.disabled=false;
+
+    button.innerHTML=
+        '<i class="fa-solid fa-right-to-bracket"></i> Login';
+
 }
+
+
+
+
+document.getElementById("adminPassword")
+.addEventListener("keydown",function(e){
+
+    if(e.key==="Enter"){
+
+        adminLogin();
+
+    }
+
+});
+
+
 
 async function adminLogout(){
-    await getJSON("/admin-logout", { method: "POST" }).catch(()=>{});
+
+    try{
+
+        await getJSON("/admin-logout",{
+            method:"POST"
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
     location.reload();
+
 }
 
-async function loadProducts(){
-    try {
-        const products = await getJSON("/products");
-        const table = document.getElementById("productTable");
-        table.innerHTML = "";
 
-        if(!products.length){
-            table.innerHTML = `<tr><td colspan="6" style="text-align:center;">No products found.</td></tr>`;
-            return;
+
+function startAdmin(){
+
+    if(adminStarted) return;
+
+    adminStarted=true;
+
+    loadDashboard();
+    loadPinduoduo();
+
+    dashboardInterval=setInterval(()=>{
+
+        loadDashboard(true);
+
+    },15000);
+
+}
+
+
+
+async function loadDashboard(silent=false){
+
+    try{
+
+        const data=await getJSON("/admin/dashboard");
+
+
+        document.getElementById("todayRevenue").innerText=
+            money(
+                data.todayRevenue ??
+                data.revenue ??
+                0
+            );
+
+
+        document.getElementById("totalRevenue").innerText=
+            money(
+                data.productRevenue ??
+                data.totalRevenue ??
+                data.revenue ??
+                0
+            );
+
+
+        document.getElementById("deliveryRevenue").innerText=
+            money(
+                data.deliveryRevenue ??
+                data.deliveryFee ??
+                0
+            );
+
+
+        document.getElementById("todayOrders").innerText=
+            data.totalOrders ??
+            data.todayOrders ??
+            0;
+
+
+        document.getElementById("bestProduct").innerText=
+            data.bestProduct ||
+            "-";
+
+
+        drawChart(data.weekly || {});
+
+
+        await Promise.all([
+            loadProducts(true),
+            loadOrders(true),
+            loadCustomers(true)
+        ]);
+
+    }catch(error){
+
+        console.error("Dashboard error:",error);
+
+        if(!silent){
+
+            showToast(
+                error.message || "Dashboard loading failed.",
+                true
+            );
+
         }
 
-        products.forEach(p => {
-            table.innerHTML += `
+    }
+
+}
+
+
+
+function drawChart(data){
+
+    const svg=document.getElementById("chart");
+
+    svg.innerHTML="";
+
+
+    const entries=Object.entries(data || {});
+
+
+    if(entries.length===0){
+
+        svg.innerHTML=`
+            <text
+                x="300"
+                y="105"
+                text-anchor="middle"
+                fill="#64748B"
+                font-size="14"
+            >
+                No sales data
+            </text>
+        `;
+
+        return;
+
+    }
+
+
+    const values=entries.map(item=>
+        Number(item[1]) || 0
+    );
+
+    const max=Math.max(...values,1);
+
+    const chartWidth=560;
+
+    const barWidth=
+        Math.min(
+            50,
+            chartWidth / entries.length - 15
+        );
+
+
+    entries.forEach(([day,value],index)=>{
+
+        const amount=Number(value)||0;
+
+        const height=
+            (amount/max)*125;
+
+        const x=
+            20+
+            index*(chartWidth/entries.length);
+
+        const y=
+            150-height;
+
+
+        svg.innerHTML+=`
+
+            <rect
+                x="${x}"
+                y="${y}"
+                width="${barWidth}"
+                height="${Math.max(height,2)}"
+                rx="7"
+                fill="#3B82F6"
+            ></rect>
+
+            <text
+                x="${x+(barWidth/2)}"
+                y="${y-7}"
+                text-anchor="middle"
+                fill="#CBD5E1"
+                font-size="9"
+            >
+                ${amount.toLocaleString()}
+            </text>
+
+            <text
+                x="${x+(barWidth/2)}"
+                y="173"
+                text-anchor="middle"
+                fill="#94A3B8"
+                font-size="10"
+            >
+                ${escapeHTML(String(day).slice(-5))}
+            </text>
+
+        `;
+
+    });
+
+}
+
+
+
+async function loadProducts(silent=false){
+
+    try{
+
+        const products=await getJSON("/products");
+
+        const table=
+            document.getElementById("productTable");
+
+
+        table.innerHTML="";
+
+
+        if(!Array.isArray(products) || products.length===0){
+
+            table.innerHTML=`
                 <tr>
-                    <td>#${p.id}</td>
-                    <td>${p.name}</td>
-                    <td>${Number(p.price).toLocaleString()} MMK</td>
-                    <td>${p.stock}</td>
-                    <td>${p.colors || "Default"}</td>
-                    <td>
-                        <button class="btn delete" onclick="deleteProduct(${p.id})">
-                            <i class="fa-solid fa-trash"></i> Delete
-                        </button>
+                    <td colspan="5" class="empty">
+                        No products found.
                     </td>
-                </tr>`;
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        products.forEach(p=>{
+
+            const stock=Number(p.stock)||0;
+
+            let stockClass="stock-good";
+
+            if(stock===0){
+
+                stockClass="stock-out";
+
+            }else if(stock<=5){
+
+                stockClass="stock-low";
+
+            }
+
+
+            table.innerHTML+=`
+
+                <tr>
+
+                    <td class="product-id">
+                        #${escapeHTML(p.id)}
+                    </td>
+
+                    <td class="product-name">
+                        ${escapeHTML(p.name)}
+                    </td>
+
+                    <td class="price-text">
+                        ${money(p.price)}
+                    </td>
+
+                    <td class="${stockClass}">
+                        ${stock}
+                    </td>
+
+                    <td>
+<button
+    class="btn edit"
+    onclick='editProduct(
+        ${Number(p.id)},
+        ${JSON.stringify(p.name || "").replace(/'/g, "&#39;")},
+        ${Number(p.price) || 0},
+        ${Number(p.stock) || 0},
+        ${JSON.stringify(p.description || "").replace(/'/g, "&#39;")}
+    )'
+>
+    <i class="fa-solid fa-pen"></i>
+    Edit
+</button>
+
+
+                        <button
+                            class="btn delete"
+                            onclick="deleteProduct(${Number(p.id)})"
+                        >
+                            <i class="fa-solid fa-trash"></i>
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
         });
-    } catch(err) {
-        showToast("Failed to load products", true);
+
+
+        applyProductSearch();
+
+    }catch(error){
+
+        console.error("Products error:",error);
+
+        if(!silent){
+
+            showToast(
+                error.message || "Products loading failed.",
+                true
+            );
+
+        }
+
+    }
+
+}
+
+
+
+document.getElementById("productForm")
+.addEventListener("submit",async function(e){
+
+    e.preventDefault();
+
+
+    const form=this;
+
+    const button=
+        document.getElementById("productSubmitButton");
+
+
+    const name=
+        document.getElementById("productName").value.trim();
+
+    const price=
+        Number(
+            document.getElementById("productPrice").value
+        );
+
+    const stock=
+        Number(
+            document.getElementById("productStock").value
+        );
+
+
+    if(!name){
+
+        showToast("Product name is required.",true);
+
+        return;
+
+    }
+
+
+    if(!Number.isFinite(price) || price<0){
+
+        showToast("Please enter a valid price.",true);
+
+        return;
+
+    }
+
+
+    if(!Number.isInteger(stock) || stock<0){
+
+        showToast("Please enter a valid stock number.",true);
+
+        return;
+
+    }
+
+
+    const file=
+        document.getElementById("productImage").files[0];
+
+
+    if(file){
+
+        const allowed=[
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if(!allowed.includes(file.type)){
+
+            showToast(
+                "Only JPG, PNG or WEBP images are allowed.",
+                true
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    const formData=new FormData(form);
+
+
+    button.disabled=true;
+
+    button.innerHTML=
+        '<i class="fa-solid fa-spinner fa-spin"></i> Adding...';
+
+
+    try{
+
+        const data=await getJSON("/add-product",{
+
+            method:"POST",
+
+            body:formData
+
+        });
+
+
+        if(data.success){
+
+            showToast("Product added successfully.");
+
+            form.reset();
+
+            await loadProducts();
+
+        }else{
+
+            showToast(
+                data.message || "Failed to add product.",
+                true
+            );
+
+        }
+
+    }catch(error){
+
+        console.error("Add product error:",error);
+
+        showToast(
+            error.message || "Failed to add product.",
+            true
+        );
+
+    }
+
+
+    button.disabled=false;
+
+    button.innerHTML=
+        '<i class="fa-solid fa-plus"></i> Add Product';
+
+});
+
+
+async function editProduct(
+    id,
+    name,
+    price,
+    stock,
+    description
+){
+
+    const newName=prompt(
+        "Product Name",
+        name
+    );
+
+    if(newName===null) return;
+
+
+    const cleanName=newName.trim();
+
+    if(!cleanName){
+
+        alert("Product name cannot be empty.");
+
+        return;
+
+    }
+
+
+    const newPrice=prompt(
+        "Price",
+        price
+    );
+
+    if(newPrice===null) return;
+
+
+    const newStock=prompt(
+        "Stock",
+        stock
+    );
+
+    if(newStock===null) return;
+
+
+    const newDescription=prompt(
+        "Description",
+        description || ""
+    );
+
+    if(newDescription===null) return;
+
+
+    const numericPrice=Number(newPrice);
+
+    const numericStock=Number(newStock);
+
+
+    if(
+        !Number.isFinite(numericPrice) ||
+        numericPrice<0
+    ){
+
+        alert("Invalid price.");
+
+        return;
+
+    }
+
+
+    if(
+        !Number.isInteger(numericStock) ||
+        numericStock<0
+    ){
+
+        alert("Invalid stock.");
+
+        return;
+
+    }
+
+
+    try{
+
+        const data=await getJSON(
+            "/update-product/"+id,
+            {
+
+                method:"PUT",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+
+                    name:cleanName,
+
+                    price:numericPrice,
+
+                    stock:numericStock,
+
+                    description:newDescription
+
+                })
+
+            }
+        );
+
+
+        if(data.success===false){
+
+            throw new Error(
+                data.message ||
+                "Update failed."
+            );
+
+        }
+
+
+        showToast("Product updated.");
+
+        await loadProducts();
+
+
+    }catch(error){
+
+        console.error("Edit product error:",error);
+
+        showToast(
+            error.message || "Update failed.",
+            true
+        );
+
+    }
+
+}
+
+
+
+async function deleteProduct(id){
+
+    if(!confirm("Delete this product?")){
+
+        return;
+
+    }
+
+
+    try{
+
+        const data=await getJSON(
+            "/delete-product/"+id,
+            {
+                method:"DELETE"
+            }
+        );
+
+
+        if(data.success===false){
+
+            throw new Error(
+                data.message ||
+                "Delete failed."
+            );
+
+        }
+
+
+        showToast("Product deleted.");
+
+        await loadProducts();
+
+
+    }catch(error){
+
+        console.error("Delete product error:",error);
+
+        showToast(
+            error.message || "Delete failed.",
+            true
+        );
+
+    }
+
+}
+
+
+async function loadOrders(silent=false){
+
+    try{
+
+        const orders=await getJSON("/admin/orders");
+
+        const table=
+            document.getElementById("orderTable");
+
+
+        table.innerHTML="";
+
+
+        if(!Array.isArray(orders) || orders.length===0){
+
+            table.innerHTML=`
+                <tr>
+                    <td colspan="5" class="empty">
+                        No orders found.
+                    </td>
+                </tr>
+            `;
+
+            lastOrderCount=0;
+
+            return;
+
+        }
+
+
+        if(
+            lastOrderCount>0 &&
+            orders.length>lastOrderCount &&
+            !silent
+        ){
+
+            showToast("New order received.");
+
+        }
+
+
+        lastOrderCount=orders.length;
+
+
+        orders.forEach(o=>{
+
+            const status=o.status || "Pending";
+
+
+            table.innerHTML+=`
+
+                <tr>
+
+                    <td>
+                        #${escapeHTML(o.id)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            o.customer ||
+                            o.email ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td class="price-text">
+                        ${money(o.total)}
+                    </td>
+
+                    <td>
+
+                        <select
+                            class="status"
+                            onchange="
+                                changeStatus(
+                                    ${Number(o.id)},
+                                    this.value
+                                )
+                            "
+                        >
+
+                            <option
+                                value="Pending"
+                                ${status==="Pending"?"selected":""}
+                            >
+                                Pending
+                            </option>
+
+                            <option
+                                value="Confirmed"
+                                ${status==="Confirmed"?"selected":""}
+                            >
+                                Confirmed
+                            </option>
+
+                            <option
+                                value="Processing"
+                                ${status==="Processing"?"selected":""}
+                            >
+                                Processing
+                            </option>
+
+                            <option
+                                value="Shipped"
+                                ${status==="Shipped"?"selected":""}
+                            >
+                                Shipped
+                            </option>
+
+                            <option
+                                value="Delivered"
+                                ${status==="Delivered"?"selected":""}
+                            >
+                                Delivered
+                            </option>
+
+                            <option
+                                value="Cancelled"
+                                ${status==="Cancelled"?"selected":""}
+                            >
+                                Cancelled
+                            </option>
+
+                        </select>
+
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="btn details"
+                            onclick="viewOrder(${Number(o.id)})"
+                        >
+                            <i class="fa-solid fa-eye"></i>
+                            Details
+                        </button>
+
+
+                        <button
+                            class="btn delete"
+                            onclick="deleteOrder(${Number(o.id)})"
+                        >
+                            <i class="fa-solid fa-trash"></i>
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+
+        applyOrderSearch();
+
+
+    }catch(error){
+
+        console.error("Orders error:",error);
+
+        if(!silent){
+
+            showToast(
+                error.message || "Orders loading failed.",
+                true
+            );
+
+        }
+
+    }
+
+}
+
+
+async function changeStatus(id,status){
+
+    try{
+
+        const data=await getJSON(
+            "/admin/orders/"+id+"/status",
+            {
+
+                method:"PUT",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+                    status
+                })
+
+            }
+        );
+
+
+        if(data.success===false){
+
+            throw new Error(
+                data.message ||
+                "Status update failed."
+            );
+
+        }
+
+
+        showToast("Order status updated.");
+
+        await loadOrders();
+
+
+    }catch(error){
+
+        console.error(
+            "Status update error:",
+            error
+        );
+
+        showToast(
+            error.message ||
+            "Status update failed.",
+            true
+        );
+
+    }
+
+}
+
+
+
+async function deleteOrder(id){
+
+    if(!confirm("Delete this order?")){
+
+        return;
+
+    }
+
+
+    try{
+
+        const data=await getJSON(
+            "/admin/orders/"+id,
+            {
+                method:"DELETE"
+            }
+        );
+
+
+        if(data.success===false){
+
+            throw new Error(
+                data.message ||
+                "Delete failed."
+            );
+
+        }
+
+
+        showToast("Order deleted.");
+
+        await loadOrders();
+
+
+    }catch(error){
+
+        console.error(
+            "Delete order error:",
+            error
+        );
+
+        showToast(
+            error.message ||
+            "Delete order failed.",
+            true
+        );
+
+    }
+
+}
+
+
+async function viewOrder(id){
+
+    try{
+
+        const order=await getJSON(
+            "/admin/orders/"+id
+        );
+
+document.getElementById("dCustomer").innerText =
+    order.customer ||
+    order.name ||
+    "-";
+
+document.getElementById("dEmail").innerText =
+    order.email ||
+    "-";
+
+document.getElementById("dPhone").innerText =
+    order.phone ||
+    "-";
+
+        document.getElementById("dAddress").innerText=
+            order.address ||
+            "-";
+            document.getElementById("dTelegram").innerText =
+    order.telegram ||
+    "-";
+
+document.getElementById("dAltSocial").innerText =
+    order.alt_social ||
+    order.altSocial ||
+    "-";
+document.getElementById("dRoad").innerText =
+    order.road || "-";
+
+document.getElementById("dBuilding").innerText =
+    order.building || "-";
+
+        document.getElementById("dTownship").innerText=
+            order.township ||
+            "-";
+
+
+        document.getElementById("dPayment").innerText=
+            order.payment_method ||
+            order.paymentMethod ||
+            "-";
+
+
+        document.getElementById("dDeliveryFee").innerText=
+            money(
+                order.deli_fee ??
+                order.delivery_fee ??
+                order.deliveryFee ??
+                0
+            );
+
+
+        const box=
+            document.getElementById("dItems");
+
+
+        box.innerHTML="";
+
+
+        if(
+            !Array.isArray(order.items) ||
+            order.items.length===0
+        ){
+
+            box.innerHTML=`
+                <div class="empty">
+                    No item information.
+                </div>
+            `;
+
+        }else{
+
+            order.items.forEach(item=>{
+
+                box.innerHTML+=`
+
+                    <div class="order-item">
+
+                        <span class="order-item-name">
+                            ${escapeHTML(
+                                item.name ||
+                                item.product_name ||
+                                "Product"
+                            )}
+                        </span>
+
+                        <span class="order-item-qty">
+                            x${Number(item.qty)||0}
+                        </span>
+
+                    </div>
+
+                `;
+
+            });
+
+        }
+
+
+        document.getElementById("dTotal").innerText=
+            money(order.total);
+
+
+        document.getElementById("orderPopup").style.display=
+            "flex";
+
+
+    }catch(error){
+
+        console.error(
+            "View order error:",
+            error
+        );
+
+        showToast(
+            error.message ||
+            "Could not load order.",
+            true
+        );
+
+    }
+
+}
+
+
+
+function closeOrderPopup(){
+
+    document.getElementById("orderPopup").style.display=
+        "none";
+
+}
+
+
+document.getElementById("orderPopup")
+.addEventListener("click",function(e){
+
+    if(e.target===this){
+
+        closeOrderPopup();
+
+    }
+
+});
+
+
+document.addEventListener("keydown",function(e){
+
+    if(e.key==="Escape"){
+
+        closeOrderPopup();
+
+    }
+
+});
+
+
+
+async function loadCustomers(silent=false){
+
+    try{
+
+        const customers=
+            await getJSON("/admin/customers");
+
+
+        const table=
+            document.getElementById("customerTable");
+
+
+        table.innerHTML="";
+
+
+        if(
+            !Array.isArray(customers) ||
+            customers.length===0
+        ){
+
+            table.innerHTML=`
+                <tr>
+                    <td colspan="5" class="empty">
+                        No customers found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        customers.forEach(c=>{
+
+            table.innerHTML+=`
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(c.email || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(c.phone || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(c.address || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(c.created_at || "-")}
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="btn delete"
+                            onclick="deleteCustomer(${Number(c.id)})"
+                        >
+                            <i class="fa-solid fa-trash"></i>
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+
+        applyCustomerSearch();
+
+
+    }catch(error){
+
+        console.error(
+            "Customers error:",
+            error
+        );
+
+        if(!silent){
+
+            showToast(
+                error.message ||
+                "Customers loading failed.",
+                true
+            );
+
+        }
+
+    }
+
+}
+
+
+
+async function deleteCustomer(id){
+
+    if(!confirm(
+        "Delete this customer?\n\nThis action cannot be undone."
+    )){
+
+        return;
+
+    }
+
+
+    try{
+
+        const data=await getJSON(
+            "/admin/customers/"+id,
+            {
+                method:"DELETE"
+            }
+        );
+
+
+        if(data.success===false){
+
+            throw new Error(
+                data.message ||
+                "Delete failed."
+            );
+
+        }
+
+
+        showToast("Customer deleted.");
+
+        await loadCustomers();
+
+
+    }catch(error){
+
+        console.error(
+            "Delete customer error:",
+            error
+        );
+
+        showToast(
+            error.message ||
+            "Delete customer failed.",
+            true
+        );
+
+    }
+
+}
+
+
+function applyProductSearch(){
+
+    const input=
+        document.getElementById("productSearch");
+
+    const keyword=
+        input.value.toLowerCase().trim();
+
+
+    document.querySelectorAll(
+        "#productTable tr"
+    ).forEach(row=>{
+
+        row.style.display=
+            row.innerText
+            .toLowerCase()
+            .includes(keyword)
+            ? ""
+            : "none";
+
+    });
+
+}
+
+
+document.getElementById("productSearch")
+.addEventListener(
+    "input",
+    applyProductSearch
+);
+
+
+function applyOrderSearch(){
+
+    const input=
+        document.getElementById("orderSearch");
+
+    const keyword=
+        input.value.toLowerCase().trim();
+
+
+    document.querySelectorAll(
+        "#orderTable tr"
+    ).forEach(row=>{
+
+        row.style.display=
+            row.innerText
+            .toLowerCase()
+            .includes(keyword)
+            ? ""
+            : "none";
+
+    });
+
+}
+
+
+document.getElementById("orderSearch")
+.addEventListener(
+    "input",
+    applyOrderSearch
+);
+
+
+function applyCustomerSearch(){
+
+    const input=
+        document.getElementById("customerSearch");
+
+    const keyword=
+        input.value.toLowerCase().trim();
+
+
+    document.querySelectorAll(
+        "#customerTable tr"
+    ).forEach(row=>{
+
+        row.style.display=
+            row.innerText
+            .toLowerCase()
+            .includes(keyword)
+            ? ""
+            : "none";
+
+    });
+
+}
+
+
+document.getElementById("customerSearch")
+.addEventListener(
+    "input",
+    applyCustomerSearch
+);
+
+
+
+document.querySelectorAll(
+    ".sidebar a[href^='#']"
+).forEach(link=>{
+
+    link.addEventListener("click",function(){
+
+        document
+        .querySelectorAll(".sidebar a")
+        .forEach(a=>a.classList.remove("active"));
+
+        if(this.getAttribute("href")!=="#"){
+
+            this.classList.add("active");
+
+        }
+
+    });
+
+});
+
+let pinduoduoItems = [];
+let editingStockId = null;
+
+function stockMyanmarDate() {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Yangon",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).formatToParts(new Date());
+
+    const result = {};
+    parts.forEach(p => {
+        if (p.type !== "literal") result[p.type] = p.value;
+    });
+
+    return `${result.year}-${result.month}-${result.day}`;
+}
+
+function updateStockTotal() {
+    const cost = Number(document.getElementById("stockMmk").value || 0);
+    const quantity = Number(document.getElementById("stockQuantity").value || 1);
+    const shipping = Number(document.getElementById("stockShipping").value || 0);
+    const total = (cost * quantity) + shipping;
+
+    document.getElementById("stockTotalDisplay").value =
+        total.toLocaleString("en-US") + " MMK";
+}
+
+
+function resetStockForm() {
+    editingStockId = null;
+
+    const form = document.getElementById("pinduoduoForm");
+    form.reset();
+
+    document.getElementById("stockQuantity").value = 1;
+    document.getElementById("stockUnit").value = "Piece";
+    document.getElementById("stockStatus").value = "Available";
+    document.getElementById("stockDateDisplay").value =
+        stockMyanmarDate();
+
+    updateStockTotal();
+
+    const button = document.getElementById("stockSubmit");
+    button.innerHTML =
+        '<i class="fa-solid fa-plus"></i> Add Stock';
+    button.disabled = false;
+}
+
+document.getElementById("stockMmk").addEventListener("input", updateStockTotal);
+document.getElementById("stockShipping").addEventListener("input", updateStockTotal);
+document.getElementById("stockQuantity").addEventListener("input", updateStockTotal);
+document.getElementById("stockDateDisplay").value = stockMyanmarDate();
+
+async function loadPinduoduo() {
+    const table = document.getElementById("pinduoduoTable");
+
+    try {
+        const rows = await getJSON("/admin/pinduoduo");
+
+        if (!Array.isArray(rows)) {
+            throw new Error("Invalid stock list response.");
+        }
+
+        pinduoduoItems = rows;
+        renderPinduoduo();
+    } catch (error) {
+        console.error("Stock list error:", error);
+
+        table.innerHTML = `<tr><td colspan="15" class="empty">
+            ${escapeHTML(error.message || "Could not load stock list.")}
+        </td></tr>`;
+
+        showToast(error.message || "Could not load stock list.", true);
     }
 }
 
-document.getElementById("productForm").addEventListener("submit", async function(e){
-    e.preventDefault();
-    const form = this;
-    const btn = document.getElementById("productSubmitButton");
-    
-    const formData = new FormData(form);
+function renderPinduoduo() {
+    const table = document.getElementById("pinduoduoTable");
+    const keyword = document.getElementById("stockSearch").value.toLowerCase().trim();
 
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+    const filtered = pinduoduoItems.filter(item =>
+        [
+            item.id,
+            item.item_name,
+            item.color,
+            item.tracking_code,
+            item.purchase_date,
+            item.cost_cny,
+            item.cost_mmk,
+            item.quantity,
+            item.unit,
+            item.status || "Available"
+        ].some(value =>
+            String(value ?? "").toLowerCase().includes(keyword)
+        )
+    );
+
+    if (!filtered.length) {
+        table.innerHTML = `<tr><td colspan="15" class="empty">
+            No stock records found.
+        </td></tr>`;
+        return;
+    }
+
+    table.innerHTML = filtered.map(item => {
+        const id = Number(item.id);
+        const costCny = Number(item.cost_cny || 0);
+        const costMmk = Number(item.cost_mmk || 0);
+        const quantity = Number(item.quantity || 1);
+        const weight = Number(item.weight_kg || 0);
+        const shipping = Number(item.shipping_fee || 0);
+        const total = (costMmk * quantity) + shipping;
+        const status = item.status === "Sold" ? "Sold" : "Available";
+        const statusClass = status === "Sold" ? "stock-out" : "stock-good";
+
+        const imageUrl = String(item.image_url || "");
+        const safeImageUrl = /^https:\/\/res\.cloudinary\.com\//i.test(imageUrl)
+            ? escapeHTML(imageUrl)
+            : "";
+
+        const photoHtml = safeImageUrl
+            ? `<img class="stock-photo" src="${safeImageUrl}"
+                    alt="Item photo" loading="lazy">`
+            : `<span class="stock-photo-empty">No photo</span>`;
+
+        return `<tr>
+            <td>${id}</td>
+            <td>${photoHtml}</td>
+            <td class="product-name">${escapeHTML(item.item_name || "")}</td>
+            <td>${escapeHTML(item.color || "-")}</td>
+            <td>${quantity}</td>
+            <td>${escapeHTML(item.unit || "Piece")}</td>
+            <td>${escapeHTML(item.tracking_code || "-")}</td>
+            <td>${costCny.toLocaleString("en-US")}</td>
+            <td>${costMmk.toLocaleString("en-US")}</td>
+            <td>${escapeHTML(item.purchase_date || "-")}</td>
+            <td>${weight || "-"}</td>
+            <td>${shipping.toLocaleString("en-US")} MMK</td>
+            <td class="stock-total">${total.toLocaleString("en-US")} MMK</td>
+            <td>
+                <select
+                    class="stock-status status ${statusClass}"
+                    aria-label="Item sale status"
+                    onchange="updateStockStatus(${id}, this.value, this)"
+                >
+                    <option value="Available" ${status === "Available" ? "selected" : ""}>Available</option>
+                    <option value="Sold" ${status === "Sold" ? "selected" : ""}>Sold</option>
+                </select>
+            </td>
+            <td>
+                <button class="btn edit" onclick="editStock(${id})">
+                    <i class="fa-solid fa-pen"></i> Edit
+                </button>
+                <button class="btn delete" onclick="deleteStock(${id})">
+                    <i class="fa-solid fa-trash"></i> Delete
+                </button>
+            </td>
+        </tr>`;
+    }).join("");
+}
+
+async function updateStockStatus(id, newStatus, selectElement) {
+    if (!["Available", "Sold"].includes(newStatus)) {
+        showToast("Invalid stock status.", true);
+        await loadPinduoduo();
+        return;
+    }
+
+    const item = pinduoduoItems.find(
+        row => Number(row.id) === Number(id)
+    );
+
+    if (!item) {
+        showToast("Stock record not found.", true);
+        await loadPinduoduo();
+        return;
+    }
+
+    const previousStatus =
+        item.status === "Sold" ? "Sold" : "Available";
+
+    selectElement.disabled = true;
 
     try {
-        const data = await getJSON("/add-product", {
-            method: "POST",
+        const formData = new FormData();
+
+        formData.append("item_name", item.item_name || "");
+        formData.append("color", item.color || "");
+        formData.append("tracking_code", item.tracking_code || "");
+        formData.append("cost_cny", item.cost_cny ?? 0);
+        formData.append("cost_mmk", item.cost_mmk ?? 0);
+        formData.append("quantity", item.quantity ?? 1);
+        formData.append("unit", item.unit || "Piece");
+        formData.append("weight_kg", item.weight_kg ?? 0);
+        formData.append("shipping_fee", item.shipping_fee ?? 0);
+        formData.append("purchase_date", item.purchase_date || "");
+        formData.append("status", newStatus);
+
+        const data = await getJSON(`/admin/pinduoduo/${id}`, {
+            method: "PUT",
             body: formData
         });
 
-        if(data.success){
-            showToast("Product added successfully with colors & images!");
-            form.reset();
-            loadProducts();
-        } else {
-            showToast(data.message || "Failed to add product", true);
+        if (data.success === false) {
+            throw new Error(data.message || "Status update failed.");
         }
-    } catch(err) {
-        showToast(err.message || "Failed to add product", true);
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Product';
-    }
-});
 
-async function deleteProduct(id){
-    if(!confirm("Are you sure you want to delete this product?")) return;
+        item.status = newStatus;
+        showToast(`Status changed to ${newStatus}.`);
+        renderPinduoduo();
+    } catch (error) {
+        console.error("Stock status update error:", error);
+        showToast(error.message || "Status update failed.", true);
+        await loadPinduoduo();
+    } finally {
+        if (selectElement.isConnected) {
+            selectElement.disabled = false;
+        }
+    }
+}
+
+document.getElementById("stockSearch")
+    .addEventListener("input", renderPinduoduo);
+
+document.getElementById("pinduoduoForm")
+    .addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const form = this;
+        const button = document.getElementById("stockSubmit");
+
+        const itemName = document.getElementById("stockName").value.trim();
+        const cnyText = document.getElementById("stockCny").value.trim();
+        const mmkText = document.getElementById("stockMmk").value.trim();
+        const quantity = Number(document.getElementById("stockQuantity").value);
+        const unit = document.getElementById("stockUnit").value;
+        const photo = document.getElementById("stockPhoto").files[0];
+
+        if (!itemName || cnyText === "" || mmkText === "") {
+            showToast("Name, Cost CNY and Cost MMK are required.", true);
+            return;
+        }
+
+        if (!Number.isInteger(quantity) || quantity < 1) {
+            showToast("Quantity must be a whole number of at least 1.", true);
+            return;
+        }
+
+        if (!["Piece", "Pair", "Set"].includes(unit)) {
+            showToast("Please select a valid unit.", true);
+            return;
+        }
+
+        const costCny = Number(cnyText);
+        const costMmk = Number(mmkText);
+        const weightText = document.getElementById("stockWeight").value;
+        const shippingText = document.getElementById("stockShipping").value;
+
+        if (
+            !Number.isFinite(costCny) || costCny < 0 ||
+            !Number.isFinite(costMmk) || costMmk < 0
+        ) {
+            showToast("Please enter valid costs.", true);
+            return;
+        }
+
+        if (weightText !== "" &&
+            (!Number.isFinite(Number(weightText)) || Number(weightText) < 0)) {
+            showToast("Please enter a valid weight.", true);
+            return;
+        }
+
+        if (shippingText !== "" &&
+            (!Number.isFinite(Number(shippingText)) || Number(shippingText) < 0)) {
+            showToast("Please enter a valid shipping fee.", true);
+            return;
+        }
+
+        if (photo) {
+            const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+            if (!allowedTypes.includes(photo.type)) {
+                showToast("Only JPG, PNG or WEBP images are allowed.", true);
+                return;
+            }
+
+            if (photo.size > 5 * 1024 * 1024) {
+                showToast("Image must be 5 MB or smaller.", true);
+                return;
+            }
+        }
+
+        const formData = new FormData(form);
+
+        button.disabled = true;
+        button.innerHTML =
+            '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+        try {
+            const isEditing = editingStockId !== null;
+            const url = isEditing
+                ? `/admin/pinduoduo/${editingStockId}`
+                : "/admin/pinduoduo";
+
+            const data = await getJSON(url, {
+                method: isEditing ? "PUT" : "POST",
+                body: formData
+            });
+
+            if (data.success === false) {
+                throw new Error(data.message || "Unable to save stock.");
+            }
+
+            showToast(isEditing ? "Stock updated." : "Stock added.");
+
+            resetStockForm();
+            await loadPinduoduo();
+        } catch (error) {
+            console.error("Save stock error:", error);
+            showToast(error.message || "Unable to save stock.", true);
+        } finally {
+            button.disabled = false;
+
+            document.getElementById("stockSubmit").innerHTML =
+                editingStockId !== null
+                    ? '<i class="fa-solid fa-floppy-disk"></i> Save Changes'
+                    : '<i class="fa-solid fa-plus"></i> Add Stock';
+        }
+    });
+
+function editStock(id) {
+    const item = pinduoduoItems.find(
+        row => Number(row.id) === Number(id)
+    );
+
+    if (!item) return;
+
+    editingStockId = Number(id);
+
+    document.getElementById("stockName").value = item.item_name || "";
+    document.getElementById("stockColor").value = item.color || "";
+    document.getElementById("stockCny").value = item.cost_cny ?? "";
+    document.getElementById("stockMmk").value = item.cost_mmk ?? "";
+    document.getElementById("stockQuantity").value = item.quantity ?? 1;
+
+    document.getElementById("stockUnit").value =
+        ["Piece", "Pair", "Set"].includes(item.unit)
+            ? item.unit
+            : "Piece";
+            document.getElementById("stockStatus").value =
+    item.status === "Sold" ? "Sold" : "Available";
+
+    document.getElementById("stockTracking").value = item.tracking_code || "";
+    document.getElementById("stockWeight").value = item.weight_kg ?? "";
+    document.getElementById("stockShipping").value = item.shipping_fee ?? "";
+    document.getElementById("stockDateDisplay").value = item.purchase_date || "";
+
+    // Keep the existing photo unless a new one is selected.
+    document.getElementById("stockPhoto").value = "";
+
+    updateStockTotal();
+
+    document.getElementById("stockSubmit").innerHTML =
+        '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+
+    document.getElementById("pinduoduo").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+async function deleteStock(id) {
+    if (!confirm("Delete this stock record?")) return;
+
     try {
-        await getJSON("/delete-product/" + id, { method: "DELETE" });
-        showToast("Product deleted successfully.");
-        loadProducts();
-    } catch(err) {
-        showToast("Delete failed", true);
+        const data = await getJSON(`/admin/pinduoduo/${id}`, {
+            method: "DELETE"
+        });
+
+        if (data.success === false) {
+            throw new Error(data.message || "Delete failed.");
+        }
+
+        showToast("Stock deleted.");
+
+        if (Number(editingStockId) === Number(id)) {
+            resetStockForm();
+        }
+
+        await loadPinduoduo();
+    } catch (error) {
+        console.error("Delete stock error:", error);
+        showToast(error.message || "Delete failed.", true);
     }
 }
 
 checkAdmin();
+
+
 </script>
+
 </body>
 </html>
