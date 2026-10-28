@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acai Shop</title>
+    
+    <link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="language.js"></script>
+
+    <style>
+        /* --- Light Mode (Default) --- */
+        :root {
+            --bg-color: #f8fafc;
+            --text-color: #0f172a;
+            --card-bg: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.85);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --primary-blue: #2563eb;
+            --accent-text: #2563eb;
+            --subtext-color: #64748b;
+        }
+
+        /* --- Dark Mode --- */
+        [data-theme="dark"] {
+            --bg-color: #05080f;
+            --text-color: #ffffff;
+            --card-bg: #0f172a;
+            --nav-bg: rgba(15, 23, 42, 0.85);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary-blue: #2563eb;
+            --accent-text: #60a5fa;
+            --subtext-color: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Rainbow Spin Animations */
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes spin-search {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .language-select {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            outline: none;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+        }
+
+        .language-select option {
+            background: #111827;
+            color: white;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 6%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(18px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .logo img {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: white;
+            padding: 3px;
+        }
+
+        .logo h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .icon-btn:hover {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .sign-btn {
+            padding: 10px 18px;
+            border-radius: 12px;
+            background: var(--primary-blue);
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        /* --- Sub-nav with Rainbow Effect --- */
+        .sub-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 6%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 79px;
+            z-index: 99;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+
+        .sub-nav::-webkit-scrollbar { display: none; }
+
+        .sub-nav a {
+            flex: 0 0 auto;
+            position: relative;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow: hidden;
+            background: transparent;
+            transition: transform 0.3s ease;
+        }
+
+        .sub-nav a::before {
+            content: '';
+            position: absolute;
+            top: -200%;
+            left: -50%;
+            width: 200%;
+            height: 500%;
+            background: conic-gradient(#F09EA7,#F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB,#F6C2F3);
+            animation: spin 3s linear infinite;
+            z-index: 1;
+        }
+
+        .sub-nav a::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            background: var(--card-bg);
+            border-radius: 999px;
+            z-index: 2;
+        }
+
+        .sub-nav a span, .sub-nav a i {
+            position: relative;
+            z-index: 3;
+        }
+
+        .sub-nav a i { color: var(--accent-text); }
+        .sub-nav a:hover { transform: translateY(-2px); }
+
+        #profile-area {
+            display: none;
+            position: relative;
+        }
+
+        #profile-menu {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            width: 210px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+
+        .user-email-text {
+            display: block;
+            color: var(--accent-text);
+            font-size: 13px;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        #profile-menu hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 10px 0;
+        }
+
+        #profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: #ef4444;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 60px 6% 30px;
+        }
+
+        .hero-logo {
+            display: block;
+            width: 170px;
+            max-width: 45%;
+            height: auto;
+            margin: 24px auto 5px;
+        }
+
+        /* --- Search Bar with Rainbow Effect --- */
+        .search {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+            border-radius: 999px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            background: transparent;
+            padding: 2px;
+        }
+
+        .search::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 650px;
+            height: 650px;
+            background: conic-gradient(#F09EA7, #F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB, #F6C2F3);
+            animation: spin-search 3s linear infinite;
+            z-index: 1;
+        }
+
+        .search::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            background: var(--card-bg);
+            border-radius: 999px;
+            z-index: 2;
+        }
+
+        .search input {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            padding: 14px 20px 14px 50px;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 15px;
+        }
+
+        .search i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-text);
+            z-index: 3;
+            font-size: 15px;
+        }
+
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 20px 6%;
+        }
+
+        .categories button {
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .categories button:hover {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .section {
+            padding: 10px 6% 30px;
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 6px;
+        }
+
+        .section-title h2 { font-size: 22px; font-weight: 600; }
+        .section-title a { color: var(--accent-text); text-decoration: none; font-size: 14px; }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 270px));
+            justify-content: center;
+            gap: 22px;
+        }
+
+        /* --- Product Card with Rainbow Hover Effect --- */
+        .card {
+            position: relative;
+            background: var(--card-bg);
+            border-radius: 22px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
+            padding: 2px;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -150%;
+            left: -50%;
+            width: 200%;
+            height: 400%;
+            background: conic-gradient(#F09EA7, #F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB, #F6C2F3);
+            animation: spin 3s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .card:hover::before { opacity: 1; }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 30px rgba(199, 202, 255, 0.2);
+        }
+
+        .card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            position: relative;
+            z-index: 1;
+            border-radius: 20px 20px 0 0;
+            background: #020617;
+        }
+
+        .card-content {
+            padding: 16px;
+            position: relative;
+            z-index: 1;
+            background: var(--card-bg);
+            border-radius: 0 0 20px 20px;
+        }
+
+        .card-content h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .price {
+            color: var(--accent-text);
+            font-weight: 700;
+            font-size: 17px;
+            margin: 4px 0;
+        }
+
+        .stock {
+            color: var(--subtext-color);
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 11px;
+            border: none;
+            border-radius: 12px;
+            background: var(--primary-blue);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+
+        .buy-btn:hover { opacity: 0.9; }
+        .buy-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+
+        .banner {
+            margin: 40px 6%;
+            padding: 35px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), var(--card-bg));
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            text-align: center;
+        }
+
+        .banner h2 { font-size: 28px; margin-bottom: 8px; }
+        .banner p { color: var(--subtext-color); font-size: 14px; margin-bottom: 18px; }
+        .banner button { padding: 12px 26px; border: none; border-radius: 12px; background: var(--primary-blue); color: white; font-weight: 700; cursor: pointer; }
+
+        footer {
+            margin-top: 50px;
+            padding: 35px 6%;
+            background: var(--nav-bg);
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--subtext-color);
+            font-size: 13px;
+        }
+@media (max-width: 768px) {
+    nav {
+        padding: 10px 4% !important;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+
+    .logo img {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .logo h2 {
+        display: none !important;
+    }
+
+    .nav-right {
+        gap: 6px !important;
+    }
+
+   
+    .language-select {
+        padding: 5px 8px !important;
+        font-size: 11px !important;
+        border-radius: 8px;
+    }
+
+    .icon-btn {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 13px !important;
+    }
+
+    .sign-btn {
+        padding: 6px 12px !important;
+        font-size: 11px !important;
+        border-radius: 8px;
+    }
+
+
+    .sub-nav {
+        top: 58px !important;
+        padding: 8px 3% !important;
+        gap: 6px !important;
+    }
+
+    .sub-nav a {
+        padding: 6px 12px !important;
+        font-size: 11px !important;
+    }
+
+    .hero {
+        padding: 30px 4% 15px !important;
+    }
+
+    .hero-logo {
+        width: 130px;
+        max-width: 45%;
+        margin: 15px auto 0;
+    }
+
+    .search {
+        max-width: 100%;
+        padding: 4px 12px;
+    }
+
+    .search input {
+        height: 40px;
+        padding: 0 10px 0 34px !important;
+        font-size: 13px;
+    }
+
+    .search i {
+        left: 14px;
+        font-size: 13px;
+    }
+
+   
+    .categories {
+        padding: 12px 4% !important;
+        gap: 6px !important;
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+    }
+
+    .categories button {
+        flex: 0 0 auto;
+        padding: 7px 14px !important;
+        font-size: 11px !important;
+        white-space: nowrap;
+    }
+}
+    </style>
+</head>
+<body data-theme="dark">
+
+<nav>
+    <div class="logo" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <img src="logo.jpg" alt="Acai Shop">
+        <h2>Acai Shop</h2>
+    </div>
+    <div class="nav-right">
+        <!-- Light / Dark Mode Toggle Button -->
+        <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+        </button>
+
+        <select class="language-select" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="mm">မြန်မာ</option>
+        </select>
+        <a href="cart.html" class="icon-btn" style="position:relative;">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span id="cart-count" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;width:18px;height:18px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:10px;font-weight:700;">0</span>
+        </a>
+        <div id="guest-area">
+            <a href="login.html" class="sign-btn" data-lang="signIn">Sign In</a>
+        </div>
+        <div id="profile-area">
+            <div class="icon-btn" id="profile-btn" title="My Profile">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div id="profile-menu">
+                <span id="user-email" class="user-email-text">Loading...</span>
+                <hr>
+                <a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="sub-nav">
+    <a href="my-orders.html">
+        <i class="fa-solid fa-box-archive"></i>
+        <span data-lang="myOrders">My Orders</span>
+    </a>
+    <a href="waiting.html">
+        <i class="fa-solid fa-clock"></i>
+        <span data-lang="waitingTime">Waiting Time</span>
+    </a>
+    <a href="support.html">
+        <i class="fa-solid fa-headset"></i>
+        <span data-lang="customerSupport">Customer Support</span>
+    </a>
+    <a href="faq.html">
+        <i class="fa-solid fa-circle-question"></i>
+        <span data-lang="faq">FAQ</span>
+    </a>
+    <a href="reviews.html">
+        <i class="fa-solid fa-star"></i>
+        <span data-lang="customerReviews">Customer Reviews</span>
+    </a>
+    <a href="suggestions.html">
+        <i class="fa-regular fa-lightbulb"></i>
+        <span data-lang="suggestions">Suggestions</span>
+    </a>
+    <a href="feedback.html">
+        <i class="fa-regular fa-comment-dots"></i>
+        <span data-lang="feedback">Feedback</span>
+    </a>
+</div>
+
+<section class="hero">
+    <div class="search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="searchInput" placeholder="Search products..." data-lang-placeholder="searchPlaceholder">
+    </div>
+    <img src="acai-logo.png" class="hero-logo" alt="Acai Shop">
+</section>
+
+<section class="categories">
+    <button data-lang="new">New</button>
+    <button data-lang="keychains">Keychains</button>
+    <button data-lang="phone">Phone</button>
+    <button data-lang="wallets">Wallets</button>
+    <button data-lang="jewelry">Jewelry</button>
+    <button data-lang="bags">Bags</button>
+    <button data-lang="more">More</button>
+</section>
+
+<section class="section">
+    <div class="section-title">
+        <h2 data-lang="newArrivals">New Arrivals</h2>
+        <a href="#" class="see-all-btn" data-lang="seeAll">
+            See All <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+    <div class="products" id="productList"></div>
+</section>
+
+<section class="banner">
+    <h2 data-lang="shopLatestTitle">Shop The Latest Collection</h2>
+    <p data-lang="shopLatestDesc">Premium quality accessories with affordable prices.</p>
+    <button data-lang="shopNow" onclick="window.scrollTo({top:0,behavior:'smooth'})">Shop Now</button>
+</section>
+
+<footer>
+    <p>© 2026 Acai Shop. All rights reserved.</p>
+    <p data-lang="footerTagline">Accessories • Quality • Style</p>
+    <div style="border:1px solid var(--border-color);padding:10px 15px;display:inline-block;border-radius:10px;margin-top:12px;background:var(--card-bg);">
+        <p style="margin:0 0 4px 0;" data-lang="developer">Developer and Founder: Rudox</p>
+        <p style="margin:0;" data-lang="creativeLead">Creative lead and Co-founder: Valrqx</p>
+    </div>
+</footer>
+
+<script>
+/* --- Dark/Light Mode Toggle Logic --- */
+const themeToggleBtn = document.getElementById("theme-toggle");
+const themeIcon = document.getElementById("theme-icon");
+const currentTheme = localStorage.getItem("theme") || "dark";
+
+document.body.setAttribute("data-theme", currentTheme);
+updateThemeIcon(currentTheme);
+
+themeToggleBtn.addEventListener("click", () => {
+    let theme = document.body.getAttribute("data-theme");
+    let newTheme = theme === "dark" ? "light" : "dark";
+    
+    document.body.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateThemeIcon(newTheme);
+});
+
+function updateThemeIcon(theme) {
+    if (theme === "dark") {
+        themeIcon.className = "fa-solid fa-sun";
+    } else {
+        themeIcon.className = "fa-solid fa-moon";
+    }
+}
+
+/* --- Cart & Products Logic --- */
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function updateCartCount(){
+    const count = cart.reduce((t,i)=>t+i.qty,0);
+    document.getElementById("cart-count").innerText = count;
+}
+
+async function addToCart(id, name, price, stock){
+    try {
+        const res = await fetch("/me", { credentials: "include" });
+        const data = await res.json();
+        if (!data.loggedIn) {
+            alert("Login your account first.");
+            window.location.href = "login.html";
+            return;
+        }
+    } catch (err) {
+        console.error("Login check error:", err);
+        alert("Login your account first.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const item = cart.find(i => i.id === id);
+    const currentQty = item ? item.qty : 0;
+
+    if(currentQty >= stock){
+        alert("Only " + stock + " items left in stock.");
+        return;
+    }
+
+    if(item){
+        item.qty++;
+    }else{
+        cart.push({ id: id, name: name, price: Number(price), qty: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartCount();
+    alert(name + " added to cart!");
+}
+
+document.getElementById("searchInput").addEventListener("input", function(){
+    const keyword = this.value.toLowerCase();
+    document.querySelectorAll(".card").forEach(card => {
+        const name = card.querySelector("h3").innerText.toLowerCase();
+        card.style.display = name.includes(keyword) ? "" : "none";
+    });
+});
+
+const guestArea = document.getElementById("guest-area");
+const profileArea = document.getElementById("profile-area");
+const profileBtn = document.getElementById("profile-btn");
+const profileMenu = document.getElementById("profile-menu");
+const userEmail = document.getElementById("user-email");
+const logoutBtn = document.getElementById("logoutBtn");
+
+async function loadUser(){
+    try{
+        const res = await fetch("/me");
+        const data = await res.json();
+        if(data.loggedIn){
+            guestArea.style.display = "none";
+            profileArea.style.display = "block";
+            userEmail.innerText = data.user.customer_code;
+        }
+    }catch{}
+}
+
+profileBtn.addEventListener("click", function(e){
+    e.stopPropagation();
+    profileMenu.style.display = profileMenu.style.display === "block" ? "none" : "block";
+});
+
+document.addEventListener("click", function(){
+    profileMenu.style.display = "none";
+});
+
+logoutBtn.addEventListener("click", async function(){
+    try {
+        await fetch("/logout", { method: "POST" });
+        window.location.reload();
+    } catch(err) {
+        console.log(err);
+    }
+});
+
+function initLanguage() {
+    const savedLang = localStorage.getItem("language") || "en";
+    const langSelect = document.querySelector(".language-select");
+    if (langSelect) langSelect.value = savedLang;
+    if (typeof changeLanguage === "function") changeLanguage(savedLang);
+}
+
+async function loadProducts(){ 
+    try{ 
+        const response = await fetch("/products"); 
+        const products = await response.json(); 
+        const list = document.getElementById("productList"); 
+        if (!list) return;
+        
+        list.innerHTML = ""; 
+        const lang = localStorage.getItem("language") || "en";
+        const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : {};
+
+        products.forEach(p => { 
+            const imageUrl = p.image ? (p.image.startsWith("http") ? p.image : "/uploads/" + p.image) : "logo.jpg"; 
+            const stockText = t.stock || (lang === 'mm' ? "လက်ကျန်" : "Stock");
+            const addText = t.addToCart || (lang === 'mm' ? "ခြင်းတောင်းထဲထည့်ရန်" : "Add to Cart");
+            const outText = t.outOfStock || (lang === 'mm' ? "ပစ္စည်းပြတ်နေသည်" : "Out of Stock");
+
+            list.innerHTML += ` 
+            <div class="card"> 
+                <img src="${imageUrl}" alt="${p.name}"> 
+                <div class="card-content"> 
+                    <h3>${p.name}</h3> 
+                    <div class="price">${Number(p.price).toLocaleString()} MMK</div> 
+                    <div class="stock">${stockText}: ${p.stock}</div> 
+                    <button class="buy-btn" 
+                      onclick="addToCart('${p.id}','${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})"
+                        ${Number(p.stock) <= 0 ? "disabled" : ""}>
+                        ${Number(p.stock) <= 0 ? outText : addText}
+                    </button> 
+                </div> 
+            </div>`; 
+        }); 
+    }catch(err){ 
+        console.log("Error loading products:", err); 
+    } 
+}
+
+initLanguage();
+updateCartCount();
+loadUser();
+loadProducts();
+</script>
+
+</body>
+</html>

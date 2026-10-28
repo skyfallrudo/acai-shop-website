@@ -2,877 +2,551 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acai Shop</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Welcome | Açaí Shop</title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Language translation script integration -->
     <script src="language.js"></script>
 
+    <!-- Font & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
     <style>
-        /* --- Light Mode (Default) --- */
+        /* =========================================================
+            CSS VARIABLES (DARK & LIGHT MODE)
+            ========================================================= */
         :root {
-            --bg-color: #f8fafc;
-            --text-color: #0f172a;
-            --card-bg: #ffffff;
-            --nav-bg: rgba(255, 255, 255, 0.85);
-            --border-color: rgba(0, 0, 0, 0.08);
-            --primary-blue: #2563eb;
-            --accent-text: #2563eb;
-            --subtext-color: #64748b;
-        }
-
-        /* --- Dark Mode --- */
-        [data-theme="dark"] {
-            --bg-color: #05080f;
-            --text-color: #ffffff;
-            --card-bg: #0f172a;
-            --nav-bg: rgba(15, 23, 42, 0.85);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --primary-blue: #2563eb;
-            --accent-text: #60a5fa;
+            --bg-color: #030712;
+            --text-color: #f8fafc;
             --subtext-color: #94a3b8;
+            --card-bg: rgba(15, 23, 42, 0.65);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --card-glow: rgba(96, 165, 250, 0.15);
+            --primary-blue: #3b82f6;
+            --accent-glow: #60a5fa;
+            --grid-color: rgba(255, 255, 255, 0.03);
+            --particle-color: rgba(147, 197, 253, 0.4);
+            --btn-gradient: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            --btn-glow: rgba(59, 130, 246, 0.5);
+            --control-bg: rgba(15, 23, 42, 0.6);
         }
 
+        [data-theme="light"] {
+            --bg-color: #f0f4f8;
+            --text-color: #0f172a;
+            --subtext-color: #475569;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(255, 255, 255, 0.8);
+            --card-glow: rgba(59, 130, 246, 0.12);
+            --primary-blue: #2563eb;
+            --accent-glow: #3b82f6;
+            --grid-color: rgba(0, 0, 0, 0.03);
+            --particle-color: rgba(37, 99, 235, 0.3);
+            --btn-gradient: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            --btn-glow: rgba(37, 99, 235, 0.4);
+            --control-bg: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Reset & Base Setup */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
         html, body {
             width: 100%;
-            min-height: 100vh;
-            overflow-x: hidden;
+            height: 100%;
+            overflow: hidden;
             background-color: var(--bg-color);
             color: var(--text-color);
-            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Rainbow Spin Animations */
-        @keyframes spin {
-            100% {
-                transform: rotate(360deg);
-            }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            perspective: 1000px;
         }
-        @keyframes spin-search {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
+
+        /* Canvas Particle Layer */
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Ambient Glowing Background Blobs */
+        .ambient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.75;
+            animation: pulseBlob 8s ease-in-out infinite alternate;
+        }
+
+        .blob-1 {
+            top: 10%;
+            left: 15%;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(96, 165, 250, 0.35) 0%, rgba(0,0,0,0) 70%);
+        }
+
+        .blob-2 {
+            bottom: 10%;
+            right: 15%;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(147, 197, 253, 0.3) 0%, rgba(0,0,0,0) 70%);
+            animation-delay: -4s;
+        }
+
+        @keyframes pulseBlob {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.5; }
+            100% { transform: scale(1.2) translate(30px, -20px); opacity: 0.85; }
+        }
+
+        /* Background Grid Overlay */
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+            pointer-events: none;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+        }
+
+        /* Top Controls (Theme Toggle & Language Select) */
+        .top-controls {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--control-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            font-size: 16px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
         }
 
         .language-select {
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
+            height: 44px;
+            padding: 0 16px;
+            border-radius: 14px;
+            background: var(--control-bg);
+            border: 1px solid var(--card-border);
             color: var(--text-color);
             outline: none;
             cursor: pointer;
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
         }
 
         .language-select option {
-            background: #111827;
-            color: white;
+            background: #0f172a;
+            color: #ffffff;
         }
 
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 6%;
-            background: var(--nav-bg);
-            backdrop-filter: blur(18px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-        }
-
-        .logo img {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background: white;
-            padding: 3px;
-        }
-
-        .logo h2 {
-            font-size: 22px;
-            font-weight: 600;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .icon-btn {
-            width: 42px;
-            height: 42px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%;
+        /* Glassmorphic Card Container */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            width: min(92%, 460px);
+            padding: 48px 36px;
+            border-radius: 32px;
             background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            text-decoration: none;
-            cursor: pointer;
-            transition: 0.3s;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--card-border);
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.35),
+                0 0 40px var(--card-glow);
+            text-align: center;
+            transform-style: preserve-3d;
+            animation: cardEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        .icon-btn:hover {
-            background: var(--primary-blue);
-            color: white;
-            border-color: var(--primary-blue);
+        @keyframes cardEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(40px) scale(0.92) rotateX(10deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotateX(0deg);
+            }
         }
 
-        .sign-btn {
-            padding: 10px 18px;
-            border-radius: 12px;
-            background: var(--primary-blue);
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: 0.3s;
-        }
-
-        /* --- Sub-nav with Rainbow Effect --- */
-        .sub-nav {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 6%;
-            background: var(--nav-bg);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 79px;
-            z-index: 99;
-            overflow-x: auto;
-            white-space: nowrap;
-            scrollbar-width: none;
-        }
-
-        .sub-nav::-webkit-scrollbar { display: none; }
-
-        .sub-nav a {
-            flex: 0 0 auto;
+        /* Logo Styling & Floating Effect */
+        .logo-wrapper {
             position: relative;
-            color: var(--text-color);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            overflow: hidden;
-            background: transparent;
-            transition: transform 0.3s ease;
+            display: inline-block;
+            margin-bottom: 24px;
+            transform-style: preserve-3d;
         }
 
-        .sub-nav a::before {
-            content: '';
-            position: absolute;
-            top: -200%;
-            left: -50%;
-            width: 200%;
-            height: 500%;
-            background: conic-gradient(#F09EA7,#F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB,#F6C2F3);
-            animation: spin 3s linear infinite;
-            z-index: 1;
-        }
-
-        .sub-nav a::after {
-            content: '';
-            position: absolute;
-            inset: 2px;
-            background: var(--card-bg);
-            border-radius: 999px;
-            z-index: 2;
-        }
-
-        .sub-nav a span, .sub-nav a i {
-            position: relative;
-            z-index: 3;
-        }
-
-        .sub-nav a i { color: var(--accent-text); }
-        .sub-nav a:hover { transform: translateY(-2px); }
-
-        #profile-area {
-            display: none;
-            position: relative;
-        }
-
-        #profile-menu {
-            display: none;
-            position: absolute;
-            top: 55px;
-            right: 0;
+        .logo-img {
             width: 210px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            z-index: 100;
-        }
-
-        .user-email-text {
-            display: block;
-            color: var(--accent-text);
-            font-size: 13px;
-            margin-bottom: 10px;
-            word-break: break-all;
-        }
-
-        #profile-menu hr {
-            border: none;
-            border-top: 1px solid var(--border-color);
-            margin: 10px 0;
-        }
-
-        #profile-menu a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-            color: var(--text-color);
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .logout-btn {
-            width: 100%;
-            margin-top: 8px;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 8px;
-            background: #ef4444;
-            color: white;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .hero {
-            text-align: center;
-            padding: 60px 6% 30px;
-        }
-
-        .hero-logo {
-            display: block;
-            width: 170px;
-            max-width: 45%;
+            max-width: 85%;
             height: auto;
-            margin: 24px auto 5px;
-        }
-
-        /* --- Search Bar with Rainbow Effect --- */
-        .search {
-            position: relative;
-            max-width: 500px;
+            display: block;
             margin: 0 auto;
-            border-radius: 999px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            background: transparent;
-            padding: 2px;
+            object-fit: contain;
+            animation: floatLogo 4.5s ease-in-out infinite alternate;
+            
+            /* --- ဤနေရာတွင် အဖြူခံနောက်ခံအကွက်များကို အလိုအလျောက် ဖျောက်ထုတ်ပေးသည် --- */
+            mix-blend-mode: multiply;
         }
 
-        .search::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 650px;
-            height: 650px;
-            background: conic-gradient(#F09EA7, #F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB, #F6C2F3);
-            animation: spin-search 3s linear infinite;
-            z-index: 1;
+        [data-theme="dark"] .logo-img {
+            mix-blend-mode: screen; /* Dark mode တွင် အဖြူခံများ လုံးဝမပေါ်တော့ဘဲ ပျောက်ကွယ်သွားမည် */
+            filter: drop-shadow(0 12px 25px rgba(96, 165, 250, 0.3));
         }
 
-        .search::after {
-            content: '';
-            position: absolute;
-            inset: 2px;
-            background: var(--card-bg);
-            border-radius: 999px;
-            z-index: 2;
+        @keyframes floatLogo {
+            0% {
+                transform: translateY(0px) rotate(0deg) scale(1);
+            }
+            100% {
+                transform: translateY(-10px) rotate(1.5deg) scale(1.03);
+            }
         }
 
-        .search input {
-            position: relative;
-            z-index: 3;
-            width: 100%;
-            padding: 14px 20px 14px 50px;
-            border: none;
-            outline: none;
-            background: transparent;
-            color: var(--text-color);
-            font-size: 15px;
-        }
-
-        .search i {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--accent-text);
-            z-index: 3;
-            font-size: 15px;
-        }
-
-        .categories {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            padding: 20px 6%;
-        }
-
-        .categories button {
-            padding: 10px 20px;
-            border: 1px solid var(--border-color);
-            border-radius: 999px;
-            background: var(--card-bg);
-            color: var(--text-color);
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.3s;
-        }
-
-        .categories button:hover {
-            background: var(--primary-blue);
-            color: white;
-            border-color: var(--primary-blue);
-        }
-
-        .section {
-            padding: 10px 6% 30px;
-            max-width: 1250px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 0 6px;
-        }
-
-        .section-title h2 { font-size: 22px; font-weight: 600; }
-        .section-title a { color: var(--accent-text); text-decoration: none; font-size: 14px; }
-
-        .products {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(230px, 270px));
-            justify-content: center;
-            gap: 22px;
-        }
-
-        /* --- Product Card with Rainbow Hover Effect --- */
-        .card {
-            position: relative;
-            background: var(--card-bg);
-            border-radius: 22px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            width: 100%;
-            max-width: 280px;
-            margin: 0 auto;
-            padding: 2px;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: -150%;
-            left: -50%;
-            width: 200%;
-            height: 400%;
-            background: conic-gradient(#F09EA7, #F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB, #F6C2F3);
-            animation: spin 3s linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 0;
-        }
-
-        .card:hover::before { opacity: 1; }
-
-        .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 30px rgba(199, 202, 255, 0.2);
-        }
-
-        .card img {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            position: relative;
-            z-index: 1;
-            border-radius: 20px 20px 0 0;
-            background: #020617;
-        }
-
-        .card-content {
-            padding: 16px;
-            position: relative;
-            z-index: 1;
-            background: var(--card-bg);
-            border-radius: 0 0 20px 20px;
-        }
-
-        .card-content h3 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .price {
-            color: var(--accent-text);
-            font-weight: 700;
-            font-size: 17px;
-            margin: 4px 0;
-        }
-
-        .stock {
-            color: var(--subtext-color);
-            font-size: 12px;
+        /* Typography */
+        h1.title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
             margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text-color) 40%, var(--subtext-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .buy-btn {
-            width: 100%;
-            padding: 11px;
-            border: none;
-            border-radius: 12px;
-            background: var(--primary-blue);
-            color: white;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: 0.3s;
-        }
-
-        .buy-btn:hover { opacity: 0.9; }
-        .buy-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
-
-        .banner {
-            margin: 40px 6%;
-            padding: 35px;
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), var(--card-bg));
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            text-align: center;
-        }
-
-        .banner h2 { font-size: 28px; margin-bottom: 8px; }
-        .banner p { color: var(--subtext-color); font-size: 14px; margin-bottom: 18px; }
-        .banner button { padding: 12px 26px; border: none; border-radius: 12px; background: var(--primary-blue); color: white; font-weight: 700; cursor: pointer; }
-
-        footer {
-            margin-top: 50px;
-            padding: 35px 6%;
-            background: var(--nav-bg);
-            border-top: 1px solid var(--border-color);
-            text-align: center;
+        p.subtitle {
             color: var(--subtext-color);
-            font-size: 13px;
+            font-size: 14.5px;
+            line-height: 1.6;
+            margin-bottom: 36px;
+            font-weight: 400;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
         }
-@media (max-width: 768px) {
-    nav {
-        padding: 10px 4% !important;
-        gap: 8px;
-        flex-wrap: nowrap;
-    }
 
-    .logo img {
-        width: 36px !important;
-        height: 36px !important;
-    }
+        /* Interactive Shop Now Button */
+        .shop-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            height: 56px;
+            border-radius: 18px;
+            background: var(--btn-gradient);
+            color: #ffffff;
+            font-size: 17px;
+            font-weight: 700;
+            text-decoration: none;
+            overflow: hidden;
+            box-shadow: 0 12px 30px var(--btn-glow);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: none;
+            cursor: pointer;
+        }
 
-    .logo h2 {
-        display: none !important;
-    }
+        .shop-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(
+                90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.45), 
+                transparent
+            );
+            transform: skewX(-25deg);
+            transition: left 0.75s ease;
+        }
 
-    .nav-right {
-        gap: 6px !important;
-    }
+        .shop-btn:hover::before {
+            left: 140%;
+        }
 
-   
-    .language-select {
-        padding: 5px 8px !important;
-        font-size: 11px !important;
-        border-radius: 8px;
-    }
+        .shop-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 18px 40px var(--btn-glow);
+        }
 
-    .icon-btn {
-        width: 34px !important;
-        height: 34px !important;
-        font-size: 13px !important;
-    }
+        .shop-btn:active {
+            transform: translateY(-1px) scale(0.99);
+        }
 
-    .sign-btn {
-        padding: 6px 12px !important;
-        font-size: 11px !important;
-        border-radius: 8px;
-    }
+        .shop-btn i {
+            font-size: 16px;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
 
+        .shop-btn:hover i {
+            transform: translateX(6px);
+        }
 
-    .sub-nav {
-        top: 58px !important;
-        padding: 8px 3% !important;
-        gap: 6px !important;
-    }
+        /* Mobile Optimization Breakpoints */
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 38px 24px;
+                border-radius: 26px;
+            }
 
-    .sub-nav a {
-        padding: 6px 12px !important;
-        font-size: 11px !important;
-    }
+            .logo-img {
+                width: 170px;
+            }
 
-    .hero {
-        padding: 30px 4% 15px !important;
-    }
+            h1.title {
+                font-size: 24px;
+            }
 
-    .hero-logo {
-        width: 130px;
-        max-width: 45%;
-        margin: 15px auto 0;
-    }
+            p.subtitle {
+                font-size: 13.5px;
+                margin-bottom: 28px;
+            }
 
-    .search {
-        max-width: 100%;
-        padding: 4px 12px;
-    }
+            .shop-btn {
+                height: 52px;
+                font-size: 16px;
+            }
 
-    .search input {
-        height: 40px;
-        padding: 0 10px 0 34px !important;
-        font-size: 13px;
-    }
-
-    .search i {
-        left: 14px;
-        font-size: 13px;
-    }
-
-   
-    .categories {
-        padding: 12px 4% !important;
-        gap: 6px !important;
-        justify-content: flex-start;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        scrollbar-width: none;
-    }
-
-    .categories button {
-        flex: 0 0 auto;
-        padding: 7px 14px !important;
-        font-size: 11px !important;
-        white-space: nowrap;
-    }
-}
+            .top-controls {
+                top: 16px;
+                right: 16px;
+            }
+        }
     </style>
 </head>
 <body data-theme="dark">
 
-<nav>
-    <div class="logo" onclick="window.scrollTo({top:0, behavior:'smooth'})">
-        <img src="logo.jpg" alt="Acai Shop">
-        <h2>Acai Shop</h2>
-    </div>
-    <div class="nav-right">
-        <!-- Light / Dark Mode Toggle Button -->
-        <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
-            <i class="fa-solid fa-moon" id="theme-icon"></i>
+    <!-- Canvas for Floating Particles -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Background Glowing Blobs -->
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+
+    <!-- Cyber Background Grid Overlay -->
+    <div class="grid-overlay"></div>
+
+    <!-- Top Right Controls -->
+    <div class="top-controls">
+        <button class="control-btn" id="theme-toggle" aria-label="Toggle Theme">
+            <i class="fa-solid fa-sun" id="theme-icon"></i>
         </button>
 
-        <select class="language-select" onchange="changeLanguage(this.value)">
+        <select class="language-select" id="langSelect" onchange="changeLanguage(this.value)">
             <option value="en">English</option>
             <option value="mm">မြန်မာ</option>
         </select>
-        <a href="cart.html" class="icon-btn" style="position:relative;">
-            <i class="fa-solid fa-cart-shopping"></i>
-            <span id="cart-count" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;width:18px;height:18px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:10px;font-weight:700;">0</span>
-        </a>
-        <div id="guest-area">
-            <a href="login.html" class="sign-btn" data-lang="signIn">Sign In</a>
+    </div>
+
+    <!-- Main Centered Glass Card -->
+    <main class="main-container" id="glassCard">
+        <div class="logo-wrapper">
+            <!-- သင့်ရဲ့ လိုဂိုပုံနာမည်ကို ဒီနေရာမှာ ထည့်ပါ (ဥပမာ: acai-logo.png) -->
+            <img src="acai-logo.png" 
+                 onerror="this.src='https://placehold.co/400x200/0f172a/60a5fa?text=A%C3%A7a%C3%AD'" 
+                 class="logo-img" 
+                 alt="Açaí Logo">
         </div>
-        <div id="profile-area">
-            <div class="icon-btn" id="profile-btn" title="My Profile">
-                <i class="fa-solid fa-user"></i>
-            </div>
-            <div id="profile-menu">
-                <span id="user-email" class="user-email-text">Loading...</span>
-                <hr>
-                <a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a>
-                <button id="logoutBtn" class="logout-btn">Logout</button>
-            </div>
-        </div>
-    </div>
-</nav>
 
-<div class="sub-nav">
-    <a href="my-orders.html">
-        <i class="fa-solid fa-box-archive"></i>
-        <span data-lang="myOrders">My Orders</span>
-    </a>
-    <a href="waiting.html">
-        <i class="fa-solid fa-clock"></i>
-        <span data-lang="waitingTime">Waiting Time</span>
-    </a>
-    <a href="support.html">
-        <i class="fa-solid fa-headset"></i>
-        <span data-lang="customerSupport">Customer Support</span>
-    </a>
-    <a href="faq.html">
-        <i class="fa-solid fa-circle-question"></i>
-        <span data-lang="faq">FAQ</span>
-    </a>
-    <a href="reviews.html">
-        <i class="fa-solid fa-star"></i>
-        <span data-lang="customerReviews">Customer Reviews</span>
-    </a>
-    <a href="suggestions.html">
-        <i class="fa-regular fa-lightbulb"></i>
-        <span data-lang="suggestions">Suggestions</span>
-    </a>
-    <a href="feedback.html">
-        <i class="fa-regular fa-comment-dots"></i>
-        <span data-lang="feedback">Feedback</span>
-    </a>
-</div>
+        <h1 class="title" data-lang="welcomeTitle">Welcome to Açaí</h1>
 
-<section class="hero">
-    <div class="search">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input id="searchInput" placeholder="Search products..." data-lang-placeholder="searchPlaceholder">
-    </div>
-    <img src="acai-logo.png" class="hero-logo" alt="Acai Shop">
-</section>
+        <p class="subtitle" data-lang="welcomeSubtitle">
+            Explore our exclusive collection of luxury accessories crafted for your lifestyle.
+        </p>
 
-<section class="categories">
-    <button data-lang="new">New</button>
-    <button data-lang="keychains">Keychains</button>
-    <button data-lang="phone">Phone</button>
-    <button data-lang="wallets">Wallets</button>
-    <button data-lang="jewelry">Jewelry</button>
-    <button data-lang="bags">Bags</button>
-    <button data-lang="more">More</button>
-</section>
-
-<section class="section">
-    <div class="section-title">
-        <h2 data-lang="newArrivals">New Arrivals</h2>
-        <a href="#" class="see-all-btn" data-lang="seeAll">
-            See All <i class="fa-solid fa-arrow-right"></i>
+        <a href="index.html" class="shop-btn">
+            <span data-lang="shopNow">Shop Now</span>
+            <i class="fa-solid fa-arrow-right"></i>
         </a>
-    </div>
-    <div class="products" id="productList"></div>
-</section>
+    </main>
 
-<section class="banner">
-    <h2 data-lang="shopLatestTitle">Shop The Latest Collection</h2>
-    <p data-lang="shopLatestDesc">Premium quality accessories with affordable prices.</p>
-    <button data-lang="shopNow" onclick="window.scrollTo({top:0,behavior:'smooth'})">Shop Now</button>
-</section>
+    <!-- Interactive Script -->
+    <script>
+        /* =========================================================
+           1. PERSISTENT THEME TOGGLE (DARK / LIGHT MODE)
+           ========================================================= */
+        const themeToggleBtn = document.getElementById("theme-toggle");
+        const themeIcon = document.getElementById("theme-icon");
+        const savedTheme = localStorage.getItem("theme") || "dark";
 
-<footer>
-    <p>© 2026 Acai Shop. All rights reserved.</p>
-    <p data-lang="footerTagline">Accessories • Quality • Style</p>
-    <div style="border:1px solid var(--border-color);padding:10px 15px;display:inline-block;border-radius:10px;margin-top:12px;background:var(--card-bg);">
-        <p style="margin:0 0 4px 0;" data-lang="developer">Developer and Founder: Rudox</p>
-        <p style="margin:0;" data-lang="creativeLead">Creative lead and Co-founder: Valrqx</p>
-    </div>
-</footer>
+        document.body.setAttribute("data-theme", savedTheme);
+        updateThemeIcon(savedTheme);
 
-<script>
-/* --- Dark/Light Mode Toggle Logic --- */
-const themeToggleBtn = document.getElementById("theme-toggle");
-const themeIcon = document.getElementById("theme-icon");
-const currentTheme = localStorage.getItem("theme") || "dark";
+        themeToggleBtn.addEventListener("click", () => {
+            const currentTheme = document.body.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            
+            document.body.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+            updateThemeIcon(newTheme);
+            initParticles();
+        });
 
-document.body.setAttribute("data-theme", currentTheme);
-updateThemeIcon(currentTheme);
-
-themeToggleBtn.addEventListener("click", () => {
-    let theme = document.body.getAttribute("data-theme");
-    let newTheme = theme === "dark" ? "light" : "dark";
-    
-    document.body.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-    updateThemeIcon(newTheme);
-});
-
-function updateThemeIcon(theme) {
-    if (theme === "dark") {
-        themeIcon.className = "fa-solid fa-sun";
-    } else {
-        themeIcon.className = "fa-solid fa-moon";
-    }
-}
-
-/* --- Cart & Products Logic --- */
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-function updateCartCount(){
-    const count = cart.reduce((t,i)=>t+i.qty,0);
-    document.getElementById("cart-count").innerText = count;
-}
-
-async function addToCart(id, name, price, stock){
-    try {
-        const res = await fetch("/me", { credentials: "include" });
-        const data = await res.json();
-        if (!data.loggedIn) {
-            alert("Login your account first.");
-            window.location.href = "login.html";
-            return;
+        function updateThemeIcon(theme) {
+            themeIcon.className = theme === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
         }
-    } catch (err) {
-        console.error("Login check error:", err);
-        alert("Login your account first.");
-        window.location.href = "login.html";
-        return;
-    }
 
-    const item = cart.find(i => i.id === id);
-    const currentQty = item ? item.qty : 0;
+        /* =========================================================
+           2. INTERACTIVE PARTICLES CANVAS SYSTEM
+           ========================================================= */
+        const canvas = document.getElementById("particleCanvas");
+        const ctx = canvas.getContext("2d");
+        let particles = [];
 
-    if(currentQty >= stock){
-        alert("Only " + stock + " items left in stock.");
-        return;
-    }
-
-    if(item){
-        item.qty++;
-    }else{
-        cart.push({ id: id, name: name, price: Number(price), qty: 1 });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCount();
-    alert(name + " added to cart!");
-}
-
-document.getElementById("searchInput").addEventListener("input", function(){
-    const keyword = this.value.toLowerCase();
-    document.querySelectorAll(".card").forEach(card => {
-        const name = card.querySelector("h3").innerText.toLowerCase();
-        card.style.display = name.includes(keyword) ? "" : "none";
-    });
-});
-
-const guestArea = document.getElementById("guest-area");
-const profileArea = document.getElementById("profile-area");
-const profileBtn = document.getElementById("profile-btn");
-const profileMenu = document.getElementById("profile-menu");
-const userEmail = document.getElementById("user-email");
-const logoutBtn = document.getElementById("logoutBtn");
-
-async function loadUser(){
-    try{
-        const res = await fetch("/me");
-        const data = await res.json();
-        if(data.loggedIn){
-            guestArea.style.display = "none";
-            profileArea.style.display = "block";
-            userEmail.innerText = data.user.customer_code;
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
-    }catch{}
-}
 
-profileBtn.addEventListener("click", function(e){
-    e.stopPropagation();
-    profileMenu.style.display = profileMenu.style.display === "block" ? "none" : "block";
-});
+        window.addEventListener("resize", () => {
+            resizeCanvas();
+            initParticles();
+        });
 
-document.addEventListener("click", function(){
-    profileMenu.style.display = "none";
-});
+        class Particle {
+            constructor() {
+                this.reset();
+            }
 
-logoutBtn.addEventListener("click", async function(){
-    try {
-        await fetch("/logout", { method: "POST" });
-        window.location.reload();
-    } catch(err) {
-        console.log(err);
-    }
-});
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2.5 + 0.8;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = (Math.random() - 0.5) * 0.4;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
 
-function initLanguage() {
-    const savedLang = localStorage.getItem("language") || "en";
-    const langSelect = document.querySelector(".language-select");
-    if (langSelect) langSelect.value = savedLang;
-    if (typeof changeLanguage === "function") changeLanguage(savedLang);
-}
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
 
-async function loadProducts(){ 
-    try{ 
-        const response = await fetch("/products"); 
-        const products = await response.json(); 
-        const list = document.getElementById("productList"); 
-        if (!list) return;
-        
-        list.innerHTML = ""; 
-        const lang = localStorage.getItem("language") || "en";
-        const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : {};
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
 
-        products.forEach(p => { 
-            const imageUrl = p.image ? (p.image.startsWith("http") ? p.image : "/uploads/" + p.image) : "logo.jpg"; 
-            const stockText = t.stock || (lang === 'mm' ? "လက်ကျန်" : "Stock");
-            const addText = t.addToCart || (lang === 'mm' ? "ခြင်းတောင်းထဲထည့်ရန်" : "Add to Cart");
-            const outText = t.outOfStock || (lang === 'mm' ? "ပစ္စည်းပြတ်နေသည်" : "Out of Stock");
+            draw() {
+                const isDark = document.body.getAttribute("data-theme") === "dark";
+                ctx.fillStyle = isDark 
+                    ? `rgba(147, 197, 253, ${this.opacity})` 
+                    : `rgba(37, 99, 235, ${this.opacity})`;
 
-            list.innerHTML += ` 
-            <div class="card"> 
-                <img src="${imageUrl}" alt="${p.name}"> 
-                <div class="card-content"> 
-                    <h3>${p.name}</h3> 
-                    <div class="price">${Number(p.price).toLocaleString()} MMK</div> 
-                    <div class="stock">${stockText}: ${p.stock}</div> 
-                    <button class="buy-btn" 
-                      onclick="addToCart('${p.id}','${String(p.name).replace(/'/g,"\\'")}',${Number(p.price)},${Number(p.stock)})"
-                        ${Number(p.stock) <= 0 ? "disabled" : ""}>
-                        ${Number(p.stock) <= 0 ? outText : addText}
-                    </button> 
-                </div> 
-            </div>`; 
-        }); 
-    }catch(err){ 
-        console.log("Error loading products:", err); 
-    } 
-}
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
 
-initLanguage();
-updateCartCount();
-loadUser();
-loadProducts();
-</script>
+        function initParticles() {
+            particles = [];
+            const particleCount = Math.floor((canvas.width * canvas.height) / 14000);
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
 
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        /* =========================================================
+           3. 3D CARD TILT PARALLAX EFFECT
+           ========================================================= */
+        const glassCard = document.getElementById("glassCard");
+
+        document.addEventListener("mousemove", (e) => {
+            if (window.innerWidth <= 768) return; 
+            
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+
+            glassCard.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+
+        document.addEventListener("mouseleave", () => {
+            glassCard.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        });
+
+        /* =========================================================
+           4. INITIALIZATION & LANGUAGE PREFERENCE
+           ========================================================= */
+        window.onload = function() {
+            resizeCanvas();
+            initParticles();
+            animateParticles();
+
+            const savedLang = localStorage.getItem("language") || "en";
+            const langSelect = document.getElementById("langSelect");
+            if (langSelect) langSelect.value = savedLang;
+            if (typeof changeLanguage === "function") {
+                changeLanguage(savedLang);
+            }
+        };
+    </script>
 </body>
 </html>
