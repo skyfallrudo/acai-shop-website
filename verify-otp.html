@@ -130,7 +130,7 @@ body::before {
     text-align: center;
     overflow: hidden;
 
-    /* Card Entrance Animation */
+
     animation: cardFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -624,7 +624,7 @@ function show(text, type) {
   m.className = type;
 }
 
-// Language Initializer
+
 document.addEventListener("DOMContentLoaded", () => {
   const savedLang = localStorage.getItem("language") || "en";
   const langSelect = document.querySelector(".language-select");

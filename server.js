@@ -39,9 +39,6 @@ const adminLoginLimiter = rateLimit({
   message: { success: false, message: "Too many admin login attempts, please try again later." }
 });
 
-/* =========================================================
-   DATABASE
-========================================================= */
 
 const tursoClient = createClient({
   url: process.env.TURSO_DATABASE_URL,
@@ -334,7 +331,7 @@ function getMyanmarDateTime() {
   return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second}`;
 }
 
-/* Helper: Parse Pricing Rules JSON safely */
+
 function parsePricingRules(raw) {
   if (!raw) return [];
   try {
@@ -349,7 +346,7 @@ function parsePricingRules(raw) {
   }
 }
 
-/* Helper: Calculate Bundle Price for a Given Quantity */
+
 function calculateBundleTotal(qty, unitPrice, rules) {
   const cleanQty = Number(qty) || 0;
   const cleanUnit = Number(unitPrice) || 0;
@@ -375,7 +372,7 @@ function calculateBundleTotal(qty, unitPrice, rules) {
   return total;
 }
 
-/* Helper: Calculate Total Stock from Color Variants if formatted like "Black:5, White:3" */
+
 function computeStockFromColors(colorsStr, fallbackStock) {
   const parts = String(colorsStr || "").split(",").map(s => s.trim()).filter(Boolean);
   let sum = 0;
@@ -396,9 +393,7 @@ function computeStockFromColors(colorsStr, fallbackStock) {
   return Number.isFinite(numericFallback) && numericFallback >= 0 ? Math.floor(numericFallback) : 0;
 }
 
-/* =========================================================
-   AUTH MIDDLEWARE
-========================================================= */
+
 
 function auth(req, res, next) {
 
@@ -421,9 +416,7 @@ function auth(req, res, next) {
 
 }
 
-/* =========================================================
-   ADMIN MIDDLEWARE
-========================================================= */
+
 
 function adminAuth(req, res, next) {
 
@@ -444,9 +437,7 @@ function adminAuth(req, res, next) {
 
 }
 
-/* =========================================================
-   SEND OTP
-========================================================= */
+
 app.post(
   "/send-otp",
   registerLimiter,
@@ -627,9 +618,6 @@ This code expires in 5 minutes.
   }
 );
 
-/* =========================================================
-   VERIFY OTP
-========================================================= */
 
 app.post(
   "/verify-otp",
@@ -680,9 +668,6 @@ app.post(
   }
 );
 
-/* =========================================================
-   REGISTER
-========================================================= */
 
 app.post(
   "/register",
@@ -873,9 +858,7 @@ app.post(
   }
 );
 
-/* =========================================================
-   FORGOT PASSWORD
-========================================================= */
+
 
 app.post(
   "/forgot-password",
@@ -1036,9 +1019,7 @@ This code expires in 5 minutes.
   }
 );
 
-/* =========================================================
-   RESET PASSWORD
-========================================================= */
+
 
 app.post(
   "/reset-password",
@@ -1165,9 +1146,7 @@ app.post(
   }
 );
 
-/* =========================================================
-   LOGIN
-========================================================= */
+
 
 app.post(
   "/login",
@@ -1289,9 +1268,7 @@ app.post(
   }
 );
 
-/* =========================================================
-   ME
-========================================================= */
+
 
 app.get(
   "/me",
@@ -1370,9 +1347,7 @@ app.get(
   }
 );
 
-/* =========================================================
-   LOGOUT
-========================================================= */
+
 
 app.post(
   "/logout",
@@ -1405,9 +1380,7 @@ app.post(
   }
 );
 
-/* =========================================================
-   PRODUCTS
-========================================================= */
+
 
 app.get(
   "/products",
@@ -1446,9 +1419,7 @@ app.get(
   }
 );
 
-/* =========================================================
-   ADD PRODUCT (Supports Category, Multiple Images, Variant Stock, Bundle Rules)
-========================================================= */
+
 
 app.post(
   [
@@ -1539,9 +1510,7 @@ app.post(
   }
 );
 
-/* =========================================================
-   UPDATE PRODUCT (Supports Category, Multiple Images, Variant Stock, Bundle Rules)
-========================================================= */
+
 
 app.put(
   "/update-product/:id",
@@ -1651,9 +1620,7 @@ app.put(
   }
 );
 
-/* =========================================================
-   DELETE PRODUCT
-========================================================= */
+
 
 app.delete(
   "/delete-product/:id",
@@ -1726,9 +1693,6 @@ app.delete(
   }
 );
 
-/* =========================================================
-   PROFILE
-========================================================= */
 
 app.get(
   "/profile",
@@ -1856,10 +1820,6 @@ app.put(
   }
 );
 
-/* =========================================================
-   PLACE ORDER (With Variant Stock Check & Bundle Pricing)
-========================================================= */
-
 app.post(
   "/place-order",
   auth,
@@ -1926,7 +1886,7 @@ app.post(
           return sendJSONError(res, 400, `${item.name || "Product"} no longer exists.`);
         }
 
-        /* Determine selected color from item.color or from item.name "(Color)" */
+      
         let selectedColor = clean(item.color);
         if (!selectedColor) {
           const parenMatch = String(item.name || "").match(/\(([^)]+)\)\s*$/);
@@ -1952,7 +1912,6 @@ app.post(
         });
       }
 
-      /* Calculate Subtotal with Bundle Pricing Rules per Product */
       let subtotal = 0;
       for (const [pidStr, totalQty] of Object.entries(productQtyMap)) {
         const prod = productDataMap[pidStr];
@@ -1987,9 +1946,7 @@ app.post(
         .filter(v => clean(v))
         .join(", ");
 
-      /* -----------------------------------------
-         REDUCE STOCK (TOTAL & PER COLOR/VARIANT)
-      ----------------------------------------- */
+     
       for (const item of verifiedCart) {
         const currentProd = await db.get(
           `SELECT stock, colors FROM products WHERE id=?`,
@@ -2045,9 +2002,6 @@ app.post(
         });
       }
 
-      /* -----------------------------------------
-         INSERT ORDER (WITH ORDER CODE & MYANMAR TIME)
-      ----------------------------------------- */
       const generateRandomCode = () => {
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         let result = "";
@@ -2108,9 +2062,7 @@ app.post(
         throw new Error("Order ID was not generated.");
       }
 
-      /* -----------------------------------------
-         ORDER CONFIRMATION EMAIL
-      ----------------------------------------- */
+     
       try {
         const itemRows = verifiedCart
           .map(item => `
@@ -2195,9 +2147,7 @@ app.post(
   }
 );
 
-/* =========================================================
-   MY ORDERS
-========================================================= */
+
 
 app.get(
   "/my-orders",
@@ -2251,9 +2201,7 @@ app.get(
   }
 );
 
-/* =========================================================
-   ADMIN LOGIN
-========================================================= */
+
 
 app.post(
   "/admin-login",
@@ -2341,9 +2289,7 @@ app.post(
   }
 );
 
-/* =========================================================
-   ADMIN CHECK
-========================================================= */
+
 
 app.get(
   "/admin-check",
@@ -2359,9 +2305,7 @@ app.get(
   }
 );
 
-/* =========================================================
-   ADMIN LOGOUT
-========================================================= */
+
 
 app.post(
   "/admin-logout",
@@ -2379,9 +2323,7 @@ app.post(
   }
 );
 
-/* =========================================================
-   ADMIN PRODUCTS
-========================================================= */
+
 
 app.get(
   "/admin/products",
@@ -2421,9 +2363,6 @@ app.get(
   }
 );
 
-/* =========================================================
-   ADMIN ORDERS
-========================================================= */
 
 app.get(
   "/admin/orders",
@@ -2461,9 +2400,7 @@ app.get(
   }
 );
 
-/* =========================================================
-   ADMIN ORDER DETAIL
-========================================================= */
+
 
 app.get(
   "/admin/orders/:id",
@@ -2531,9 +2468,6 @@ app.get(
   }
 );
 
-/* =========================================================
-   ADMIN ORDER STATUS
-========================================================= */
 
 app.put(
   "/admin/orders/:id/status",
@@ -2628,10 +2562,6 @@ app.put(
   }
 );
 
-/* =========================================================
-   DELETE ORDER
-========================================================= */
-
 app.delete(
   "/admin/orders/:id",
   adminAuth,
@@ -2689,9 +2619,6 @@ app.delete(
   }
 );
 
-/* =========================================================
-   ADMIN CUSTOMERS
-========================================================= */
 
 app.get(
   "/admin/customers",
@@ -2736,9 +2663,7 @@ app.get(
   }
 );
 
-/* =========================================================
-   DELETE CUSTOMER
-========================================================= */
+
 
 app.delete(
   "/admin/customers/:id",
@@ -2797,9 +2722,6 @@ app.delete(
   }
 );
 
-/* =========================================================
-   ADMIN DASHBOARD
-========================================================= */
 
 app.get(
   "/admin/dashboard",
@@ -3030,9 +2952,6 @@ app.get(
   }
 );
 
-/* =========================================================
-   ADMIN REVENUE
-========================================================= */
 
 app.get(
   "/admin/revenue",
@@ -3077,9 +2996,6 @@ app.get(
   }
 );
 
-/* =========================================================
-   ADMIN NEW ORDERS
-========================================================= */
 
 app.get(
   "/admin/new-orders",
@@ -3123,9 +3039,6 @@ app.get(
   }
 );
 
-/* =========================================================
-   HEALTH
-========================================================= */
 
 app.get(
   "/health",
@@ -3145,9 +3058,6 @@ app.get(
   }
 );
 
-/* =========================================================
-   PINDUODUO API ROUTES
-========================================================= */
 
 function getMyanmarDate() {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -3360,7 +3270,6 @@ app.post(
   }
 );
 
-// Edit purchase; keep old photo if no new photo is selected
 app.put(
   "/admin/pinduoduo/:id",
   adminAuth,
@@ -3476,7 +3385,7 @@ app.put(
   }
 );
 
-// Delete purchase
+
 app.delete("/admin/pinduoduo/:id", adminAuth, async (req, res) => {
   try {
     await pinduoduoTableReady;
@@ -3512,10 +3421,6 @@ app.delete("/admin/pinduoduo/:id", adminAuth, async (req, res) => {
     });
   }
 });
-
-/* =========================================================
-   START SERVER
-========================================================= */
 
 app.listen(
   PORT,

@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 <style>
-/* --- Light Mode (Default) --- */
+
 :root {
     --bg-color: #f8fafc;
     --text-color: #0f172a;
@@ -25,7 +25,7 @@
     --highlight-bg: rgba(37, 99, 235, 0.1);
 }
 
-/* --- Dark Mode --- */
+
 [data-theme="dark"] {
     --bg-color: #05080f;
     --text-color: #ffffff;
@@ -118,7 +118,7 @@ nav {
     border-color: var(--primary-blue);
 }
 
-/* Language Selector Style */
+
 .language-select {
     padding: 8px 12px;
     border-radius: 10px;
@@ -193,7 +193,7 @@ nav {
     padding: 0 20px;
 }
 
-/* Policy Card with Rainbow Hover Effect */
+
 .policy-card {
     position: relative;
     background: var(--card-bg);
@@ -293,11 +293,11 @@ footer {
     font-size: 13px;
 }
 
-/* --- Mobile Responsive & Smaller Text Customization --- */
+
 @media(max-width: 768px) {
     nav { padding: 10px 4% !important; }
     .logo img { width: 36px; height: 36px; }
-    .logo h2 { font-size: 16px !important; display: block !important; } /* Mobile မှာ Logo နာမည်ပါသေးသေးလေးပြမယ်၊ လိုချင်ရင် display: none လုပ်လို့ရပါတယ် */
+    .logo h2 { font-size: 16px !important; display: block !important; } 
     
     .icon-btn { width: 34px; height: 34px; font-size: 13px; }
     .language-select { padding: 6px 8px; font-size: 12px; }
@@ -317,14 +317,14 @@ footer {
 
     .policy-card h3[style*="margin-top"] { font-size: 15px !important; margin-top: 20px !important; margin-bottom: 10px !important; }
 
-    /* Pricing Table Mobile Adjustments for Smaller Text */
+    
     .pricing-table { display: table; width: 100%; }
     .pricing-table th, .pricing-table td {
         padding: 10px 10px !important;
-        font-size: 11px !important; /* ဖုန်း screen မှာ ဇယားကွက်စာသားတွေ သေးသွားစေရန် */
+        font-size: 11px !important; 
     }
     .pricing-table td small {
-        font-size: 9.5px !important; /* မြို့နယ်စာရင်းငယ်လေးများကိုပါ အလွန်အမင်း မကြီးဘဲ သေးငယ်ရှင်းလင်းစွာ ပြရန် */
+        font-size: 9.5px !important; 
         line-height: 1.4;
     }
 
@@ -356,7 +356,6 @@ footer {
     <h2>Acai Shop</h2>
 </div>
 <div class="nav-right">
-    <!-- Dark / Light Mode Toggle Button -->
     <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
         <i class="fa-solid fa-sun" id="theme-icon"></i>
     </button>
@@ -377,11 +376,11 @@ footer {
 
 <div class="container">
     <div class="policy-card">
-        <h1><i class="fa-solid fa-truck-fast"></i> <span data-lang="waitingTitlePolicy">Waiting Time Policy</span></h1> 
+        <h1><i class="fa-solid fa-truck-fast"></i> <span data-lang="waitingTitlePolicy">Waiting Time Policy</span></h1>
         
         <p data-lang="waitingDesc1">At Acai Shop, we work alongside <strong>Our Partnership Delivery</strong> to ensure your packages reach you securely. Below are our regional delivery fees and waiting times. You can comfortably shop using our <strong>Cash on Delivery (COD)</strong> system with no prepayment required.</p>
 
-        <div class="highlight-box"></div>
+        <div class="highlight-box">
             <h3><i class="fa-solid fa-circle-info"></i> <span data-lang="deliveryPolicyTitle">Delivery Policy & Timeframe</span></h3>
             <p data-lang="deliveryPolicyDesc">Orders are typically delivered within <strong>3 days</strong> depending on transportation and regional logistics conditions.</p>
         </div>
@@ -476,7 +475,6 @@ footer {
 </footer>
 
 <script>
-/* --- Dark/Light Mode Toggle Logic --- */
 const themeToggleBtn = document.getElementById("theme-toggle");
 const themeIcon = document.getElementById("theme-icon");
 const currentTheme = localStorage.getItem("theme") || "dark";
