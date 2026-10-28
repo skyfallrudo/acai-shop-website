@@ -1366,20 +1366,18 @@ app.get(
     }
 
   }
-);
-
-/* =========================================================
-   ADD PRODUCT
-   IMPORTANT:
-   Both /add-product and /admin/products work.
+);/* =========================================================
+   ADD PRODUCT (Supports Multiple Images & Colors)
 ========================================================= */
 app.post(
   ["/add-product", "/admin/products"],
   adminAuth,
   (req, res, next) => {
-    // upload.single အစား upload.array သုံး၍ ပုံအများကြီး လက်ခံခြင်း[cite: 7]
-    upload.array("images", 10)(req, res, error => {
-      if (error) return sendJSONError(res, 400, "Image upload failed.");
+    upload.any()(req, res, error => {
+      if (error) {
+        console.error("PRODUCT IMAGE UPLOAD ERROR:", error);
+        return sendJSONError(res, 400, error.message || "Image upload failed.");
+      }
       next();
     });
   },
@@ -1390,7 +1388,11 @@ app.post(
       const description = clean(req.body.description);
       const price = Number(req.body.price);
       const stock = Number(req.body.stock);
-      const colors = clean(req.body.colors); // Color data ရယူရန်[cite: 7]
+      const colors = clean(req.body.colors);
+
+      if (!name) return sendJSONError(res, 400, "Product name is required.");
+      if (!Number.isFinite(price) || price < 0) return sendJSONError(res, 400, "Invalid product price.");
+      if (!Number.isInteger(stock) || stock < 0) return sendJSONError(res, 400, "Invalid stock quantity.");
 
       const imageUrls = (req.files || []).map(f => f.path || f.secure_url || f.url).filter(Boolean);
       const primaryImage = imageUrls[0] || "";
@@ -1403,7 +1405,61 @@ app.post(
 
       return res.json({ success: true, message: "Product added successfully." });
     } catch (error) {
-      return sendJSONError(res, 500, "Failed to add product.");
+      console.error("ADD PRODUCT ERROR:", error);
+      return sendJSONError(res, 500, error.message || "Failed to add product.");
+    }
+  }
+);
+
+/* =========================================================
+   UPDATE PRODUCT (Supports Multiple Images & Colors)
+========================================================= */
+app.put(
+  "/update-product/:id",
+  adminAuth,
+  (req, res, next) => {
+    upload.any()(req, res, error => {
+      if (error) {
+        console.error("PRODUCT UPDATE IMAGE ERROR:", error);
+        return sendJSONError(res, 400, error.message || "Image upload failed.");
+      }
+      next();
+    });
+  },
+  async (req, res) => {
+    try {
+      await productsTableReady;
+      const id = Number(req.params.id);
+      const name = clean(req.body.name);
+      const description = clean(req.body.description);
+      const price = Number(req.body.price);
+      const stock = Number(req.body.stock);
+      const colors = clean(req.body.colors);
+
+      if (!Number.isInteger(id) || id <= 0) return sendJSONError(res, 400, "Invalid product ID.");
+      if (!name) return sendJSONError(res, 400, "Product name is required.");
+
+      const product = await db.get("SELECT id, image, images FROM products WHERE id=?", [id]);
+      if (!product) return sendJSONError(res, 404, "Product not found.");
+
+      const newImageUrls = (req.files || []).map(f => f.path || f.secure_url || f.url).filter(Boolean);
+      let primaryImage = product.image || "";
+      let imagesJson = product.images || "[]";
+
+      if (newImageUrls.length > 0) {
+        primaryImage = newImageUrls[0];
+        imagesJson = JSON.stringify(newImageUrls);
+      }
+
+      await db.run(
+        `UPDATE products SET name=?, price=?, stock=?, description=?, colors=?, image=?, images=? WHERE id=?`,
+        [name, price, stock, description, colors, primaryImage, imagesJson, id]
+      );
+
+      return res.json({ success: true, message: "Product updated successfully." });
+    } catch (error) {
+      console.error("UPDATE PRODUCT ERROR:", error);
+      return sendJSONError(res, 500, error.message || "Failed to update product.");
     }
   }
 );

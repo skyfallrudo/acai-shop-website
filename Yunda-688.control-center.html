@@ -2256,12 +2256,10 @@ document.getElementById("productForm")
     formData.append("stock", stock);
     formData.append("colors", colors);
     formData.append("description", description);
-
-    if(files.length > 0){
+if(files.length > 0){
         files.forEach(file => {
             formData.append("images", file);
         });
-        formData.append("image", files[0]);
     }
 
 
