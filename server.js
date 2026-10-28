@@ -38,6 +38,7 @@ const adminLoginLimiter = rateLimit({
   max: 5,
   message: { success: false, message: "Too many admin login attempts, please try again later." }
 });
+
 /* =========================================================
    DATABASE
 ========================================================= */
@@ -112,6 +113,7 @@ const db = {
   }
 
 };
+
 const productsTableReady = (async () => {
   await tursoClient.execute(`
     CREATE TABLE IF NOT EXISTS products (
@@ -127,11 +129,14 @@ const productsTableReady = (async () => {
     )
   `);
 
-  // Column အဟောင်းများတွင် မပါသေးပါက အလိုအလျောက် ထည့်ပေးရန်
   for (const [name, type] of [["colors", "TEXT DEFAULT ''"], ["images", "TEXT DEFAULT ''"]]) {
     try {
       await tursoClient.execute(`ALTER TABLE products ADD COLUMN ${name} ${type}`);
-    } catch (err) {}
+    } catch (err) {
+      if (!String(err.message).toLowerCase().includes("duplicate column")) {
+        console.error("Products table migration error:", err);
+      }
+    }
   }
 })();
 
@@ -207,7 +212,7 @@ const otpStore =
   Object.create(null);
 
 const resetOtpStore =
-  Object.create(null);  
+  Object.create(null);
 
 cloudinary.config({
 
@@ -298,6 +303,7 @@ function sendJSONError(
   });
 
 }
+
 function getMyanmarDateTime() {
   const options = {
     timeZone: "Asia/Yangon",
@@ -318,6 +324,7 @@ function getMyanmarDateTime() {
   }
   return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second}`;
 }
+
 /* =========================================================
    AUTH MIDDLEWARE
 ========================================================= */
@@ -601,6 +608,7 @@ app.post(
 
   }
 );
+
 /* =========================================================
    REGISTER
 ========================================================= */
@@ -681,7 +689,6 @@ app.post(
       
       const username = email.split("@")[0];
 
-      // ၁။ Customer အသစ်ကို Database ထဲ အရင် INSERT လုပ်ပါ (id က Auto increment ဖြစ်ပါမည်)
       const insertResult = await db.run(
         `INSERT INTO customers
         (
@@ -707,13 +714,9 @@ app.post(
         throw new Error("Failed to generate customer ID.");
       }
 
-      // ၂။ လက်ရှိနှစ်ကို ယူပါ (ဥပမာ- 2026 ဆိုရင် '26')[cite: 2]
       const yearCode = new Date().getFullYear().toString().slice(-2);
-
-      // ၃။ AC26-0001 ပုံစံ Format ဖန်တီးပါ[cite: 2]
       const customerCode = "AC" + yearCode + "-" + String(newId).padStart(4, "0");
 
-      // ၄။ ဖန်တီးလိုက်တဲ့ customer_code ကို Database ထဲ UPDATE ပြန်လုပ်ပါ[cite: 2]
       await db.run(
         `UPDATE customers
          SET customer_code = ?
@@ -798,6 +801,7 @@ app.post(
 
   }
 );
+
 /* =========================================================
    FORGOT PASSWORD
 ========================================================= */
@@ -1002,22 +1006,23 @@ app.post(
         );
 
       }
-if (
-  password === "__VERIFY__"
-) {
 
-  return res.json({
+      if (
+        password === "__VERIFY__"
+      ) {
 
-    success: true,
+        return res.json({
 
-    verified: true,
+          success: true,
 
-    message:
-      "OTP verified."
+          verified: true,
 
-  });
+          message:
+            "OTP verified."
 
-}
+        });
+
+      }
 
       if (
         password.length < 6
@@ -1036,7 +1041,7 @@ if (
           password,
           10
         );
-const username = email.split("@")[0];
+
       const result =
         await db.run(
           `UPDATE customers
@@ -1339,6 +1344,8 @@ app.get(
 
     try {
 
+      await productsTableReady;
+
       const products =
         await db.all(
           `SELECT *
@@ -1366,17 +1373,27 @@ app.get(
     }
 
   }
-);/* =========================================================
-   ADD PRODUCT (Supports Multiple Images & Colors)
+);
+
+/* =========================================================
+   ADD PRODUCT (Supports Multiple Images & Colors/Variant Stock)
 ========================================================= */
+
 app.post(
-  ["/add-product", "/admin/products"],
+  [
+    "/add-product",
+    "/admin/products"
+  ],
   adminAuth,
   (req, res, next) => {
     upload.any()(req, res, error => {
       if (error) {
         console.error("PRODUCT IMAGE UPLOAD ERROR:", error);
-        return sendJSONError(res, 400, error.message || "Image upload failed.");
+        return sendJSONError(
+          res,
+          400,
+          error.message || "Image upload failed."
+        );
       }
       next();
     });
@@ -1384,36 +1401,75 @@ app.post(
   async (req, res) => {
     try {
       await productsTableReady;
+
       const name = clean(req.body.name);
       const description = clean(req.body.description);
       const price = Number(req.body.price);
       const stock = Number(req.body.stock);
       const colors = clean(req.body.colors);
 
-      if (!name) return sendJSONError(res, 400, "Product name is required.");
-      if (!Number.isFinite(price) || price < 0) return sendJSONError(res, 400, "Invalid product price.");
-      if (!Number.isInteger(stock) || stock < 0) return sendJSONError(res, 400, "Invalid stock quantity.");
+      if (!name) {
+        return sendJSONError(res, 400, "Product name is required.");
+      }
 
-      const imageUrls = (req.files || []).map(f => f.path || f.secure_url || f.url).filter(Boolean);
+      if (!Number.isFinite(price) || price < 0) {
+        return sendJSONError(res, 400, "Invalid product price.");
+      }
+
+      if (!Number.isInteger(stock) || stock < 0) {
+        return sendJSONError(res, 400, "Invalid stock quantity.");
+      }
+
+      const imageUrls = (req.files || [])
+        .map(f => f.path || f.secure_url || f.url)
+        .filter(Boolean);
+
       const primaryImage = imageUrls[0] || "";
       const imagesJson = JSON.stringify(imageUrls);
 
       await db.run(
-        `INSERT INTO products (name, description, price, stock, image, colors, images) VALUES (?,?,?,?,?,?,?)`,
-        [name, description, price, stock, primaryImage, colors, imagesJson]
+        `INSERT INTO products
+        (
+          name,
+          description,
+          price,
+          stock,
+          image,
+          colors,
+          images
+        )
+        VALUES (?,?,?,?,?,?,?)`,
+        [
+          name,
+          description,
+          price,
+          stock,
+          primaryImage,
+          colors,
+          imagesJson
+        ]
       );
 
-      return res.json({ success: true, message: "Product added successfully." });
+      return res.json({
+        success: true,
+        message: "Product added successfully."
+      });
+
     } catch (error) {
       console.error("ADD PRODUCT ERROR:", error);
-      return sendJSONError(res, 500, error.message || "Failed to add product.");
+      return sendJSONError(
+        res,
+        500,
+        error.message || "Failed to add product."
+      );
     }
   }
 );
 
 /* =========================================================
-   UPDATE PRODUCT (Supports Multiple Images & Colors)
+   UPDATE PRODUCT (Supports Multiple Images & Colors/Variant Stock)
 ========================================================= */
+
 app.put(
   "/update-product/:id",
   adminAuth,
@@ -1421,7 +1477,11 @@ app.put(
     upload.any()(req, res, error => {
       if (error) {
         console.error("PRODUCT UPDATE IMAGE ERROR:", error);
-        return sendJSONError(res, 400, error.message || "Image upload failed.");
+        return sendJSONError(
+          res,
+          400,
+          error.message || "Image upload failed."
+        );
       }
       next();
     });
@@ -1429,6 +1489,7 @@ app.put(
   async (req, res) => {
     try {
       await productsTableReady;
+
       const id = Number(req.params.id);
       const name = clean(req.body.name);
       const description = clean(req.body.description);
@@ -1436,13 +1497,35 @@ app.put(
       const stock = Number(req.body.stock);
       const colors = clean(req.body.colors);
 
-      if (!Number.isInteger(id) || id <= 0) return sendJSONError(res, 400, "Invalid product ID.");
-      if (!name) return sendJSONError(res, 400, "Product name is required.");
+      if (!Number.isInteger(id) || id <= 0) {
+        return sendJSONError(res, 400, "Invalid product ID.");
+      }
 
-      const product = await db.get("SELECT id, image, images FROM products WHERE id=?", [id]);
-      if (!product) return sendJSONError(res, 404, "Product not found.");
+      if (!name) {
+        return sendJSONError(res, 400, "Product name is required.");
+      }
 
-      const newImageUrls = (req.files || []).map(f => f.path || f.secure_url || f.url).filter(Boolean);
+      if (!Number.isFinite(price) || price < 0) {
+        return sendJSONError(res, 400, "Invalid product price.");
+      }
+
+      if (!Number.isInteger(stock) || stock < 0) {
+        return sendJSONError(res, 400, "Invalid stock quantity.");
+      }
+
+      const product = await db.get(
+        "SELECT id, image, images, colors FROM products WHERE id=?",
+        [id]
+      );
+
+      if (!product) {
+        return sendJSONError(res, 404, "Product not found.");
+      }
+
+      const newImageUrls = (req.files || [])
+        .map(f => f.path || f.secure_url || f.url)
+        .filter(Boolean);
+
       let primaryImage = product.image || "";
       let imagesJson = product.images || "[]";
 
@@ -1451,158 +1534,44 @@ app.put(
         imagesJson = JSON.stringify(newImageUrls);
       }
 
-      await db.run(
-        `UPDATE products SET name=?, price=?, stock=?, description=?, colors=?, image=?, images=? WHERE id=?`,
-        [name, price, stock, description, colors, primaryImage, imagesJson, id]
-      );
-
-      return res.json({ success: true, message: "Product updated successfully." });
-    } catch (error) {
-      console.error("UPDATE PRODUCT ERROR:", error);
-      return sendJSONError(res, 500, error.message || "Failed to update product.");
-    }
-  }
-);
-
-/* =========================================================
-   UPDATE PRODUCT
-========================================================= */
-
-app.put(
-  "/update-product/:id",
-  adminAuth,
-  (req, res, next) => {
-    upload.array("images", 10)(req, res, error => {
-      if (error) return sendJSONError(res, 400, "Image upload failed.");
-      next();
-    });
-  },
-  async (req, res) => {
-
-    try {
-
-      const id =
-        Number(req.params.id);
-
-      const name =
-        clean(req.body.name);
-
-      const description =
-        clean(req.body.description);
-
-      const price =
-        Number(req.body.price);
-
-      const stock =
-        Number(req.body.stock);
-      
-      const colors = clean(req.body.colors);
-
-      if (
-        !Number.isInteger(id) ||
-        id <= 0
-      ) {
-
-        return sendJSONError(
-          res,
-          400,
-          "Invalid product ID."
-        );
-
-      }
-
-      if (!name) {
-
-        return sendJSONError(
-          res,
-          400,
-          "Product name is required."
-        );
-
-      }
-
-      if (
-        !Number.isFinite(price) ||
-        price < 0
-      ) {
-
-        return sendJSONError(
-          res,
-          400,
-          "Invalid product price."
-        );
-
-      }
-
-      if (
-        !Number.isInteger(stock) ||
-        stock < 0
-      ) {
-
-        return sendJSONError(
-          res,
-          400,
-          "Invalid stock quantity."
-        );
-
-      }
-
-      const product =
-        await db.get(
-          "SELECT id, image, images FROM products WHERE id=?",
-          [id]
-        );
-
-      if (!product) {
-
-        return sendJSONError(
-          res,
-          404,
-          "Product not found."
-        );
-
-      }
-
-      const newImageUrls = (req.files || []).map(f => f.path || f.secure_url || f.url).filter(Boolean);
-      let primaryImage = product.image;
-      let imagesJson = product.images;
-
-      if (newImageUrls.length > 0) {
-        primaryImage = newImageUrls[0];
-        imagesJson = JSON.stringify(newImageUrls);
-      }
+      const updatedColors = req.body.colors !== undefined ? colors : (product.colors || "");
 
       await db.run(
         `UPDATE products
-         SET name=?, price=?, stock=?, description=?, colors=?, image=?, images=?
+         SET
+           name=?,
+           price=?,
+           stock=?,
+           description=?,
+           colors=?,
+           image=?,
+           images=?
          WHERE id=?`,
-        [name, price, stock, description, colors, primaryImage, imagesJson, id]
+        [
+          name,
+          price,
+          stock,
+          description,
+          updatedColors,
+          primaryImage,
+          imagesJson,
+          id
+        ]
       );
 
       return res.json({
-
         success: true,
-
-        message:
-          "Product updated successfully."
-
+        message: "Product updated successfully."
       });
 
     } catch (error) {
-
-      console.error(
-        "UPDATE PRODUCT ERROR:",
-        error
-      );
-
+      console.error("UPDATE PRODUCT ERROR:", error);
       return sendJSONError(
         res,
         500,
         "Failed to update product."
       );
-
     }
-
   }
 );
 
@@ -1810,6 +1779,11 @@ app.put(
 
   }
 );
+
+/* =========================================================
+   PLACE ORDER (With Color/Design Variant Stock Deduction)
+========================================================= */
+
 app.post(
   "/place-order",
   auth,
@@ -1818,6 +1792,8 @@ app.post(
     let changedProducts = [];
 
     try {
+
+      await productsTableReady;
 
       const name =
         clean(req.body.name);
@@ -1920,6 +1896,9 @@ app.post(
         const qty =
           Number(item.qty);
 
+        const selectedColor =
+          clean(item.color || "Default");
+
         if (
           !Number.isInteger(productId) ||
           productId <= 0
@@ -1953,7 +1932,8 @@ app.post(
                name,
                price,
                stock,
-               image
+               image,
+               colors
              FROM products
              WHERE id=?`,
             [productId]
@@ -1987,6 +1967,11 @@ app.post(
         subtotal +=
           realPrice * qty;
 
+        const displayName =
+          selectedColor && selectedColor !== "Default" && !String(product.name).includes(`(${selectedColor})`)
+            ? `${product.name} (${selectedColor})`
+            : product.name;
+
         verifiedCart.push({
 
           id:
@@ -1996,7 +1981,10 @@ app.post(
             Number(product.id),
 
           name:
-            product.name,
+            displayName,
+
+          color:
+            selectedColor,
 
           price:
             realPrice,
@@ -2027,24 +2015,56 @@ app.post(
         .join(", ");
 
       /* -----------------------------------------
-         REDUCE STOCK
+         REDUCE STOCK (TOTAL & PER COLOR/DESIGN)
       ----------------------------------------- */
 
       for (
         const item of verifiedCart
       ) {
 
+        const currentProd = await db.get(
+          `SELECT stock, colors FROM products WHERE id=?`,
+          [item.productId]
+        );
+
+        if (!currentProd || Number(currentProd.stock) < item.qty) {
+          throw new Error(
+            `${item.name} is no longer available in the requested quantity.`
+          );
+        }
+
+        const previousColors = String(currentProd.colors || "");
+        let updatedColors = previousColors;
+
+        if (previousColors.includes(":") && item.color && item.color !== "Default") {
+          const parts = previousColors.split(",").map(s => s.trim()).filter(Boolean);
+          const newParts = parts.map(part => {
+            if (!part.includes(":")) return part;
+            const [cName, cQty] = part.split(":");
+            if (cName.trim().toLowerCase() === String(item.color).trim().toLowerCase()) {
+              const avail = Number(cQty) || 0;
+              if (avail < item.qty) {
+                throw new Error(`${item.name} only has ${avail} left in stock.`);
+              }
+              return `${cName.trim()}:${avail - item.qty}`;
+            }
+            return part;
+          });
+          updatedColors = newParts.join(", ");
+        }
+
         const result =
           await tursoClient.execute({
 
             sql:
               `UPDATE products
-               SET stock=stock-?
+               SET stock=stock-?, colors=?
                WHERE id=?
                AND stock>=?`,
 
             args: [
               item.qty,
+              updatedColors,
               item.productId,
               item.qty
             ]
@@ -2067,7 +2087,9 @@ app.post(
             item.productId,
 
           qty:
-            item.qty
+            item.qty,
+
+          previousColors
 
         });
 
@@ -2436,11 +2458,12 @@ Best regards,<br>
 
             sql:
               `UPDATE products
-               SET stock=stock+?
+               SET stock=stock+?, colors=?
                WHERE id=?`,
 
             args: [
               changed.qty,
+              changed.previousColors,
               changed.id
             ]
 
@@ -2470,6 +2493,7 @@ Best regards,<br>
 
   }
 );
+
 /* =========================================================
    MY ORDERS
 ========================================================= */
@@ -2664,6 +2688,8 @@ app.get(
   async (req, res) => {
 
     try {
+
+      await productsTableReady;
 
       const products =
         await db.all(
@@ -2977,6 +3003,7 @@ app.get(
         await db.all(
           `SELECT
              id,
+             customer_code,
              username,
              email,
              phone,
@@ -3689,8 +3716,6 @@ app.put(
         req.file?.path ||
         String(oldItem.image_url || "");
 
-      // If an older form does not send status,
-      // preserve the item's current status.
       const status =
         req.body.status === undefined
           ? String(oldItem.status || "Available")
