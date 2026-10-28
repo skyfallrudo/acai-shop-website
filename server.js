@@ -112,6 +112,28 @@ const db = {
   }
 
 };
+const productsTableReady = (async () => {
+  await tursoClient.execute(`
+    CREATE TABLE IF NOT EXISTS products (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      price REAL NOT NULL,
+      stock INTEGER NOT NULL,
+      image TEXT,
+      colors TEXT DEFAULT '',
+      images TEXT DEFAULT '',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Column အဟောင်းများတွင် မပါသေးပါက အလိုအလျောက် ထည့်ပေးရန်
+  for (const [name, type] of [["colors", "TEXT DEFAULT ''"], ["images", "TEXT DEFAULT ''"]]) {
+    try {
+      await tursoClient.execute(`ALTER TABLE products ADD COLUMN ${name} ${type}`);
+    } catch (err) {}
+  }
+})();
 
 const pinduoduoTableReady = (async () => {
   await tursoClient.execute(`
@@ -136,10 +158,10 @@ const pinduoduoTableReady = (async () => {
     ["tracking_code", "TEXT DEFAULT ''"],
     ["purchase_date", "TEXT NOT NULL DEFAULT ''"],
     ["quantity", "INTEGER NOT NULL DEFAULT 1"],
-["unit", "TEXT NOT NULL DEFAULT 'Piece'"],
-["image_url", "TEXT NOT NULL DEFAULT ''"],
-["color", "TEXT NOT NULL DEFAULT ''"],
- ["status", "TEXT NOT NULL DEFAULT 'Available'"]
+    ["unit", "TEXT NOT NULL DEFAULT 'Piece'"],
+    ["image_url", "TEXT NOT NULL DEFAULT ''"],
+    ["color", "TEXT NOT NULL DEFAULT ''"],
+    ["status", "TEXT NOT NULL DEFAULT 'Available'"]
   ];
 
   for (const [name, type] of columns) {
@@ -1351,146 +1373,38 @@ app.get(
    IMPORTANT:
    Both /add-product and /admin/products work.
 ========================================================= */
-
 app.post(
-  [
-    "/add-product",
-    "/admin/products"
-  ],
+  ["/add-product", "/admin/products"],
   adminAuth,
-
   (req, res, next) => {
-
-    upload.single("image")(
-      req,
-      res,
-      error => {
-
-        if (error) {
-
-          console.error(
-            "PRODUCT IMAGE UPLOAD ERROR:",
-            error
-          );
-
-          return sendJSONError(
-            res,
-            400,
-            error.message ||
-            "Image upload failed."
-          );
-
-        }
-
-        next();
-
-      }
-    );
-
+    // upload.single အစား upload.array သုံး၍ ပုံအများကြီး လက်ခံခြင်း[cite: 7]
+    upload.array("images", 10)(req, res, error => {
+      if (error) return sendJSONError(res, 400, "Image upload failed.");
+      next();
+    });
   },
-
   async (req, res) => {
-
     try {
+      await productsTableReady;
+      const name = clean(req.body.name);
+      const description = clean(req.body.description);
+      const price = Number(req.body.price);
+      const stock = Number(req.body.stock);
+      const colors = clean(req.body.colors); // Color data ရယူရန်[cite: 7]
 
-      const name =
-        clean(req.body.name);
-
-      const description =
-        clean(req.body.description);
-
-      const price =
-        Number(req.body.price);
-
-      const stock =
-        Number(req.body.stock);
-
-      if (!name) {
-
-        return sendJSONError(
-          res,
-          400,
-          "Product name is required."
-        );
-
-      }
-
-      if (
-        !Number.isFinite(price) ||
-        price < 0
-      ) {
-
-        return sendJSONError(
-          res,
-          400,
-          "Invalid product price."
-        );
-
-      }
-
-      if (
-        !Number.isInteger(stock) ||
-        stock < 0
-      ) {
-
-        return sendJSONError(
-          res,
-          400,
-          "Invalid stock quantity."
-        );
-
-      }
-
-      const image =
-        req.file?.path ||
-        req.file?.secure_url ||
-        req.file?.url ||
-        "";
+      const imageUrls = (req.files || []).map(f => f.path || f.secure_url || f.url).filter(Boolean);
+      const primaryImage = imageUrls[0] || "";
+      const imagesJson = JSON.stringify(imageUrls);
 
       await db.run(
-        `INSERT INTO products
-        (
-          name,
-          description,
-          price,
-          stock,
-          image
-        )
-        VALUES (?,?,?,?,?)`,
-        [
-          name,
-          description,
-          price,
-          stock,
-          image
-        ]
+        `INSERT INTO products (name, description, price, stock, image, colors, images) VALUES (?,?,?,?,?,?,?)`,
+        [name, description, price, stock, primaryImage, colors, imagesJson]
       );
 
-      return res.json({
-
-        success: true,
-
-        message:
-          "Product added successfully."
-
-      });
-
+      return res.json({ success: true, message: "Product added successfully." });
     } catch (error) {
-
-      console.error(
-        "ADD PRODUCT ERROR:",
-        error
-      );
-
-      return sendJSONError(
-        res,
-        500,
-        error.message ||
-        "Failed to add product."
-      );
-
+      return sendJSONError(res, 500, "Failed to add product.");
     }
-
   }
 );
 
@@ -1501,6 +1415,12 @@ app.post(
 app.put(
   "/update-product/:id",
   adminAuth,
+  (req, res, next) => {
+    upload.array("images", 10)(req, res, error => {
+      if (error) return sendJSONError(res, 400, "Image upload failed.");
+      next();
+    });
+  },
   async (req, res) => {
 
     try {
@@ -1519,6 +1439,8 @@ app.put(
 
       const stock =
         Number(req.body.stock);
+      
+      const colors = clean(req.body.colors);
 
       if (
         !Number.isInteger(id) ||
@@ -1571,7 +1493,7 @@ app.put(
 
       const product =
         await db.get(
-          "SELECT id FROM products WHERE id=?",
+          "SELECT id, image, images FROM products WHERE id=?",
           [id]
         );
 
@@ -1585,21 +1507,20 @@ app.put(
 
       }
 
+      const newImageUrls = (req.files || []).map(f => f.path || f.secure_url || f.url).filter(Boolean);
+      let primaryImage = product.image;
+      let imagesJson = product.images;
+
+      if (newImageUrls.length > 0) {
+        primaryImage = newImageUrls[0];
+        imagesJson = JSON.stringify(newImageUrls);
+      }
+
       await db.run(
         `UPDATE products
-         SET
-           name=?,
-           price=?,
-           stock=?,
-           description=?
+         SET name=?, price=?, stock=?, description=?, colors=?, image=?, images=?
          WHERE id=?`,
-        [
-          name,
-          price,
-          stock,
-          description,
-          id
-        ]
+        [name, price, stock, description, colors, primaryImage, imagesJson, id]
       );
 
       return res.json({
