@@ -3,36 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Açaí Shop</title>
+    <title>Açaí Shop | Official Portal</title>
     
     <link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css">
     
     <script src="language.js"></script>
 
     <style>
         :root {
-            --bg-dark: #02050d;
-            --card-bg: rgba(15, 23, 42, 0.55);
-            --border-glow: rgba(141, 169, 212, 0.25);
-            --primary-blue: #2563eb;
-            --neon-blue: #60a5fa;
-            --acai-blue: #8da9d4;
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
+            --bg-deep: #02040a;
+            --acai-pastel: #8da9d4;
+            --neon-blue: #3b82f6;
+            --neon-cyan: #60a5fa;
+            --neon-indigo: #6366f1;
+            --glass-bg: rgba(15, 23, 42, 0.55);
+            --glass-border: rgba(141, 169, 212, 0.28);
+            --text-main: #ffffff;
         }
 
         [data-theme="light"] {
-            --bg-dark: #f1f5f9;
-            --card-bg: rgba(255, 255, 255, 0.8);
-            --border-glow: rgba(37, 99, 235, 0.2);
-            --primary-blue: #2563eb;
-            --neon-blue: #1d4ed8;
+            --bg-deep: #eef2ff;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(59, 130, 246, 0.25);
             --text-main: #0f172a;
-            --text-sub: #475569;
         }
 
         * {
@@ -40,118 +37,164 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
-            scroll-behavior: smooth;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
-        body {
-            background-color: var(--bg-dark);
+        html, body {
+            width: 100%;
+            height: 100dvh;
+            overflow: hidden;
+            background-color: var(--bg-deep);
             color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
             position: relative;
         }
 
         /* ==========================================
-           PRO INTERACTIVE CANVAS & CYBER GRID
+           1. PRO 3D CYBER ENVIRONMENT & CANVAS
         ========================================== */
-        #particleCanvas {
+        #warpCanvas {
             position: fixed;
             inset: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            z-index: 1;
             pointer-events: none;
         }
 
-        .cyber-perspective {
+        /* Moving 3D Cyber Floor & Ceiling Grid */
+        .cyber-grid-floor {
             position: fixed;
-            inset: 0;
-            z-index: -2;
-            background: 
-                radial-gradient(circle at 50% 35%, rgba(37, 99, 235, 0.18), transparent 65%),
-                linear-gradient(to right, rgba(141, 169, 212, 0.04) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(141, 169, 212, 0.04) 1px, transparent 1px);
-            background-size: 100% 100%, 55px 55px, 55px 55px;
-            animation: gridDrift 18s linear infinite;
+            inset: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(to right, rgba(141, 169, 212, 0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(141, 169, 212, 0.07) 1px, transparent 1px);
+            background-size: 60px 60px;
+            transform: perspective(600px) rotateX(68deg) translateY(0);
+            animation: gridMove 8s linear infinite;
+            mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 10%, transparent 65%);
+            -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 10%, transparent 65%);
+            z-index: 0;
+            pointer-events: none;
         }
 
-        @keyframes gridDrift {
-            0% { background-position: 0 0, 0 0, 0 0; }
-            100% { background-position: 0 0, 55px 55px, 55px 55px; }
+        @keyframes gridMove {
+            0% { transform: perspective(600px) rotateX(68deg) translateY(0); }
+            100% { transform: perspective(600px) rotateX(68deg) translateY(60px); }
         }
 
-        .cursor-aura {
+        /* Ambient Aurora Blobs */
+        .aurora {
             position: fixed;
-            width: 450px;
-            height: 450px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(96, 165, 250, 0.16) 0%, transparent 70%);
+            filter: blur(110px);
+            opacity: 0.45;
+            z-index: 0;
+            pointer-events: none;
+            animation: auroraFloat 10s ease-in-out infinite alternate;
+        }
+
+        .aurora-1 {
+            width: 45vw;
+            height: 45vw;
+            min-width: 300px;
+            min-height: 300px;
+            background: radial-gradient(circle, #2563eb, transparent 70%);
+            top: -15%;
+            left: -10%;
+        }
+
+        .aurora-2 {
+            width: 45vw;
+            height: 45vw;
+            min-width: 300px;
+            min-height: 300px;
+            background: radial-gradient(circle, #6366f1, transparent 70%);
+            bottom: -15%;
+            right: -10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes auroraFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, 30px) scale(1.18); }
+        }
+
+        /* Interactive Cursor Glow */
+        .cursor-glow {
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, rgba(141, 169, 212, 0.22) 0%, transparent 70%);
+            border-radius: 50%;
             pointer-events: none;
             transform: translate(-50%, -50%);
-            z-index: -1;
-            transition: width 0.3s, height 0.3s;
-            filter: blur(25px);
+            z-index: 2;
+            filter: blur(20px);
+            transition: opacity 0.3s;
         }
 
         /* ==========================================
-           FLOATING GLASS NAVBAR
+           2. FLOATING GLASS NAVBAR
         ========================================== */
         nav {
             position: fixed;
-            top: 18px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             width: 92%;
-            max-width: 1200px;
-            z-index: 1000;
+            max-width: 1180px;
+            z-index: 100;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 24px;
+            padding: 10px 20px;
             border-radius: 22px;
-            background: rgba(10, 15, 29, 0.65);
-            backdrop-filter: blur(22px);
-            -webkit-backdrop-filter: blur(22px);
-            border: 1px solid var(--border-glow);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35), 0 0 20px rgba(141, 169, 212, 0.08) inset;
+            animation: navDrop 0.9s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        [data-theme="light"] nav {
-            background: rgba(255, 255, 255, 0.75);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        @keyframes navDrop {
+            from { transform: translate(-50%, -60px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
         }
 
-        .nav-logo {
+        .nav-brand {
             display: flex;
             align-items: center;
             text-decoration: none;
         }
 
-        .nav-logo img {
+        .nav-brand img {
             height: 36px;
             width: auto;
             object-fit: contain;
-            filter: drop-shadow(0 0 10px rgba(141, 169, 212, 0.7));
-            transition: transform 0.35s ease;
+            filter: drop-shadow(0 0 12px rgba(141, 169, 212, 0.85));
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .nav-logo:hover img {
-            transform: scale(1.12) rotate(-4deg);
+        .nav-brand:hover img {
+            transform: scale(1.12) rotate(-5deg);
         }
 
-        .nav-actions {
+        .nav-controls {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .icon-btn {
+        .glass-icon-btn {
             width: 42px;
             height: 42px;
             border-radius: 14px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-glow);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
             color: var(--text-main);
             display: flex;
             justify-content: center;
@@ -162,18 +205,22 @@
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .icon-btn:hover {
-            border-color: var(--neon-blue);
-            transform: translateY(-3px) scale(1.06);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        [data-theme="light"] .glass-icon-btn {
+            background: rgba(37, 99, 235, 0.06);
         }
 
-        .cart-badge {
+        .glass-icon-btn:hover {
+            transform: translateY(-3px) scale(1.06);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.45);
+        }
+
+        .badge-count {
             position: absolute;
             top: -5px;
             right: -5px;
             background: #ef4444;
-            color: white;
+            color: #fff;
             font-size: 10px;
             font-weight: 800;
             width: 20px;
@@ -185,553 +232,459 @@
             box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
         }
 
-        .lang-select {
+        .lang-switch {
             padding: 9px 12px;
             border-radius: 14px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-glow);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
             color: var(--text-main);
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             outline: none;
             cursor: pointer;
         }
 
+        [data-theme="light"] .lang-switch option {
+            background: #ffffff;
+            color: #0f172a;
+        }
+        body:not([data-theme="light"]) .lang-switch option {
+            background: #0f172a;
+            color: #ffffff;
+        }
+
         /* ==========================================
-           PURE ANIMATED CENTERSTAGE HERO (NO TEXT)
+           3. CENTER 3D HOLOGRAPHIC PORTAL & LOGO
         ========================================== */
-        .hero-stage {
-            height: 100vh;
+        .stage-container {
+            position: relative;
+            z-index: 10;
             width: 100%;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            position: relative;
+            padding: 70px 20px 30px;
             perspective: 1200px;
-            padding: 0 20px;
         }
 
-        .logo-portal {
+        .portal-core {
             position: relative;
+            width: clamp(270px, 65vw, 520px);
+            height: clamp(240px, 48vw, 390px);
             display: flex;
             justify-content: center;
             align-items: center;
-            width: clamp(280px, 55vw, 480px);
-            height: clamp(220px, 40vw, 340px);
-            margin-bottom: 45px;
             transform-style: preserve-3d;
             transition: transform 0.15s ease-out;
+            margin-bottom: clamp(28px, 5vh, 52px);
         }
 
-        /* Rotating Cyber Energy Rings */
-        .portal-ring {
+        /* Animated Energy Rings */
+        .energy-ring {
             position: absolute;
             border-radius: 50%;
             pointer-events: none;
         }
 
-        .ring-1 {
-            width: clamp(260px, 45vw, 400px);
-            height: clamp(260px, 45vw, 400px);
-            border: 2px dashed rgba(141, 169, 212, 0.3);
-            box-shadow: 0 0 50px rgba(37, 99, 235, 0.25), inset 0 0 50px rgba(37, 99, 235, 0.25);
-            animation: spinRight 24s linear infinite;
+        .ring-outer {
+            width: clamp(260px, 55vw, 440px);
+            height: clamp(260px, 55vw, 440px);
+            border: 1.5px solid rgba(141, 169, 212, 0.2);
+            border-top: 2.5px solid var(--neon-cyan);
+            border-bottom: 2.5px solid var(--acai-pastel);
+            box-shadow: 0 0 50px rgba(59, 130, 246, 0.25), inset 0 0 40px rgba(141, 169, 212, 0.2);
+            animation: orbitSpin 12s linear infinite;
         }
 
-        .ring-2 {
-            width: clamp(310px, 52vw, 470px);
-            height: clamp(310px, 52vw, 470px);
-            border: 1px solid rgba(96, 165, 250, 0.18);
-            border-top-color: var(--neon-blue);
-            border-bottom-color: #818cf8;
-            animation: spinLeft 14s linear infinite;
+        .ring-inner {
+            width: clamp(210px, 44vw, 350px);
+            height: clamp(210px, 44vw, 350px);
+            border: 2px dashed rgba(141, 169, 212, 0.35);
+            animation: orbitSpinReverse 18s linear infinite;
         }
 
-        .ring-glow {
+        .ring-pulse {
+            width: clamp(190px, 40vw, 310px);
+            height: clamp(190px, 40vw, 310px);
+            border: 1px solid rgba(96, 165, 250, 0.5);
+            animation: shockwave 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+        }
+
+        /* Neon Core Backlight behind transparent PNG */
+        .core-backlight {
             position: absolute;
-            width: 280px;
-            height: 280px;
-            background: radial-gradient(circle, rgba(141, 169, 212, 0.55) 0%, rgba(37, 99, 235, 0.2) 55%, transparent 75%);
+            width: clamp(200px, 42vw, 330px);
+            height: clamp(200px, 42vw, 330px);
+            background: radial-gradient(circle, rgba(141, 169, 212, 0.65) 0%, rgba(59, 130, 246, 0.3) 45%, transparent 72%);
             border-radius: 50%;
-            filter: blur(30px);
-            animation: breatheGlow 3.8s ease-in-out infinite;
+            filter: blur(28px);
+            animation: coreBreathe 4s ease-in-out infinite;
         }
 
-        @keyframes spinRight {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        @keyframes orbitSpin {
+            0% { transform: rotateZ(0deg) rotateX(18deg) rotateY(10deg); }
+            100% { transform: rotateZ(360deg) rotateX(18deg) rotateY(10deg); }
         }
 
-        @keyframes spinLeft {
-            from { transform: rotate(360deg) scale(0.96); }
-            50% { transform: rotate(180deg) scale(1.04); }
-            to { transform: rotate(0deg) scale(0.96); }
+        @keyframes orbitSpinReverse {
+            0% { transform: rotateZ(360deg) rotateX(-15deg); }
+            100% { transform: rotateZ(0deg) rotateX(-15deg); }
         }
 
-        @keyframes breatheGlow {
-            0%, 100% { transform: scale(0.88); opacity: 0.65; }
-            50% { transform: scale(1.25); opacity: 1; }
+        @keyframes shockwave {
+            0% { transform: scale(0.8); opacity: 0.9; }
+            100% { transform: scale(1.65); opacity: 0; }
         }
 
-        /* Main PNG Logo with 3D Levitation */
-        .acai-main-logo {
-            width: 100%;
-            max-width: 430px;
+        @keyframes coreBreathe {
+            0%, 100% { transform: scale(0.92); opacity: 0.7; }
+            50% { transform: scale(1.22); opacity: 1; }
+        }
+
+        /* TRUE TRANSPARENT PNG LOGO: acai-logo.png */
+        .acai-hero-png {
+            width: 92%;
+            max-width: 450px;
             height: auto;
             object-fit: contain;
             position: relative;
-            z-index: 5;
-            transform: translateZ(50px);
-            filter: drop-shadow(0 20px 40px rgba(37, 99, 235, 0.65))
-                    drop-shadow(0 0 20px rgba(141, 169, 212, 0.8));
-            animation: levitateLogo 4s ease-in-out infinite;
+            z-index: 10;
+            transform: translateZ(65px);
+            filter: 
+                drop-shadow(0 0 18px rgba(141, 169, 212, 0.95))
+                drop-shadow(0 20px 45px rgba(37, 99, 235, 0.75));
+            animation: floatMaster 4.2s ease-in-out infinite;
             cursor: pointer;
-            user-select: none;
+            transition: filter 0.3s ease;
         }
 
-        @keyframes levitateLogo {
-            0%, 100% { transform: translateZ(50px) translateY(0px) scale(1); }
-            50% { transform: translateZ(70px) translateY(-18px) scale(1.04); }
+        .acai-hero-png:hover {
+            filter: 
+                drop-shadow(0 0 28px rgba(255, 255, 255, 0.95))
+                drop-shadow(0 0 55px rgba(59, 130, 246, 1));
+        }
+
+        @keyframes floatMaster {
+            0%, 100% { transform: translateZ(65px) translateY(0px) scale(1); }
+            50% { transform: translateZ(85px) translateY(-18px) scale(1.04); }
         }
 
         /* ==========================================
-           PRO ANIMATED ACTION BUTTONS ONLY
+           4. EXPLOSIVE ACTION BUTTONS (SHOP & TRACK)
         ========================================== */
-        .cta-dock {
+        .action-dock {
             display: flex;
-            gap: 22px;
+            gap: 20px;
             align-items: center;
             justify-content: center;
-            flex-wrap: wrap;
-            z-index: 10;
+            z-index: 20;
+            width: 100%;
+            max-width: 560px;
+            animation: dockRise 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .btn-pro-shop {
+        @keyframes dockRise {
+            from { transform: translateY(45px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .btn-cyber {
             position: relative;
             overflow: hidden;
-            display: inline-flex;
+            flex: 1;
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 14px;
-            padding: 18px 46px;
+            gap: 12px;
+            padding: 19px 32px;
             border-radius: 20px;
-            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #3b82f6 100%);
-            background-size: 200% 200%;
-            color: #ffffff;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 800;
             letter-spacing: 1.5px;
             text-transform: uppercase;
             text-decoration: none;
-            border: 1px solid rgba(255, 255, 255, 0.35);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        /* SHOP NOW - Primary Neon Button */
+        .btn-shop {
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #3b82f6 100%);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
             box-shadow: 
                 0 15px 40px rgba(37, 99, 235, 0.65),
-                0 0 25px rgba(96, 165, 250, 0.5) inset;
-            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: pulseButton 3s infinite;
+                0 0 25px rgba(141, 169, 212, 0.55) inset;
+            animation: shopPulse 3s infinite;
         }
 
-        @keyframes pulseButton {
-            0%, 100% { box-shadow: 0 15px 40px rgba(37, 99, 235, 0.6), 0 0 20px rgba(96, 165, 250, 0.4) inset; }
-            50% { box-shadow: 0 20px 55px rgba(59, 130, 246, 0.9), 0 0 35px rgba(147, 197, 253, 0.75) inset; }
+        @keyframes shopPulse {
+            0%, 100% { box-shadow: 0 15px 40px rgba(37, 99, 235, 0.6), 0 0 20px rgba(141, 169, 212, 0.4) inset; }
+            50% { box-shadow: 0 22px 55px rgba(59, 130, 246, 0.95), 0 0 35px rgba(255, 255, 255, 0.7) inset; }
         }
 
-        .btn-pro-shop::before {
+        /* Laser Shimmer Sweep */
+        .btn-shop::before {
             content: "";
             position: absolute;
             top: 0;
             left: -130%;
-            width: 80%;
+            width: 75%;
             height: 100%;
-            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.75), transparent);
             transform: skewX(-25deg);
-            animation: laserSweep 2.8s infinite;
+            animation: laserBeam 2.8s infinite;
         }
 
-        @keyframes laserSweep {
+        @keyframes laserBeam {
             0% { left: -130%; }
             45%, 100% { left: 160%; }
         }
 
-        .btn-pro-shop:hover {
-            transform: translateY(-6px) scale(1.06);
-            letter-spacing: 2.5px;
-        }
-
-        .btn-pro-track {
-            position: relative;
-            overflow: hidden;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 18px 38px;
-            border-radius: 20px;
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            color: var(--text-main);
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            text-decoration: none;
-            border: 1px solid rgba(141, 169, 212, 0.4);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        [data-theme="light"] .btn-pro-track {
-            background: rgba(255, 255, 255, 0.85);
-        }
-
-        .btn-pro-track:hover {
+        .btn-shop:hover {
             transform: translateY(-6px) scale(1.05);
-            border-color: var(--neon-blue);
-            box-shadow: 0 18px 40px rgba(37, 99, 235, 0.35), 0 0 20px rgba(96, 165, 250, 0.25) inset;
-            color: var(--neon-blue);
+            letter-spacing: 2.2px;
         }
 
-        /* Animated Scroll Indicator */
-        .scroll-indicator {
-            position: absolute;
-            bottom: 28px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: var(--acai-blue);
-            font-size: 20px;
-            opacity: 0.7;
-            animation: bounceDown 2s infinite;
-            text-decoration: none;
+        .btn-shop:active {
+            transform: scale(0.97);
         }
 
-        @keyframes bounceDown {
-            0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
-            40% { transform: translate(-50%, -12px); }
-            60% { transform: translate(-50%, -6px); }
+        /* TRACK ORDER - Glass Secondary Button */
+        .btn-track {
+            background: var(--glass-bg);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            color: var(--text-main);
+            border: 1px solid rgba(141, 169, 212, 0.45);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35), 0 0 15px rgba(141, 169, 212, 0.12) inset;
+        }
+
+        .btn-track:hover {
+            transform: translateY(-6px) scale(1.05);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 18px 45px rgba(59, 130, 246, 0.4), 0 0 25px rgba(96, 165, 250, 0.3) inset;
+        }
+
+        .btn-track:active {
+            transform: scale(0.97);
         }
 
         /* ==========================================
-           PRODUCTS SHOWCASE SECTION
+           5. MOBILE FIRST RESPONSIVE PERFECTION
         ========================================== */
-        .catalog-section {
-            max-width: 1240px;
-            margin: 0 auto;
-            padding: 40px 5% 90px;
-        }
+        @media (max-width: 640px) {
+            nav {
+                top: 14px;
+                width: 92%;
+                padding: 10px 16px;
+                border-radius: 18px;
+            }
 
-        .search-bar-wrap {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 36px;
-        }
+            .nav-brand img {
+                height: 30px;
+            }
 
-        .search-box {
-            position: relative;
-            width: 100%;
-            max-width: 480px;
-        }
+            .glass-icon-btn {
+                width: 38px;
+                height: 38px;
+                border-radius: 12px;
+            }
 
-        .search-box input {
-            width: 100%;
-            padding: 15px 20px 15px 48px;
-            border-radius: 18px;
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border-glow);
-            color: var(--text-main);
-            font-size: 14px;
-            outline: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-        }
+            .stage-container {
+                justify-content: center;
+                padding: 60px 20px 25px;
+            }
 
-        .search-box input:focus {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 25px rgba(37, 99, 235, 0.35);
-        }
+            .portal-core {
+                width: 88vw;
+                height: 72vw;
+                max-height: 300px;
+                margin-bottom: 36px;
+            }
 
-        .search-box i {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--acai-blue);
-            font-size: 16px;
-        }
+            .acai-hero-png {
+                width: 86%;
+                max-width: 310px;
+            }
 
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
-            gap: 24px;
-        }
+            .action-dock {
+                flex-direction: column;
+                gap: 14px;
+                width: 100%;
+                max-width: 340px;
+            }
 
-        .product-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-glow);
-            border-radius: 24px;
-            overflow: hidden;
-            backdrop-filter: blur(18px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
-            position: relative;
-        }
+            .btn-cyber {
+                width: 100%;
+                padding: 17px 24px;
+                font-size: 15px;
+                border-radius: 18px;
+            }
 
-        .product-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: var(--neon-blue);
-            box-shadow: 0 22px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(37, 99, 235, 0.3);
-        }
-
-        .card-img-wrap {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            background: #020617;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .card-img-wrap img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-
-        .product-card:hover .card-img-wrap img {
-            transform: scale(1.1);
-        }
-
-        .stock-pill {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: rgba(2, 5, 13, 0.75);
-            backdrop-filter: blur(8px);
-            color: #4ade80;
-            padding: 5px 12px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 700;
-            border: 1px solid rgba(74, 222, 128, 0.35);
-        }
-
-        .stock-pill.out {
-            color: #f87171;
-            border-color: rgba(248, 113, 113, 0.35);
-        }
-
-        .card-body {
-            padding: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex: 1;
-        }
-
-        .card-title {
-            font-size: 15.5px;
-            font-weight: 700;
-            line-height: 1.35;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-price {
-            font-size: 18.5px;
-            font-weight: 800;
-            color: var(--neon-blue);
-        }
-
-        .card-btn {
-            margin-top: auto;
-            width: 100%;
-            padding: 12px;
-            border-radius: 14px;
-            border: none;
-            background: linear-gradient(135deg, #2563eb, #4f46e5);
-            color: white;
-            font-weight: 700;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .card-btn:hover {
-            box-shadow: 0 8px 22px rgba(37, 99, 235, 0.55);
-            filter: brightness(1.15);
-        }
-
-        @media (max-width: 600px) {
-            nav { top: 10px; padding: 10px 16px; width: 94%; }
-            .logo-portal { margin-bottom: 35px; }
-            .cta-dock { width: 100%; flex-direction: column; gap: 14px; }
-            .btn-pro-shop, .btn-pro-track { width: 100%; max-width: 320px; padding: 16px 24px; }
-            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .card-body { padding: 12px; }
-            .card-title { font-size: 13.5px; }
-            .card-price { font-size: 15px; }
+            .cursor-glow {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Animated Cyber Background & Particle Canvas -->
-    <div class="cyber-perspective"></div>
-    <div class="cursor-aura" id="cursorAura"></div>
-    <canvas id="particleCanvas"></canvas>
+    <!-- 3D Cyber Grid & Aurora Glows -->
+    <div class="cyber-grid-floor"></div>
+    <div class="aurora aurora-1"></div>
+    <div class="aurora aurora-2"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <canvas id="warpCanvas"></canvas>
 
     <!-- Floating Glass Navigation -->
     <nav>
-        <a href="index.html" class="nav-logo">
-            <img src="acai-logo.png" onerror="this.src='logo.jpg'" alt="Açaí">
+        <a href="index.html" class="nav-brand">
+            <img src="acai-logo.png" onerror="this.src='logo.png'" alt="Açaí">
         </a>
 
-        <div class="nav-actions">
-            <button class="icon-btn" id="themeToggle" title="Theme">
+        <div class="nav-controls">
+            <button class="glass-icon-btn" id="themeBtn" title="Toggle Theme">
                 <i class="fa-solid fa-sun" id="themeIcon"></i>
             </button>
 
-            <select class="lang-select" onchange="if(typeof changeLanguage === 'function') changeLanguage(this.value)">
+            <select class="lang-switch" onchange="if(typeof changeLanguage === 'function') changeLanguage(this.value)">
                 <option value="en">EN</option>
                 <option value="mm">MM</option>
             </select>
 
-            <a href="cart.html" class="icon-btn" title="Cart">
+            <a href="cart.html" class="glass-icon-btn" title="Cart">
                 <i class="fa-solid fa-bag-shopping"></i>
-                <span class="cart-badge" id="cartCount">0</span>
+                <span class="badge-count" id="cartCount">0</span>
             </a>
 
-            <a href="login.html" class="icon-btn" id="accountBtn" title="Account">
+            <a href="login.html" class="glass-icon-btn" id="accountBtn" title="Account">
                 <i class="fa-solid fa-user"></i>
             </a>
         </div>
     </nav>
 
-    <!-- CENTERPIECE HERO: LOGO + 2 BUTTONS ONLY -->
-    <section class="hero-stage" id="heroStage">
+    <!-- PURE PRO HERO STAGE: TRANSPARENT PNG LOGO + 2 BUTTONS ONLY -->
+    <main class="stage-container" id="stageContainer">
         
-        <div class="logo-portal" id="logoPortal">
-            <div class="portal-ring ring-1"></div>
-            <div class="portal-ring ring-2"></div>
-            <div class="ring-glow"></div>
-            <img src="logo.png" onerror="this.src='logo.jpg'" alt="Açaí" class="acai-main-logo">
+        <div class="portal-core" id="portalCore">
+            <div class="energy-ring ring-outer"></div>
+            <div class="energy-ring ring-inner"></div>
+            <div class="energy-ring ring-pulse"></div>
+            <div class="core-backlight"></div>
+            
+            <!-- အစစ်အမှန် Transparent PNG: acai-logo.png -->
+            <img src="acai-logo.png" onerror="this.src='logo.png'" alt="Açaí" class="acai-hero-png" onclick="window.location.href='shop.html'">
         </div>
 
-        <div class="cta-dock">
-            <a href="#shopSection" class="btn-pro-shop">
+        <div class="action-dock">
+            <a href="shop.html" class="btn-cyber btn-shop">
                 <i class="fa-solid fa-bolt"></i>
-                <span>Shop Now</span>
+                <span data-i18n="shop_now">Shop Now</span>
+                <i class="fa-solid fa-arrow-right"></i>
             </a>
 
-            <a href="my-orders.html" class="btn-pro-track">
+            <a href="my-orders.html" class="btn-cyber btn-track">
                 <i class="fa-solid fa-location-crosshairs"></i>
-                <span>Track Order</span>
+                <span data-i18n="track_order">Track Order</span>
             </a>
         </div>
 
-        <a href="#shopSection" class="scroll-indicator">
-            <i class="fa-solid fa-angles-down"></i>
-        </a>
-
-    </section>
-
-    <!-- PRODUCTS SECTION -->
-    <section class="catalog-section" id="shopSection">
-        <div class="search-bar-wrap">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Search items...">
-            </div>
-        </div>
-
-        <div class="product-grid" id="productGrid"></div>
-    </section>
+    </main>
 
     <script>
-        /* --- 1. Interactive 3D Tilt & Cursor Aura --- */
-        const heroStage = document.getElementById("heroStage");
-        const logoPortal = document.getElementById("logoPortal");
-        const cursorAura = document.getElementById("cursorAura");
+        /* --- 1. 3D Interactive Parallax (Desktop Mouse + Mobile Touch) --- */
+        const stage = document.getElementById("stageContainer");
+        const portal = document.getElementById("portalCore");
+        const cursorGlow = document.getElementById("cursorGlow");
 
         window.addEventListener("mousemove", (e) => {
-            cursorAura.style.left = e.clientX + "px";
-            cursorAura.style.top = e.clientY + "px";
+            cursorGlow.style.left = e.clientX + "px";
+            cursorGlow.style.top = e.clientY + "px";
+
+            const x = (e.clientX / window.innerWidth - 0.5) * 32;
+            const y = (e.clientY / window.innerHeight - 0.5) * 32;
+            portal.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
         });
 
-        heroStage.addEventListener("mousemove", (e) => {
-            const rect = heroStage.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / rect.width - 0.5;
-            const y = (e.clientY - rect.top) / rect.height - 0.5;
-            logoPortal.style.transform = `rotateY(${x * 28}deg) rotateX(${-y * 28}deg)`;
+        window.addEventListener("mouseleave", () => {
+            portal.style.transform = `rotateY(0deg) rotateX(0deg)`;
         });
 
-        heroStage.addEventListener("mouseleave", () => {
-            logoPortal.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        /* Mobile Touch Tilt Effect */
+        window.addEventListener("touchmove", (e) => {
+            if (!e.touches[0]) return;
+            const touch = e.touches[0];
+            const x = (touch.clientX / window.innerWidth - 0.5) * 24;
+            const y = (touch.clientY / window.innerHeight - 0.5) * 24;
+            portal.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+        }, { passive: true });
+
+        window.addEventListener("touchend", () => {
+            portal.style.transform = `rotateY(0deg) rotateX(0deg)`;
         });
 
-        /* --- 2. Floating Cyber Particles Canvas --- */
-        const canvas = document.getElementById("particleCanvas");
+        /* --- 2. Interactive Starfield & Energy Particles Canvas --- */
+        const canvas = document.getElementById("warpCanvas");
         const ctx = canvas.getContext("2d");
-        let particles = [];
+        let stars = [];
 
-        function resizeCanvas() {
+        function initCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            stars = [];
+            const count = window.innerWidth < 640 ? 45 : 85;
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2.4 + 0.6,
+                    speedX: (Math.random() - 0.5) * 0.6,
+                    speedY: (Math.random() - 0.5) * 0.6,
+                    alpha: Math.random() * 0.75 + 0.25,
+                    pulse: Math.random() * 0.02 + 0.005
+                });
+            }
         }
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
+        window.addEventListener("resize", initCanvas);
+        initCanvas();
 
-        for (let i = 0; i < 55; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                r: Math.random() * 2.2 + 0.6,
-                dx: (Math.random() - 0.5) * 0.45,
-                dy: (Math.random() - 0.5) * 0.45,
-                alpha: Math.random() * 0.65 + 0.2
-            });
-        }
-
-        function animateParticles() {
+        function renderStars() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.x += p.dx;
-                p.y += p.dy;
-                if (p.x < 0) p.x = canvas.width;
-                if (p.x > canvas.width) p.x = 0;
-                if (p.y < 0) p.y = canvas.height;
-                if (p.y > canvas.height) p.y = 0;
+            for (let s of stars) {
+                s.x += s.speedX;
+                s.y += s.speedY;
+                s.alpha += s.pulse;
+                if (s.alpha > 1 || s.alpha < 0.2) s.pulse = -s.pulse;
+
+                if (s.x < 0) s.x = canvas.width;
+                if (s.x > canvas.width) s.x = 0;
+                if (s.y < 0) s.y = canvas.height;
+                if (s.y > canvas.height) s.y = 0;
 
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(141, 169, 212, ${p.alpha})`;
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(141, 169, 212, ${s.alpha})`;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = "#60a5fa";
                 ctx.fill();
-            });
-            requestAnimationFrame(animateParticles);
+            }
+            requestAnimationFrame(renderStars);
         }
-        animateParticles();
+        renderStars();
 
         /* --- 3. Theme Toggle --- */
-        const themeToggle = document.getElementById("themeToggle");
+        const themeBtn = document.getElementById("themeBtn");
         const themeIcon = document.getElementById("themeIcon");
         if (localStorage.getItem("theme") === "light") {
             document.body.setAttribute("data-theme", "light");
             themeIcon.className = "fa-solid fa-moon";
         }
 
-        themeToggle.addEventListener("click", () => {
+        themeBtn.addEventListener("click", () => {
             const isLight = document.body.getAttribute("data-theme") === "light";
             if (isLight) {
                 document.body.removeAttribute("data-theme");
@@ -744,85 +697,19 @@
             }
         });
 
-        /* --- 4. Cart & User Session --- */
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        document.getElementById("cartCount").innerText = cart.reduce((s, i) => s + (Number(i.qty) || 1), 0);
+        /* --- 4. Cart Badge & User Login Status --- */
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        document.getElementById("cartCount").innerText = cart.reduce((sum, i) => sum + (Number(i.qty) || 1), 0);
 
         fetch("/me", { credentials: "include" })
             .then(r => r.json())
             .then(d => {
                 if (d.loggedIn) {
-                    const btn = document.getElementById("accountBtn");
-                    btn.href = "profile.html";
-                    btn.innerHTML = '<i class="fa-solid fa-user-check" style="color:#4ade80;"></i>';
+                    const acc = document.getElementById("accountBtn");
+                    acc.href = "profile.html";
+                    acc.innerHTML = '<i class="fa-solid fa-user-check" style="color:#4ade80;"></i>';
                 }
             }).catch(() => {});
-
-        /* --- 5. Load & Filter Products --- */
-        let allProducts = [];
-
-        async function loadProducts() {
-            const grid = document.getElementById("productGrid");
-            try {
-                const res = await fetch("/products");
-                allProducts = await res.json();
-                renderProducts(allProducts);
-            } catch (err) {
-                grid.innerHTML = "";
-            }
-        }
-
-        function renderProducts(list) {
-            const grid = document.getElementById("productGrid");
-            if (!Array.isArray(list) || list.length === 0) {
-                grid.innerHTML = "";
-                return;
-            }
-
-            grid.innerHTML = list.map(p => {
-                let firstImg = p.image || "logo.png";
-                try {
-                    if (p.images) {
-                        const parsed = JSON.parse(p.images);
-                        if (Array.isArray(parsed) && parsed.length > 0) firstImg = parsed[0];
-                    }
-                } catch (e) {}
-
-                if (firstImg && !firstImg.startsWith("http") && firstImg !== "logo.png" && firstImg !== "logo.jpg") {
-                    firstImg = "/uploads/" + firstImg;
-                }
-
-                const inStock = Number(p.stock) > 0;
-
-                return `
-                    <div class="product-card" onclick="window.location.href='product-detail.html?id=${p.id}'">
-                        <div class="card-img-wrap">
-                            <span class="stock-pill ${inStock ? '' : 'out'}">
-                                ${inStock ? `Stock: ${p.stock}` : 'Sold Out'}
-                            </span>
-                            <img src="${firstImg}" onerror="this.src='logo.jpg'" alt="${p.name}" loading="lazy">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">${p.name}</div>
-                            <div class="card-price">${Number(p.price).toLocaleString()} MMK</div>
-                            <button class="card-btn" onclick="event.stopPropagation(); window.location.href='product-detail.html?id=${p.id}'">
-                                <i class="fa-solid fa-bolt"></i> Shop Now
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        document.getElementById("searchInput").addEventListener("input", (e) => {
-            const q = e.target.value.toLowerCase().trim();
-            renderProducts(allProducts.filter(p => 
-                String(p.name || "").toLowerCase().includes(q) ||
-                String(p.colors || "").toLowerCase().includes(q)
-            ));
-        });
-
-        loadProducts();
     </script>
 </body>
 </html>
