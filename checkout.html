@@ -1018,10 +1018,7 @@ document.getElementById("checkoutForm").addEventListener("submit",async function
         }
 
         if(data.success){
-
-    
-    await generateVoucherPDF(order, data.orderId || Date.now());
-
+            
     localStorage.removeItem("cart");
 
     window.location="order-success.html";
