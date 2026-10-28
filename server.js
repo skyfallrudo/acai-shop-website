@@ -125,11 +125,18 @@ const productsTableReady = (async () => {
       image TEXT,
       colors TEXT DEFAULT '',
       images TEXT DEFAULT '',
+      category TEXT DEFAULT '',
+      pricing_rules TEXT DEFAULT '',
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
-  for (const [name, type] of [["colors", "TEXT DEFAULT ''"], ["images", "TEXT DEFAULT ''"]]) {
+  for (const [name, type] of [
+    ["colors", "TEXT DEFAULT ''"],
+    ["images", "TEXT DEFAULT ''"],
+    ["category", "TEXT DEFAULT ''"],
+    ["pricing_rules", "TEXT DEFAULT ''"]
+  ]) {
     try {
       await tursoClient.execute(`ALTER TABLE products ADD COLUMN ${name} ${type}`);
     } catch (err) {
@@ -323,6 +330,55 @@ function getMyanmarDateTime() {
     }
   }
   return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second}`;
+}
+
+/* Custom Pricing Rules တွက်ချက်ပေးသည့် Function */
+function calculateTieredLineTotal(basePrice, pricingRulesStr, qty) {
+  const unitPrice = Number(basePrice) || 0;
+  const count = Number(qty) || 0;
+  if (count <= 0) return 0;
+
+  let rules = {};
+  try {
+    if (pricingRulesStr) {
+      rules = JSON.parse(pricingRulesStr) || {};
+    }
+  } catch (e) {
+    rules = {};
+  }
+
+  // အကယ်၍ ရွေးထားသော အရေအတွက်အတိအကျအတွက် သတ်မှတ်ဈေးရှိလျှင် ထိုဈေးကို တိုက်ရိုက်ယူမည်
+  if (rules[String(count)] !== undefined && Number(rules[String(count)]) >= 0) {
+    return Number(rules[String(count)]);
+  }
+
+  // အရေအတွက် များသွားပါက အကြီးဆုံး Bundle ဈေးများဖြင့် အလိုအလျောက် တွက်ပေးမည်
+  const tiers = Object.keys(rules)
+    .map(k => ({ q: Number(k), p: Number(rules[k]) }))
+    .filter(t => Number.isInteger(t.q) && t.q > 0 && Number.isFinite(t.p) && t.p >= 0)
+    .sort((a, b) => b.q - a.q);
+
+  if (tiers.length === 0) {
+    return unitPrice * count;
+  }
+
+  let remaining = count;
+  let total = 0;
+
+  for (const tier of tiers) {
+    if (remaining >= tier.q) {
+      const bundles = Math.floor(remaining / tier.q);
+      total += bundles * tier.p;
+      remaining = remaining % tier.q;
+    }
+  }
+
+  if (remaining > 0) {
+    const singleRulePrice = rules["1"] !== undefined ? Number(rules["1"]) : unitPrice;
+    total += remaining * singleRulePrice;
+  }
+
+  return total;
 }
 
 /* =========================================================
@@ -1376,7 +1432,7 @@ app.get(
 );
 
 /* =========================================================
-   ADD PRODUCT (Supports Multiple Images & Colors/Variant Stock)
+   ADD PRODUCT (Supports Multiple Images, Category & Pricing Rules)
 ========================================================= */
 
 app.post(
@@ -1407,9 +1463,15 @@ app.post(
       const price = Number(req.body.price);
       const stock = Number(req.body.stock);
       const colors = clean(req.body.colors);
+      const category = clean(req.body.category);
+      const pricing_rules = clean(req.body.pricing_rules);
 
       if (!name) {
         return sendJSONError(res, 400, "Product name is required.");
+      }
+
+      if (!category) {
+        return sendJSONError(res, 400, "Product category is required.");
       }
 
       if (!Number.isFinite(price) || price < 0) {
@@ -1436,9 +1498,11 @@ app.post(
           stock,
           image,
           colors,
-          images
+          images,
+          category,
+          pricing_rules
         )
-        VALUES (?,?,?,?,?,?,?)`,
+        VALUES (?,?,?,?,?,?,?,?,?)`,
         [
           name,
           description,
@@ -1446,7 +1510,9 @@ app.post(
           stock,
           primaryImage,
           colors,
-          imagesJson
+          imagesJson,
+          category,
+          pricing_rules
         ]
       );
 
@@ -1467,7 +1533,7 @@ app.post(
 );
 
 /* =========================================================
-   UPDATE PRODUCT (Supports Multiple Images & Colors/Variant Stock)
+   UPDATE PRODUCT (Supports Multiple Images, Category & Pricing Rules)
 ========================================================= */
 
 app.put(
@@ -1496,6 +1562,8 @@ app.put(
       const price = Number(req.body.price);
       const stock = Number(req.body.stock);
       const colors = clean(req.body.colors);
+      const category = clean(req.body.category);
+      const pricing_rules = clean(req.body.pricing_rules);
 
       if (!Number.isInteger(id) || id <= 0) {
         return sendJSONError(res, 400, "Invalid product ID.");
@@ -1503,6 +1571,10 @@ app.put(
 
       if (!name) {
         return sendJSONError(res, 400, "Product name is required.");
+      }
+
+      if (!category) {
+        return sendJSONError(res, 400, "Product category is required.");
       }
 
       if (!Number.isFinite(price) || price < 0) {
@@ -1514,7 +1586,7 @@ app.put(
       }
 
       const product = await db.get(
-        "SELECT id, image, images, colors FROM products WHERE id=?",
+        "SELECT id, image, images, colors, category, pricing_rules FROM products WHERE id=?",
         [id]
       );
 
@@ -1535,6 +1607,8 @@ app.put(
       }
 
       const updatedColors = req.body.colors !== undefined ? colors : (product.colors || "");
+      const updatedCategory = req.body.category !== undefined ? category : (product.category || "");
+      const updatedPricingRules = req.body.pricing_rules !== undefined ? pricing_rules : (product.pricing_rules || "");
 
       await db.run(
         `UPDATE products
@@ -1545,7 +1619,9 @@ app.put(
            description=?,
            colors=?,
            image=?,
-           images=?
+           images=?,
+           category=?,
+           pricing_rules=?
          WHERE id=?`,
         [
           name,
@@ -1555,6 +1631,8 @@ app.put(
           updatedColors,
           primaryImage,
           imagesJson,
+          updatedCategory,
+          updatedPricingRules,
           id
         ]
       );
@@ -1781,7 +1859,7 @@ app.put(
 );
 
 /* =========================================================
-   PLACE ORDER (With Color/Design Variant Stock Deduction)
+   PLACE ORDER (With Color/Design Variant Stock & Pricing Rules)
 ========================================================= */
 
 app.post(
@@ -1933,7 +2011,8 @@ app.post(
                price,
                stock,
                image,
-               colors
+               colors,
+               pricing_rules
              FROM products
              WHERE id=?`,
             [productId]
@@ -1961,11 +2040,15 @@ app.post(
 
         }
 
-        const realPrice =
-          Number(product.price);
+        const lineTotal = calculateTieredLineTotal(
+          product.price,
+          product.pricing_rules,
+          qty
+        );
 
-        subtotal +=
-          realPrice * qty;
+        const effectiveUnitPrice = Math.round((lineTotal / qty) * 100) / 100;
+
+        subtotal += lineTotal;
 
         const displayName =
           selectedColor && selectedColor !== "Default" && !String(product.name).includes(`(${selectedColor})`)
@@ -1987,7 +2070,9 @@ app.post(
             selectedColor,
 
           price:
-            realPrice,
+            effectiveUnitPrice,
+
+          lineTotal,
 
           qty,
 
@@ -2234,9 +2319,10 @@ padding:10px;
 text-align:right;
 border-bottom:1px solid #E2E8F0;
 ">
-${(
-  Number(item.price) *
-  Number(item.qty)
+${Number(
+  item.lineTotal !== undefined
+    ? item.lineTotal
+    : Number(item.price) * Number(item.qty)
 ).toLocaleString()} MMK
 </td>
 

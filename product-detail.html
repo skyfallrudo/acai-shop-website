@@ -49,6 +49,7 @@
             padding-bottom: 95px;
         }
 
+        /* Top Bar */
         .top-nav {
             position: sticky;
             top: 0;
@@ -99,6 +100,7 @@
             align-items: center;
         }
 
+        /* Main Detail Layout */
         .detail-container {
             max-width: 1050px;
             margin: 24px auto;
@@ -109,6 +111,7 @@
             align-items: start;
         }
 
+        /* Image Slider Card */
         .gallery-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -185,6 +188,7 @@
             border-color: var(--primary-blue);
         }
 
+        /* Product Info Card */
         .info-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -260,7 +264,7 @@
         }
 
         .color-btn {
-            padding: 9px 16px;
+            padding: 9px 18px;
             border-radius: 12px;
             border: 1px solid var(--border-color);
             background: rgba(255, 255, 255, 0.03);
@@ -269,9 +273,6 @@
             font-weight: 500;
             cursor: pointer;
             transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .color-btn.active {
@@ -279,24 +280,6 @@
             border-color: var(--primary-blue);
             color: var(--accent-text);
             font-weight: 600;
-        }
-
-        .color-btn.sold-out {
-            opacity: 0.45;
-            text-decoration: line-through;
-        }
-
-        .variant-qty-tag {
-            font-size: 11px;
-            padding: 1px 6px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--subtext-color);
-        }
-
-        .color-btn.active .variant-qty-tag {
-            background: var(--primary-blue);
-            color: #ffffff;
         }
 
         .qty-row {
@@ -443,7 +426,7 @@
             <hr class="divider">
 
             <div>
-                <span class="section-label">Select Color / Design</span>
+                <span class="section-label">Select Color / Variant</span>
                 <div class="color-options" id="colorOptions">
                     <button class="color-btn active">Default</button>
                 </div>
@@ -507,87 +490,28 @@
         }
         updateCartBadge();
 
-        /* Product & Variant Stock Logic */
+        /* Product Detail Logic */
         const params = new URLSearchParams(window.location.search);
         const productId = params.get("id");
 
         let currentProduct = null;
-        let variantsList = []; // [{ name: "Black", stock: 5 }, ...]
-        let selectedVariant = { name: "Default", stock: 0 };
+        let selectedColor = "Default";
         let selectedQty = 1;
         let productImages = [];
 
-        /* Parse "Black:5, White:2" or "Black, White" */
-        function parseVariants(colorsStr, fallbackTotalStock) {
-            const rawParts = String(colorsStr || "")
-                .split(",")
-                .map(s => s.trim())
-                .filter(Boolean);
-
-            if (rawParts.length === 0) {
-                return [{ name: "Default", stock: Number(fallbackTotalStock) || 0, hasCustomStock: false }];
-            }
-
-            return rawParts.map(part => {
-                if (part.includes(":")) {
-                    const [cName, cQty] = part.split(":");
-                    const parsedStock = Number(cQty);
-                    return {
-                        name: cName.trim(),
-                        stock: Number.isFinite(parsedStock) && parsedStock >= 0 ? parsedStock : 0,
-                        hasCustomStock: true
-                    };
-                }
-                return {
-                    name: part.trim(),
-                    stock: Number(fallbackTotalStock) || 0,
-                    hasCustomStock: false
-                };
-            });
-        }
-
-        function updateStockDisplay() {
-            const stockEl = document.getElementById("productStock");
-            const addBtn = document.getElementById("addToCartBtn");
-            const buyBtn = document.getElementById("buyNowBtn");
-            const available = Number(selectedVariant.stock) || 0;
-
-            if (available > 0) {
-                stockEl.innerText = `${selectedVariant.name !== "Default" ? selectedVariant.name + " • " : ""}In Stock: ${available}`;
-                stockEl.classList.remove("out");
-                addBtn.disabled = false;
-                buyBtn.disabled = false;
-                if (selectedQty > available) {
-                    selectedQty = available;
-                    document.getElementById("qtyValue").innerText = selectedQty;
-                }
-            } else {
-                stockEl.innerText = `${selectedVariant.name !== "Default" ? selectedVariant.name + " • " : ""}Out of Stock`;
-                stockEl.classList.add("out");
-                addBtn.disabled = true;
-                buyBtn.disabled = true;
-            }
-        }
-
-        function selectVariant(index) {
-            selectedVariant = variantsList[index];
-            selectedQty = 1;
-            document.getElementById("qtyValue").innerText = 1;
-
-            document.querySelectorAll(".color-btn").forEach((btn, idx) => {
-                btn.classList.toggle("active", idx === index);
-            });
-
-            updateStockDisplay();
+        function selectColor(btn, colorName) {
+            document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            selectedColor = colorName;
         }
 
         function changeQty(delta) {
             if (!currentProduct) return;
-            const maxStock = Number(selectedVariant.stock) || 0;
+            const maxStock = Number(currentProduct.stock) || 0;
             const next = selectedQty + delta;
             if (next < 1) return;
-            if (next > maxStock) {
-                alert(`Only ${maxStock} left for ${selectedVariant.name}.`);
+            if (maxStock > 0 && next > maxStock) {
+                alert("Only " + maxStock + " items available in stock.");
                 return;
             }
             selectedQty = next;
@@ -638,6 +562,18 @@
                 document.getElementById("productPrice").innerText = Number(item.price).toLocaleString() + " MMK";
                 document.getElementById("productDesc").innerText = item.description || "High quality item from Acai Shop.";
 
+                const stockNum = Number(item.stock) || 0;
+                const stockEl = document.getElementById("productStock");
+                if (stockNum > 0) {
+                    stockEl.innerText = `In Stock: ${stockNum}`;
+                    stockEl.classList.remove("out");
+                } else {
+                    stockEl.innerText = "Out of Stock";
+                    stockEl.classList.add("out");
+                    document.getElementById("addToCartBtn").disabled = true;
+                    document.getElementById("buyNowBtn").disabled = true;
+                }
+
                 /* Multiple Images Setup */
                 productImages = [];
                 try {
@@ -677,23 +613,22 @@
                     thumbStrip.style.display = "none";
                 }
 
-                /* Variant Stock Setup */
-                variantsList = parseVariants(item.colors, item.stock);
-                const firstAvailableIdx = variantsList.findIndex(v => v.stock > 0);
-                const defaultIdx = firstAvailableIdx >= 0 ? firstAvailableIdx : 0;
-
+                /* Colors Setup */
                 const colorBox = document.getElementById("colorOptions");
-                colorBox.innerHTML = variantsList.map((v, idx) => `
-                    <button 
-                        class="color-btn ${idx === defaultIdx ? 'active' : ''} ${v.stock <= 0 ? 'sold-out' : ''}" 
-                        onclick="selectVariant(${idx})"
-                    >
-                        <span>${v.name}</span>
-                        ${v.hasCustomStock ? `<span class="variant-qty-tag">${v.stock}</span>` : ""}
-                    </button>
-                `).join("");
+                const colors = String(item.colors || "")
+                    .split(",")
+                    .map(c => c.trim())
+                    .filter(Boolean);
 
-                selectVariant(defaultIdx);
+                if (colors.length > 0) {
+                    selectedColor = colors[0];
+                    colorBox.innerHTML = colors.map((c, idx) => `
+                        <button class="color-btn ${idx === 0 ? 'active' : ''}" onclick="selectColor(this, '${c.replace(/'/g, "\\'")}')">${c}</button>
+                    `).join("");
+                } else {
+                    selectedColor = "Default";
+                    colorBox.innerHTML = `<button class="color-btn active">Default</button>`;
+                }
 
             } catch (err) {
                 console.error("Failed to load product detail:", err);
@@ -717,15 +652,12 @@
                 return;
             }
 
-            const maxStock = Number(selectedVariant.stock) || 0;
-            const existing = cart.find(i => 
-                String(i.productId || i.id) === String(currentProduct.id) && 
-                (i.color || "Default") === selectedVariant.name
-            );
+            const maxStock = Number(currentProduct.stock) || 0;
+            const existing = cart.find(i => String(i.id) === String(currentProduct.id) && (i.color || "Default") === selectedColor);
             const currentInCart = existing ? Number(existing.qty) : 0;
 
             if (currentInCart + selectedQty > maxStock) {
-                alert(`Only ${maxStock} items available for ${selectedVariant.name}.`);
+                alert("Only " + maxStock + " items left in stock.");
                 return;
             }
 
@@ -735,8 +667,8 @@
                 cart.push({
                     id: currentProduct.id,
                     productId: currentProduct.id,
-                    name: selectedVariant.name !== "Default" ? `${currentProduct.name} (${selectedVariant.name})` : currentProduct.name,
-                    color: selectedVariant.name,
+                    name: selectedColor !== "Default" ? `${currentProduct.name} (${selectedColor})` : currentProduct.name,
+                    color: selectedColor,
                     price: Number(currentProduct.price),
                     qty: selectedQty,
                     image: productImages[0] || "logo.jpg"
@@ -749,7 +681,7 @@
             if (goToCartImmediately) {
                 window.location.href = "cart.html";
             } else {
-                alert(`${currentProduct.name} (${selectedVariant.name}) added to cart!`);
+                alert(`${currentProduct.name} (${selectedColor}) added to cart!`);
             }
         }
 
