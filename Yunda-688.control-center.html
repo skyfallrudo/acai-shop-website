@@ -362,6 +362,29 @@ body{
     background:#15803D;
 }
 
+.color-badge {
+    display:inline-block;
+    padding:3px 8px;
+    margin:2px;
+    border-radius:6px;
+    background:#1E293B;
+    border:1px solid rgba(96,165,250,.35);
+    color:#93C5FD;
+    font-size:11px;
+    font-weight:500;
+}
+
+.id-badge {
+    display:inline-block;
+    padding:3px 8px;
+    border-radius:6px;
+    background:rgba(37,99,235,.15);
+    color:#60A5FA;
+    font-family:monospace;
+    font-size:12px;
+    font-weight:600;
+}
+
 .search{
     width:100%;
     padding:12px 14px;
@@ -416,7 +439,8 @@ tr:hover td{
 }
 
 .product-id{
-    color:#64748B;
+    color:#60A5FA;
+    font-weight:600;
 }
 
 .price-text{
@@ -1113,7 +1137,7 @@ tr:hover td{
                     id="productPrice"
                     type="number"
                     min="0"
-                    placeholder="Price"
+                    placeholder="Price (MMK)"
                     required
                 >
 
@@ -1127,21 +1151,33 @@ tr:hover td{
                 >
 
                 <input
+                    name="colors"
+                    id="productColors"
+                    placeholder="Colors (e.g. Black, Blue, Red)"
+                >
+
+                <input
                     name="description"
                     id="productDescription"
                     placeholder="Description"
                 >
 
                 <input
-                    name="image"
+                    name="images"
                     id="productImage"
                     type="file"
+                    multiple
                     accept="image/png,image/jpeg,image/webp"
+                    title="Select multiple product photos"
                 >
 
                 <button type="submit" id="productSubmitButton">
                     <i class="fa-solid fa-plus"></i>
                     Add Product
+                </button>
+
+                <button type="button" class="btn refresh" id="cancelProductEditBtn" onclick="resetProductForm()">
+                    Cancel / Clear
                 </button>
 
             </form>
@@ -1150,7 +1186,7 @@ tr:hover td{
             <input
                 class="search"
                 id="productSearch"
-                placeholder="Search products..."
+                placeholder="Search by Product ID (e.g. #1, PRD-0001), name, or color..."
             >
 
 
@@ -1160,8 +1196,10 @@ tr:hover td{
 
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Product ID</th>
+                            <th>Photos</th>
                             <th>Name</th>
+                            <th>Colors / Variants</th>
                             <th>Price</th>
                             <th>Stock</th>
                             <th>Action</th>
@@ -1171,7 +1209,7 @@ tr:hover td{
                     <tbody id="productTable">
 
                         <tr>
-                            <td colspan="5" class="loading">
+                            <td colspan="7" class="loading">
                                 Loading products...
                             </td>
                         </tr>
@@ -1205,7 +1243,7 @@ tr:hover td{
             <input
                 class="search"
                 id="orderSearch"
-                placeholder="Search customer or order..."
+                placeholder="Search customer, order ID or order code..."
             >
 
 
@@ -1215,7 +1253,7 @@ tr:hover td{
 
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>ID / Code</th>
                             <th>Customer</th>
                             <th>Total</th>
                             <th>Status</th>
@@ -1260,7 +1298,7 @@ tr:hover td{
             <input
                 class="search"
                 id="customerSearch"
-                placeholder="Search customers..."
+                placeholder="Search by Customer ID (e.g. #1, AC26-0001), email, phone or address..."
             >
 
 
@@ -1271,6 +1309,7 @@ tr:hover td{
                     <thead>
 
                         <tr>
+                            <th>Customer ID</th>
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Address</th>
@@ -1283,7 +1322,7 @@ tr:hover td{
                     <tbody id="customerTable">
 
                         <tr>
-                            <td colspan="5" class="loading">
+                            <td colspan="6" class="loading">
                                 Loading customers...
                             </td>
                         </tr>
@@ -1527,6 +1566,8 @@ tr:hover td{
 let lastOrderCount = 0;
 let adminStarted = false;
 let dashboardInterval = null;
+let allProductsCache = [];
+let editingProductId = null;
 
 
 
@@ -1947,11 +1988,22 @@ function drawChart(data){
 
 
 
+function resetProductForm(){
+    editingProductId = null;
+    const form = document.getElementById("productForm");
+    form.reset();
+    const button = document.getElementById("productSubmitButton");
+    button.innerHTML = '<i class="fa-solid fa-plus"></i> Add Product';
+    button.disabled = false;
+}
+
+
 async function loadProducts(silent=false){
 
     try{
 
         const products=await getJSON("/products");
+        allProductsCache = Array.isArray(products) ? products : [];
 
         const table=
             document.getElementById("productTable");
@@ -1964,7 +2016,7 @@ async function loadProducts(silent=false){
 
             table.innerHTML=`
                 <tr>
-                    <td colspan="5" class="empty">
+                    <td colspan="7" class="empty">
                         No products found.
                     </td>
                 </tr>
@@ -1977,6 +2029,8 @@ async function loadProducts(silent=false){
 
         products.forEach(p=>{
 
+            const id = Number(p.id);
+            const productCode = "PRD-" + String(id).padStart(4, "0");
             const stock=Number(p.stock)||0;
 
             let stockClass="stock-good";
@@ -1991,17 +2045,54 @@ async function loadProducts(silent=false){
 
             }
 
+            let imgList = [];
+            try {
+                if (p.images) {
+                    const parsed = JSON.parse(p.images);
+                    if (Array.isArray(parsed)) imgList = parsed;
+                }
+            } catch (e) {}
+            if (imgList.length === 0 && p.image) {
+                imgList = [p.image];
+            }
+
+            const firstImg = imgList[0] || "";
+            const photoHtml = firstImg
+                ? `<div style="display:flex;align-items:center;gap:6px;">
+                     <img class="stock-photo" src="${escapeHTML(firstImg)}" alt="Product" loading="lazy">
+                     ${imgList.length > 1 ? `<span class="color-badge">+${imgList.length - 1}</span>` : ""}
+                   </div>`
+                : `<span class="stock-photo-empty">No photo</span>`;
+
+            const colorItems = String(p.colors || "")
+                .split(",")
+                .map(c => c.trim())
+                .filter(Boolean);
+
+            const colorsHtml = colorItems.length
+                ? colorItems.map(c => `<span class="color-badge">${escapeHTML(c)}</span>`).join("")
+                : `<span style="color:#64748B;font-size:12px;">Default</span>`;
+
 
             table.innerHTML+=`
 
-                <tr>
+                <tr data-search="${escapeHTML(`#${id} ${id} ${productCode} ${p.name || ""} ${p.colors || ""} ${p.description || ""}`.toLowerCase())}">
 
                     <td class="product-id">
-                        #${escapeHTML(p.id)}
+                        <span class="id-badge">#${id}</span>
+                        <div style="font-size:11px;color:#64748B;margin-top:3px;">${productCode}</div>
+                    </td>
+
+                    <td>
+                        ${photoHtml}
                     </td>
 
                     <td class="product-name">
                         ${escapeHTML(p.name)}
+                    </td>
+
+                    <td>
+                        ${colorsHtml}
                     </td>
 
                     <td class="price-text">
@@ -2013,24 +2104,17 @@ async function loadProducts(silent=false){
                     </td>
 
                     <td>
-<button
-    class="btn edit"
-    onclick='editProduct(
-        ${Number(p.id)},
-        ${JSON.stringify(p.name || "").replace(/'/g, "&#39;")},
-        ${Number(p.price) || 0},
-        ${Number(p.stock) || 0},
-        ${JSON.stringify(p.description || "").replace(/'/g, "&#39;")}
-    )'
->
-    <i class="fa-solid fa-pen"></i>
-    Edit
-</button>
-
+                        <button
+                            class="btn edit"
+                            onclick="startEditProduct(${id})"
+                        >
+                            <i class="fa-solid fa-pen"></i>
+                            Edit
+                        </button>
 
                         <button
                             class="btn delete"
-                            onclick="deleteProduct(${Number(p.id)})"
+                            onclick="deleteProduct(${id})"
                         >
                             <i class="fa-solid fa-trash"></i>
                             Delete
@@ -2066,6 +2150,27 @@ async function loadProducts(silent=false){
 
 
 
+function startEditProduct(id){
+    const p = allProductsCache.find(item => Number(item.id) === Number(id));
+    if(!p) return;
+
+    editingProductId = Number(id);
+
+    document.getElementById("productName").value = p.name || "";
+    document.getElementById("productPrice").value = p.price ?? 0;
+    document.getElementById("productStock").value = p.stock ?? 0;
+    document.getElementById("productColors").value = p.colors || "";
+    document.getElementById("productDescription").value = p.description || "";
+    document.getElementById("productImage").value = "";
+
+    document.getElementById("productSubmitButton").innerHTML =
+        '<i class="fa-solid fa-floppy-disk"></i> Save Product #' + id;
+
+    document.getElementById("products").scrollIntoView({ behavior: "smooth" });
+}
+
+
+
 document.getElementById("productForm")
 .addEventListener("submit",async function(e){
 
@@ -2090,6 +2195,12 @@ document.getElementById("productForm")
         Number(
             document.getElementById("productStock").value
         );
+
+    const colors=
+        document.getElementById("productColors").value.trim();
+
+    const description=
+        document.getElementById("productDescription").value.trim();
 
 
     if(!name){
@@ -2119,46 +2230,59 @@ document.getElementById("productForm")
     }
 
 
-    const file=
-        document.getElementById("productImage").files[0];
+    const files=
+        Array.from(document.getElementById("productImage").files || []);
 
+    const allowed=[
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
 
-    if(file){
-
-        const allowed=[
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-        ];
-
+    for(const file of files){
         if(!allowed.includes(file.type)){
-
             showToast(
                 "Only JPG, PNG or WEBP images are allowed.",
                 true
             );
-
             return;
-
         }
-
     }
 
 
-    const formData=new FormData(form);
+    const formData=new FormData();
+    formData.append("name", name);
+    formData.append("price", price);
+    formData.append("stock", stock);
+    formData.append("colors", colors);
+    formData.append("description", description);
+
+    if(files.length > 0){
+        files.forEach(file => {
+            formData.append("images", file);
+        });
+        formData.append("image", files[0]);
+    }
 
 
+    const isEditing = editingProductId !== null;
     button.disabled=true;
 
     button.innerHTML=
-        '<i class="fa-solid fa-spinner fa-spin"></i> Adding...';
+        isEditing
+            ? '<i class="fa-solid fa-spinner fa-spin"></i> Updating...'
+            : '<i class="fa-solid fa-spinner fa-spin"></i> Adding...';
 
 
     try{
 
-        const data=await getJSON("/add-product",{
+        const url = isEditing
+            ? "/update-product/" + editingProductId
+            : "/add-product";
 
-            method:"POST",
+        const data=await getJSON(url,{
+
+            method: isEditing ? "PUT" : "POST",
 
             body:formData
 
@@ -2167,16 +2291,16 @@ document.getElementById("productForm")
 
         if(data.success){
 
-            showToast("Product added successfully.");
+            showToast(isEditing ? "Product updated successfully." : "Product added successfully.");
 
-            form.reset();
+            resetProductForm();
 
             await loadProducts();
 
         }else{
 
             showToast(
-                data.message || "Failed to add product.",
+                data.message || "Failed to save product.",
                 true
             );
 
@@ -2184,10 +2308,10 @@ document.getElementById("productForm")
 
     }catch(error){
 
-        console.error("Add product error:",error);
+        console.error("Save product error:",error);
 
         showToast(
-            error.message || "Failed to add product.",
+            error.message || "Failed to save product.",
             true
         );
 
@@ -2196,147 +2320,13 @@ document.getElementById("productForm")
 
     button.disabled=false;
 
-    button.innerHTML=
-        '<i class="fa-solid fa-plus"></i> Add Product';
+    if(editingProductId === null){
+        button.innerHTML='<i class="fa-solid fa-plus"></i> Add Product';
+    }else{
+        button.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Save Product #' + editingProductId;
+    }
 
 });
-
-
-async function editProduct(
-    id,
-    name,
-    price,
-    stock,
-    description
-){
-
-    const newName=prompt(
-        "Product Name",
-        name
-    );
-
-    if(newName===null) return;
-
-
-    const cleanName=newName.trim();
-
-    if(!cleanName){
-
-        alert("Product name cannot be empty.");
-
-        return;
-
-    }
-
-
-    const newPrice=prompt(
-        "Price",
-        price
-    );
-
-    if(newPrice===null) return;
-
-
-    const newStock=prompt(
-        "Stock",
-        stock
-    );
-
-    if(newStock===null) return;
-
-
-    const newDescription=prompt(
-        "Description",
-        description || ""
-    );
-
-    if(newDescription===null) return;
-
-
-    const numericPrice=Number(newPrice);
-
-    const numericStock=Number(newStock);
-
-
-    if(
-        !Number.isFinite(numericPrice) ||
-        numericPrice<0
-    ){
-
-        alert("Invalid price.");
-
-        return;
-
-    }
-
-
-    if(
-        !Number.isInteger(numericStock) ||
-        numericStock<0
-    ){
-
-        alert("Invalid stock.");
-
-        return;
-
-    }
-
-
-    try{
-
-        const data=await getJSON(
-            "/update-product/"+id,
-            {
-
-                method:"PUT",
-
-                headers:{
-                    "Content-Type":"application/json"
-                },
-
-                body:JSON.stringify({
-
-                    name:cleanName,
-
-                    price:numericPrice,
-
-                    stock:numericStock,
-
-                    description:newDescription
-
-                })
-
-            }
-        );
-
-
-        if(data.success===false){
-
-            throw new Error(
-                data.message ||
-                "Update failed."
-            );
-
-        }
-
-
-        showToast("Product updated.");
-
-        await loadProducts();
-
-
-    }catch(error){
-
-        console.error("Edit product error:",error);
-
-        showToast(
-            error.message || "Update failed.",
-            true
-        );
-
-    }
-
-}
 
 
 
@@ -2370,6 +2360,10 @@ async function deleteProduct(id){
 
 
         showToast("Product deleted.");
+
+        if(Number(editingProductId) === Number(id)){
+            resetProductForm();
+        }
 
         await loadProducts();
 
@@ -2435,14 +2429,16 @@ async function loadOrders(silent=false){
         orders.forEach(o=>{
 
             const status=o.status || "Pending";
+            const orderCode = o.order_code || "";
 
 
             table.innerHTML+=`
 
-                <tr>
+                <tr data-search="${escapeHTML(`#${o.id} ${o.id} ${orderCode} ${o.customer || ""} ${o.email || ""} ${o.phone || ""}`.toLowerCase())}">
 
                     <td>
-                        #${escapeHTML(o.id)}
+                        <span class="id-badge">#${escapeHTML(o.id)}</span>
+                        ${orderCode ? `<div style="font-size:11px;color:#64748B;margin-top:3px;">${escapeHTML(orderCode)}</div>` : ""}
                     </td>
 
                     <td>
@@ -2752,15 +2748,15 @@ document.getElementById("dBuilding").innerText =
 
             order.items.forEach(item=>{
 
+                const colorTag = item.color ? ` (${item.color})` : "";
+
                 box.innerHTML+=`
 
                     <div class="order-item">
 
                         <span class="order-item-name">
                             ${escapeHTML(
-                                item.name ||
-                                item.product_name ||
-                                "Product"
+                                (item.name || item.product_name || "Product") + colorTag
                             )}
                         </span>
 
@@ -2858,7 +2854,7 @@ async function loadCustomers(silent=false){
 
             table.innerHTML=`
                 <tr>
-                    <td colspan="5" class="empty">
+                    <td colspan="6" class="empty">
                         No customers found.
                     </td>
                 </tr>
@@ -2871,9 +2867,18 @@ async function loadCustomers(silent=false){
 
         customers.forEach(c=>{
 
+            const id = Number(c.id);
+            const yearCode = new Date().getFullYear().toString().slice(-2);
+            const customerCode = c.customer_code || ("AC" + yearCode + "-" + String(id).padStart(4, "0"));
+
             table.innerHTML+=`
 
-                <tr>
+                <tr data-search="${escapeHTML(`#${id} ${id} ${customerCode} ${c.username || ""} ${c.email || ""} ${c.phone || ""} ${c.address || ""}`.toLowerCase())}">
+
+                    <td>
+                        <span class="id-badge">#${id}</span>
+                        <div style="font-size:11px;color:#64748B;margin-top:3px;">${escapeHTML(customerCode)}</div>
+                    </td>
 
                     <td>
                         ${escapeHTML(c.email || "-")}
@@ -2895,7 +2900,7 @@ async function loadCustomers(silent=false){
 
                         <button
                             class="btn delete"
-                            onclick="deleteCustomer(${Number(c.id)})"
+                            onclick="deleteCustomer(${id})"
                         >
                             <i class="fa-solid fa-trash"></i>
                             Delete
@@ -3003,10 +3008,10 @@ function applyProductSearch(){
         "#productTable tr"
     ).forEach(row=>{
 
+        const hay = (row.getAttribute("data-search") || row.innerText).toLowerCase();
+
         row.style.display=
-            row.innerText
-            .toLowerCase()
-            .includes(keyword)
+            hay.includes(keyword)
             ? ""
             : "none";
 
@@ -3035,10 +3040,10 @@ function applyOrderSearch(){
         "#orderTable tr"
     ).forEach(row=>{
 
+        const hay = (row.getAttribute("data-search") || row.innerText).toLowerCase();
+
         row.style.display=
-            row.innerText
-            .toLowerCase()
-            .includes(keyword)
+            hay.includes(keyword)
             ? ""
             : "none";
 
@@ -3067,10 +3072,10 @@ function applyCustomerSearch(){
         "#customerTable tr"
     ).forEach(row=>{
 
+        const hay = (row.getAttribute("data-search") || row.innerText).toLowerCase();
+
         row.style.display=
-            row.innerText
-            .toLowerCase()
-            .includes(keyword)
+            hay.includes(keyword)
             ? ""
             : "none";
 
@@ -3286,9 +3291,6 @@ async function updateStockStatus(id, newStatus, selectElement) {
         await loadPinduoduo();
         return;
     }
-
-    const previousStatus =
-        item.status === "Sold" ? "Sold" : "Available";
 
     selectElement.disabled = true;
 
