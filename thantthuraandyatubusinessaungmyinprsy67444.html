@@ -1131,7 +1131,18 @@ tr:hover td{
                     placeholder="Product Name"
                     required
                 >
-
+<select
+    name="category"
+    id="productCategory"
+    required
+    style="width:100%;padding:12px 13px;border:1px solid rgba(255,255,255,.07);border-radius:11px;background:#1E293B;color:white;outline:none;"
+>
+    <option value="" disabled selected>Select Category (Required)</option>
+    <option value="keychain">Keychain</option>
+    <option value="squishy">Squishy</option>
+    <option value="clothing">Jewelry </option>
+    <option value="accessories">Accessories</option>
+</select>
                 <input
                     name="price"
                     id="productPrice"
@@ -2157,6 +2168,7 @@ function startEditProduct(id){
     editingProductId = Number(id);
 
     document.getElementById("productName").value = p.name || "";
+    document.getElementById("productCategory").value = p.category || "accessories";
     document.getElementById("productPrice").value = p.price ?? 0;
     document.getElementById("productStock").value = p.stock ?? 0;
     document.getElementById("productColors").value = p.colors || "";
@@ -2185,7 +2197,7 @@ document.getElementById("productForm")
 
     const name=
         document.getElementById("productName").value.trim();
-
+const category = document.getElementById("productCategory").value.trim();
     const price=
         Number(
             document.getElementById("productPrice").value
@@ -2252,6 +2264,7 @@ document.getElementById("productForm")
 
     const formData=new FormData();
     formData.append("name", name);
+    formData.append("category", category);
     formData.append("price", price);
     formData.append("stock", stock);
     formData.append("colors", colors);
@@ -3466,7 +3479,7 @@ function editStock(id) {
     document.getElementById("stockShipping").value = item.shipping_fee ?? "";
     document.getElementById("stockDateDisplay").value = item.purchase_date || "";
 
-    // Keep the existing photo unless a new one is selected.
+   
     document.getElementById("stockPhoto").value = "";
 
     updateStockTotal();

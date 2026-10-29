@@ -282,7 +282,7 @@
             width: 400px;
             max-width: 75%;
             height: auto;
-            margin: -55px auto -60px; 
+            margin: -100px auto -100px; 
         }
 
         
@@ -360,7 +360,8 @@
             transition: 0.3s;
         }
 
-        .categories button:hover {
+        .categories button:hover,
+        .categories button.active {
             background: var(--primary-blue);
             color: white;
             border-color: var(--primary-blue);
@@ -684,13 +685,11 @@
 </section>
 
 <section class="categories">
-    <button data-lang="new">New</button>
-    <button data-lang="keychains">Keychains</button>
-    <button data-lang="phone">Phone</button>
-    <button data-lang="wallets">Wallets</button>
-    <button data-lang="jewelry">Jewelry</button>
-    <button data-lang="bags">Bags</button>
-    <button data-lang="more">More</button>
+    <button class="active" data-category="all" data-lang="new">New</button>
+    <button data-category="keychain" data-lang="keychains">Keychains</button>
+    <button data-category="squishy" data-lang="squishy">Squishy</button>
+    <button data-category="jewelry" data-lang="jewelry">Jewelry</button>
+    <button data-category="accessories" data-lang="accessories">Accessories</button>
 </section>
 
 <section class="section">
@@ -752,13 +751,45 @@ function updateCartCount(){
     document.getElementById("cart-count").innerText = count;
 }
 
-document.getElementById("searchInput").addEventListener("input", function(){
-    const keyword = this.value.toLowerCase();
+let selectedCategory = "all";
+
+function filterProducts(){
+    const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
     document.querySelectorAll(".card").forEach(card => {
         const name = card.querySelector("h3").innerText.toLowerCase();
-        card.style.display = name.includes(keyword) ? "" : "none";
+        const cat = (card.getAttribute("data-category") || "accessories").toLowerCase().trim();
+        const matchesSearch = name.includes(keyword);
+        const matchesCategory =
+            selectedCategory === "all" ||
+            cat === selectedCategory ||
+            (selectedCategory === "jewelry" && cat === "clothing");
+
+        card.style.display = (matchesSearch && matchesCategory) ? "" : "none";
+    });
+}
+
+document.getElementById("searchInput").addEventListener("input", filterProducts);
+
+document.querySelectorAll(".categories button").forEach(btn => {
+    btn.addEventListener("click", function(){
+        document.querySelectorAll(".categories button").forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+        selectedCategory = (this.getAttribute("data-category") || "all").toLowerCase();
+        filterProducts();
     });
 });
+
+const seeAllBtn = document.querySelector(".see-all-btn");
+if (seeAllBtn) {
+    seeAllBtn.addEventListener("click", function(e){
+        e.preventDefault();
+        selectedCategory = "all";
+        document.querySelectorAll(".categories button").forEach(b => {
+            b.classList.toggle("active", b.getAttribute("data-category") === "all");
+        });
+        filterProducts();
+    });
+}
 
 const guestArea = document.getElementById("guest-area");
 const profileArea = document.getElementById("profile-area");
@@ -833,9 +864,10 @@ async function loadProducts(){
             const imageUrl = firstImg ? (firstImg.startsWith("http") ? firstImg : "/uploads/" + firstImg) : "logo.jpg"; 
             const stockText = t.stock || (lang === 'mm' ? "လက်ကျန်" : "Stock");
             const detailsText = t.details || (lang === 'mm' ? "အသေးစိတ်ကြည့်ရန်" : "Details");
+            const productCategory = String(p.category || "accessories").toLowerCase().trim();
 
             list.innerHTML += ` 
-            <div class="card" onclick="goToDetail('${p.id}')"> 
+            <div class="card" data-category="${productCategory}" onclick="goToDetail('${p.id}')"> 
                 <img src="${imageUrl}" onerror="this.src='logo.jpg'" alt="${p.name}"> 
                 <div class="card-content"> 
                     <h3>${p.name}</h3> 
@@ -846,7 +878,9 @@ async function loadProducts(){
                     </button> 
                 </div> 
             </div>`; 
-        }); 
+        });
+
+        filterProducts();
     }catch(err){ 
         console.log("Error loading products:", err); 
     } 
