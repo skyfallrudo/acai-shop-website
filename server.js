@@ -2097,7 +2097,7 @@ const generateRandomCode = () => {
               <div style="max-width:680px;margin:auto;background:white;border-radius:18px;padding:25px;">
                 <h2 style="color:#2563EB;margin-top:0;">Order Confirmed!</h2>
                 <p>Dear <b>${escapeHTML(name || "Customer")}</b>,</p>
-                <p>Thank you for shopping with <b>Acai Shop</b>. Your order has been received successfully.</p>
+                <p>Thank you for shopping with <b>Açaí Shop</b>. Your order has been received successfully.</p>
                 <div style="background:#EFF6FF;border-radius:12px;padding:15px;margin:20px 0;">
                   <p><b>Order Code:</b> ${orderCode}</p>
                   <p><b>Order Time:</b> ${orderTimeExact} (MMT)</p>
@@ -2118,7 +2118,7 @@ const generateRandomCode = () => {
                   <tbody>${itemRows}</tbody>
                 </table>
                 <p style="margin-top:25px;">We will process your order and update the order status when there is a change.</p>
-                <p>Best regards,<br><b>Acai Shop Team</b></p>
+                <p>Best regards,<br><b>Açaí Shop Team</b></p>
               </div>
             </body>
             </html>
