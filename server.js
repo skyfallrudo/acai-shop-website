@@ -2001,8 +2001,7 @@ app.post(
           previousColors
         });
       }
-
-      const generateRandomCode = () => {
+const generateRandomCode = () => {
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         let result = "";
         for (let i = 0; i < 6; i++) {
@@ -2013,6 +2012,18 @@ app.post(
 
       const orderCode = generateRandomCode();
       const myanmarTime = getMyanmarDateTime();
+
+      
+      const orderTimeExact = new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Yangon",
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      });
 
       const inserted = await tursoClient.execute({
         sql: `INSERT INTO orders
@@ -2062,7 +2073,6 @@ app.post(
         throw new Error("Order ID was not generated.");
       }
 
-     
       try {
         const itemRows = verifiedCart
           .map(item => `
@@ -2090,6 +2100,7 @@ app.post(
                 <p>Thank you for shopping with <b>Acai Shop</b>. Your order has been received successfully.</p>
                 <div style="background:#EFF6FF;border-radius:12px;padding:15px;margin:20px 0;">
                   <p><b>Order Code:</b> ${orderCode}</p>
+                  <p><b>Order Time:</b> ${orderTimeExact} (MMT)</p>
                   <p><b>Payment:</b> ${escapeHTML(paymentMethod)}</p>
                   <p><b>Delivery Fee:</b> ${deliveryFee.toLocaleString()} MMK</p>
                   <p><b>Total:</b> ${total.toLocaleString()} MMK</p>
@@ -2122,7 +2133,6 @@ app.post(
         orderId,
         orderCode
       });
-
     } catch (error) {
       console.error("PLACE ORDER ERROR:", error);
 
