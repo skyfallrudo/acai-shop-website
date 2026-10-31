@@ -2210,16 +2210,17 @@ app.get(
 
   }
 );
-// Halloween Giveaway Table အလိုအလျောက် တည်ဆောက်ရန်
+
 (async () => {
   try {
+   
+
     await tursoClient.execute(`
       CREATE TABLE IF NOT EXISTS halloween_event (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER UNIQUE,
+        customer_code TEXT,
         email TEXT,
-        order_id TEXT,
-        order_code TEXT,
         created_at TEXT
       )
     `);
@@ -2228,57 +2229,12 @@ app.get(
   }
 })();
 
-// Customer အခြေအနေ (Login ဝင်ထားလား / Join ပြီးပြီလား) စစ်ဆေးသည့် Route
-app.get("/halloween-status", async (req, res) => {
-  try {
-    if (!req.session || !req.session.userId) {
-      return res.json({ loggedIn: false });
-    }
 
-    const userId = req.session.userId;
-
-    const userRes = await tursoClient.execute({
-      sql: `SELECT email, customer_code FROM customers WHERE id = ? LIMIT 1`,
-      args: [userId]
-    });
-
-    if (!userRes.rows || userRes.rows.length === 0) {
-      return res.json({ loggedIn: false });
-    }
-
-    const user = userRes.rows[0];
-
-    const existing = await tursoClient.execute({
-      sql: `SELECT * FROM halloween_event WHERE user_id = ? LIMIT 1`,
-      args: [userId]
-    });
-
-    if (existing.rows && existing.rows.length > 0) {
-      return res.json({
-        loggedIn: true,
-        joined: true,
-        customerCode: user.customer_code,
-        entry: existing.rows[0]
-      });
-    }
-
-    return res.json({
-      loggedIn: true,
-      joined: false,
-      customerCode: user.customer_code
-    });
-  } catch (error) {
-    console.error("HALLOWEEN STATUS ERROR:", error);
-    return res.json({ loggedIn: false });
-  }
-});
-
-// Join Giveaway နှိပ်လျှင် Order ID ကို Database ထဲ သိမ်းမည့် Route
 app.post("/join-halloween", auth, async (req, res) => {
   try {
     const userId = req.session.userId;
 
-    // ၁။ Join ပြီးသားလား အရင်စစ်ရန်
+   
     const checkJoined = await tursoClient.execute({
       sql: `SELECT * FROM halloween_event WHERE user_id = ? LIMIT 1`,
       args: [userId]
@@ -2293,9 +2249,9 @@ app.post("/join-halloween", auth, async (req, res) => {
       });
     }
 
-    // ၂။ Customer Email ကို ရှာရန်
+   
     const userRes = await tursoClient.execute({
-      sql: `SELECT email FROM customers WHERE id = ? LIMIT 1`,
+      sql: `SELECT email, customer_code FROM customers WHERE id = ? LIMIT 1`,
       args: [userId]
     });
 
@@ -2307,10 +2263,11 @@ app.post("/join-halloween", auth, async (req, res) => {
     }
 
     const email = userRes.rows[0].email;
+    const customerCode = userRes.rows[0].customer_code || "AC-26-0001";
 
-    // ၃။ Customer မှာယူထားသော Order ID များကို ဆွဲထုတ်ရန်
+    
     const orderRes = await tursoClient.execute({
-      sql: `SELECT id, order_code FROM orders WHERE email = ? ORDER BY id DESC`,
+      sql: `SELECT id FROM orders WHERE email = ? LIMIT 1`,
       args: [email]
     });
 
@@ -2320,9 +2277,6 @@ app.post("/join-halloween", auth, async (req, res) => {
         message: "Giveaway တွင် ပါဝင်ရန် အနည်းဆုံး Order (၁) ခု မှာယူထားရပါမည်။"
       });
     }
-
-    const orderIds = orderRes.rows.map(r => `#${r.id}`).join(", ");
-    const orderCodes = orderRes.rows.map(r => r.order_code || `#${r.id}`).join(", ");
 
     const joinedTime = new Date().toLocaleString("en-US", {
       timeZone: "Asia/Yangon",
@@ -2335,18 +2289,18 @@ app.post("/join-halloween", auth, async (req, res) => {
       hour12: true
     });
 
-    // ၄။ Database ထဲသို့ သိမ်းဆည်းရန်
+    
     await tursoClient.execute({
-      sql: `INSERT INTO halloween_event (user_id, email, order_id, order_code, created_at)
-            VALUES (?, ?, ?, ?, ?)`,
-      args: [userId, email, orderIds, orderCodes, joinedTime]
+      sql: `INSERT INTO halloween_event (user_id, customer_code, email, created_at)
+            VALUES (?, ?, ?, ?)`,
+      args: [userId, customerCode, email, joinedTime]
     });
 
     return res.json({
       success: true,
       entry: {
-        order_id: orderIds,
-        order_code: orderCodes,
+        customer_code: customerCode,
+        email: email,
         created_at: joinedTime
       },
       message: "Halloween Giveaway တွင် အောင်မြင်စွာ ပါဝင်ပြီးပါပြီ!"
@@ -2361,6 +2315,37 @@ app.post("/join-halloween", auth, async (req, res) => {
   }
 });
 
+
+app.get("/halloween-status", async (req, res) => {
+  try {
+    if (!req.session || !req.session.userId) {
+      return res.json({ loggedIn: false });
+    }
+
+    const userId = req.session.userId;
+
+    const existing = await tursoClient.execute({
+      sql: `SELECT * FROM halloween_event WHERE user_id = ? LIMIT 1`,
+      args: [userId]
+    });
+
+    if (existing.rows && existing.rows.length > 0) {
+      return res.json({
+        loggedIn: true,
+        joined: true,
+        entry: existing.rows[0]
+      });
+    }
+
+    return res.json({
+      loggedIn: true,
+      joined: false
+    });
+  } catch (error) {
+    console.error("HALLOWEEN STATUS ERROR:", error);
+    return res.json({ loggedIn: false });
+  }
+});
 
 app.post(
   "/admin-login",
