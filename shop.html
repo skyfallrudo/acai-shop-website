@@ -28,7 +28,7 @@
             --subtext-color: #64748b;
         }
 
-        /* --- Dark Mode --- */
+        
         [data-theme="dark"] {
             --bg-color: #05080f;
             --text-color: #ffffff;
@@ -683,7 +683,58 @@
     </div>
   
 </section>
+<div style="text-align: center; margin: 15px 6% 5px;">
+    <a href="halloween.html" class="halloween-Entry-btn">
+        <span class="pumpkin-icon">🎃</span>
+        <span>Halloween Giveaway ပါဝင်ရန်</span>
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </a>
+</div>
 
+<style>
+.halloween-Entry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 26px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ff5100, #7e22ce, #ff5100);
+    background-size: 200% 200%;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    border: 2px solid rgba(255, 145, 0, 0.7);
+    box-shadow: 0 0 20px rgba(255, 81, 0, 0.6), 0 0 40px rgba(126, 34, 206, 0.4);
+    animation: halloweenGlow 3s ease infinite, floatBtn 2.5s ease-in-out infinite;
+    transition: transform 0.3s ease;
+}
+
+.halloween-Entry-btn:hover {
+    transform: scale(1.06);
+}
+
+.pumpkin-icon {
+    font-size: 18px;
+    animation: wigglePumpkin 1.5s infinite;
+}
+
+@keyframes halloweenGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes floatBtn {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+@keyframes wigglePumpkin {
+    0%, 100% { transform: rotate(-10deg); }
+    50% { transform: rotate(10deg); }
+}
+</style>
 <section class="categories">
     <button class="active" data-category="all" data-lang="new">New</button>
     <button data-category="keychain" data-lang="keychains">Keychains</button>

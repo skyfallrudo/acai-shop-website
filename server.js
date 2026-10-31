@@ -2210,7 +2210,156 @@ app.get(
 
   }
 );
+// Halloween Giveaway Table အလိုအလျောက် တည်ဆောက်ရန်
+(async () => {
+  try {
+    await tursoClient.execute(`
+      CREATE TABLE IF NOT EXISTS halloween_event (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER UNIQUE,
+        email TEXT,
+        order_id TEXT,
+        order_code TEXT,
+        created_at TEXT
+      )
+    `);
+  } catch (err) {
+    console.error("HALLOWEEN TABLE INIT ERROR:", err);
+  }
+})();
 
+// Customer အခြေအနေ (Login ဝင်ထားလား / Join ပြီးပြီလား) စစ်ဆေးသည့် Route
+app.get("/halloween-status", async (req, res) => {
+  try {
+    if (!req.session || !req.session.userId) {
+      return res.json({ loggedIn: false });
+    }
+
+    const userId = req.session.userId;
+
+    const userRes = await tursoClient.execute({
+      sql: `SELECT email, customer_code FROM customers WHERE id = ? LIMIT 1`,
+      args: [userId]
+    });
+
+    if (!userRes.rows || userRes.rows.length === 0) {
+      return res.json({ loggedIn: false });
+    }
+
+    const user = userRes.rows[0];
+
+    const existing = await tursoClient.execute({
+      sql: `SELECT * FROM halloween_event WHERE user_id = ? LIMIT 1`,
+      args: [userId]
+    });
+
+    if (existing.rows && existing.rows.length > 0) {
+      return res.json({
+        loggedIn: true,
+        joined: true,
+        customerCode: user.customer_code,
+        entry: existing.rows[0]
+      });
+    }
+
+    return res.json({
+      loggedIn: true,
+      joined: false,
+      customerCode: user.customer_code
+    });
+  } catch (error) {
+    console.error("HALLOWEEN STATUS ERROR:", error);
+    return res.json({ loggedIn: false });
+  }
+});
+
+// Join Giveaway နှိပ်လျှင် Order ID ကို Database ထဲ သိမ်းမည့် Route
+app.post("/join-halloween", auth, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+
+    // ၁။ Join ပြီးသားလား အရင်စစ်ရန်
+    const checkJoined = await tursoClient.execute({
+      sql: `SELECT * FROM halloween_event WHERE user_id = ? LIMIT 1`,
+      args: [userId]
+    });
+
+    if (checkJoined.rows && checkJoined.rows.length > 0) {
+      return res.json({
+        success: true,
+        alreadyJoined: true,
+        entry: checkJoined.rows[0],
+        message: "သင် Giveaway တွင် ပါဝင်ပြီးသား ဖြစ်ပါသည်။"
+      });
+    }
+
+    // ၂။ Customer Email ကို ရှာရန်
+    const userRes = await tursoClient.execute({
+      sql: `SELECT email FROM customers WHERE id = ? LIMIT 1`,
+      args: [userId]
+    });
+
+    if (!userRes.rows || userRes.rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: "Account အချက်အလက် ရှာမတွေ့ပါ။"
+      });
+    }
+
+    const email = userRes.rows[0].email;
+
+    // ၃။ Customer မှာယူထားသော Order ID များကို ဆွဲထုတ်ရန်
+    const orderRes = await tursoClient.execute({
+      sql: `SELECT id, order_code FROM orders WHERE email = ? ORDER BY id DESC`,
+      args: [email]
+    });
+
+    if (!orderRes.rows || orderRes.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Giveaway တွင် ပါဝင်ရန် အနည်းဆုံး Order (၁) ခု မှာယူထားရပါမည်။"
+      });
+    }
+
+    const orderIds = orderRes.rows.map(r => `#${r.id}`).join(", ");
+    const orderCodes = orderRes.rows.map(r => r.order_code || `#${r.id}`).join(", ");
+
+    const joinedTime = new Date().toLocaleString("en-US", {
+      timeZone: "Asia/Yangon",
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true
+    });
+
+    // ၄။ Database ထဲသို့ သိမ်းဆည်းရန်
+    await tursoClient.execute({
+      sql: `INSERT INTO halloween_event (user_id, email, order_id, order_code, created_at)
+            VALUES (?, ?, ?, ?, ?)`,
+      args: [userId, email, orderIds, orderCodes, joinedTime]
+    });
+
+    return res.json({
+      success: true,
+      entry: {
+        order_id: orderIds,
+        order_code: orderCodes,
+        created_at: joinedTime
+      },
+      message: "Halloween Giveaway တွင် အောင်မြင်စွာ ပါဝင်ပြီးပါပြီ!"
+    });
+
+  } catch (error) {
+    console.error("JOIN HALLOWEEN ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Giveaway ဝင်ရောက်ရာတွင် အမှားအယွင်းရှိနေပါသည်။"
+    });
+  }
+});
 
 
 app.post(
