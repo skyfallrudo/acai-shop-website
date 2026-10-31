@@ -2265,18 +2265,6 @@ app.post("/join-halloween", auth, async (req, res) => {
     const email = userRes.rows[0].email;
     const customerCode = userRes.rows[0].customer_code || "AC-26-0001";
 
-    
-    const orderRes = await tursoClient.execute({
-      sql: `SELECT id FROM orders WHERE email = ? LIMIT 1`,
-      args: [email]
-    });
-
-    if (!orderRes.rows || orderRes.rows.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Giveaway တွင် ပါဝင်ရန် အနည်းဆုံး Order (၁) ခု မှာယူထားရပါမည်။"
-      });
-    }
 
     const joinedTime = new Date().toLocaleString("en-US", {
       timeZone: "Asia/Yangon",
