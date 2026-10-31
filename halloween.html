@@ -29,7 +29,7 @@ body {
     position: relative;
 }
 
-/* --- Spooky Moon Glow --- */
+
 .blood-moon {
     position: fixed;
     top: -80px;
@@ -49,7 +49,7 @@ body {
     50% { transform: scale(1.15); opacity: 1; }
 }
 
-/* --- Particle Canvas --- */
+
 #spookyCanvas {
     position: fixed;
     inset: 0;
@@ -59,7 +59,7 @@ body {
     pointer-events: none;
 }
 
-/* --- Floating Spooky Icons --- */
+
 .floating-icons {
     position: fixed;
     inset: 0;
@@ -87,7 +87,7 @@ body {
     66% { transform: translateY(15px) rotate(-10deg) scale(0.95); }
 }
 
-/* --- Back Button --- */
+
 .back-bar {
     position: fixed;
     top: 22px;
@@ -118,7 +118,7 @@ body {
     box-shadow: 0 0 20px rgba(234, 88, 12, 0.6);
 }
 
-/* --- Main Animated Card --- */
+
 .giveaway-wrapper {
     position: relative;
     z-index: 10;
@@ -162,7 +162,6 @@ body {
     text-align: center;
 }
 
-/* --- Big Pumpkin Header --- */
 .hero-pumpkin {
     font-size: 68px;
     display: inline-block;
@@ -194,7 +193,7 @@ body {
     margin-bottom: 24px;
 }
 
-/* --- Rules / Info Pills --- */
+
 .rules-box {
     display: flex;
     flex-direction: column;
@@ -227,7 +226,7 @@ body {
     flex-shrink: 0;
 }
 
-/* --- Join Button --- */
+
 .join-btn {
     position: relative;
     width: 100%;
@@ -261,7 +260,7 @@ body {
     opacity: 0.85;
 }
 
-/* --- Joined Ticket UI --- */
+
 .joined-ticket {
     display: none;
     background: linear-gradient(135deg, rgba(22, 163, 74, 0.2), rgba(15, 23, 42, 0.9));
@@ -382,14 +381,14 @@ body {
             </div>
         </div>
 
-        <!-- Dynamic Action Area -->
+       
         <div id="actionArea">
             <button id="joinBtn" class="join-btn" onclick="handleGiveawayClick()">
                 <i class="fa-solid fa-spinner fa-spin"></i> Checking Status...
             </button>
         </div>
 
-        <!-- Shown when user has already joined -->
+        
         <div id="joinedTicket" class="joined-ticket">
             <div class="joined-badge">
                 <i class="fa-solid fa-circle-check"></i> ALREADY JOINED GIVEAWAY
@@ -412,7 +411,7 @@ body {
 </div>
 
 <script>
-// ===== 1. Spooky Ember & Confetti Particle Engine =====
+
 const canvas = document.getElementById("spookyCanvas");
 const ctx = canvas.getContext("2d");
 let particles = [];
@@ -508,14 +507,15 @@ function animateParticles() {
 }
 animateParticles();
 
-// ===== 2. Giveaway Auth & Join Logic =====
 let isLoggedIn = false;
 
 function showJoinedState(customerCode, joinedTime) {
     document.getElementById("actionArea").style.display = "none";
     const ticket = document.getElementById("joinedTicket");
     ticket.style.display = "block";
-    document.getElementById("tCustomerCode").innerText = customerCode || "AC-XXXX";
+    
+   
+    document.getElementById("tCustomerCode").innerText = customerCode || "AC-Shop";
     document.getElementById("tJoinedTime").innerText = joinedTime || "-";
 }
 
@@ -535,7 +535,9 @@ async function checkGiveawayStatus() {
         isLoggedIn = true;
 
         if (data.joined && data.entry) {
-            showJoinedState(data.customer_code, data.entry.created_at);
+           
+            const codeToDisplay = data.customer_code || data.entry.customer_code || "AC-Shop";
+            showJoinedState(codeToDisplay, data.entry.created_at);
         } else {
             joinBtn.innerHTML = '🎃 JOIN GIVEAWAY NOW';
         }
@@ -568,7 +570,10 @@ async function handleGiveawayClick() {
 
         if (res.ok && data.success) {
             triggerCelebrationBurst();
-            showJoinedState(data.customer_code || data.customerCode || "AC-Shop", data.entry.created_at);
+           
+            const codeToDisplay = data.customer_code || (data.entry ? data.entry.customer_code : "AC-Shop");
+            const timeToDisplay = data.entry ? data.entry.created_at : "-";
+            showJoinedState(codeToDisplay, timeToDisplay);
         } else {
             joinBtn.disabled = false;
             joinBtn.innerHTML = '🎃 JOIN GIVEAWAY NOW';
