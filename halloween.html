@@ -296,9 +296,9 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
+    padding: 10px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .ticket-row:last-child {
@@ -313,7 +313,7 @@ body {
     color: #fde047;
     font-weight: 700;
     font-family: monospace;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .error-msg {
@@ -374,7 +374,7 @@ body {
             </div>
             <div class="rule-item">
                 <i class="fa-solid fa-receipt"></i>
-                <span>Join နှိပ်လိုက်သည်နှင့် သင်၏ <b>Order ID</b> များကို ကံစမ်းမဲစာရင်းထဲသို့ အလိုအလျောက် သိမ်းဆည်းပေးပါမည်။</span>
+                <span>Join နှိပ်လိုက်သည်နှင့် သင်၏ Customer Code ဖြင့် ကံစမ်းမဲစာရင်းထဲသို့ အလိုအလျောက် မှတ်သားပေးပါမည်။</span>
             </div>
             <div class="rule-item">
                 <i class="fa-solid fa-gift"></i>
@@ -398,12 +398,8 @@ body {
                 သင်သည် Halloween Giveaway တွင် ပါဝင်ပြီးသား ဖြစ်ပါသည်။
             </p>
             <div class="ticket-row">
-                <span class="ticket-label">Registered Order ID:</span>
-                <span class="ticket-val" id="tOrderId">-</span>
-            </div>
-            <div class="ticket-row">
-                <span class="ticket-label">Order Code:</span>
-                <span class="ticket-val" id="tOrderCode">-</span>
+                <span class="ticket-label">Customer Code:</span>
+                <span class="ticket-val" id="tCustomerCode">-</span>
             </div>
             <div class="ticket-row">
                 <span class="ticket-label">Joined Time:</span>
@@ -515,13 +511,12 @@ animateParticles();
 // ===== 2. Giveaway Auth & Join Logic =====
 let isLoggedIn = false;
 
-function showJoinedState(entry) {
+function showJoinedState(customerCode, joinedTime) {
     document.getElementById("actionArea").style.display = "none";
     const ticket = document.getElementById("joinedTicket");
     ticket.style.display = "block";
-    document.getElementById("tOrderId").innerText = entry.order_id || "-";
-    document.getElementById("tOrderCode").innerText = entry.order_code || "-";
-    document.getElementById("tJoinedTime").innerText = entry.created_at || "-";
+    document.getElementById("tCustomerCode").innerText = customerCode || "AC-XXXX";
+    document.getElementById("tJoinedTime").innerText = joinedTime || "-";
 }
 
 async function checkGiveawayStatus() {
@@ -540,7 +535,7 @@ async function checkGiveawayStatus() {
         isLoggedIn = true;
 
         if (data.joined && data.entry) {
-            showJoinedState(data.entry);
+            showJoinedState(data.customer_code, data.entry.created_at);
         } else {
             joinBtn.innerHTML = '🎃 JOIN GIVEAWAY NOW';
         }
@@ -560,7 +555,7 @@ async function handleGiveawayClick() {
     }
 
     joinBtn.disabled = true;
-    joinBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Your Order ID...';
+    joinBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering Giveaway...';
 
     try {
         const res = await fetch("/join-halloween", {
@@ -573,7 +568,7 @@ async function handleGiveawayClick() {
 
         if (res.ok && data.success) {
             triggerCelebrationBurst();
-            showJoinedState(data.entry);
+            showJoinedState(data.customer_code || data.customerCode || "AC-Shop", data.entry.created_at);
         } else {
             joinBtn.disabled = false;
             joinBtn.innerHTML = '🎃 JOIN GIVEAWAY NOW';
