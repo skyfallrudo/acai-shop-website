@@ -2117,6 +2117,12 @@ const generateRandomCode = () => {
                   </thead>
                   <tbody>${itemRows}</tbody>
                 </table>
+                <!-- Table အောက်တွင် Grand Total ထည့်ရန် ကုဒ် -->
+<div style="margin-top: 20px; text-align: right; font-size: 16px;">
+  <p style="margin: 5px 0;"><b>Subtotal:</b> ${subtotal.toLocaleString()} MMK</p>
+  <p style="margin: 5px 0;"><b>Delivery Fee:</b> ${deliveryFee.toLocaleString()} MMK</p>
+  <p style="margin: 5px 0; font-size: 18px; color: #2563EB;"><b>Grand Total:</b> ${total.toLocaleString()} MMK</p>
+</div>
                 <p style="margin-top:25px;">We will process your order and update the order status when there is a change.</p>
                 <p>Best regards,<br><b>Açaí Shop Team</b></p>
               </div>
