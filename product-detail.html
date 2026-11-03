@@ -442,34 +442,7 @@
 
             <hr class="divider">
 
-            <!-- Multi-Design & Combo Selector Box -->
-            <div id="multiDesignBox" style="display: none; margin-bottom: 6px; padding: 14px; border-radius: 16px; background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.3);">
-                <!-- 1 Pc (3000) / 2 Pcs (5000) Toggle Button -->
-                <div id="bundleToggle" style="display: none; gap: 10px; margin-bottom: 14px;">
-                    <button type="button" id="btn1Pc" onclick="setBundleCount(1)" style="flex: 1; padding: 10px; border-radius: 10px; border: 2px solid #2563eb; background: #2563eb; color: #fff; font-weight: 600; cursor: pointer;">
-                        1 Piece (3,000 MMK)
-                    </button>
-                    <button type="button" id="btn2Pcs" onclick="setBundleCount(2)" style="flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: inherit; font-weight: 600; cursor: pointer;">
-                        🔥 2 Pieces (5,000 MMK)
-                    </button>
-                </div>
-
-                <!-- Design Select Dropdowns -->
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <div>
-                        <span class="section-label" style="margin-bottom: 5px;" id="labelDesign1">🎨 Select Design:</span>
-                        <select id="pickDesign1" style="width: 100%; padding: 10px 12px; border-radius: 10px; background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); outline: none; font-size: 13px;"></select>
-                    </div>
-
-                    <div id="pickDesign2Wrap" style="display: none;">
-                        <span class="section-label" style="margin-bottom: 5px;">🎨 Select 2nd Design:</span>
-                        <select id="pickDesign2" style="width: 100%; padding: 10px 12px; border-radius: 10px; background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); outline: none; font-size: 13px;"></select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Standard Color Options (အခြားပစ္စည်းများအတွက်) -->
-            <div id="standardColorSection">
+            <div>
                 <span class="section-label">Select Color / Design</span>
                 <div class="color-options" id="colorOptions">
                     <button class="color-btn active">Default</button>
@@ -534,21 +507,17 @@
         }
         updateCartBadge();
 
-        /* Product & Variant Logic */
+        /* Product & Variant Stock Logic */
         const params = new URLSearchParams(window.location.search);
         const productId = params.get("id");
 
         let currentProduct = null;
-        let variantsList = [];
+        let variantsList = []; // [{ name: "Black", stock: 5 }, ...]
         let selectedVariant = { name: "Default", stock: 0 };
         let selectedQty = 1;
         let productImages = [];
 
-        // Combo / Multi-Design variables
-        let isMultiDesignActive = false;
-        let requiredPicks = 1;
-        let activeProductPrice = 0;
-
+        /* Parse "Black:5, White:2" or "Black, White" */
         function parseVariants(colorsStr, fallbackTotalStock) {
             const rawParts = String(colorsStr || "")
                 .split(",")
@@ -642,71 +611,6 @@
             });
         });
 
-        // Setup Multi-Design / Combo Offer Handler
-        function setupMultiDesignFeature(item, designs) {
-            if (!designs || designs.length === 0) return;
-
-            const titleAndDesc = ((item.name || "") + " " + (item.description || "")).toLowerCase();
-            const isFixed2Pieces = titleAndDesc.includes("2 pieces") || titleAndDesc.includes("2 pcs");
-            const is1or2Combo = titleAndDesc.includes("1 or 2") || (Number(item.price) === 3000 && titleAndDesc.includes("5000"));
-
-            // အကယ်၍ ၂ ခုတွဲ သီးသန့် (သို့မဟုတ်) ၁ ခု / ၂ ခု ရွေးချယ်နိုင်သော ပစ္စည်းဖြစ်ပါက
-            if (isFixed2Pieces || is1or2Combo || Number(item.price) === 3000 || titleAndDesc.includes("pieces") || titleAndDesc.includes("pcs")) {
-                isMultiDesignActive = true;
-                document.getElementById("multiDesignBox").style.display = "block";
-                document.getElementById("standardColorSection").style.display = "none";
-
-                const optionsHTML = designs.map(d => {
-                    const dName = typeof d === "object" ? d.name : d;
-                    return `<option value="${dName}">${dName}</option>`;
-                }).join("");
-
-                document.getElementById("pickDesign1").innerHTML = optionsHTML;
-                document.getElementById("pickDesign2").innerHTML = optionsHTML;
-
-                if (isFixed2Pieces) {
-                    // ပုံထဲက Chikawa Mini Keychain - 5000 (2 Pieces) ကဲ့သို့ 2 ခု တန်းရွေးရမည့် ပစ္စည်း
-                    document.getElementById("bundleToggle").style.display = "none";
-                    document.getElementById("pickDesign2Wrap").style.display = "block";
-                    document.getElementById("labelDesign1").innerText = "🎨 Select 1st Design:";
-                    requiredPicks = 2;
-                    activeProductPrice = Number(item.price);
-                } else {
-                    // ၁ ခု ၃၀၀၀ / ၂ ခု ၅၀၀၀ ပစ္စည်းများ
-                    document.getElementById("bundleToggle").style.display = "flex";
-                    setBundleCount(1);
-                }
-
-                // stock ကို total stock အဖြစ် သတ်မှတ်ပေးမည်
-                selectedVariant = { name: "Bundle Variant", stock: Number(item.stock) || 99 };
-                updateStockDisplay();
-            }
-        }
-
-        function setBundleCount(count) {
-            requiredPicks = count;
-            const btn1 = document.getElementById("btn1Pc");
-            const btn2 = document.getElementById("btn2Pcs");
-            const wrap2 = document.getElementById("pickDesign2Wrap");
-
-            if (count === 2) {
-                activeProductPrice = 5000;
-                wrap2.style.display = "block";
-                btn2.style.background = "#2563eb";
-                btn2.style.borderColor = "#2563eb";
-                btn1.style.background = "transparent";
-            } else {
-                activeProductPrice = 3000;
-                wrap2.style.display = "none";
-                btn1.style.background = "#2563eb";
-                btn1.style.borderColor = "#2563eb";
-                btn2.style.background = "transparent";
-            }
-
-            const priceTag = document.getElementById("productPrice");
-            if (priceTag) priceTag.innerText = activeProductPrice.toLocaleString() + " MMK";
-        }
-
         async function loadSingleProduct() {
             if (!productId) {
                 document.getElementById("productName").innerText = "Product not selected.";
@@ -731,39 +635,8 @@
                 const code = "PRD-" + String(item.id).padStart(4, "0");
                 document.getElementById("productCodePill").innerText = `#${item.id} • ${code}`;
                 document.getElementById("productName").innerText = item.name;
+                document.getElementById("productPrice").innerText = Number(item.price).toLocaleString() + " MMK";
                 document.getElementById("productDesc").innerText = item.description || "High quality item from Acai Shop.";
-
-                // Parse Designs / Colors
-                let designs = [];
-                try {
-                    designs = typeof item.colors === "string" ? JSON.parse(item.colors) : (item.colors || []);
-                } catch (e) {
-                    designs = [];
-                }
-
-                // Check if Multi-Design / Combo feature should be enabled
-                setupMultiDesignFeature(item, designs);
-
-                if (!isMultiDesignActive) {
-                    document.getElementById("productPrice").innerText = Number(item.price).toLocaleString() + " MMK";
-                    /* Variant Stock Setup */
-                    variantsList = parseVariants(item.colors, item.stock);
-                    const firstAvailableIdx = variantsList.findIndex(v => v.stock > 0);
-                    const defaultIdx = firstAvailableIdx >= 0 ? firstAvailableIdx : 0;
-
-                    const colorBox = document.getElementById("colorOptions");
-                    colorBox.innerHTML = variantsList.map((v, idx) => `
-                        <button 
-                            class="color-btn ${idx === defaultIdx ? 'active' : ''} ${v.stock <= 0 ? 'sold-out' : ''}" 
-                            onclick="selectVariant(${idx})"
-                        >
-                            <span>${v.name}</span>
-                            ${v.hasCustomStock ? `<span class="variant-qty-tag">${v.stock}</span>` : ""}
-                        </button>
-                    `).join("");
-
-                    selectVariant(defaultIdx);
-                }
 
                 /* Multiple Images Setup */
                 productImages = [];
@@ -804,6 +677,24 @@
                     thumbStrip.style.display = "none";
                 }
 
+                /* Variant Stock Setup */
+                variantsList = parseVariants(item.colors, item.stock);
+                const firstAvailableIdx = variantsList.findIndex(v => v.stock > 0);
+                const defaultIdx = firstAvailableIdx >= 0 ? firstAvailableIdx : 0;
+
+                const colorBox = document.getElementById("colorOptions");
+                colorBox.innerHTML = variantsList.map((v, idx) => `
+                    <button 
+                        class="color-btn ${idx === defaultIdx ? 'active' : ''} ${v.stock <= 0 ? 'sold-out' : ''}" 
+                        onclick="selectVariant(${idx})"
+                    >
+                        <span>${v.name}</span>
+                        ${v.hasCustomStock ? `<span class="variant-qty-tag">${v.stock}</span>` : ""}
+                    </button>
+                `).join("");
+
+                selectVariant(defaultIdx);
+
             } catch (err) {
                 console.error("Failed to load product detail:", err);
             }
@@ -826,38 +717,15 @@
                 return;
             }
 
-            let finalPrice = Number(currentProduct.price);
-            let finalVariantName = selectedVariant.name;
-            let finalItemName = currentProduct.name;
-
-            if (isMultiDesignActive) {
-                const d1 = document.getElementById("pickDesign1").value;
-                const d2 = document.getElementById("pickDesign2").value;
-
-                if (requiredPicks === 2) {
-                    finalPrice = activeProductPrice;
-                    finalVariantName = `2 Pcs (${d1} + ${d2})`;
-                    finalItemName = `${currentProduct.name} - [${finalVariantName}]`;
-                } else {
-                    finalPrice = activeProductPrice;
-                    finalVariantName = d1;
-                    finalItemName = `${currentProduct.name} (${d1})`;
-                }
-            } else {
-                if (selectedVariant.name !== "Default") {
-                    finalItemName = `${currentProduct.name} (${selectedVariant.name})`;
-                }
-            }
-
             const maxStock = Number(selectedVariant.stock) || 0;
             const existing = cart.find(i => 
                 String(i.productId || i.id) === String(currentProduct.id) && 
-                (i.color || "Default") === finalVariantName
+                (i.color || "Default") === selectedVariant.name
             );
             const currentInCart = existing ? Number(existing.qty) : 0;
 
             if (currentInCart + selectedQty > maxStock) {
-                alert(`Only ${maxStock} items available.`);
+                alert(`Only ${maxStock} items available for ${selectedVariant.name}.`);
                 return;
             }
 
@@ -867,9 +735,9 @@
                 cart.push({
                     id: currentProduct.id,
                     productId: currentProduct.id,
-                    name: finalItemName,
-                    color: finalVariantName,
-                    price: finalPrice,
+                    name: selectedVariant.name !== "Default" ? `${currentProduct.name} (${selectedVariant.name})` : currentProduct.name,
+                    color: selectedVariant.name,
+                    price: Number(currentProduct.price),
                     qty: selectedQty,
                     image: productImages[0] || "logo.jpg"
                 });
@@ -881,7 +749,7 @@
             if (goToCartImmediately) {
                 window.location.href = "cart.html";
             } else {
-                alert(`${finalItemName} added to cart!`);
+                alert(`${currentProduct.name} (${selectedVariant.name}) added to cart!`);
             }
         }
 
