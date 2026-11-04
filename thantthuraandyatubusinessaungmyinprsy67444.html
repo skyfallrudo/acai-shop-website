@@ -2523,10 +2523,10 @@ async function loadOrders(silent=false){
 
                     </td>
 <td>
-  <select onchange="updatePaymentStatus('${order.id}', this.value, this)" 
-          style="padding: 6px 10px; border-radius: 6px; font-weight: bold; border: none; color: white; background-color: ${order.payment_status === 'Paid' ? '#16a34a' : '#dc2626'};">
-    <option value="Unpaid" ${order.payment_status !== 'Paid' ? 'selected' : ''}>Unpaid</option>
-    <option value="Paid" ${order.payment_status === 'Paid' ? 'selected' : ''}>Paid</option>
+  <select onchange="updatePaymentStatus(${Number(o.id)}, this.value, this)" 
+          style="padding: 6px 10px; border-radius: 6px; font-weight: bold; border: none; color: white; cursor: pointer; background-color: ${o.payment_status === 'Paid' ? '#16a34a' : '#dc2626'};">
+    <option value="Unpaid" ${o.payment_status !== 'Paid' ? 'selected' : ''}>Unpaid</option>
+    <option value="Paid" ${o.payment_status === 'Paid' ? 'selected' : ''}>Paid</option>
   </select>
 </td>
                     <td>
@@ -3543,12 +3543,19 @@ document.getElementById("productColors").addEventListener("input", function() {
     }
 });
 async function updatePaymentStatus(orderId, newStatus, selectEl) {
-  selectEl.style.backgroundColor = newStatus === 'Paid' ? '#16a34a' : '#dc2626';
-  await fetch('/api/orders/update-payment', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ orderId, paymentStatus: newStatus })
-  });
+    selectEl.style.backgroundColor = newStatus === 'Paid' ? '#16a34a' : '#dc2626';
+    try {
+        await getJSON('/api/orders/update-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: Number(orderId), paymentStatus: newStatus })
+        });
+        showToast("Payment status updated to " + newStatus + ".");
+    } catch (error) {
+        console.error("Payment status error:", error);
+        showToast(error.message || "Payment update failed.", true);
+        await loadOrders(true);
+    }
 }
 checkAdmin();
 
