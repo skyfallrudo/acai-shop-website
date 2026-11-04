@@ -2578,6 +2578,19 @@ app.put(
   }
 );
 
+app.post('/api/orders/update-payment', async (req, res) => {
+  const { orderId, paymentStatus } = req.body;
+  try {
+    await db.execute({
+      sql: 'UPDATE orders SET payment_status = ? WHERE id = ?',
+      args: [paymentStatus, orderId]
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.delete(
   "/admin/orders/:id",
   adminAuth,

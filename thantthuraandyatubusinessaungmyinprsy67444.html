@@ -1268,6 +1268,7 @@ tr:hover td{
                             <th>Customer</th>
                             <th>Total</th>
                             <th>Status</th>
+                            <th>Payment</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -2521,7 +2522,13 @@ async function loadOrders(silent=false){
                         </select>
 
                     </td>
-
+<td>
+  <select onchange="updatePaymentStatus('${order.id}', this.value, this)" 
+          style="padding: 6px 10px; border-radius: 6px; font-weight: bold; border: none; color: white; background-color: ${order.payment_status === 'Paid' ? '#16a34a' : '#dc2626'};">
+    <option value="Unpaid" ${order.payment_status !== 'Paid' ? 'selected' : ''}>Unpaid</option>
+    <option value="Paid" ${order.payment_status === 'Paid' ? 'selected' : ''}>Paid</option>
+  </select>
+</td>
                     <td>
 
                         <button
@@ -3535,7 +3542,14 @@ document.getElementById("productColors").addEventListener("input", function() {
         document.getElementById("productStock").value = totalVariantStock;
     }
 });
-
+async function updatePaymentStatus(orderId, newStatus, selectEl) {
+  selectEl.style.backgroundColor = newStatus === 'Paid' ? '#16a34a' : '#dc2626';
+  await fetch('/api/orders/update-payment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orderId, paymentStatus: newStatus })
+  });
+}
 checkAdmin();
 
 
