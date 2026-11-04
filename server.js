@@ -2577,7 +2577,6 @@ app.put(
 
   }
 );
-
 app.post('/api/orders/update-payment', async (req, res) => {
   const { orderId, paymentStatus } = req.body;
   try {
@@ -2587,6 +2586,7 @@ app.post('/api/orders/update-payment', async (req, res) => {
     });
     res.json({ success: true });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
