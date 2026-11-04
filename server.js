@@ -2577,13 +2577,13 @@ app.put(
 
   }
 );
-app.post('/api/orders/update-payment', async (req, res) => {
+app.post('/api/orders/update-payment', adminAuth, async (req, res) => {
   const { orderId, paymentStatus } = req.body;
   try {
-    await db.execute({
-      sql: 'UPDATE orders SET payment_status = ? WHERE id = ?',
-      args: [paymentStatus, orderId]
-    });
+    await db.run(
+      'UPDATE orders SET payment_status = ? WHERE id = ?',
+      [paymentStatus, orderId]
+    );
     res.json({ success: true });
   } catch (err) {
     console.error(err);
