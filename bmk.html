@@ -215,10 +215,9 @@
                 const badge = row.type === 'deposit'
                     ? `<span class="px-2 py-0.5 text-xs rounded bg-emerald-500/20 text-emerald-400">အသွင်း (5%)</span>`
                     : `<span class="px-2 py-0.5 text-xs rounded bg-amber-500/20 text-amber-400">အထုတ် (2%)</span>`;
-
-                const statusBadge = status === 'paid'
-                    ? `<span onclick="toggleStatus(${row.id}, 'unpaid')" class="px-2.5 py-1 text-xs rounded bg-blue-500/20 text-blue-400 font-semibold cursor-pointer hover:bg-blue-500/30 transition inline-block" title="နှိပ်၍ Unpaid သို့ပြောင်းရန်">Paid (ပေးပြီး)</span>`
-                    : `<span onclick="toggleStatus(${row.id}, 'paid')" class="px-2.5 py-1 text-xs rounded bg-red-500/20 text-red-400 font-semibold cursor-pointer hover:bg-red-500/30 transition inline-block" title="နှိပ်၍ Paid သို့ပြောင်းရန်">Unpaid (မပေးရသေး)</span>`;
+const statusBadge = row.status === 'paid'
+                    ? `<span onclick="toggleStatus(${row.id}, 'paid')" class="px-2.5 py-1 text-xs rounded bg-blue-500/20 text-blue-400 font-semibold cursor-pointer hover:bg-blue-500/30 transition inline-block" title="နှိပ်၍ Unpaid သို့ပြောင်းရန်">Paid (ပေးပြီး)</span>`
+                    : `<span onclick="toggleStatus(${row.id}, 'unpaid')" class="px-2.5 py-1 text-xs rounded bg-red-500/20 text-red-400 font-semibold cursor-pointer hover:bg-red-500/30 transition inline-block" title="နှိပ်၍ Paid သို့ပြောင်းရန်">Unpaid (မပေးရသေး)</span>`;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -242,8 +241,15 @@
             document.getElementById('withdrawComm').textContent = `2% ကော်မရှင်: ${witComm.toLocaleString()} Ks`;
             document.getElementById('totalComm').textContent = `${(depComm + witComm).toLocaleString()} Ks`;
         }
+async function toggleStatus(id, currentStatus) {
+            const newStatus = currentStatus === 'paid' ? 'unpaid' : 'paid';
+            const actionText = newStatus === 'paid' ? 'Paid (ပေးပြီး)' : 'Unpaid (စောက်ကြွေး)';
 
-        async function toggleStatus(id, newStatus) {
+           
+            if (!confirm(`ဤစာရင်းကို "${actionText}" သို့ ပြောင်းလဲရန် သေချာပါသလား?`)) {
+                return; 
+            }
+
             const res = await fetch(`/api/bmk/transactions/${id}/status`, {
                 method: 'PATCH',
                 headers: {
