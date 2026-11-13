@@ -2,106 +2,118 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BMK Admin Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0b0f19; color: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+        .glass { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body class="min-h-screen p-3 md:p-8">
 
-
-    <div id="loginScreen" class="max-w-sm mx-auto mt-20 p-6 glass rounded-2xl shadow-2xl">
-        <h1 class="text-2xl font-bold text-center mb-6 text-blue-400">BMK Admin Login</h1>
+    <!-- 1. LOGIN SCREEN -->
+    <div id="loginScreen" class="max-w-sm mx-auto mt-16 p-5 glass rounded-2xl shadow-2xl">
+        <h1 class="text-xl font-bold text-center mb-5 text-blue-400">BMK Admin Login</h1>
         <form id="loginForm" class="space-y-4">
             <div>
                 <label class="text-xs text-gray-400">Admin Username</label>
-                <input type="text" id="username" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 focus:border-blue-500 outline-none" required>
+                <input type="text" id="username" class="w-full mt-1 p-3 rounded-lg bg-slate-900 border border-slate-700 text-base focus:border-blue-500 outline-none" required>
             </div>
             <div>
                 <label class="text-xs text-gray-400">Password</label>
-                <input type="password" id="password" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 focus:border-blue-500 outline-none" required>
+                <input type="password" id="password" class="w-full mt-1 p-3 rounded-lg bg-slate-900 border border-slate-700 text-base focus:border-blue-500 outline-none" required>
             </div>
             <p id="loginError" class="text-red-400 text-xs hidden"></p>
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-2.5 rounded-lg font-semibold transition">Login ဝင်မည်</button>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-lg font-semibold transition text-base">Login ဝင်မည်</button>
         </form>
     </div>
 
-   
-    <div id="dashboardScreen" class="max-w-5xl mx-auto hidden space-y-6">
-        <div class="flex justify-between items-center glass p-4 rounded-xl">
+    <!-- 2. MAIN DASHBOARD (Mobile Friendly) -->
+    <div id="dashboardScreen" class="max-w-4xl mx-auto hidden space-y-4 md:space-y-6">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center glass p-3 md:p-4 rounded-xl">
             <div>
-                <h1 class="text-xl font-bold text-blue-400">BMK Commission Tracker</h1>
+                <h1 class="text-lg md:text-xl font-bold text-blue-400">BMK Tracker</h1>
                 <p class="text-xs text-gray-400">Admin: <span id="activeAdmin" class="text-white font-semibold"></span></p>
             </div>
-            <button onclick="logout()" class="text-xs bg-red-600/20 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg hover:bg-red-600/30">Logout</button>
+            <button onclick="logout()" class="text-xs bg-red-600/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-lg hover:bg-red-600/30 font-medium">Logout</button>
         </div>
 
-      
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="glass p-4 rounded-xl">
+        <!-- Summary Cards (Mobile Stacked / Desktop Grid) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="glass p-3.5 rounded-xl">
                 <p class="text-xs text-gray-400">စုစုပေါင်း အသွင်းငွေ</p>
-                <p id="totalDeposit" class="text-xl font-bold text-emerald-400 mt-1">0 Ks</p>
-                <p id="depositComm" class="text-xs text-emerald-300 mt-1">5% ကော်မရှင်: 0 Ks</p>
+                <p id="totalDeposit" class="text-lg font-bold text-emerald-400 mt-0.5">0 Ks</p>
+                <p id="depositComm" class="text-xs text-emerald-300 mt-0.5">5% ကော်မရှင်: 0 Ks</p>
             </div>
-            <div class="glass p-4 rounded-xl">
+            <div class="glass p-3.5 rounded-xl">
                 <p class="text-xs text-gray-400">စုစုပေါင်း အထုတ်ငွေ</p>
-                <p id="totalWithdraw" class="text-xl font-bold text-amber-400 mt-1">0 Ks</p>
-                <p id="withdrawComm" class="text-xs text-amber-300 mt-1">2% ကော်မရှင်: 0 Ks</p>
+                <p id="totalWithdraw" class="text-lg font-bold text-amber-400 mt-0.5">0 Ks</p>
+                <p id="withdrawComm" class="text-xs text-amber-300 mt-0.5">2% ကော်မရှင်: 0 Ks</p>
             </div>
-            <div class="glass p-4 rounded-xl">
-                <p class="text-xs text-gray-400">စုစုပေါင်း ရရှိသည့် ကော်မရှင် (5% + 2%)</p>
-                <p id="totalComm" class="text-2xl font-bold text-blue-400 mt-1">0 Ks</p>
+            <div class="glass p-3.5 rounded-xl">
+                <p class="text-xs text-gray-400">စုစုပေါင်း ရရှိသည့် ကော်မရှင်</p>
+                <p id="totalComm" class="text-xl font-bold text-blue-400 mt-0.5">0 Ks</p>
             </div>
         </div>
 
-       
-        <div class="glass p-6 rounded-xl">
-            <h2 class="text-base font-semibold mb-4">စာရင်းအသစ် ထည့်သွင်းရန်</h2>
-            <form id="txForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <!-- Add Transaction Form -->
+        <div class="glass p-4 md:p-6 rounded-xl">
+            <h2 class="text-sm md:text-base font-semibold mb-3">စာရင်းအသစ် ထည့်သွင်းရန်</h2>
+            <form id="txForm" class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
                 <div>
                     <label class="text-xs text-gray-400">Player / User ID</label>
-                    <input type="text" id="userId" placeholder="ဥပမာ - 10928374" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 outline-none" required>
+                    <input type="text" id="userId" placeholder="User ID" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-sm outline-none" required>
                 </div>
                 <div>
                     <label class="text-xs text-gray-400">အမျိုးအစား</label>
-                    <select id="txType" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 outline-none">
+                    <select id="txType" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-sm outline-none">
                         <option value="deposit">အသွင်း (Deposit - 5%)</option>
                         <option value="withdrawal">အထုတ် (Withdrawal - 2%)</option>
                     </select>
                 </div>
                 <div>
                     <label class="text-xs text-gray-400">ငွေပမာဏ (Amount)</label>
-                    <input type="number" id="amount" placeholder="0" step="any" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 outline-none" required>
+                    <input type="number" id="amount" placeholder="0" step="any" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-sm outline-none" required>
                 </div>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-500 py-2.5 px-4 rounded-lg font-semibold transition">
+                <div>
+                    <label class="text-xs text-gray-400">အခြေအနေ (Status)</label>
+                    <select id="txStatus" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-sm outline-none">
+                        <option value="unpaid">Unpaid (မပေးရသေး)</option>
+                        <option value="paid">Paid (ပေးပြီး)</option>
+                    </select>
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-500 py-2.5 px-4 rounded-lg font-semibold transition text-sm">
                     စာရင်းသွင်းမည်
                 </button>
             </form>
-            <div id="liveCalc" class="mt-3 text-xs text-gray-400">
+            <div id="liveCalc" class="mt-2 text-xs text-gray-400">
                 တွက်ချက်မှု အစမ်းကြည့်ရန် ငွေပမာဏ ရိုက်ထည့်ပါ...
             </div>
         </div>
 
-        <!-- History Table -->
-        <div class="glass p-6 rounded-xl overflow-x-auto">
-            <h2 class="text-base font-semibold mb-4">အထုတ် / အသွင်း မှတ်တမ်းများ</h2>
-            <table class="w-full text-left text-sm">
-                <thead class="text-xs text-gray-400 border-b border-slate-700">
-                    <tr>
-                        <th class="pb-3">အချိန်</th>
-                        <th class="pb-3">Admin</th>
-                        <th class="pb-3">User ID</th>
-                        <th class="pb-3">အမျိုးအစား</th>
-                        <th class="pb-3">ပမာဏ</th>
-                        <th class="pb-3">ကော်မရှင်</th>
-                        <th class="pb-3 text-right">ဖျက်ရန်</th>
-                    </tr>
-                </thead>
-                <tbody id="txTableBody" class="divide-y divide-slate-800"></tbody>
-            </table>
+        <!-- History Table (Mobile Scrollable) -->
+        <div class="glass p-4 md:p-6 rounded-xl">
+            <h2 class="text-sm md:text-base font-semibold mb-3">အထုတ် / အသွင်း မှတ်တမ်းများ</h2>
+            <div class="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
+                <table class="w-full text-left text-xs md:text-sm whitespace-nowrap">
+                    <thead class="text-gray-400 border-b border-slate-700 text-xs">
+                        <tr>
+                            <th class="pb-2.5 pr-4">အချိန် (MMT)</th>
+                            <th class="pb-2.5 pr-4">Admin</th>
+                            <th class="pb-2.5 pr-4">User ID</th>
+                            <th class="pb-2.5 pr-4">အမျိုးအစား</th>
+                            <th class="pb-2.5 pr-4">ပမာဏ</th>
+                            <th class="pb-2.5 pr-4">ကော်မရှင်</th>
+                            <th class="pb-2.5 pr-4">Status</th>
+                            <th class="pb-2.5 text-right">ဖျက်ရန်</th>
+                        </tr>
+                    </thead>
+                    <tbody id="txTableBody" class="divide-y divide-slate-800"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -164,6 +176,20 @@
             location.reload();
         }
 
+        // မြန်မာစံတော်ချိန် (MMT) ဖြင့် ပြသရန် format လုပ်ခြင်း
+        function formatMyanmarTime(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr.replace(' ', 'T') + (dateStr.includes('Z') ? '' : 'Z'));
+            return date.toLocaleString('my-MM', {
+                timeZone: 'Asia/Rangoon',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
         async function loadTransactions() {
             const res = await fetch('/api/bmk/transactions', {
                 headers: { 'x-admin-user': currentAdmin, 'x-admin-pass': currentPass }
@@ -178,6 +204,8 @@
             result.data.forEach(row => {
                 const amt = Number(row.amount);
                 const comm = Number(row.commission_amount);
+                const status = row.status || 'unpaid';
+
                 if (row.type === 'deposit') {
                     depTotal += amt;
                     depComm += comm;
@@ -190,14 +218,19 @@
                     ? `<span class="px-2 py-0.5 text-xs rounded bg-emerald-500/20 text-emerald-400">အသွင်း (5%)</span>`
                     : `<span class="px-2 py-0.5 text-xs rounded bg-amber-500/20 text-amber-400">အထုတ် (2%)</span>`;
 
+                const statusBadge = status === 'paid'
+                    ? `<span class="px-2 py-0.5 text-xs rounded bg-blue-500/20 text-blue-400 font-semibold">Paid</span>`
+                    : `<span class="px-2 py-0.5 text-xs rounded bg-red-500/20 text-red-400 font-semibold">Unpaid</span>`;
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="py-3 text-xs text-gray-400">${new Date(row.created_at).toLocaleString()}</td>
-                    <td class="py-3 font-medium">${row.admin_username}</td>
-                    <td class="py-3 text-blue-300 font-mono">${row.user_id}</td>
-                    <td class="py-3">${badge}</td>
-                    <td class="py-3 font-semibold">${amt.toLocaleString()} Ks</td>
-                    <td class="py-3 text-emerald-400 font-bold">+${comm.toLocaleString()} Ks</td>
+                    <td class="py-3 pr-4 text-xs text-gray-400">${formatMyanmarTime(row.created_at)}</td>
+                    <td class="py-3 pr-4 font-medium">${row.admin_username}</td>
+                    <td class="py-3 pr-4 text-blue-300 font-mono">${row.user_id}</td>
+                    <td class="py-3 pr-4">${badge}</td>
+                    <td class="py-3 pr-4 font-semibold">${amt.toLocaleString()} Ks</td>
+                    <td class="py-3 pr-4 text-emerald-400 font-bold">+${comm.toLocaleString()} Ks</td>
+                    <td class="py-3 pr-4">${statusBadge}</td>
                     <td class="py-3 text-right">
                         <button onclick="deleteTx(${row.id})" class="text-xs text-red-400 hover:underline">ဖျက်မည်</button>
                     </td>
@@ -217,6 +250,7 @@
             const user_id = document.getElementById('userId').value;
             const type = typeInput.value;
             const amount = amountInput.value;
+            const status = document.getElementById('txStatus').value;
 
             const res = await fetch('/api/bmk/transactions', {
                 method: 'POST',
@@ -225,7 +259,7 @@
                     'x-admin-user': currentAdmin,
                     'x-admin-pass': currentPass
                 },
-                body: JSON.stringify({ user_id, type, amount })
+                body: JSON.stringify({ user_id, type, amount, status })
             });
             const data = await res.json();
             if (data.success) {

@@ -17,6 +17,7 @@ async function initBmkTable() {
                 amount REAL NOT NULL,
                 commission_rate REAL NOT NULL,
                 commission_amount REAL NOT NULL,
+                status TEXT DEFAULT 'unpaid',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
@@ -47,6 +48,29 @@ function verifyAdmin(req, res, next) {
     next();
 }
 
+function getMyanmarTime() {
+    const options = {
+        timeZone: 'Asia/Rangoon',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+    
+    const formatter = new Intl.DateTimeFormat('en-CA', options);
+    const parts = formatter.formatToParts(new Date());
+    const dateObj = {};
+    parts.forEach(p => {
+        if (p.type !== 'literal') {
+            dateObj[p.type] = p.value;
+        }
+    });
+
+    return `${dateObj.year}-${dateObj.month}-${dateObj.day} ${dateObj.hour}:${dateObj.minute}:${dateObj.second}`;
+}
 
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
@@ -68,12 +92,12 @@ router.get('/transactions', verifyAdmin, async (req, res) => {
         res.status(500).json({ success: false, message: 'Database မှ စာရင်းဆွဲယူရာတွင် အမှားရှိနေပါသည်' });
     }
 });
-
-
 router.post('/transactions', verifyAdmin, async (req, res) => {
     try {
-        const { user_id, type, amount } = req.body;
+        const { user_id, type, amount, status } = req.body; 
         const numAmount = parseFloat(amount);
+        const txStatus = status || 'unpaid';
+        const myanmarTime = getMyanmarTime(); 
 
         if (!user_id || !type || isNaN(numAmount) || numAmount <= 0) {
             return res.status(400).json({ success: false, message: 'အချက်အလက် အပြည့်အစုံ ဖြည့်သွင်းပါ' });
@@ -83,9 +107,9 @@ router.post('/transactions', verifyAdmin, async (req, res) => {
         const commissionAmount = numAmount * commissionRate;
 
         await db.execute({
-            sql: `INSERT INTO bmk_transactions (admin_username, user_id, type, amount, commission_rate, commission_amount)
-                  VALUES (?, ?, ?, ?, ?, ?)`,
-            args: [req.adminUser, user_id.trim(), type, numAmount, commissionRate, commissionAmount]
+            sql: `INSERT INTO bmk_transactions (admin_username, user_id, type, amount, commission_rate, commission_amount, status)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            args: [req.adminUser, user_id.trim(), type, numAmount, commissionRate, commissionAmount, txStatus]
         });
 
         res.json({ success: true, message: 'စာရင်းသွင်းပြီးပါပြီ' });
@@ -94,7 +118,6 @@ router.post('/transactions', verifyAdmin, async (req, res) => {
         res.status(500).json({ success: false, message: 'စာရင်းသွင်းရာတွင် အမှားရှိနေပါသည်' });
     }
 });
-
 router.delete('/transactions/:id', verifyAdmin, async (req, res) => {
     try {
         await db.execute({
