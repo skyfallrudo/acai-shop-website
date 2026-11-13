@@ -106,10 +106,11 @@ router.post('/transactions', verifyAdmin, async (req, res) => {
         const commissionRate = type === 'deposit' ? 0.05 : 0.02;
         const commissionAmount = numAmount * commissionRate;
 
+       
         await db.execute({
-            sql: `INSERT INTO bmk_transactions (admin_username, user_id, type, amount, commission_rate, commission_amount, status)
-                  VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            args: [req.adminUser, user_id.trim(), type, numAmount, commissionRate, commissionAmount, txStatus]
+            sql: `INSERT INTO bmk_transactions (admin_username, user_id, type, amount, commission_rate, commission_amount, status, created_at)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            args: [req.adminUser, user_id.trim(), type, numAmount, commissionRate, commissionAmount, txStatus, myanmarTime]
         });
 
         res.json({ success: true, message: 'စာရင်းသွင်းပြီးပါပြီ' });
@@ -128,6 +129,24 @@ router.delete('/transactions/:id', verifyAdmin, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'ဖျက်ရာတွင် အမှားရှိနေပါသည်' });
+    }
+});
+router.patch('/transactions/:id/status', verifyAdmin, async (req, res) => {
+    try {
+        const { status } = req.body; // 'paid' သို့မဟုတ် 'unpaid'
+        if (!['paid', 'unpaid'].includes(status)) {
+            return res.status(400).json({ success: false, message: 'မှားယွင်းနေသော Status ဖြစ်သည်' });
+        }
+
+        await db.execute({
+            sql: `UPDATE bmk_transactions SET status = ? WHERE id = ?`,
+            args: [status, req.params.id]
+        });
+
+        res.json({ success: true, message: 'Status ပြောင်းလဲပြီးပါပြီ' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Status ပြောင်းရာတွင် အမှားရှိနေပါသည်' });
     }
 });
 

@@ -12,7 +12,7 @@
 </head>
 <body class="min-h-screen p-3 md:p-8">
 
-    <!-- 1. LOGIN SCREEN -->
+   
     <div id="loginScreen" class="max-w-sm mx-auto mt-16 p-5 glass rounded-2xl shadow-2xl">
         <h1 class="text-xl font-bold text-center mb-5 text-blue-400">BMK Admin Login</h1>
         <form id="loginForm" class="space-y-4">
@@ -29,7 +29,7 @@
         </form>
     </div>
 
-    <!-- 2. MAIN DASHBOARD (Mobile Friendly) -->
+ 
     <div id="dashboardScreen" class="max-w-4xl mx-auto hidden space-y-4 md:space-y-6">
         
         <!-- Header -->
@@ -41,7 +41,7 @@
             <button onclick="logout()" class="text-xs bg-red-600/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-lg hover:bg-red-600/30 font-medium">Logout</button>
         </div>
 
-        <!-- Summary Cards (Mobile Stacked / Desktop Grid) -->
+      
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div class="glass p-3.5 rounded-xl">
                 <p class="text-xs text-gray-400">စုစုပေါင်း အသွင်းငွေ</p>
@@ -94,7 +94,6 @@
             </div>
         </div>
 
-        <!-- History Table (Mobile Scrollable) -->
         <div class="glass p-4 md:p-6 rounded-xl">
             <h2 class="text-sm md:text-base font-semibold mb-3">အထုတ် / အသွင်း မှတ်တမ်းများ</h2>
             <div class="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
@@ -107,7 +106,7 @@
                             <th class="pb-2.5 pr-4">အမျိုးအစား</th>
                             <th class="pb-2.5 pr-4">ပမာဏ</th>
                             <th class="pb-2.5 pr-4">ကော်မရှင်</th>
-                            <th class="pb-2.5 pr-4">Status</th>
+                            <th class="pb-2.5 pr-4">Status (နှိပ်၍ပြောင်းရန်)</th>
                             <th class="pb-2.5 text-right">ဖျက်ရန်</th>
                         </tr>
                     </thead>
@@ -176,7 +175,6 @@
             location.reload();
         }
 
-        // မြန်မာစံတော်ချိန် (MMT) ဖြင့် ပြသရန် format လုပ်ခြင်း
         function formatMyanmarTime(dateStr) {
             if (!dateStr) return '';
             const date = new Date(dateStr.replace(' ', 'T') + (dateStr.includes('Z') ? '' : 'Z'));
@@ -219,8 +217,8 @@
                     : `<span class="px-2 py-0.5 text-xs rounded bg-amber-500/20 text-amber-400">အထုတ် (2%)</span>`;
 
                 const statusBadge = status === 'paid'
-                    ? `<span class="px-2 py-0.5 text-xs rounded bg-blue-500/20 text-blue-400 font-semibold">Paid</span>`
-                    : `<span class="px-2 py-0.5 text-xs rounded bg-red-500/20 text-red-400 font-semibold">Unpaid</span>`;
+                    ? `<span onclick="toggleStatus(${row.id}, 'unpaid')" class="px-2.5 py-1 text-xs rounded bg-blue-500/20 text-blue-400 font-semibold cursor-pointer hover:bg-blue-500/30 transition inline-block" title="နှိပ်၍ Unpaid သို့ပြောင်းရန်">Paid (ပေးပြီး)</span>`
+                    : `<span onclick="toggleStatus(${row.id}, 'paid')" class="px-2.5 py-1 text-xs rounded bg-red-500/20 text-red-400 font-semibold cursor-pointer hover:bg-red-500/30 transition inline-block" title="နှိပ်၍ Paid သို့ပြောင်းရန်">Unpaid (မပေးရသေး)</span>`;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -243,6 +241,24 @@
             document.getElementById('totalWithdraw').textContent = `${witTotal.toLocaleString()} Ks`;
             document.getElementById('withdrawComm').textContent = `2% ကော်မရှင်: ${witComm.toLocaleString()} Ks`;
             document.getElementById('totalComm').textContent = `${(depComm + witComm).toLocaleString()} Ks`;
+        }
+
+        async function toggleStatus(id, newStatus) {
+            const res = await fetch(`/api/bmk/transactions/${id}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-admin-user': currentAdmin,
+                    'x-admin-pass': currentPass
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+            const data = await res.json();
+            if (data.success) {
+                loadTransactions();
+            } else {
+                alert(data.message);
+            }
         }
 
         document.getElementById('txForm').addEventListener('submit', async (e) => {
