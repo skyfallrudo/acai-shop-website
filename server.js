@@ -3450,7 +3450,7 @@ app.delete("/admin/pinduoduo/:id", adminAuth, async (req, res) => {
     });
   }
 });
-
+app.use('/api/bmk', require('./bmk'));
 app.listen(
   PORT,
   () => {

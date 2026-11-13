@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMK Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0b0f19; color: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+
+    <div id="loginScreen" class="max-w-sm mx-auto mt-20 p-6 glass rounded-2xl shadow-2xl">
+        <h1 class="text-2xl font-bold text-center mb-6 text-blue-400">BMK Admin Login</h1>
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="text-xs text-gray-400">Admin Username</label>
+                <input type="text" id="username" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 focus:border-blue-500 outline-none" required>
+            </div>
+            <div>
+                <label class="text-xs text-gray-400">Password</label>
+                <input type="password" id="password" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 focus:border-blue-500 outline-none" required>
+            </div>
+            <p id="loginError" class="text-red-400 text-xs hidden"></p>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-2.5 rounded-lg font-semibold transition">Login ဝင်မည်</button>
+        </form>
+    </div>
+
+   
+    <div id="dashboardScreen" class="max-w-5xl mx-auto hidden space-y-6">
+        <div class="flex justify-between items-center glass p-4 rounded-xl">
+            <div>
+                <h1 class="text-xl font-bold text-blue-400">BMK Commission Tracker</h1>
+                <p class="text-xs text-gray-400">Admin: <span id="activeAdmin" class="text-white font-semibold"></span></p>
+            </div>
+            <button onclick="logout()" class="text-xs bg-red-600/20 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg hover:bg-red-600/30">Logout</button>
+        </div>
+
+      
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="glass p-4 rounded-xl">
+                <p class="text-xs text-gray-400">စုစုပေါင်း အသွင်းငွေ</p>
+                <p id="totalDeposit" class="text-xl font-bold text-emerald-400 mt-1">0 Ks</p>
+                <p id="depositComm" class="text-xs text-emerald-300 mt-1">5% ကော်မရှင်: 0 Ks</p>
+            </div>
+            <div class="glass p-4 rounded-xl">
+                <p class="text-xs text-gray-400">စုစုပေါင်း အထုတ်ငွေ</p>
+                <p id="totalWithdraw" class="text-xl font-bold text-amber-400 mt-1">0 Ks</p>
+                <p id="withdrawComm" class="text-xs text-amber-300 mt-1">2% ကော်မရှင်: 0 Ks</p>
+            </div>
+            <div class="glass p-4 rounded-xl">
+                <p class="text-xs text-gray-400">စုစုပေါင်း ရရှိသည့် ကော်မရှင် (5% + 2%)</p>
+                <p id="totalComm" class="text-2xl font-bold text-blue-400 mt-1">0 Ks</p>
+            </div>
+        </div>
+
+       
+        <div class="glass p-6 rounded-xl">
+            <h2 class="text-base font-semibold mb-4">စာရင်းအသစ် ထည့်သွင်းရန်</h2>
+            <form id="txForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="text-xs text-gray-400">Player / User ID</label>
+                    <input type="text" id="userId" placeholder="ဥပမာ - 10928374" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 outline-none" required>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400">အမျိုးအစား</label>
+                    <select id="txType" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 outline-none">
+                        <option value="deposit">အသွင်း (Deposit - 5%)</option>
+                        <option value="withdrawal">အထုတ် (Withdrawal - 2%)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400">ငွေပမာဏ (Amount)</label>
+                    <input type="number" id="amount" placeholder="0" step="any" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 outline-none" required>
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-500 py-2.5 px-4 rounded-lg font-semibold transition">
+                    စာရင်းသွင်းမည်
+                </button>
+            </form>
+            <div id="liveCalc" class="mt-3 text-xs text-gray-400">
+                တွက်ချက်မှု အစမ်းကြည့်ရန် ငွေပမာဏ ရိုက်ထည့်ပါ...
+            </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="glass p-6 rounded-xl overflow-x-auto">
+            <h2 class="text-base font-semibold mb-4">အထုတ် / အသွင်း မှတ်တမ်းများ</h2>
+            <table class="w-full text-left text-sm">
+                <thead class="text-xs text-gray-400 border-b border-slate-700">
+                    <tr>
+                        <th class="pb-3">အချိန်</th>
+                        <th class="pb-3">Admin</th>
+                        <th class="pb-3">User ID</th>
+                        <th class="pb-3">အမျိုးအစား</th>
+                        <th class="pb-3">ပမာဏ</th>
+                        <th class="pb-3">ကော်မရှင်</th>
+                        <th class="pb-3 text-right">ဖျက်ရန်</th>
+                    </tr>
+                </thead>
+                <tbody id="txTableBody" class="divide-y divide-slate-800"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let currentAdmin = sessionStorage.getItem('bmk_admin') || '';
+        let currentPass = sessionStorage.getItem('bmk_pass') || '';
+
+        const loginScreen = document.getElementById('loginScreen');
+        const dashboardScreen = document.getElementById('dashboardScreen');
+        const amountInput = document.getElementById('amount');
+        const typeInput = document.getElementById('txType');
+        const liveCalc = document.getElementById('liveCalc');
+
+        function updatePreview() {
+            const val = parseFloat(amountInput.value) || 0;
+            const rate = typeInput.value === 'deposit' ? 0.05 : 0.02;
+            const comm = val * rate;
+            liveCalc.innerHTML = `ရရှိမည့် ကော်မရှင် (${rate * 100}%): <span class="text-blue-400 font-bold">${comm.toLocaleString()} Ks</span>`;
+        }
+        amountInput.addEventListener('input', updatePreview);
+        typeInput.addEventListener('change', updatePreview);
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errEl = document.getElementById('loginError');
+
+            const res = await fetch('/api/bmk/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+
+            if (!data.success) {
+                errEl.textContent = data.message;
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            currentAdmin = username;
+            currentPass = password;
+            sessionStorage.setItem('bmk_admin', username);
+            sessionStorage.setItem('bmk_pass', password);
+            errEl.classList.add('hidden');
+            showDashboard();
+        });
+
+        function showDashboard() {
+            loginScreen.classList.add('hidden');
+            dashboardScreen.classList.remove('hidden');
+            document.getElementById('activeAdmin').textContent = currentAdmin;
+            loadTransactions();
+        }
+
+        function logout() {
+            sessionStorage.removeItem('bmk_admin');
+            sessionStorage.removeItem('bmk_pass');
+            location.reload();
+        }
+
+        async function loadTransactions() {
+            const res = await fetch('/api/bmk/transactions', {
+                headers: { 'x-admin-user': currentAdmin, 'x-admin-pass': currentPass }
+            });
+            const result = await res.json();
+            if (!result.success) return logout();
+
+            let depTotal = 0, depComm = 0, witTotal = 0, witComm = 0;
+            const tbody = document.getElementById('txTableBody');
+            tbody.innerHTML = '';
+
+            result.data.forEach(row => {
+                const amt = Number(row.amount);
+                const comm = Number(row.commission_amount);
+                if (row.type === 'deposit') {
+                    depTotal += amt;
+                    depComm += comm;
+                } else {
+                    witTotal += amt;
+                    witComm += comm;
+                }
+
+                const badge = row.type === 'deposit'
+                    ? `<span class="px-2 py-0.5 text-xs rounded bg-emerald-500/20 text-emerald-400">အသွင်း (5%)</span>`
+                    : `<span class="px-2 py-0.5 text-xs rounded bg-amber-500/20 text-amber-400">အထုတ် (2%)</span>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-3 text-xs text-gray-400">${new Date(row.created_at).toLocaleString()}</td>
+                    <td class="py-3 font-medium">${row.admin_username}</td>
+                    <td class="py-3 text-blue-300 font-mono">${row.user_id}</td>
+                    <td class="py-3">${badge}</td>
+                    <td class="py-3 font-semibold">${amt.toLocaleString()} Ks</td>
+                    <td class="py-3 text-emerald-400 font-bold">+${comm.toLocaleString()} Ks</td>
+                    <td class="py-3 text-right">
+                        <button onclick="deleteTx(${row.id})" class="text-xs text-red-400 hover:underline">ဖျက်မည်</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('totalDeposit').textContent = `${depTotal.toLocaleString()} Ks`;
+            document.getElementById('depositComm').textContent = `5% ကော်မရှင်: ${depComm.toLocaleString()} Ks`;
+            document.getElementById('totalWithdraw').textContent = `${witTotal.toLocaleString()} Ks`;
+            document.getElementById('withdrawComm').textContent = `2% ကော်မရှင်: ${witComm.toLocaleString()} Ks`;
+            document.getElementById('totalComm').textContent = `${(depComm + witComm).toLocaleString()} Ks`;
+        }
+
+        document.getElementById('txForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user_id = document.getElementById('userId').value;
+            const type = typeInput.value;
+            const amount = amountInput.value;
+
+            const res = await fetch('/api/bmk/transactions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-admin-user': currentAdmin,
+                    'x-admin-pass': currentPass
+                },
+                body: JSON.stringify({ user_id, type, amount })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('userId').value = '';
+                amountInput.value = '';
+                updatePreview();
+                loadTransactions();
+            } else {
+                alert(data.message);
+            }
+        });
+
+        async function deleteTx(id) {
+            if (!confirm('ဤစာရင်းကို ဖျက်ရန် သေချာပါသလား?')) return;
+            await fetch(`/api/bmk/transactions/${id}`, {
+                method: 'DELETE',
+                headers: { 'x-admin-user': currentAdmin, 'x-admin-pass': currentPass }
+            });
+            loadTransactions();
+        }
+
+        if (currentAdmin && currentPass) showDashboard();
+    </script>
+</body>
+</html>
