@@ -2,10 +2,14 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const { createClient } = require('@libsql/client');
+
+
 const db = createClient({
     url: process.env.BMK_DATABASE_URL,
     authToken: process.env.BMK_AUTH_TOKEN
 });
+
+
 async function initBmkTable() {
     try {
         await db.execute(`
@@ -28,6 +32,7 @@ async function initBmkTable() {
 }
 initBmkTable();
 
+
 function getAdmins() {
     return [
         { username: process.env.BMK_ADMIN1_USER, pass: process.env.BMK_ADMIN1_PASS },
@@ -47,6 +52,7 @@ function verifyAdmin(req, res, next) {
     req.adminUser = valid.username;
     next();
 }
+
 
 function getMyanmarTime() {
     const options = {
@@ -72,6 +78,7 @@ function getMyanmarTime() {
     return `${dateObj.year}-${dateObj.month}-${dateObj.day} ${dateObj.hour}:${dateObj.minute}:${dateObj.second}`;
 }
 
+
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
     const valid = getAdmins().find(a => a.username === username && a.pass === password);
@@ -92,6 +99,8 @@ router.get('/transactions', verifyAdmin, async (req, res) => {
         res.status(500).json({ success: false, message: 'Database မှ စာရင်းဆွဲယူရာတွင် အမှားရှိနေပါသည်' });
     }
 });
+
+
 router.post('/transactions', verifyAdmin, async (req, res) => {
     try {
         const { user_id, type, amount, status } = req.body; 
@@ -106,7 +115,6 @@ router.post('/transactions', verifyAdmin, async (req, res) => {
         const commissionRate = type === 'deposit' ? 0.05 : 0.02;
         const commissionAmount = numAmount * commissionRate;
 
-       
         await db.execute({
             sql: `INSERT INTO bmk_transactions (admin_username, user_id, type, amount, commission_rate, commission_amount, status, created_at)
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -119,21 +127,11 @@ router.post('/transactions', verifyAdmin, async (req, res) => {
         res.status(500).json({ success: false, message: 'စာရင်းသွင်းရာတွင် အမှားရှိနေပါသည်' });
     }
 });
-router.delete('/transactions/:id', verifyAdmin, async (req, res) => {
-    try {
-        await db.execute({
-            sql: `DELETE FROM bmk_transactions WHERE id = ?`,
-            args: [req.params.id]
-        });
-        res.json({ success: true });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: 'ဖျက်ရာတွင် အမှားရှိနေပါသည်' });
-    }
-});
+
+
 router.patch('/transactions/:id/status', verifyAdmin, async (req, res) => {
     try {
-        const { status } = req.body; // 'paid' သို့မဟုတ် 'unpaid'
+        const { status } = req.body;
         if (!['paid', 'unpaid'].includes(status)) {
             return res.status(400).json({ success: false, message: 'မှားယွင်းနေသော Status ဖြစ်သည်' });
         }
@@ -147,6 +145,19 @@ router.patch('/transactions/:id/status', verifyAdmin, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Status ပြောင်းရာတွင် အမှားရှိနေပါသည်' });
+    }
+});
+
+router.delete('/transactions/:id', verifyAdmin, async (req, res) => {
+    try {
+        await db.execute({
+            sql: `DELETE FROM bmk_transactions WHERE id = ?`,
+            args: [req.params.id]
+        });
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'ဖျက်ရာတွင် အမှားရှိနေပါသည်' });
     }
 });
 
