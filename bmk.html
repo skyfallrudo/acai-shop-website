@@ -3,115 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BMK Admin Portal</title>
+    <title>BMK Pro — Admin Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0b0f19; color: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+        :root {
+            --bg-deep: #050811;
+            --glass-bg: rgba(15, 23, 42, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+        body {
+            background-color: var(--bg-deep);
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.14), transparent 35%),
+                radial-gradient(circle at 90% 20%, rgba(16, 185, 129, 0.1), transparent 35%),
+                radial-gradient(circle at 50% 90%, rgba(244, 63, 94, 0.08), transparent 40%);
+            background-attachment: fixed;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+        }
+        .glass-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.75) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 14px 35px -10px rgba(0, 0, 0, 0.7);
+        }
+        .input-modern {
+            background: rgba(9, 13, 24, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            transition: all 0.2s ease;
+        }
+        .input-modern:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            outline: none;
+        }
+        .btn-glow {
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+            box-shadow: 0 4px 20px -2px rgba(59, 130, 246, 0.5);
+            transition: all 0.2s ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 6px 25px -1px rgba(59, 130, 246, 0.7);
+            transform: translateY(-1px);
+        }
+        .btn-glow:active { transform: translateY(0); }
+        .filter-pill {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            transition: all 0.2s ease;
+        }
+        .filter-pill.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #60a5fa;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.25);
+        }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.4); }
+        ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 9999px; }
     </style>
 </head>
-<body class="min-h-screen p-3 md:p-8">
+<body class="min-h-screen p-3 sm:p-5 md:p-8">
 
-   
-    <div id="loginScreen" class="max-w-sm mx-auto mt-16 p-5 glass rounded-2xl shadow-2xl">
-        <h1 class="text-xl font-bold text-center mb-5 text-blue-400">BMK Admin Login</h1>
+    
+    <div id="loginScreen" class="max-w-md mx-auto mt-16 sm:mt-24 p-6 sm:p-8 glass rounded-3xl relative overflow-hidden">
+        <div class="absolute -top-20 -right-20 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="text-center mb-7">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 mb-3 shadow-inner">
+                <span class="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">BMK</span>
+            </div>
+            <h1 class="text-2xl font-extrabold tracking-tight text-white">BMK Admin Portal</h1>
+            <p class="text-xs text-slate-400 mt-1">Authorized Personnel Only • Secure Access</p>
+        </div>
         <form id="loginForm" class="space-y-4">
             <div>
-                <label class="text-xs text-gray-400">Admin Username</label>
-                <input type="text" id="username" class="w-full mt-1 p-3 rounded-lg bg-slate-900 border border-slate-700 text-base focus:border-blue-500 outline-none" required>
+                <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Admin Username</label>
+                <input type="text" id="username" placeholder="Username ရိုက်ထည့်ပါ" class="w-full mt-1.5 p-3.5 rounded-xl input-modern text-sm text-white" required>
             </div>
             <div>
-                <label class="text-xs text-gray-400">Password</label>
-                <input type="password" id="password" class="w-full mt-1 p-3 rounded-lg bg-slate-900 border border-slate-700 text-base focus:border-blue-500 outline-none" required>
+                <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
+                <input type="password" id="password" placeholder="••••••••" class="w-full mt-1.5 p-3.5 rounded-xl input-modern text-sm text-white" required>
             </div>
-            <p id="loginError" class="text-red-400 text-xs hidden"></p>
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-lg font-semibold transition text-base">Login ဝင်မည်</button>
+            <p id="loginError" class="text-rose-400 text-xs font-medium bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-lg hidden"></p>
+            <button type="submit" class="w-full btn-glow py-3.5 rounded-xl font-bold text-sm text-white tracking-wide">
+                Login ဝင်မည် →
+            </button>
         </form>
     </div>
 
- 
-    <div id="dashboardScreen" class="max-w-4xl mx-auto hidden space-y-4 md:space-y-6">
+  
+    <div id="dashboardScreen" class="max-w-6xl mx-auto hidden space-y-5">
         
-        <!-- Header -->
-        <div class="flex justify-between items-center glass p-3 md:p-4 rounded-xl">
-            <div>
-                <h1 class="text-lg md:text-xl font-bold text-blue-400">BMK Tracker</h1>
-                <p class="text-xs text-gray-400">Admin: <span id="activeAdmin" class="text-white font-semibold"></span></p>
-            </div>
-            <button onclick="logout()" class="text-xs bg-red-600/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-lg hover:bg-red-600/30 font-medium">Logout</button>
-        </div>
-
       
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div class="glass p-3.5 rounded-xl">
-                <p class="text-xs text-gray-400">စုစုပေါင်း အသွင်းငွေ</p>
-                <p id="totalDeposit" class="text-lg font-bold text-emerald-400 mt-0.5">0 Ks</p>
-                <p id="depositComm" class="text-xs text-emerald-300 mt-0.5">5% ကော်မရှင်: 0 Ks</p>
-            </div>
-            <div class="glass p-3.5 rounded-xl">
-                <p class="text-xs text-gray-400">စုစုပေါင်း အထုတ်ငွေ</p>
-                <p id="totalWithdraw" class="text-lg font-bold text-amber-400 mt-0.5">0 Ks</p>
-                <p id="withdrawComm" class="text-xs text-amber-300 mt-0.5">2% ကော်မရှင်: 0 Ks</p>
-            </div>
-            <div class="glass p-3.5 rounded-xl">
-                <p class="text-xs text-gray-400">စုစုပေါင်း ရရှိသည့် ကော်မရှင်</p>
-                <p id="totalComm" class="text-xl font-bold text-blue-400 mt-0.5">0 Ks</p>
-            </div>
-        </div>
-
-        <!-- Add Transaction Form -->
-        <div class="glass p-4 md:p-6 rounded-xl">
-            <h2 class="text-sm md:text-base font-semibold mb-3">စာရင်းအသစ် ထည့်သွင်းရန်</h2>
-            <form id="txForm" class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
-                <div>
-                    <label class="text-xs text-gray-400">Player / User ID</label>
-                    <input type="text" id="userId" placeholder="User ID" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-sm outline-none" required>
+        <div class="glass p-4 sm:px-6 rounded-2xl flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-extrabold text-sm shadow-lg shadow-blue-500/30">
+                    BMK
                 </div>
                 <div>
-                    <label class="text-xs text-gray-400">အမျိုးအစား</label>
-                    <select id="txType" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-sm outline-none">
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">Commission Tracker</h1>
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded-full">PRO</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Admin: <span id="activeAdmin" class="text-blue-400 font-semibold"></span></p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2.5 sm:gap-4 ml-auto">
+                <!-- Live Myanmar Standard Time Clock -->
+                <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <div class="text-right">
+                        <p class="text-[10px] text-slate-400 font-medium leading-none">MMT (မြန်မာစံတော်ချိန်)</p>
+                        <p id="liveMmtClock" class="mono text-xs font-bold text-slate-100 mt-0.5">--:--:--</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="text-xs bg-rose-500/15 text-rose-400 border border-rose-500/25 px-3.5 py-2.5 rounded-xl hover:bg-rose-500/25 font-semibold transition">
+                    Logout
+                </button>
+            </div>
+        </div>
+
+       
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            
+            <div class="glass-card p-4 sm:p-5 rounded-2xl relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <p class="text-xs font-medium text-slate-400">စုစုပေါင်း အသွင်းငွေ</p>
+                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">5%</span>
+                </div>
+                <p id="totalDeposit" class="mono text-lg sm:text-2xl font-extrabold text-white mt-2">0 Ks</p>
+                <p id="depositComm" class="mono text-xs text-emerald-400 font-semibold mt-1">ကော်မရှင်: +0 Ks</p>
+            </div>
+
+           
+            <div class="glass-card p-4 sm:p-5 rounded-2xl relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <p class="text-xs font-medium text-slate-400">စုစုပေါင်း အထုတ်ငွေ</p>
+                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/20">2%</span>
+                </div>
+                <p id="totalWithdraw" class="mono text-lg sm:text-2xl font-extrabold text-white mt-2">0 Ks</p>
+                <p id="withdrawComm" class="mono text-xs text-amber-400 font-semibold mt-1">ကော်မရှင်: +0 Ks</p>
+            </div>
+
+           
+            <div class="glass-card p-4 sm:p-5 rounded-2xl relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <p class="text-xs font-medium text-slate-400">စုစုပေါင်း ကော်မရှင်</p>
+                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-400 border border-blue-500/20">Net</span>
+                </div>
+                <p id="totalComm" class="mono text-lg sm:text-2xl font-extrabold text-blue-400 mt-2">0 Ks</p>
+                <p class="text-xs text-slate-400 mt-1">အသွင်း (5%) + အထုတ် (2%)</p>
+            </div>
+
+           >
+            <div class="glass-card p-4 sm:p-5 rounded-2xl relative overflow-hidden border-rose-500/20">
+                <div class="flex justify-between items-start">
+                    <p class="text-xs font-medium text-rose-300">Unpaid (စောက်ကြွေး)</p>
+                    <span id="unpaidCountBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/30">0 ခု</span>
+                </div>
+                <p id="totalUnpaid" class="mono text-lg sm:text-2xl font-extrabold text-rose-400 mt-2">0 Ks</p>
+                <p id="unpaidComm" class="mono text-xs text-rose-300/80 font-medium mt-1">ကော်မရှင်ကြွေး: 0 Ks</p>
+            </div>
+        </div>
+
+        <div class="glass p-4 sm:p-6 rounded-2xl">
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
+                <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                    <span class="w-2 h-4 rounded-full bg-blue-500"></span>
+                    စာရင်းအသစ် ထည့်သွင်းရန်
+                </h2>
+                <div id="liveCalc" class="mono text-xs px-3 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300">
+                    ကော်မရှင် (5%): <span class="font-bold text-blue-400">0 Ks</span>
+                </div>
+            </div>
+
+            <form id="txForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                <div>
+                    <label class="text-xs font-medium text-slate-400">Player / User ID</label>
+                    <input type="text" id="userId" placeholder="ဥပမာ - 1577901201" class="mono w-full mt-1 p-3 rounded-xl input-modern text-sm text-white" required>
+                </div>
+                <div>
+                    <label class="text-xs font-medium text-slate-400">အမျိုးအစား</label>
+                    <select id="txType" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white">
                         <option value="deposit">အသွင်း (Deposit - 5%)</option>
                         <option value="withdrawal">အထုတ် (Withdrawal - 2%)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs text-gray-400">ငွေပမာဏ (Amount)</label>
-                    <input type="number" id="amount" placeholder="0" step="any" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-sm outline-none" required>
+                    <label class="text-xs font-medium text-slate-400">ငွေပမာဏ (Amount)</label>
+                    <input type="number" id="amount" placeholder="0" step="any" class="mono w-full mt-1 p-3 rounded-xl input-modern text-sm text-white" required>
                 </div>
                 <div>
-                    <label class="text-xs text-gray-400">အခြေအနေ (Status)</label>
-                    <select id="txStatus" class="w-full mt-1 p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-sm outline-none">
+                    <label class="text-xs font-medium text-slate-400">အခြေအနေ (Status)</label>
+                    <select id="txStatus" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white">
                         <option value="unpaid">Unpaid (စောက်ကြွေး)</option>
                         <option value="paid">Paid (ပေးပြီး)</option>
                     </select>
                 </div>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-500 py-2.5 px-4 rounded-lg font-semibold transition text-sm">
-                    စာရင်းသွင်းမည်
+                <button type="submit" class="btn-glow py-3 px-4 rounded-xl font-bold text-sm text-white w-full">
+                    + စာရင်းသွင်းမည်
                 </button>
             </form>
-            <div id="liveCalc" class="mt-2 text-xs text-gray-400">
-                တွက်ချက်မှု အစမ်းကြည့်ရန် ငွေပမာဏ ရိုက်ထည့်ပါ...
-            </div>
         </div>
 
-        <div class="glass p-4 md:p-6 rounded-xl">
-            <h2 class="text-sm md:text-base font-semibold mb-3">အထုတ် / အသွင်း မှတ်တမ်းများ</h2>
-            <div class="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
-                <table class="w-full text-left text-xs md:text-sm whitespace-nowrap">
-                    <thead class="text-gray-400 border-b border-slate-700 text-xs">
+    
+        <div class="glass p-4 sm:p-6 rounded-2xl space-y-4">
+            
+            
+            <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
+                
+                <div class="relative flex-1 max-w-md">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                    <input type="text" id="searchInput" placeholder="User ID ဖြင့် ပြန်ရှာရန် ရိုက်ထည့်ပါ..." class="mono w-full pl-9 pr-9 py-2.5 rounded-xl input-modern text-xs sm:text-sm text-white">
+                    <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white bg-slate-800 px-1.5 py-0.5 rounded">✕</button>
+                </div>
+
+               
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+                    <button onclick="setFilter('all')" id="filter-all" class="filter-pill active text-xs font-semibold px-3 py-2 rounded-xl whitespace-nowrap">အားလုံး</button>
+                    <button onclick="setFilter('unpaid')" id="filter-unpaid" class="filter-pill text-xs font-semibold px-3 py-2 rounded-xl whitespace-nowrap text-rose-300">Unpaid (စောက်ကြွေး)</button>
+                    <button onclick="setFilter('paid')" id="filter-paid" class="filter-pill text-xs font-semibold px-3 py-2 rounded-xl whitespace-nowrap text-cyan-300">Paid (ပေးပြီး)</button>
+                    <button onclick="setFilter('deposit')" id="filter-deposit" class="filter-pill text-xs font-semibold px-3 py-2 rounded-xl whitespace-nowrap text-emerald-300">အသွင်း (5%)</button>
+                    <button onclick="setFilter('withdrawal')" id="filter-withdrawal" class="filter-pill text-xs font-semibold px-3 py-2 rounded-xl whitespace-nowrap text-amber-300">အထုတ် (2%)</button>
+                </div>
+            </div>
+
+            
+            <div id="searchSummaryBanner" class="hidden p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/25 flex flex-wrap justify-between items-center gap-3 text-xs">
+                <div>
+                    <span class="text-slate-300">ရှာဖွေထားသော ID:</span>
+                    <span id="searchedIdText" class="mono font-bold text-blue-400 ml-1"></span>
+                    <span id="searchedCountText" class="ml-2 px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-semibold"></span>
+                </div>
+                <div class="flex flex-wrap gap-4 mono">
+                    <span>အသွင်း: <strong id="searchedDep" class="text-emerald-400">0 Ks</strong></span>
+                    <span>အထုတ်: <strong id="searchedWit" class="text-amber-400">0 Ks</strong></span>
+                    <span>Unpaid (စောက်ကြွေး): <strong id="searchedUnpaid" class="text-rose-400">0 Ks</strong></span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+                <table class="w-full text-left text-xs sm:text-sm whitespace-nowrap">
+                    <thead class="text-slate-400 border-b border-slate-800 text-[11px] uppercase tracking-wider">
                         <tr>
-                            <th class="pb-2.5 pr-4">အချိန် (MMT)</th>
-                            <th class="pb-2.5 pr-4">Admin</th>
-                            <th class="pb-2.5 pr-4">User ID</th>
-                            <th class="pb-2.5 pr-4">အမျိုးအစား</th>
-                            <th class="pb-2.5 pr-4">ပမာဏ</th>
-                            <th class="pb-2.5 pr-4">ကော်မရှင်</th>
-                            <th class="pb-2.5 pr-4">Status (နှိပ်၍ပြောင်းရန်)</th>
-                            <th class="pb-2.5 text-right">ဖျက်ရန်</th>
+                            <th class="pb-3 pr-4">အချိန် (MMT)</th>
+                            <th class="pb-3 pr-4">Admin</th>
+                            <th class="pb-3 pr-4">User ID</th>
+                            <th class="pb-3 pr-4">အမျိုးအစား</th>
+                            <th class="pb-3 pr-4">ပမာဏ</th>
+                            <th class="pb-3 pr-4">ကော်မရှင်</th>
+                            <th class="pb-3 pr-4">Status (နှိပ်၍ပြောင်းရန်)</th>
+                            <th class="pb-3 text-right">ဖျက်ရန်</th>
                         </tr>
                     </thead>
-                    <tbody id="txTableBody" class="divide-y divide-slate-800"></tbody>
+                    <tbody id="txTableBody" class="divide-y divide-slate-800/70"></tbody>
                 </table>
+                <div id="emptyState" class="hidden text-center py-10 text-slate-500 text-sm">
+                    စာရင်း မရှိသေးပါ...
+                </div>
             </div>
         </div>
     </div>
@@ -119,22 +284,72 @@
     <script>
         let currentAdmin = sessionStorage.getItem('bmk_admin') || '';
         let currentPass = sessionStorage.getItem('bmk_pass') || '';
+        let allTransactions = [];
+        let activeFilter = 'all';
 
         const loginScreen = document.getElementById('loginScreen');
         const dashboardScreen = document.getElementById('dashboardScreen');
         const amountInput = document.getElementById('amount');
         const typeInput = document.getElementById('txType');
         const liveCalc = document.getElementById('liveCalc');
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
 
+        
+        function updateLiveClock() {
+            const now = new Date();
+            const mmtStr = now.toLocaleString('en-US', {
+                timeZone: 'Asia/Rangoon',
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            const clockEl = document.getElementById('liveMmtClock');
+            if (clockEl) clockEl.textContent = mmtStr;
+        }
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
+
+        
+        function formatMyanmarTime(dateStr) {
+            if (!dateStr) return '-';
+            let str = String(dateStr).trim();
+            let date;
+
+           
+            if (str.includes('+06:30') || str.includes('Z') || str.includes('+')) {
+                date = new Date(str);
+            } else {
+                
+                date = new Date(str.replace(' ', 'T') + '+06:30');
+            }
+
+            if (isNaN(date.getTime())) return dateStr;
+
+            return date.toLocaleString('en-US', {
+                timeZone: 'Asia/Rangoon',
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        
         function updatePreview() {
             const val = parseFloat(amountInput.value) || 0;
             const rate = typeInput.value === 'deposit' ? 0.05 : 0.02;
             const comm = val * rate;
-            liveCalc.innerHTML = `ရရှိမည့် ကော်မရှင် (${rate * 100}%): <span class="text-blue-400 font-bold">${comm.toLocaleString()} Ks</span>`;
+            liveCalc.innerHTML = `ကော်မရှင် (${rate * 100}%): <span class="font-bold text-blue-400">+${comm.toLocaleString()} Ks</span>`;
         }
         amountInput.addEventListener('input', updatePreview);
         typeInput.addEventListener('change', updatePreview);
 
+        
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
@@ -175,19 +390,6 @@
             location.reload();
         }
 
-        function formatMyanmarTime(dateStr) {
-            if (!dateStr) return '';
-            const date = new Date(dateStr.replace(' ', 'T') + (dateStr.includes('Z') ? '' : 'Z'));
-            return date.toLocaleString('my-MM', {
-                timeZone: 'Asia/Rangoon',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-            });
-        }
-
         async function loadTransactions() {
             const res = await fetch('/api/bmk/transactions', {
                 headers: { 'x-admin-user': currentAdmin, 'x-admin-pass': currentPass }
@@ -195,13 +397,19 @@
             const result = await res.json();
             if (!result.success) return logout();
 
-            let depTotal = 0, depComm = 0, witTotal = 0, witComm = 0;
-            const tbody = document.getElementById('txTableBody');
-            tbody.innerHTML = '';
+            allTransactions = result.data || [];
+            updateSummaryCards();
+            renderTable();
+        }
 
-            result.data.forEach(row => {
-                const amt = Number(row.amount);
-                const comm = Number(row.commission_amount);
+       
+        function updateSummaryCards() {
+            let depTotal = 0, depComm = 0, witTotal = 0, witComm = 0;
+            let unpaidTotal = 0, unpaidComm = 0, unpaidCount = 0;
+
+            allTransactions.forEach(row => {
+                const amt = Number(row.amount) || 0;
+                const comm = Number(row.commission_amount) || 0;
                 const status = row.status || 'unpaid';
 
                 if (row.type === 'deposit') {
@@ -212,42 +420,137 @@
                     witComm += comm;
                 }
 
-                const badge = row.type === 'deposit'
-                    ? `<span class="px-2 py-0.5 text-xs rounded bg-emerald-500/20 text-emerald-400">အသွင်း (5%)</span>`
-                    : `<span class="px-2 py-0.5 text-xs rounded bg-amber-500/20 text-amber-400">အထုတ် (2%)</span>`;
-const statusBadge = row.status === 'paid'
-                    ? `<span onclick="toggleStatus(${row.id}, 'paid')" class="px-2.5 py-1 text-xs rounded bg-blue-500/20 text-blue-400 font-semibold cursor-pointer hover:bg-blue-500/30 transition inline-block" title="နှိပ်၍ Unpaid သို့ပြောင်းရန်">Paid (ပေးပြီး)</span>`
-                    : `<span onclick="toggleStatus(${row.id}, 'unpaid')" class="px-2.5 py-1 text-xs rounded bg-red-500/20 text-red-400 font-semibold cursor-pointer hover:bg-red-500/30 transition inline-block" title="နှိပ်၍ Paid သို့ပြောင်းရန်">Unpaid (မပေးရသေး)</span>`;
+                if (status === 'unpaid') {
+                    unpaidTotal += amt;
+                    unpaidComm += comm;
+                    unpaidCount++;
+                }
+            });
+
+            document.getElementById('totalDeposit').textContent = `${depTotal.toLocaleString()} Ks`;
+            document.getElementById('depositComm').textContent = `ကော်မရှင်: +${depComm.toLocaleString()} Ks`;
+            document.getElementById('totalWithdraw').textContent = `${witTotal.toLocaleString()} Ks`;
+            document.getElementById('withdrawComm').textContent = `ကော်မရှင်: +${witComm.toLocaleString()} Ks`;
+            document.getElementById('totalComm').textContent = `${(depComm + witComm).toLocaleString()} Ks`;
+
+            document.getElementById('totalUnpaid').textContent = `${unpaidTotal.toLocaleString()} Ks`;
+            document.getElementById('unpaidComm').textContent = `ကော်မရှင်ကြွေး: ${unpaidComm.toLocaleString()} Ks`;
+            document.getElementById('unpaidCountBadge').textContent = `${unpaidCount} ခု`;
+        }
+
+        
+        function renderTable() {
+            const query = searchInput.value.trim().toLowerCase();
+            clearSearchBtn.classList.toggle('hidden', !query);
+
+            const filtered = allTransactions.filter(row => {
+                const status = row.status || 'unpaid';
+                const matchesId = !query || String(row.user_id).toLowerCase().includes(query);
+
+                let matchesFilter = true;
+                if (activeFilter === 'unpaid') matchesFilter = status === 'unpaid';
+                else if (activeFilter === 'paid') matchesFilter = status === 'paid';
+                else if (activeFilter === 'deposit') matchesFilter = row.type === 'deposit';
+                else if (activeFilter === 'withdrawal') matchesFilter = row.type === 'withdrawal';
+
+                return matchesId && matchesFilter;
+            });
+
+            
+            const banner = document.getElementById('searchSummaryBanner');
+            if (query) {
+                let sDep = 0, sWit = 0, sUnpaid = 0;
+                filtered.forEach(r => {
+                    const amt = Number(r.amount) || 0;
+                    if (r.type === 'deposit') sDep += amt;
+                    else sWit += amt;
+                    if ((r.status || 'unpaid') === 'unpaid') sUnpaid += amt;
+                });
+                document.getElementById('searchedIdText').textContent = searchInput.value.trim();
+                document.getElementById('searchedCountText').textContent = `${filtered.length} ကြိမ်`;
+                document.getElementById('searchedDep').textContent = `${sDep.toLocaleString()} Ks`;
+                document.getElementById('searchedWit').textContent = `${sWit.toLocaleString()} Ks`;
+                document.getElementById('searchedUnpaid').textContent = `${sUnpaid.toLocaleString()} Ks`;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+
+            const tbody = document.getElementById('txTableBody');
+            const emptyState = document.getElementById('emptyState');
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            filtered.forEach(row => {
+                const amt = Number(row.amount) || 0;
+                const comm = Number(row.commission_amount) || 0;
+                const status = row.status || 'unpaid';
+
+                const typeBadge = row.type === 'deposit'
+                    ? `<span class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">အသွင်း (5%)</span>`
+                    : `<span class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/25">အထုတ် (2%)</span>`;
+
+                const statusBadge = status === 'paid'
+                    ? `<button onclick="toggleStatus(${row.id}, 'paid')" class="px-3 py-1 text-xs rounded-lg bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-bold hover:bg-cyan-500/25 transition flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span> Paid (ပေးပြီး)
+                       </button>`
+                    : `<button onclick="toggleStatus(${row.id}, 'unpaid')" class="px-3 py-1 text-xs rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/35 font-bold hover:bg-rose-500/30 transition flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span> Unpaid (စောက်ကြွေး)
+                       </button>`;
 
                 const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/40 transition';
                 tr.innerHTML = `
-                    <td class="py-3 pr-4 text-xs text-gray-400">${formatMyanmarTime(row.created_at)}</td>
-                    <td class="py-3 pr-4 font-medium">${row.admin_username}</td>
-                    <td class="py-3 pr-4 text-blue-300 font-mono">${row.user_id}</td>
-                    <td class="py-3 pr-4">${badge}</td>
-                    <td class="py-3 pr-4 font-semibold">${amt.toLocaleString()} Ks</td>
-                    <td class="py-3 pr-4 text-emerald-400 font-bold">+${comm.toLocaleString()} Ks</td>
-                    <td class="py-3 pr-4">${statusBadge}</td>
-                    <td class="py-3 text-right">
-                        <button onclick="deleteTx(${row.id})" class="text-xs text-red-400 hover:underline">ဖျက်မည်</button>
+                    <td class="py-3.5 pr-4 mono text-xs text-slate-400">${formatMyanmarTime(row.created_at)}</td>
+                    <td class="py-3.5 pr-4 font-semibold text-slate-200">${row.admin_username}</td>
+                    <td class="py-3.5 pr-4">
+                        <span onclick="filterByClickedId('${row.user_id}')" class="mono text-blue-400 font-semibold cursor-pointer hover:underline" title="နှိပ်၍ ဤ ID ကိုသာ စစ်ကြည့်ရန်">${row.user_id}</span>
+                    </td>
+                    <td class="py-3.5 pr-4">${typeBadge}</td>
+                    <td class="py-3.5 pr-4 mono font-bold text-white">${amt.toLocaleString()} Ks</td>
+                    <td class="py-3.5 pr-4 mono text-emerald-400 font-bold">+${comm.toLocaleString()} Ks</td>
+                    <td class="py-3.5 pr-4">${statusBadge}</td>
+                    <td class="py-3.5 text-right">
+                        <button onclick="deleteTx(${row.id})" class="text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 px-2.5 py-1 rounded-lg transition font-medium">
+                            ဖျက်မည်
+                        </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-
-            document.getElementById('totalDeposit').textContent = `${depTotal.toLocaleString()} Ks`;
-            document.getElementById('depositComm').textContent = `5% ကော်မရှင်: ${depComm.toLocaleString()} Ks`;
-            document.getElementById('totalWithdraw').textContent = `${witTotal.toLocaleString()} Ks`;
-            document.getElementById('withdrawComm').textContent = `2% ကော်မရှင်: ${witComm.toLocaleString()} Ks`;
-            document.getElementById('totalComm').textContent = `${(depComm + witComm).toLocaleString()} Ks`;
         }
-async function toggleStatus(id, currentStatus) {
+
+        searchInput.addEventListener('input', renderTable);
+
+        function clearSearch() {
+            searchInput.value = '';
+            renderTable();
+        }
+
+        function filterByClickedId(id) {
+            searchInput.value = id;
+            renderTable();
+        }
+
+        function setFilter(filterName) {
+            activeFilter = filterName;
+            ['all', 'unpaid', 'paid', 'deposit', 'withdrawal'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (btn) btn.classList.toggle('active', f === filterName);
+            });
+            renderTable();
+        }
+        async function toggleStatus(id, currentStatus) {
             const newStatus = currentStatus === 'paid' ? 'unpaid' : 'paid';
             const actionText = newStatus === 'paid' ? 'Paid (ပေးပြီး)' : 'Unpaid (စောက်ကြွေး)';
 
-           
-            if (!confirm(`ဤစာရင်းကို "${actionText}" သို့ ပြောင်းလဲရန် သေချာပါသလား?`)) {
-                return; 
+            if (!confirm(`Are you sure?\nဤစာရင်းကို "${actionText}" သို့ ပြောင်းလဲရန် သေချာပါသလား?`)) {
+                return;
             }
 
             const res = await fetch(`/api/bmk/transactions/${id}/status`, {
@@ -266,7 +569,6 @@ async function toggleStatus(id, currentStatus) {
                 alert(data.message);
             }
         }
-
         document.getElementById('txForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const user_id = document.getElementById('userId').value;
@@ -293,9 +595,8 @@ async function toggleStatus(id, currentStatus) {
                 alert(data.message);
             }
         });
-
         async function deleteTx(id) {
-            if (!confirm('ဤစာရင်းကို ဖျက်ရန် သေချာပါသလား?')) return;
+            if (!confirm('Are you sure?\nဤစာရင်းကို ဖျက်ရန် သေချာပါသလား?')) return;
             await fetch(`/api/bmk/transactions/${id}`, {
                 method: 'DELETE',
                 headers: { 'x-admin-user': currentAdmin, 'x-admin-pass': currentPass }

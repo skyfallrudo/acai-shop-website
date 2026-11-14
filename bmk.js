@@ -25,7 +25,13 @@ async function initBmkTable() {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
-        console.log('✅ BMK Database (bmk-db) connected & table ready!');
+        
+        try {
+            await db.execute(`ALTER TABLE bmk_transactions ADD COLUMN status TEXT DEFAULT 'unpaid'`);
+        } catch (e) {
+           
+        }
+        console.log('✅ BMK Database (bmk-db) connected & ready!');
     } catch (err) {
         console.error('❌ BMK Database Error:', err.message);
     }
@@ -43,7 +49,7 @@ function getAdmins() {
 
 function verifyAdmin(req, res, next) {
     const adminUser = req.headers['x-admin-user'];
-    const adminPass = req.headers['x-admin-pass'];
+    const adminPass = req.headers['x-admin-pass'] || req.headers['x-admin-pin'];
     const valid = getAdmins().find(a => a.username === adminUser && a.pass === adminPass);
 
     if (!valid) {
@@ -55,27 +61,9 @@ function verifyAdmin(req, res, next) {
 
 
 function getMyanmarTime() {
-    const options = {
-        timeZone: 'Asia/Rangoon',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    };
-    
-    const formatter = new Intl.DateTimeFormat('en-CA', options);
-    const parts = formatter.formatToParts(new Date());
-    const dateObj = {};
-    parts.forEach(p => {
-        if (p.type !== 'literal') {
-            dateObj[p.type] = p.value;
-        }
-    });
-
-    return `${dateObj.year}-${dateObj.month}-${dateObj.day} ${dateObj.hour}:${dateObj.minute}:${dateObj.second}`;
+    const now = new Date();
+    const mmt = new Date(now.getTime() + (6.5 * 60 * 60 * 1000));
+    return mmt.toISOString().replace('Z', '+06:30');
 }
 
 
@@ -92,7 +80,7 @@ router.post('/login', (req, res) => {
 
 router.get('/transactions', verifyAdmin, async (req, res) => {
     try {
-        const result = await db.execute(`SELECT * FROM bmk_transactions ORDER BY id DESC LIMIT 300`);
+        const result = await db.execute(`SELECT * FROM bmk_transactions ORDER BY id DESC LIMIT 500`);
         res.json({ success: true, data: result.rows });
     } catch (err) {
         console.error(err);
@@ -103,10 +91,10 @@ router.get('/transactions', verifyAdmin, async (req, res) => {
 
 router.post('/transactions', verifyAdmin, async (req, res) => {
     try {
-        const { user_id, type, amount, status } = req.body; 
+        const { user_id, type, amount, status } = req.body;
         const numAmount = parseFloat(amount);
-        const txStatus = status || 'unpaid';
-        const myanmarTime = getMyanmarTime(); 
+        const txStatus = status === 'paid' ? 'paid' : 'unpaid';
+        const myanmarTime = getMyanmarTime();
 
         if (!user_id || !type || isNaN(numAmount) || numAmount <= 0) {
             return res.status(400).json({ success: false, message: 'အချက်အလက် အပြည့်အစုံ ဖြည့်သွင်းပါ' });
@@ -123,11 +111,10 @@ router.post('/transactions', verifyAdmin, async (req, res) => {
 
         res.json({ success: true, message: 'စာရင်းသွင်းပြီးပါပြီ' });
     } catch (err) {
-        console.error(err);
+        console.error('Insert Error:', err);
         res.status(500).json({ success: false, message: 'စာရင်းသွင်းရာတွင် အမှားရှိနေပါသည်' });
     }
 });
-
 
 router.patch('/transactions/:id/status', verifyAdmin, async (req, res) => {
     try {
@@ -143,7 +130,7 @@ router.patch('/transactions/:id/status', verifyAdmin, async (req, res) => {
 
         res.json({ success: true, message: 'Status ပြောင်းလဲပြီးပါပြီ' });
     } catch (err) {
-        console.error(err);
+        console.error('Status Update Error:', err);
         res.status(500).json({ success: false, message: 'Status ပြောင်းရာတွင် အမှားရှိနေပါသည်' });
     }
 });
@@ -156,7 +143,7 @@ router.delete('/transactions/:id', verifyAdmin, async (req, res) => {
         });
         res.json({ success: true });
     } catch (err) {
-        console.error(err);
+        console.error('Delete Error:', err);
         res.status(500).json({ success: false, message: 'ဖျက်ရာတွင် အမှားရှိနေပါသည်' });
     }
 });
