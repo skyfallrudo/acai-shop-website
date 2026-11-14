@@ -135,17 +135,4 @@ router.patch('/transactions/:id/status', verifyAdmin, async (req, res) => {
     }
 });
 
-router.delete('/transactions/:id', verifyAdmin, async (req, res) => {
-    try {
-        await db.execute({
-            sql: `DELETE FROM bmk_transactions WHERE id = ?`,
-            args: [req.params.id]
-        });
-        res.json({ success: true });
-    } catch (err) {
-        console.error('Delete Error:', err);
-        res.status(500).json({ success: false, message: 'ဖျက်ရာတွင် အမှားရှိနေပါသည်' });
-    }
-});
-
 module.exports = router;

@@ -269,7 +269,6 @@
                             <th class="pb-3 pr-4">ပမာဏ</th>
                             <th class="pb-3 pr-4">ကော်မရှင်</th>
                             <th class="pb-3 pr-4">Status (နှိပ်၍ပြောင်းရန်)</th>
-                            <th class="pb-3 text-right">ဖျက်ရန်</th>
                         </tr>
                     </thead>
                     <tbody id="txTableBody" class="divide-y divide-slate-800/70"></tbody>
@@ -515,11 +514,6 @@
                     <td class="py-3.5 pr-4 mono font-bold text-white">${amt.toLocaleString()} Ks</td>
                     <td class="py-3.5 pr-4 mono text-emerald-400 font-bold">+${comm.toLocaleString()} Ks</td>
                     <td class="py-3.5 pr-4">${statusBadge}</td>
-                    <td class="py-3.5 text-right">
-                        <button onclick="deleteTx(${row.id})" class="text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 px-2.5 py-1 rounded-lg transition font-medium">
-                            ဖျက်မည်
-                        </button>
-                    </td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -595,15 +589,7 @@
                 alert(data.message);
             }
         });
-        async function deleteTx(id) {
-            if (!confirm('Are you sure?\nဤစာရင်းကို ဖျက်ရန် သေချာပါသလား?')) return;
-            await fetch(`/api/bmk/transactions/${id}`, {
-                method: 'DELETE',
-                headers: { 'x-admin-user': currentAdmin, 'x-admin-pass': currentPass }
-            });
-            loadTransactions();
-        }
-
+    
         if (currentAdmin && currentPass) showDashboard();
     </script>
 </body>
