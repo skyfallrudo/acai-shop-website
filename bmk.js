@@ -35,13 +35,13 @@ async function initBmkTable() {
 }
 initBmkTable();
 
-
 function getAdmins() {
     return [
         { username: process.env.BMK_ADMIN1_USER, pass: process.env.BMK_ADMIN1_PASS },
         { username: process.env.BMK_ADMIN2_USER, pass: process.env.BMK_ADMIN2_PASS }
     ].filter(a => a.username && a.pass);
 }
+
 function verifyAdmin(req, res, next) {
     const adminUser = req.headers['x-admin-user'];
     const adminPass = req.headers['x-admin-pass'] || req.headers['x-admin-pin'];
@@ -53,10 +53,45 @@ function verifyAdmin(req, res, next) {
     req.adminUser = valid.username;
     next();
 }
+
+
 function getMyanmarTime() {
     const now = new Date();
     const mmt = new Date(now.getTime() + (6.5 * 60 * 60 * 1000));
     return mmt.toISOString().replace('Z', '+06:30');
+}
+
+
+function getReadableMyanmarTime() {
+    return new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Rangoon',
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+async function sendTelegramNotification(messageText) {
+    const botToken = process.env.BMK_TG_BOT_TOKEN;
+    const chatId = process.env.BMK_TG_CHAT_ID;
+
+    if (!botToken || !chatId) return; 
+
+    try {
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: messageText,
+                parse_mode: 'HTML'
+            })
+        });
+    } catch (err) {
+        console.error('❌ Telegram Notification Error:', err.message);
+    }
 }
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
@@ -97,6 +132,23 @@ router.post('/transactions', verifyAdmin, async (req, res) => {
             args: [req.adminUser, user_id.trim(), cleanName, type, numAmount, commissionRate, commissionAmount, txStatus, myanmarTime]
         });
 
+    
+        const typeLabel = type === 'deposit' ? '🟢 အသွင်း (Deposit - 5%)' : '🟠 အထုတ် (Withdrawal - 2%)';
+        const statusLabel = txStatus === 'paid' ? '✅ Paid (ပေးပြီး)' : '🟡 အကြွေး (Unpaid)';
+        const tgMessage = 
+            `<b>🔔 BMK စာရင်းအသစ် ဝင်ပါသည်</b>\n` +
+            `━━━━━━━━━━━━━━━━━━\n` +
+            `👤 <b>Admin:</b> ${req.adminUser}\n` +
+            `🆔 <b>User ID:</b> <code>${user_id.trim()}</code>\n` +
+            `🏷 <b>နာမည်:</b> ${cleanName || '-'}\n` +
+            `📌 <b>အမျိုးအစား:</b> ${typeLabel}\n` +
+            `💰 <b>ပမာဏ:</b> ${numAmount.toLocaleString()} Ks\n` +
+            `✨ <b>ကော်မရှင်:</b> +${commissionAmount.toLocaleString()} Ks\n` +
+            `📊 <b>Status:</b> ${statusLabel}\n` +
+            `🕒 <b>အချိန်:</b> ${getReadableMyanmarTime()} (MMT)`;
+
+        sendTelegramNotification(tgMessage);
+
         res.json({ success: true, message: 'စာရင်းသွင်းပြီးပါပြီ' });
     } catch (err) {
         console.error('Insert Error:', err);
@@ -110,10 +162,31 @@ router.patch('/transactions/:id/status', verifyAdmin, async (req, res) => {
             return res.status(400).json({ success: false, message: 'မှားယွင်းနေသော Status ဖြစ်သည်' });
         }
 
+     
+        const existing = await db.execute({
+            sql: `SELECT user_id, player_name, amount FROM bmk_transactions WHERE id = ?`,
+            args: [req.params.id]
+        });
+
         await db.execute({
             sql: `UPDATE bmk_transactions SET status = ? WHERE id = ?`,
             args: [status, req.params.id]
         });
+
+        if (existing.rows.length > 0) {
+            const row = existing.rows[0];
+            const newStatusLabel = status === 'paid' ? '✅ Paid (ပေးပြီး)' : '🟡 အကြွေး (Unpaid)';
+            const tgUpdateMsg = 
+                `<b>🔄 BMK Status ပြောင်းလဲမှု</b>\n` +
+                `━━━━━━━━━━━━━━━━━━\n` +
+                `👤 <b>Admin:</b> ${req.adminUser}\n` +
+                `🆔 <b>User ID:</b> <code>${row.user_id}</code> (${row.player_name || '-'})\n` +
+                `💰 <b>ပမာဏ:</b> ${Number(row.amount).toLocaleString()} Ks\n` +
+                `📊 <b>Status အသစ်:</b> ${newStatusLabel}\n` +
+                `🕒 <b>အချိန်:</b> ${getReadableMyanmarTime()} (MMT)`;
+
+            sendTelegramNotification(tgUpdateMsg);
+        }
 
         res.json({ success: true, message: 'Status ပြောင်းလဲပြီးပါပြီ' });
     } catch (err) {
