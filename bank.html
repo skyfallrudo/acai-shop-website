@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acai Shop Bank Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <!-- Admin Login -->
+    <div id="loginSection" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-96 border-t-4 border-blue-600">
+            <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">Acai Shop<br><span class="text-blue-600 text-lg">Bank Admin</span></h2>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600">Username</label>
+                    <input type="text" id="username" class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600">Password</label>
+                    <input type="password" id="password" class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white p-2.5 rounded-lg font-bold hover:bg-blue-700 transition">Login</button>
+                <p id="loginError" class="text-red-500 text-sm hidden text-center mt-2"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="dashboardSection" class="hidden max-w-6xl mx-auto p-6">
+        <div class="flex justify-between items-center bg-white p-5 rounded-xl shadow-sm mb-6 border border-slate-200">
+            <h1 class="text-xl font-bold text-slate-800">Acai Shop - Bank Management</h1>
+            <button onclick="logout()" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300 font-medium transition">Logout</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Create Account Panel -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 col-span-1 h-fit">
+                <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2">Create Customer</h2>
+                <form id="createCustomerForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600">Name</label>
+                        <input type="text" id="custName" class="w-full mt-1 p-2 border rounded-lg outline-none focus:border-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600">Phone</label>
+                        <input type="text" id="custPhone" class="w-full mt-1 p-2 border rounded-lg outline-none focus:border-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 text-white p-2.5 rounded-lg font-bold hover:bg-emerald-700 transition">Create Account</button>
+                </form>
+            </div>
+
+            <!-- Customer List Panel -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 col-span-1 md:col-span-2 overflow-x-auto">
+                <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2">Customer Accounts</h2>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-sm text-slate-500 border-b border-slate-200">
+                            <th class="p-3 font-medium">ID (QR)</th>
+                            <th class="p-3 font-medium">Name</th>
+                            <th class="p-3 font-medium">Phone</th>
+                            <th class="p-3 font-medium text-right">Balance (Ks)</th>
+                            <th class="p-3 font-medium text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerTableBody" class="text-sm">
+                        <!-- Data loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function checkAuth() {
+            const res = await fetch('/api/admin/check');
+            if (res.ok) {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                loadCustomers();
+            }
+        }
+        checkAuth();
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (res.ok) {
+                location.reload();
+            } else {
+                const error = document.getElementById('loginError');
+                error.textContent = "Invalid username or password.";
+                error.classList.remove('hidden');
+            }
+        });
+
+        async function loadCustomers() {
+            const res = await fetch('/api/admin/dashboard-data');
+            if (res.ok) {
+                const data = await res.json();
+                const tbody = document.getElementById('customerTableBody');
+                tbody.innerHTML = '';
+                data.customers.forEach(c => {
+                    // ID ကို ABC-1234 ပုံစံပြမည်
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                            <td class="p-3 font-bold text-slate-700">${c.id}</td>
+                            <td class="p-3 font-medium text-slate-800">${c.name}</td>
+                            <td class="p-3 text-slate-500">${c.phone}</td>
+                            <td class="p-3 font-bold text-blue-600 text-right">${c.balance.toLocaleString()}</td>
+                            <td class="p-3 text-center space-x-1 whitespace-nowrap">
+                                <button onclick="updateBalance('${c.id}', 'add')" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-blue-200 transition">+ IN</button>
+                                <button onclick="updateBalance('${c.id}', 'sub')" class="bg-red-100 text-red-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-200 transition">- OUT</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        document.getElementById('createCustomerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+
+            const res = await fetch('/api/admin/customer/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, phone })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                alert(`Account created successfully!\nCustomer ID: ${data.customerId}`);
+                document.getElementById('createCustomerForm').reset();
+                loadCustomers();
+            } else {
+                alert('Phone number might already exist.');
+            }
+        });
+
+        async function updateBalance(id, type) {
+            const actionText = type === 'add' ? 'DEPOSIT to' : 'WITHDRAW from';
+            const amount = prompt(`Enter amount (Ks) to ${actionText} ${id}:`);
+            
+            if (!amount || isNaN(amount) || amount <= 0) return;
+
+            const res = await fetch('/api/admin/customer/balance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, amount: Number(amount), type })
+            });
+
+            if (res.ok) {
+                loadCustomers();
+            } else {
+                const error = await res.json();
+                alert(error.error || 'Transaction failed.');
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/admin/logout', { method: 'POST' });
+            location.reload();
+        }
+    </script>
+</body>
+</html>
