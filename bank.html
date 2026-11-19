@@ -1,177 +1,556 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acai Shop Bank Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Acai Bank — Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050811;
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-image:
+                radial-gradient(circle at 12% 12%, rgba(59, 130, 246, 0.16), transparent 35%),
+                radial-gradient(circle at 88% 20%, rgba(16, 185, 129, 0.12), transparent 35%);
+            background-attachment: fixed;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass {
+            background: rgba(15, 23, 42, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.65);
+        }
+        .input-modern {
+            background: rgba(9, 13, 24, 0.88);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            transition: all 0.2s ease;
+        }
+        .input-modern:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22);
+        }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="min-h-screen p-3 sm:p-6">
 
-    <!-- Admin Login -->
-    <div id="loginSection" class="min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-xl shadow-lg w-96 border-t-4 border-blue-600">
-            <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">Acai Shop<br><span class="text-blue-600 text-lg">Bank Admin</span></h2>
-            <form id="loginForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-600">Username</label>
-                    <input type="text" id="username" class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-600">Password</label>
-                    <input type="password" id="password" class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                </div>
-                <button type="submit" class="w-full bg-blue-600 text-white p-2.5 rounded-lg font-bold hover:bg-blue-700 transition">Login</button>
-                <p id="loginError" class="text-red-500 text-sm hidden text-center mt-2"></p>
-            </form>
+    <!-- 1. LOGIN SCREEN -->
+    <div id="loginScreen" class="max-w-md mx-auto mt-16 sm:mt-24 p-7 glass rounded-3xl">
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-500/15 border border-blue-500/30 mb-3 text-blue-400 font-extrabold text-lg">
+                BANK
+            </div>
+            <h1 class="text-2xl font-extrabold text-white">Acai Shop Bank Admin</h1>
+            <p class="text-xs text-slate-400 mt-1">Customer Wallet & QR Management</p>
         </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="text-xs text-slate-400 font-semibold">Admin Username</label>
+                <input type="text" id="username" placeholder="Username ရိုက်ထည့်ပါ" class="w-full mt-1.5 p-3.5 rounded-xl input-modern text-sm text-white" required>
+            </div>
+            <div>
+                <label class="text-xs text-slate-400 font-semibold">Password</label>
+                <input type="password" id="password" placeholder="••••••••" class="w-full mt-1.5 p-3.5 rounded-xl input-modern text-sm text-white" required>
+            </div>
+            <p id="loginError" class="text-rose-400 text-xs font-medium bg-rose-500/10 border border-rose-500/25 p-2.5 rounded-xl hidden"></p>
+            <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-500 py-3.5 rounded-xl font-bold text-sm text-white transition shadow-lg shadow-blue-600/30">
+                Admin Login ဝင်မည်
+            </button>
+        </form>
     </div>
 
-    <!-- Admin Dashboard -->
-    <div id="dashboardSection" class="hidden max-w-6xl mx-auto p-6">
-        <div class="flex justify-between items-center bg-white p-5 rounded-xl shadow-sm mb-6 border border-slate-200">
-            <h1 class="text-xl font-bold text-slate-800">Acai Shop - Bank Management</h1>
-            <button onclick="logout()" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300 font-medium transition">Logout</button>
+    <!-- 2. DASHBOARD SCREEN -->
+    <div id="dashboardScreen" class="max-w-6xl mx-auto hidden space-y-5">
+
+        <!-- Header -->
+        <div class="glass p-4 sm:px-6 rounded-2xl flex flex-wrap justify-between items-center gap-3">
+            <div>
+                <h1 class="text-lg sm:text-xl font-extrabold text-white">Acai Shop — Customer Bank</h1>
+                <p class="text-xs text-slate-400">Admin: <span id="activeAdmin" class="text-blue-400 font-semibold"></span></p>
+            </div>
+            <div class="flex items-center gap-2.5">
+                <button onclick="loadDashboard()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3.5 py-2 rounded-xl border border-slate-700 font-medium transition">
+                    ↻ Refresh
+                </button>
+                <button onclick="logout()" class="text-xs bg-rose-500/15 text-rose-400 border border-rose-500/30 px-3.5 py-2 rounded-xl hover:bg-rose-500/25 font-semibold transition">
+                    Logout
+                </button>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Create Account Panel -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 col-span-1 h-fit">
-                <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2">Create Customer</h2>
-                <form id="createCustomerForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-600">Name</label>
-                        <input type="text" id="custName" class="w-full mt-1 p-2 border rounded-lg outline-none focus:border-blue-500" required>
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="glass p-5 rounded-2xl">
+                <p class="text-xs text-slate-400">စုစုပေါင်း Customer အကောင့်</p>
+                <p id="totalAccounts" class="mono text-2xl font-extrabold text-white mt-1">0 ဦး</p>
+            </div>
+            <div class="glass p-5 rounded-2xl">
+                <p class="text-xs text-slate-400">Customer အားလုံး၏ စုစုပေါင်း Balance</p>
+                <p id="totalSystemBalance" class="mono text-2xl font-extrabold text-emerald-400 mt-1">0 Ks</p>
+            </div>
+            <div class="glass p-5 rounded-2xl">
+                <p class="text-xs text-slate-400">ငွေသွင်း / ငွေထုတ် အကြိမ်ရေ</p>
+                <p id="totalTxCount" class="mono text-2xl font-extrabold text-blue-400 mt-1">0 ကြိမ်</p>
+            </div>
+        </div>
+
+        <!-- Forms Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+            <!-- Create Account Form -->
+            <div class="glass p-5 rounded-2xl">
+                <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                    <span class="w-2 h-4 rounded-full bg-emerald-500"></span>
+                    Customer အကောင့်အသစ် ဖွင့်ပေးရန်
+                </h2>
+                <form id="createAccForm" class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-slate-400">Customer နာမည် *</label>
+                            <input type="text" id="newName" placeholder="ဥပမာ - ကိုအောင်" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white" required>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">ဖုန်းနံပါတ် *</label>
+                            <input type="text" id="newPhone" placeholder="09xxxxxxxxx" class="mono w-full mt-1 p-3 rounded-xl input-modern text-sm text-white" required>
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-600">Phone</label>
-                        <input type="text" id="custPhone" class="w-full mt-1 p-2 border rounded-lg outline-none focus:border-blue-500" required>
+                        <label class="text-xs text-slate-400">ကနဦး ငွေသွင်းပမာဏ (မထည့်လျှင် 0 ထားပါ)</label>
+                        <input type="number" id="newInitDeposit" placeholder="0" min="0" step="any" class="mono w-full mt-1 p-3 rounded-xl input-modern text-sm text-white">
                     </div>
-                    <button type="submit" class="w-full bg-emerald-600 text-white p-2.5 rounded-lg font-bold hover:bg-emerald-700 transition">Create Account</button>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-sm text-white transition shadow-lg shadow-emerald-600/25">
+                        + အကောင့်ဖွင့်ပြီး QR ထုတ်မည်
+                    </button>
                 </form>
             </div>
 
-            <!-- Customer List Panel -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 col-span-1 md:col-span-2 overflow-x-auto">
-                <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2">Customer Accounts</h2>
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="text-sm text-slate-500 border-b border-slate-200">
-                            <th class="p-3 font-medium">ID (QR)</th>
-                            <th class="p-3 font-medium">Name</th>
-                            <th class="p-3 font-medium">Phone</th>
-                            <th class="p-3 font-medium text-right">Balance (Ks)</th>
-                            <th class="p-3 font-medium text-center">Actions</th>
+            <!-- Deposit / Withdraw Form -->
+            <div class="glass p-5 rounded-2xl">
+                <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                    <span class="w-2 h-4 rounded-full bg-blue-500"></span>
+                    ငွေသွင်း / ငွေထုတ် လုပ်ဆောင်ရန်
+                </h2>
+                <form id="txForm" class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-slate-400">Customer ရွေးချယ်ပါ *</label>
+                            <select id="txCustomerSelect" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white" required>
+                                <option value="">-- Customer ရွေးပါ --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">လုပ်ဆောင်မှု *</label>
+                            <select id="txType" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white">
+                                <option value="deposit">🟢 ငွေသွင်းမည် (Deposit)</option>
+                                <option value="withdraw">🔴 ငွေထုတ်မည် (Withdraw)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-slate-400">ငွေပမာဏ (Ks) *</label>
+                            <input type="number" id="txAmount" placeholder="0" min="1" step="any" class="mono w-full mt-1 p-3 rounded-xl input-modern text-sm text-white" required>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">မှတ်ချက် (Note - Optional)</label>
+                            <input type="text" id="txNote" placeholder="ဥပမာ - KBZPay ဖြင့်သွင်း" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold text-sm text-white transition shadow-lg shadow-blue-600/25">
+                        အတည်ပြု လုပ်ဆောင်မည်
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Customer Accounts Table -->
+        <div class="glass p-5 rounded-2xl space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+                <h2 class="text-base font-bold text-white">Customer အကောင့်များ နှင့် Balance စာရင်း</h2>
+                <input type="text" id="searchInput" placeholder="🔍 ID, နာမည် သို့မဟုတ် ဖုန်းနံပါတ် ရှာရန်..." class="w-full sm:w-72 px-4 py-2 rounded-xl input-modern text-xs sm:text-sm text-white">
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs sm:text-sm whitespace-nowrap">
+                    <thead class="text-slate-400 border-b border-slate-800 text-[11px] uppercase">
+                        <tr>
+                            <th class="pb-3 pr-4">Customer ID</th>
+                            <th class="pb-3 pr-4">နာမည် (Name)</th>
+                            <th class="pb-3 pr-4">ဖုန်းနံပါတ်</th>
+                            <th class="pb-3 pr-4">လက်ကျန်ငွေ (Balance)</th>
+                            <th class="pb-3 text-right">လုပ်ဆောင်ချက် / QR</th>
                         </tr>
                     </thead>
-                    <tbody id="customerTableBody" class="text-sm">
-                        <!-- Data loaded via JS -->
-                    </tbody>
+                    <tbody id="accountsTableBody" class="divide-y divide-slate-800/70"></tbody>
                 </table>
+                <p id="emptyAccMsg" class="hidden text-center text-slate-500 text-xs py-6">Customer အကောင့် မရှိသေးပါ။</p>
+            </div>
+        </div>
+
+        <!-- Recent Transactions Table -->
+        <div class="glass p-5 rounded-2xl space-y-3">
+            <h2 class="text-base font-bold text-white">နောက်ဆုံး ငွေသွင်း / ငွေထုတ် မှတ်တမ်းများ</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                    <thead class="text-slate-400 border-b border-slate-800 text-[11px] uppercase">
+                        <tr>
+                            <th class="pb-2.5 pr-4">အချိန် (MMT)</th>
+                            <th class="pb-2.5 pr-4">ID / နာမည်</th>
+                            <th class="pb-2.5 pr-4">အမျိုးအစား</th>
+                            <th class="pb-2.5 pr-4">ပမာဏ</th>
+                            <th class="pb-2.5 pr-4">ကျန်ငွေ (After)</th>
+                            <th class="pb-2.5 pr-4">မှတ်ချက်</th>
+                            <th class="pb-2.5 text-right">Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody id="txTableBody" class="divide-y divide-slate-800/70"></tbody>
+                </table>
+                <p id="emptyTxMsg" class="hidden text-center text-slate-500 text-xs py-6">ငွေသွင်း / ငွေထုတ် မှတ်တမ်း မရှိသေးပါ။</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. QR CODE MODAL -->
+    <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="glass max-w-sm w-full p-6 rounded-3xl text-center space-y-4 relative">
+            <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full">✕</button>
+            <div>
+                <span id="modalCustId" class="mono text-xs font-bold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400"></span>
+                <h3 id="modalCustName" class="text-lg font-extrabold text-white mt-2"></h3>
+                <p id="modalCustPhone" class="mono text-xs text-slate-400"></p>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl inline-block mx-auto shadow-xl">
+                <div id="qrcodeContainer"></div>
+            </div>
+
+            <p class="text-[11px] text-slate-400">Customer မှ ဤ QR ကို Scan ဖတ်ပြီး Name / ID / Phone / Balance စစ်ဆေးနိုင်ပါသည်</p>
+
+            <div class="grid grid-cols-2 gap-2.5 pt-2">
+                <button onclick="downloadQrImage()" class="bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl font-bold text-xs text-white transition">
+                    ⬇ QR ပုံ Download
+                </button>
+                <button onclick="copyQrLink()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 py-2.5 rounded-xl font-bold text-xs text-white transition">
+                    🔗 Link Copy
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        async function checkAuth() {
-            const res = await fetch('/api/admin/check');
-            if (res.ok) {
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('dashboardSection').classList.remove('hidden');
-                loadCustomers();
+        let currentAdmin = sessionStorage.getItem('bank_admin') || '';
+        let currentPass = sessionStorage.getItem('bank_pass') || '';
+        let allAccounts = [];
+        let allTransactions = [];
+        let currentQrUrl = '';
+        let currentQrFileName = 'customer_qr.png';
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        async function safeJson(res) {
+            try {
+                return await res.json();
+            } catch {
+                return { success: false, message: `Server Error (${res.status})` };
             }
         }
-        checkAuth();
 
+        // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            const res = await fetch('/api/admin/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errEl = document.getElementById('loginError');
+            const btn = document.getElementById('loginBtn');
 
-            if (res.ok) {
-                location.reload();
-            } else {
-                const error = document.getElementById('loginError');
-                error.textContent = "Invalid username or password.";
-                error.classList.remove('hidden');
-            }
-        });
+            errEl.classList.add('hidden');
+            btn.disabled = true;
+            btn.textContent = 'စစ်ဆေးနေပါသည်...';
 
-        async function loadCustomers() {
-            const res = await fetch('/api/admin/dashboard-data');
-            if (res.ok) {
-                const data = await res.json();
-                const tbody = document.getElementById('customerTableBody');
-                tbody.innerHTML = '';
-                data.customers.forEach(c => {
-                    // ID ကို ABC-1234 ပုံစံပြမည်
-                    tbody.innerHTML += `
-                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                            <td class="p-3 font-bold text-slate-700">${c.id}</td>
-                            <td class="p-3 font-medium text-slate-800">${c.name}</td>
-                            <td class="p-3 text-slate-500">${c.phone}</td>
-                            <td class="p-3 font-bold text-blue-600 text-right">${c.balance.toLocaleString()}</td>
-                            <td class="p-3 text-center space-x-1 whitespace-nowrap">
-                                <button onclick="updateBalance('${c.id}', 'add')" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-blue-200 transition">+ IN</button>
-                                <button onclick="updateBalance('${c.id}', 'sub')" class="bg-red-100 text-red-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-200 transition">- OUT</button>
-                            </td>
-                        </tr>
-                    `;
+            try {
+                const res = await fetch('/api/bank/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
                 });
-            }
-        }
+                const data = await safeJson(res);
 
-        document.getElementById('createCustomerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('custName').value;
-            const phone = document.getElementById('custPhone').value;
+                if (!data.success) {
+                    errEl.textContent = data.message || 'Login မအောင်မြင်ပါ။';
+                    errEl.classList.remove('hidden');
+                    return;
+                }
 
-            const res = await fetch('/api/admin/customer/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, phone })
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                alert(`Account created successfully!\nCustomer ID: ${data.customerId}`);
-                document.getElementById('createCustomerForm').reset();
-                loadCustomers();
-            } else {
-                alert('Phone number might already exist.');
+                currentAdmin = data.username || username;
+                currentPass = password;
+                sessionStorage.setItem('bank_admin', currentAdmin);
+                sessionStorage.setItem('bank_pass', currentPass);
+                showDashboard();
+            } catch (err) {
+                errEl.textContent = 'Server နှင့် ချိတ်ဆက်မရပါ။';
+                errEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Admin Login ဝင်မည်';
             }
         });
 
-        async function updateBalance(id, type) {
-            const actionText = type === 'add' ? 'DEPOSIT to' : 'WITHDRAW from';
-            const amount = prompt(`Enter amount (Ks) to ${actionText} ${id}:`);
-            
-            if (!amount || isNaN(amount) || amount <= 0) return;
-
-            const res = await fetch('/api/admin/customer/balance', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, amount: Number(amount), type })
-            });
-
-            if (res.ok) {
-                loadCustomers();
-            } else {
-                const error = await res.json();
-                alert(error.error || 'Transaction failed.');
-            }
+        function showDashboard() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.remove('hidden');
+            document.getElementById('activeAdmin').textContent = currentAdmin;
+            loadDashboard();
         }
 
-        async function logout() {
-            await fetch('/api/admin/logout', { method: 'POST' });
+        function logout() {
+            sessionStorage.removeItem('bank_admin');
+            sessionStorage.removeItem('bank_pass');
             location.reload();
         }
+
+        // Load Dashboard Data
+        async function loadDashboard() {
+            const res = await fetch('/api/bank/dashboard', {
+                headers: {
+                    'x-admin-user': currentAdmin,
+                    'x-admin-pass': currentPass
+                }
+            });
+            const data = await safeJson(res);
+            if (!data.success) {
+                if (res.status === 401) return logout();
+                return alert(data.message);
+            }
+
+            allAccounts = data.accounts || [];
+            allTransactions = data.transactions || [];
+
+            const totalBal = allAccounts.reduce((sum, a) => sum + (Number(a.balance) || 0), 0);
+            document.getElementById('totalAccounts').textContent = `${allAccounts.length} ဦး`;
+            document.getElementById('totalSystemBalance').textContent = `${totalBal.toLocaleString()} Ks`;
+            document.getElementById('totalTxCount').textContent = `${allTransactions.length} ကြိမ်`;
+
+            // Customer Dropdown
+            const select = document.getElementById('txCustomerSelect');
+            const prevSelected = select.value;
+            select.innerHTML = `<option value="">-- Customer ရွေးပါ --</option>`;
+            allAccounts.forEach(acc => {
+                const opt = document.createElement('option');
+                opt.value = acc.customer_id;
+                opt.textContent = `${acc.customer_id} — ${acc.name} (${Number(acc.balance).toLocaleString()} Ks)`;
+                select.appendChild(opt);
+            });
+            if (prevSelected) select.value = prevSelected;
+
+            renderAccountsTable();
+            renderTxTable();
+        }
+
+        function renderAccountsTable() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            const tbody = document.getElementById('accountsTableBody');
+            const emptyMsg = document.getElementById('emptyAccMsg');
+            tbody.innerHTML = '';
+
+            const filtered = allAccounts.filter(a =>
+                !q ||
+                String(a.customer_id).toLowerCase().includes(q) ||
+                String(a.name).toLowerCase().includes(q) ||
+                String(a.phone).toLowerCase().includes(q)
+            );
+
+            emptyMsg.classList.toggle('hidden', filtered.length > 0);
+
+            filtered.forEach(acc => {
+                const cid = escapeHtml(acc.customer_id);
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/40 transition';
+                tr.innerHTML = `
+                    <td class="py-3.5 pr-4 mono font-bold text-blue-400">${cid}</td>
+                    <td class="py-3.5 pr-4 font-semibold text-white">${escapeHtml(acc.name)}</td>
+                    <td class="py-3.5 pr-4 mono text-slate-300">${escapeHtml(acc.phone)}</td>
+                    <td class="py-3.5 pr-4 mono font-extrabold text-emerald-400">${Number(acc.balance).toLocaleString()} Ks</td>
+                    <td class="py-3.5 text-right space-x-1.5">
+                        <button onclick="quickSelectTx('${cid}', 'deposit')" class="text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg hover:bg-emerald-500/25 font-semibold">+ သွင်း</button>
+                        <button onclick="quickSelectTx('${cid}', 'withdraw')" class="text-xs bg-rose-500/15 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded-lg hover:bg-rose-500/25 font-semibold">- ထုတ်</button>
+                        <button onclick="openQrModal('${cid}')" class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded-lg font-bold shadow">QR ပြရန်</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderAccountsTable);
+
+        function quickSelectTx(custId, type) {
+            document.getElementById('txCustomerSelect').value = custId;
+            document.getElementById('txType').value = type;
+            document.getElementById('txAmount').focus();
+        }
+
+        function formatMMT(str) {
+            if (!str) return '-';
+            const d = new Date(String(str).includes('+') || String(str).includes('Z') ? str : String(str).replace(' ', 'T') + '+06:30');
+            if (isNaN(d.getTime())) return str;
+            return d.toLocaleString('en-US', {
+                timeZone: 'Asia/Rangoon',
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        function renderTxTable() {
+            const tbody = document.getElementById('txTableBody');
+            const emptyMsg = document.getElementById('emptyTxMsg');
+            tbody.innerHTML = '';
+
+            emptyMsg.classList.toggle('hidden', allTransactions.length > 0);
+
+            allTransactions.forEach(tx => {
+                const badge = tx.type === 'deposit'
+                    ? `<span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold">ငွေသွင်း (+)</span>`
+                    : `<span class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 font-bold">ငွေထုတ် (-)</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/30 transition';
+                tr.innerHTML = `
+                    <td class="py-3 pr-4 mono text-slate-400">${formatMMT(tx.created_at)}</td>
+                    <td class="py-3 pr-4"><span class="mono text-blue-400 font-bold">${escapeHtml(tx.customer_id)}</span> • ${escapeHtml(tx.customer_name)}</td>
+                    <td class="py-3 pr-4">${badge}</td>
+                    <td class="py-3 pr-4 mono font-bold text-white">${Number(tx.amount).toLocaleString()} Ks</td>
+                    <td class="py-3 pr-4 mono text-slate-300">${Number(tx.balance_after).toLocaleString()} Ks</td>
+                    <td class="py-3 pr-4 text-slate-400">${escapeHtml(tx.note || '-')}</td>
+                    <td class="py-3 text-right text-slate-300">${escapeHtml(tx.admin_username)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Create New Account
+        document.getElementById('createAccForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('newName').value.trim();
+            const phone = document.getElementById('newPhone').value.trim();
+            const initial_deposit = document.getElementById('newInitDeposit').value;
+
+            const res = await fetch('/api/bank/accounts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-admin-user': currentAdmin,
+                    'x-admin-pass': currentPass
+                },
+                body: JSON.stringify({ name, phone, initial_deposit })
+            });
+            const data = await safeJson(res);
+            if (data.success) {
+                document.getElementById('newName').value = '';
+                document.getElementById('newPhone').value = '';
+                document.getElementById('newInitDeposit').value = '';
+                await loadDashboard();
+                openQrModal(data.customer_id);
+            } else {
+                alert(data.message);
+            }
+        });
+
+        // Deposit / Withdraw
+        document.getElementById('txForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const customer_id = document.getElementById('txCustomerSelect').value;
+            const type = document.getElementById('txType').value;
+            const amount = document.getElementById('txAmount').value;
+            const note = document.getElementById('txNote').value.trim();
+
+            const actionName = type === 'deposit' ? 'ငွေသွင်း' : 'ငွေထုတ်';
+            if (!confirm(`${customer_id} အကောင့်သို့ ${Number(amount).toLocaleString()} Ks ${actionName} မှာ သေချာပါသလား?`)) return;
+
+            const res = await fetch('/api/bank/transaction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-admin-user': currentAdmin,
+                    'x-admin-pass': currentPass
+                },
+                body: JSON.stringify({ customer_id, type, amount, note })
+            });
+            const data = await safeJson(res);
+            if (data.success) {
+                document.getElementById('txAmount').value = '';
+                document.getElementById('txNote').value = '';
+                loadDashboard();
+            } else {
+                alert(data.message);
+            }
+        });
+
+        // QR Modal
+        function openQrModal(customerId) {
+            const acc = allAccounts.find(a => a.customer_id === customerId);
+            if (!acc) return;
+
+            document.getElementById('modalCustId').textContent = acc.customer_id;
+            document.getElementById('modalCustName').textContent = acc.name;
+            document.getElementById('modalCustPhone').textContent = acc.phone;
+
+            currentQrUrl = `${window.location.origin}/bank/card?t=${acc.qr_token}`;
+            currentQrFileName = `QR_${acc.customer_id}.png`;
+
+            const container = document.getElementById('qrcodeContainer');
+            container.innerHTML = '';
+            new QRCode(container, {
+                text: currentQrUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            const modal = document.getElementById('qrModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeQrModal() {
+            const modal = document.getElementById('qrModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function downloadQrImage() {
+            const canvas = document.querySelector('#qrcodeContainer canvas');
+            const img = document.querySelector('#qrcodeContainer img');
+            const dataUrl = canvas ? canvas.toDataURL('image/png') : (img ? img.src : '');
+            if (!dataUrl) return;
+
+            const link = document.createElement('a');
+            link.download = currentQrFileName;
+            link.href = dataUrl;
+            link.click();
+        }
+
+        function copyQrLink() {
+            navigator.clipboard.writeText(currentQrUrl);
+            alert('Customer Card Link ကို Copy ကူးပြီးပါပြီ!');
+        }
+
+        if (currentAdmin && currentPass) showDashboard();
     </script>
 </body>
 </html>
