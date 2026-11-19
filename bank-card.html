@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Customer Member Card</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050811;
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.18), transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.14), transparent 40%);
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .wallet-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-sm w-full">
+        <!-- Loading -->
+        <div id="loadingBox" class="text-center text-slate-400 text-sm py-10">
+            အချက်အလက် စစ်ဆေးနေပါသည်...
+        </div>
+
+        <!-- Error -->
+        <div id="errorBox" class="hidden wallet-card p-6 rounded-3xl text-center space-y-2">
+            <p class="text-rose-400 font-bold text-base">အကောင့် ရှာမတွေ့ပါ</p>
+            <p id="errorMsg" class="text-xs text-slate-400"></p>
+        </div>
+
+        <!-- Customer Card (Name / ID / Phone / Balance Only) -->
+        <div id="cardBox" class="hidden wallet-card p-6 sm:p-7 rounded-3xl relative overflow-hidden space-y-6">
+            <div class="absolute -top-16 -right-16 w-40 h-40 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none"></div>
+
+            <!-- Balance Section -->
+            <div class="bg-slate-950/70 border border-slate-800/80 p-5 rounded-2xl text-center">
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Balance (လက်ကျန်ငွေ)</p>
+                <p id="custBalance" class="mono text-3xl font-extrabold text-emerald-400 mt-1.5">0 Ks</p>
+            </div>
+
+            <!-- 3 Details: Name, ID, Phone -->
+            <div class="space-y-3.5 text-sm">
+                <div class="flex justify-between items-center border-b border-slate-800/80 pb-3">
+                    <span class="text-slate-400 text-xs">Name (နာမည်)</span>
+                    <span id="custName" class="font-bold text-white text-base">-</span>
+                </div>
+                <div class="flex justify-between items-center border-b border-slate-800/80 pb-3">
+                    <span class="text-slate-400 text-xs">ID</span>
+                    <span id="custId" class="mono font-bold text-blue-400">-</span>
+                </div>
+                <div class="flex justify-between items-center pb-1">
+                    <span class="text-slate-400 text-xs">Phone Number</span>
+                    <span id="custPhone" class="mono font-semibold text-slate-200">-</span>
+                </div>
+            </div>
+
+            <button onclick="fetchCardData()" class="w-full py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 text-xs text-slate-300 font-semibold transition">
+                ↻ လက်ကျန်ငွေ ပြန်စစ်ရန်
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('t');
+
+        async function fetchCardData() {
+            const loading = document.getElementById('loadingBox');
+            const errorBox = document.getElementById('errorBox');
+            const cardBox = document.getElementById('cardBox');
+
+            if (!token) {
+                loading.classList.add('hidden');
+                errorBox.classList.remove('hidden');
+                document.getElementById('errorMsg').textContent = 'QR Code Link မပြည့်စုံပါ';
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/bank/public/${encodeURIComponent(token)}`);
+                const result = await res.json();
+
+                loading.classList.add('hidden');
+
+                if (!result.success) {
+                    errorBox.classList.remove('hidden');
+                    document.getElementById('errorMsg').textContent = result.message;
+                    return;
+                }
+
+                const info = result.data;
+                document.getElementById('custName').textContent = info.name;
+                document.getElementById('custId').textContent = info.customer_id;
+                document.getElementById('custPhone').textContent = info.phone;
+                document.getElementById('custBalance').textContent = `${Number(info.balance).toLocaleString()} Ks`;
+
+                cardBox.classList.remove('hidden');
+            } catch (e) {
+                loading.classList.add('hidden');
+                errorBox.classList.remove('hidden');
+                document.getElementById('errorMsg').textContent = 'ကွန်ရက်ချိတ်ဆက်မှု အမှားရှိနေပါသည်';
+            }
+        }
+
+        fetchCardData();
+    </script>
+</body>
+</html>

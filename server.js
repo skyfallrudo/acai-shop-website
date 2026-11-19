@@ -3450,7 +3450,14 @@ app.delete("/admin/pinduoduo/:id", adminAuth, async (req, res) => {
     });
   }
 });
-app.use('/api/bmk', require('./bmk'));
+const path = require('path');
+app.use('/api/bank', require('./bank'));
+app.get('/bank', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'bank.html'));
+});
+app.get('/bank/card', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'bank-card.html'));
+});
 app.listen(
   PORT,
   () => {
