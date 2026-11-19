@@ -3451,16 +3451,24 @@ app.delete("/admin/pinduoduo/:id", adminAuth, async (req, res) => {
   }
 });
 const path = require('path');
+const fs = require('fs');
+
 app.use('/api/bank', require('./bank'));
+
 app.get('/bank', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'bank.html'));
+    const publicPath = path.join(__dirname, 'public', 'bank.html');
+    const rootPath = path.join(__dirname, 'bank.html');
+    res.sendFile(fs.existsSync(publicPath) ? publicPath : rootPath);
 });
+
 app.get('/bank/card', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'bank-card.html'));
+    const publicPath = path.join(__dirname, 'public', 'bank-card.html');
+    const rootPath = path.join(__dirname, 'bank-card.html');
+    res.sendFile(fs.existsSync(publicPath) ? publicPath : rootPath);
 });
 app.listen(
   PORT,
-  () => {
+  () => { 
 
     console.log(
       `Server running on http://localhost:${PORT}`
