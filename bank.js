@@ -3,32 +3,159 @@ const express = require('express');
 const crypto = require('crypto');
 const router = express.Router();
 const { createClient } = require('@libsql/client');
-
-// 1. Turso Database ချိတ်ဆက်ခြင်း
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const db = createClient({
     url: (process.env.BMK_DATABASE_URL || process.env.TURSO_DATABASE_URL || '').trim(),
     authToken: (process.env.BMK_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || '').trim()
 });
 
-// 2. Bank Tables အော်တိုဆောက်ခြင်း (Cold start မှာ Table မဆောက်ရသေးဘဲ Error မတက်စေရန် Promise ဖြင့် ထိန်းထားသည်)
+
+const hasCloudinary = !!(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+);
+
+if (hasCloudinary) {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+}
+
+const photoStorage = hasCloudinary
+    ? new CloudinaryStorage({
+          cloudinary,
+          params: {
+              folder: 'acai-shop-bank-members',
+              allowed_formats: ['jpg', 'jpeg', 'png', 'webp']
+          }
+      })
+    : multer.memoryStorage();
+
+const uploadPhoto = multer({
+    storage: photoStorage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype && file.mimetype.startsWith('image/')) {
+            return cb(null, true);
+        }
+        cb(new Error('Only image files (JPG, PNG, WEBP) are allowed.'));
+    }
+});
+
+
+const LEVEL_RULES = {
+    1: { level: 1, label: 'Level 1', minDeposit: 1000, minWithdraw: 1000 },
+    2: { level: 2, label: 'Level 2', minDeposit: 10000, minWithdraw: 10000 },
+    3: { level: 3, label: 'Level 3', minDeposit: 100000, minWithdraw: 100000 }
+};
+
+function getLevelRule(level) {
+    return LEVEL_RULES[Number(level)] || LEVEL_RULES[1];
+}
+
+
+function getMyanmarISO() {
+    const now = new Date();
+    const mmt = new Date(now.getTime() + 6.5 * 60 * 60 * 1000);
+    return mmt.toISOString().replace('Z', '+06:30');
+}
+
+function getMyanmarMemberSince(dateObj = new Date()) {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Yangon',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    }).formatToParts(dateObj);
+
+    const map = {};
+    for (const p of parts) {
+        if (p.type !== 'literal') map[p.type] = p.value;
+    }
+    return `${map.day}/${map.month}/${map.year}`;
+}
+
+function normalizeCardDigits(val) {
+    return String(val || '').replace(/\D/g, '');
+}
+
+function formatCardNumber(digits) {
+    const clean = normalizeCardDigits(digits).slice(0, 16);
+    return clean.replace(/(\d{4})(?=\d)/g, '$1 ');
+}
+
+async function generateUniqueCardNumber() {
+    for (let attempt = 0; attempt < 20; attempt++) {
+        let digits = String(crypto.randomInt(1, 10)); // First digit 1-9
+        for (let i = 0; i < 15; i++) {
+            digits += String(crypto.randomInt(0, 10));
+        }
+        const formatted = formatCardNumber(digits);
+        const existing = await db.execute({
+            sql: `SELECT id FROM bank_accounts WHERE card_number = ? OR customer_id = ?`,
+            args: [formatted, formatted]
+        });
+        if (existing.rows.length === 0) {
+            return formatted;
+        }
+    }
+    throw new Error('Failed to generate unique card number.');
+}
 const bankTablesReady = (async () => {
     try {
         await db.execute(`
             CREATE TABLE IF NOT EXISTS bank_accounts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 customer_id TEXT UNIQUE NOT NULL,
+                card_number TEXT DEFAULT '',
                 qr_token TEXT UNIQUE NOT NULL,
                 name TEXT NOT NULL,
+                father_name TEXT DEFAULT '',
                 phone TEXT NOT NULL,
+                address TEXT DEFAULT '',
+                distinguishing_mark TEXT DEFAULT '',
+                dob TEXT DEFAULT '',
+                issued_by TEXT DEFAULT '',
+                card_level INTEGER DEFAULT 1,
+                blood_type TEXT DEFAULT '',
+                gender TEXT DEFAULT '',
+                photo_url TEXT DEFAULT '',
+                member_since TEXT DEFAULT '',
                 balance REAL DEFAULT 0,
                 created_at TEXT NOT NULL
             )
         `);
 
+        const accountMigrations = [
+            ['card_number', "TEXT DEFAULT ''"],
+            ['father_name', "TEXT DEFAULT ''"],
+            ['address', "TEXT DEFAULT ''"],
+            ['distinguishing_mark', "TEXT DEFAULT ''"],
+            ['dob', "TEXT DEFAULT ''"],
+            ['issued_by', "TEXT DEFAULT ''"],
+            ['card_level', 'INTEGER DEFAULT 1'],
+            ['blood_type', "TEXT DEFAULT ''"],
+            ['gender', "TEXT DEFAULT ''"],
+            ['photo_url', "TEXT DEFAULT ''"],
+            ['member_since', "TEXT DEFAULT ''"]
+        ];
+
+        for (const [col, def] of accountMigrations) {
+            try {
+                await db.execute(`ALTER TABLE bank_accounts ADD COLUMN ${col} ${def}`);
+            } catch (e) {}
+        }
+
         await db.execute(`
             CREATE TABLE IF NOT EXISTS bank_transactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 customer_id TEXT NOT NULL,
+                card_number TEXT DEFAULT '',
                 customer_name TEXT NOT NULL,
                 admin_username TEXT NOT NULL,
                 type TEXT NOT NULL,
@@ -38,13 +165,35 @@ const bankTablesReady = (async () => {
                 created_at TEXT NOT NULL
             )
         `);
-        console.log('✅ Acai Bank Database tables ready!');
+
+        try {
+            await db.execute(`ALTER TABLE bank_transactions ADD COLUMN card_number TEXT DEFAULT ''`);
+        } catch (e) {}
+
+        const legacyRows = await db.execute(
+            `SELECT id, created_at, card_number, member_since FROM bank_accounts WHERE card_number IS NULL OR card_number = '' OR member_since IS NULL OR member_since = ''`
+        );
+        for (const row of legacyRows.rows) {
+            const newCard = row.card_number && normalizeCardDigits(row.card_number).length === 16
+                ? formatCardNumber(row.card_number)
+                : await generateUniqueCardNumber();
+            let memberSince = row.member_since;
+            if (!memberSince) {
+                const parsedDate = row.created_at ? new Date(row.created_at) : new Date();
+                memberSince = getMyanmarMemberSince(isNaN(parsedDate.getTime()) ? new Date() : parsedDate);
+            }
+            await db.execute({
+                sql: `UPDATE bank_accounts SET card_number = ?, member_since = ? WHERE id = ?`,
+                args: [newCard, memberSince, row.id]
+            });
+        }
+
+        console.log('✅ Acai Bank Database tables & migrations ready!');
     } catch (err) {
         console.error('❌ Acai Bank DB Error:', err.message);
     }
 })();
 
-// 3. Admin စစ်ဆေးခြင်း (Render Env ထဲက BANK_ADMIN_USER / BANK_ADMIN_PASS ကို အဓိကသုံးသည်)
 function getAdmins() {
     const list = [
         { username: process.env.BANK_ADMIN_USER, pass: process.env.BANK_ADMIN_PASS },
@@ -66,20 +215,11 @@ function verifyAdmin(req, res, next) {
     const valid = getAdmins().find(a => a.username === adminUser && a.pass === adminPass);
 
     if (!valid) {
-        return res.status(401).json({ success: false, message: 'Admin ခွင့်ပြုချက် မရှိပါ။ ပြန်လည် Login ဝင်ပါ။' });
+        return res.status(401).json({ success: false, message: 'Unauthorized. Please log in again.' });
     }
     req.adminUser = valid.username;
     next();
 }
-
-// မြန်မာစံတော်ချိန် (+06:30)
-function getMyanmarTime() {
-    const now = new Date();
-    const mmt = new Date(now.getTime() + (6.5 * 60 * 60 * 1000));
-    return mmt.toISOString().replace('Z', '+06:30');
-}
-
-// API 1: Admin Login
 router.post('/login', (req, res) => {
     const body = req.body || {};
     const username = String(body.username || '').trim();
@@ -89,7 +229,7 @@ router.post('/login', (req, res) => {
     if (admins.length === 0) {
         return res.status(500).json({
             success: false,
-            message: 'Server တွင် BANK_ADMIN_USER နှင့် BANK_ADMIN_PASS မထည့်ရသေးပါ။'
+            message: 'Server configuration error: BANK_ADMIN_USER / BANK_ADMIN_PASS not set.'
         });
     }
 
@@ -97,19 +237,17 @@ router.post('/login', (req, res) => {
     if (!valid) {
         return res.status(401).json({
             success: false,
-            message: 'Username သို့မဟုတ် Password မှားနေပါသည်။'
+            message: 'Invalid username or password.'
         });
     }
 
     res.json({ success: true, username: valid.username });
 });
-
-// API 2: Dashboard Data (Customer အကောင့်များ + ငွေသွင်း/ထုတ် မှတ်တမ်းများ)
 router.get('/dashboard', verifyAdmin, async (req, res) => {
     try {
         await bankTablesReady;
         const accountsRes = await db.execute(`SELECT * FROM bank_accounts ORDER BY id DESC`);
-        const txRes = await db.execute(`SELECT * FROM bank_transactions ORDER BY id DESC LIMIT 150`);
+        const txRes = await db.execute(`SELECT * FROM bank_transactions ORDER BY id DESC LIMIT 200`);
 
         res.json({
             success: true,
@@ -118,133 +256,257 @@ router.get('/dashboard', verifyAdmin, async (req, res) => {
         });
     } catch (err) {
         console.error('Bank Dashboard Error:', err);
-        res.status(500).json({ success: false, message: 'Data ဆွဲယူရာတွင် အမှားရှိနေပါသည်။' });
+        res.status(500).json({ success: false, message: 'Failed to load dashboard data.' });
     }
 });
 
-// API 3: Customer အကောင့်အသစ် ဖွင့်ပေးရန်
-router.post('/accounts', verifyAdmin, async (req, res) => {
-    try {
-        await bankTablesReady;
-        const body = req.body || {};
-        const cleanName = String(body.name || '').trim();
-        const cleanPhone = String(body.phone || '').trim();
-        const initAmt = parseFloat(body.initial_deposit) || 0;
-
-        if (!cleanName || !cleanPhone) {
-            return res.status(400).json({ success: false, message: 'နာမည်နှင့် ဖုန်းနံပါတ် အပြည့်အစုံ ဖြည့်ပါ။' });
-        }
-        if (!Number.isFinite(initAmt) || initAmt < 0) {
-            return res.status(400).json({ success: false, message: 'ငွေပမာဏ မှားယွင်းနေပါသည်။' });
-        }
-
-        const countRes = await db.execute(`SELECT MAX(id) AS maxId FROM bank_accounts`);
-        const nextNum = (Number(countRes.rows[0]?.maxId) || 0) + 1001;
-        const customerId = `AC-${nextNum}`;
-        const qrToken = crypto.randomBytes(12).toString('hex');
-        const createdAt = getMyanmarTime();
-
-        await db.execute({
-            sql: `INSERT INTO bank_accounts (customer_id, qr_token, name, phone, balance, created_at)
-                  VALUES (?, ?, ?, ?, ?, ?)`,
-            args: [customerId, qrToken, cleanName, cleanPhone, initAmt, createdAt]
+router.post(
+    '/accounts',
+    verifyAdmin,
+    (req, res, next) => {
+        uploadPhoto.single('photo')(req, res, err => {
+            if (err) {
+                return res.status(400).json({
+                    success: false,
+                    message: err.message || 'Photo upload failed.'
+                });
+            }
+            next();
         });
+    },
+    async (req, res) => {
+        try {
+            await bankTablesReady;
+            const body = req.body || {};
 
-        if (initAmt > 0) {
+            const name = String(body.name || '').trim();
+            const fatherName = String(body.father_name || '').trim();
+            const phone = String(body.phone || '').trim();
+            const address = String(body.address || '').trim();
+            const distinguishingMark = String(body.distinguishing_mark || '').trim();
+            const dob = String(body.dob || '').trim();
+            const issuedBy = String(body.issued_by || '').trim();
+            const cardLevel = Number(body.card_level || 1);
+            const bloodType = String(body.blood_type || '').trim();
+            const gender = String(body.gender || '').trim();
+            const initAmtRaw = String(body.initial_deposit ?? '').trim();
+            const initAmt = initAmtRaw === '' ? 0 : parseFloat(initAmtRaw);
+
+            if (!name || !fatherName || !phone || !address || !dob || !issuedBy || !bloodType || !gender) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Please fill in all required customer information fields.'
+                });
+            }
+
+            if (![1, 2, 3].includes(cardLevel)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Card level must be Level 1, Level 2, or Level 3.'
+                });
+            }
+
+            const rule = getLevelRule(cardLevel);
+
+            if (!Number.isFinite(initAmt) || initAmt < 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid initial deposit amount.'
+                });
+            }
+
+            if (initAmt > 0 && initAmt < rule.minDeposit) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Minimum initial deposit for ${rule.label} is ${rule.minDeposit.toLocaleString()} Ks.`
+                });
+            }
+
+            let photoUrl = '';
+            if (req.file) {
+                if (req.file.path || req.file.secure_url) {
+                    photoUrl = req.file.path || req.file.secure_url;
+                } else if (req.file.buffer) {
+                    photoUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+                }
+            }
+
+            const cardNumber = await generateUniqueCardNumber();
+            const qrToken = crypto.randomBytes(12).toString('hex');
+            const createdAt = getMyanmarISO();
+            const memberSince = getMyanmarMemberSince();
+
             await db.execute({
-                sql: `INSERT INTO bank_transactions (customer_id, customer_name, admin_username, type, amount, balance_after, note, created_at)
-                      VALUES (?, ?, ?, 'deposit', ?, ?, 'အကောင့်ဖွင့် ကနဦးငွေသွင်း', ?)`,
-                args: [customerId, cleanName, req.adminUser, initAmt, initAmt, createdAt]
+                sql: `INSERT INTO bank_accounts (
+                    customer_id, card_number, qr_token, name, father_name, phone,
+                    address, distinguishing_mark, dob, issued_by, card_level,
+                    blood_type, gender, photo_url, member_since, balance, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                args: [
+                    cardNumber,
+                    cardNumber,
+                    qrToken,
+                    name,
+                    fatherName,
+                    phone,
+                    address,
+                    distinguishingMark,
+                    dob,
+                    issuedBy,
+                    cardLevel,
+                    bloodType,
+                    gender,
+                    photoUrl,
+                    memberSince,
+                    initAmt,
+                    createdAt
+                ]
             });
+
+            if (initAmt > 0) {
+                await db.execute({
+                    sql: `INSERT INTO bank_transactions (
+                        customer_id, card_number, customer_name, admin_username,
+                        type, amount, balance_after, note, created_at
+                    ) VALUES (?, ?, ?, ?, 'deposit', ?, ?, 'Initial Opening Deposit', ?)`,
+                    args: [cardNumber, cardNumber, name, req.adminUser, initAmt, initAmt, createdAt]
+                });
+            }
+
+            res.json({
+                success: true,
+                card_number: cardNumber,
+                member_since: memberSince,
+                qr_token: qrToken
+            });
+        } catch (err) {
+            console.error('Create Account Error:', err);
+            res.status(500).json({ success: false, message: 'Failed to create customer account.' });
         }
-
-        res.json({
-            success: true,
-            customer_id: customerId,
-            qr_token: qrToken
-        });
-    } catch (err) {
-        console.error('Create Account Error:', err);
-        res.status(500).json({ success: false, message: 'အကောင့်ဖွင့်ရာတွင် အမှားရှိနေပါသည်။' });
     }
-});
-
-// API 4: ငွေသွင်း (Deposit) / ငွေထုတ် (Withdraw) လုပ်ဆောင်ရန်
+);
 router.post('/transaction', verifyAdmin, async (req, res) => {
     try {
         await bankTablesReady;
         const body = req.body || {};
-        const customerId = String(body.customer_id || '').trim();
+        const digits = normalizeCardDigits(body.card_number);
         const type = String(body.type || '').trim();
         const numAmount = parseFloat(body.amount);
         const note = String(body.note || '').trim();
 
-        if (!customerId || !['deposit', 'withdraw'].includes(type) || !Number.isFinite(numAmount) || numAmount <= 0) {
-            return res.status(400).json({ success: false, message: 'အချက်အလက် မှန်ကန်စွာ ဖြည့်သွင်းပါ။' });
+        if (digits.length !== 16) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid 16-digit card number.'
+            });
         }
 
+        if (!['deposit', 'withdraw'].includes(type) || !Number.isFinite(numAmount) || numAmount <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid transaction type and amount.'
+            });
+        }
+
+        const formattedCard = formatCardNumber(digits);
         const accRes = await db.execute({
-            sql: `SELECT * FROM bank_accounts WHERE customer_id = ?`,
-            args: [customerId]
+            sql: `SELECT * FROM bank_accounts WHERE card_number = ? OR REPLACE(card_number, ' ', '') = ?`,
+            args: [formattedCard, digits]
         });
 
         if (accRes.rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'Customer အကောင့် ရှာမတွေ့ပါ။' });
+            return res.status(404).json({
+                success: false,
+                message: 'No account found with this 16-digit card number.'
+            });
         }
 
         const account = accRes.rows[0];
         const currentBalance = Number(account.balance) || 0;
+        const rule = getLevelRule(account.card_level);
 
-        if (type === 'withdraw' && numAmount > currentBalance) {
+        if (type === 'deposit' && numAmount < rule.minDeposit) {
             return res.status(400).json({
                 success: false,
-                message: `လက်ကျန်ငွေ မလုံလောက်ပါ (လက်ရှိ Balance: ${currentBalance.toLocaleString()} Ks)`
+                message: `${rule.label} minimum deposit is ${rule.minDeposit.toLocaleString()} Ks.`
             });
         }
 
+        if (type === 'withdraw') {
+            if (numAmount < rule.minWithdraw) {
+                return res.status(400).json({
+                    success: false,
+                    message: `${rule.label} minimum withdrawal is ${rule.minWithdraw.toLocaleString()} Ks.`
+                });
+            }
+            if (numAmount > currentBalance) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Insufficient balance. Current balance: ${currentBalance.toLocaleString()} Ks.`
+                });
+            }
+        }
+
         const newBalance = type === 'deposit' ? currentBalance + numAmount : currentBalance - numAmount;
-        const createdAt = getMyanmarTime();
+        const createdAt = getMyanmarISO();
 
         await db.execute({
-            sql: `UPDATE bank_accounts SET balance = ? WHERE customer_id = ?`,
-            args: [newBalance, customerId]
+            sql: `UPDATE bank_accounts SET balance = ? WHERE id = ?`,
+            args: [newBalance, account.id]
         });
 
         await db.execute({
-            sql: `INSERT INTO bank_transactions (customer_id, customer_name, admin_username, type, amount, balance_after, note, created_at)
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            args: [customerId, account.name, req.adminUser, type, numAmount, newBalance, note, createdAt]
+            sql: `INSERT INTO bank_transactions (
+                customer_id, card_number, customer_name, admin_username,
+                type, amount, balance_after, note, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            args: [
+                account.customer_id,
+                account.card_number,
+                account.name,
+                req.adminUser,
+                type,
+                numAmount,
+                newBalance,
+                note,
+                createdAt
+            ]
         });
 
-        res.json({ success: true, new_balance: newBalance });
+        res.json({
+            success: true,
+            new_balance: newBalance,
+            card_number: account.card_number,
+            customer_name: account.name
+        });
     } catch (err) {
         console.error('Bank Transaction Error:', err);
-        res.status(500).json({ success: false, message: 'လုပ်ဆောင်ရာတွင် အမှားရှိနေပါသည်။' });
+        res.status(500).json({ success: false, message: 'Transaction failed. Please try again.' });
     }
 });
-
-// API 5: Customer QR Scan ဖတ်လျှင် ကြည့်ရန် Public API (Name, ID, Phone, Balance ၄ မျိုးသာ)
 router.get('/public/:token', async (req, res) => {
     try {
         await bankTablesReady;
         const token = String(req.params.token || '').trim();
 
         const resDb = await db.execute({
-            sql: `SELECT customer_id, name, phone, balance FROM bank_accounts WHERE qr_token = ?`,
+            sql: `SELECT card_number, member_since, name, phone, card_level, balance
+                  FROM bank_accounts
+                  WHERE qr_token = ?`,
             args: [token]
         });
 
         if (resDb.rows.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: 'အကောင့် ရှာမတွေ့ပါ သို့မဟုတ် QR Code မှားယွင်းနေပါသည်။'
+                message: 'Card not found or invalid QR code.'
             });
         }
 
         res.json({ success: true, data: resDb.rows[0] });
     } catch (err) {
         console.error('Public Card Error:', err);
-        res.status(500).json({ success: false, message: 'Server ချိတ်ဆက်မှု အမှားရှိနေပါသည်။' });
+        res.status(500).json({ success: false, message: 'Server error. Please try again.' });
     }
 });
 

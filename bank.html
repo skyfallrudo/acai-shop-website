@@ -1,32 +1,32 @@
 <!DOCTYPE html>
-<html lang="my">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Acai Bank — Admin Panel</title>
+    <title>Açaí Bank — Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #050811;
+            background-color: #060b16;
             color: #f8fafc;
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
             background-image:
-                radial-gradient(circle at 12% 12%, rgba(59, 130, 246, 0.16), transparent 35%),
-                radial-gradient(circle at 88% 20%, rgba(16, 185, 129, 0.12), transparent 35%);
+                radial-gradient(circle at 12% 12%, rgba(59, 130, 246, 0.16), transparent 38%),
+                radial-gradient(circle at 88% 22%, rgba(16, 185, 129, 0.11), transparent 36%);
             background-attachment: fixed;
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .glass {
-            background: rgba(15, 23, 42, 0.72);
+            background: rgba(15, 23, 42, 0.74);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.65);
         }
         .input-modern {
-            background: rgba(9, 13, 24, 0.88);
+            background: rgba(8, 13, 25, 0.88);
             border: 1px solid rgba(148, 163, 184, 0.22);
             transition: all 0.2s ease;
         }
@@ -35,24 +35,27 @@
             outline: none;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22);
         }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body class="min-h-screen p-3 sm:p-6">
 
-    <!-- 1. LOGIN SCREEN -->
     <div id="loginScreen" class="max-w-md mx-auto mt-16 sm:mt-24 p-7 glass rounded-3xl">
         <div class="text-center mb-6">
             <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-500/15 border border-blue-500/30 mb-3 text-blue-400 font-extrabold text-lg">
                 BANK
             </div>
-            <h1 class="text-2xl font-extrabold text-white">Acai Shop Bank Admin</h1>
-            <p class="text-xs text-slate-400 mt-1">Customer Wallet & QR Management</p>
+            <h1 class="text-2xl font-extrabold text-white">Açaí Bank Admin</h1>
+            <p class="text-xs text-slate-400 mt-1">Card Management & Wallet Operations</p>
         </div>
 
         <form id="loginForm" class="space-y-4">
             <div>
                 <label class="text-xs text-slate-400 font-semibold">Admin Username</label>
-                <input type="text" id="username" placeholder="Username ရိုက်ထည့်ပါ" class="w-full mt-1.5 p-3.5 rounded-xl input-modern text-sm text-white" required>
+                <input type="text" id="username" placeholder="Enter username" class="w-full mt-1.5 p-3.5 rounded-xl input-modern text-sm text-white" required>
             </div>
             <div>
                 <label class="text-xs text-slate-400 font-semibold">Password</label>
@@ -60,19 +63,19 @@
             </div>
             <p id="loginError" class="text-rose-400 text-xs font-medium bg-rose-500/10 border border-rose-500/25 p-2.5 rounded-xl hidden"></p>
             <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-500 py-3.5 rounded-xl font-bold text-sm text-white transition shadow-lg shadow-blue-600/30">
-                Admin Login ဝင်မည်
+                Sign In
             </button>
         </form>
     </div>
 
-    <!-- 2. DASHBOARD SCREEN -->
-    <div id="dashboardScreen" class="max-w-6xl mx-auto hidden space-y-5">
+   
+    <div id="dashboardScreen" class="max-w-7xl mx-auto hidden space-y-5">
 
-        <!-- Header -->
+      
         <div class="glass p-4 sm:px-6 rounded-2xl flex flex-wrap justify-between items-center gap-3">
             <div>
-                <h1 class="text-lg sm:text-xl font-extrabold text-white">Acai Shop — Customer Bank</h1>
-                <p class="text-xs text-slate-400">Admin: <span id="activeAdmin" class="text-blue-400 font-semibold"></span></p>
+                <h1 class="text-lg sm:text-xl font-extrabold text-white">Açaí Shop — Member Bank</h1>
+                <p class="text-xs text-slate-400">Signed in as <span id="activeAdmin" class="text-blue-400 font-semibold"></span></p>
             </div>
             <div class="flex items-center gap-2.5">
                 <button onclick="loadDashboard()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3.5 py-2 rounded-xl border border-slate-700 font-medium transition">
@@ -84,172 +87,337 @@
             </div>
         </div>
 
-        <!-- Summary Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="glass p-5 rounded-2xl">
-                <p class="text-xs text-slate-400">စုစုပေါင်း Customer အကောင့်</p>
-                <p id="totalAccounts" class="mono text-2xl font-extrabold text-white mt-1">0 ဦး</p>
+                <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Issued Cards</p>
+                <p id="totalAccounts" class="mono text-2xl font-extrabold text-white mt-1">0</p>
             </div>
             <div class="glass p-5 rounded-2xl">
-                <p class="text-xs text-slate-400">Customer အားလုံး၏ စုစုပေါင်း Balance</p>
+                <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Member Balance</p>
                 <p id="totalSystemBalance" class="mono text-2xl font-extrabold text-emerald-400 mt-1">0 Ks</p>
             </div>
             <div class="glass p-5 rounded-2xl">
-                <p class="text-xs text-slate-400">ငွေသွင်း / ငွေထုတ် အကြိမ်ရေ</p>
-                <p id="totalTxCount" class="mono text-2xl font-extrabold text-blue-400 mt-1">0 ကြိမ်</p>
+                <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Transactions</p>
+                <p id="totalTxCount" class="mono text-2xl font-extrabold text-blue-400 mt-1">0</p>
             </div>
         </div>
 
-        <!-- Forms Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
 
-            <!-- Create Account Form -->
-            <div class="glass p-5 rounded-2xl">
+            
+            <div class="glass p-5 sm:p-6 rounded-2xl xl:col-span-7">
                 <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
                     <span class="w-2 h-4 rounded-full bg-emerald-500"></span>
-                    Customer အကောင့်အသစ် ဖွင့်ပေးရန်
+                    Open New Member Card Account
                 </h2>
-                <form id="createAccForm" class="space-y-3">
+
+                <form id="createAccForm" class="space-y-3.5">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs text-slate-400">Customer နာမည် *</label>
-                            <input type="text" id="newName" placeholder="ဥပမာ - ကိုအောင်" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white" required>
+                            <label class="text-xs text-slate-400">Full Name *</label>
+                            <input type="text" id="newName" placeholder="e.g. Aung Kyaw" class="w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white" required>
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400">ဖုန်းနံပါတ် *</label>
-                            <input type="text" id="newPhone" placeholder="09xxxxxxxxx" class="mono w-full mt-1 p-3 rounded-xl input-modern text-sm text-white" required>
+                            <label class="text-xs text-slate-400">Father's Name *</label>
+                            <input type="text" id="newFatherName" placeholder="e.g. U Hla" class="w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white" required>
                         </div>
                     </div>
-                    <div>
-                        <label class="text-xs text-slate-400">ကနဦး ငွေသွင်းပမာဏ (မထည့်လျှင် 0 ထားပါ)</label>
-                        <input type="number" id="newInitDeposit" placeholder="0" min="0" step="any" class="mono w-full mt-1 p-3 rounded-xl input-modern text-sm text-white">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="text-xs text-slate-400">Phone Number *</label>
+                            <input type="text" id="newPhone" placeholder="09xxxxxxxxx" class="mono w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white" required>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Date of Birth *</label>
+                            <input type="date" id="newDob" class="mono w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white" required>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Gender *</label>
+                            <select id="newGender" class="w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white" required>
+                                <option value="">Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
                     </div>
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-sm text-white transition shadow-lg shadow-emerald-600/25">
-                        + အကောင့်ဖွင့်ပြီး QR ထုတ်မည်
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="text-xs text-slate-400">Blood Type *</label>
+                            <select id="newBloodType" class="w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white" required>
+                                <option value="">Select</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                                <option value="Unknown">Unknown</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Card Level *</label>
+                            <select id="newCardLevel" class="w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white" required>
+                                <option value="1">Level 1 (Min 1,000 Ks)</option>
+                                <option value="2">Level 2 (Min 10,000 Ks)</option>
+                                <option value="3">Level 3 (Min 100,000 Ks)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Issued By (Staff Name) *</label>
+                            <input type="text" id="newIssuedBy" placeholder="e.g. Rudox" class="w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs text-slate-400">Address *</label>
+                        <input type="text" id="newAddress" placeholder="Full residential address" class="w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white" required>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-slate-400">Distinguishing Mark</label>
+                            <input type="text" id="newMark" placeholder="e.g. Mole on left cheek / None" class="w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Initial Deposit (Ks) — <span id="initMinHint" class="text-emerald-400">0 or Min 1,000 Ks</span></label>
+                            <input type="number" id="newInitDeposit" placeholder="0" min="0" step="any" class="mono w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs text-slate-400">Member Photo *</label>
+                        <input type="file" id="newPhoto" accept="image/*" class="w-full mt-1 p-2 rounded-xl input-modern text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:font-semibold hover:file:bg-blue-500" required>
+                    </div>
+
+                    <button type="submit" id="createAccBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-sm text-white transition shadow-lg shadow-emerald-600/25">
+                        + Create Account & Generate 16-Digit Card + QR
                     </button>
                 </form>
             </div>
 
-            <!-- Deposit / Withdraw Form -->
-            <div class="glass p-5 rounded-2xl">
-                <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
-                    <span class="w-2 h-4 rounded-full bg-blue-500"></span>
-                    ငွေသွင်း / ငွေထုတ် လုပ်ဆောင်ရန်
-                </h2>
-                <form id="txForm" class="space-y-3">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            
+            <div class="glass p-5 sm:p-6 rounded-2xl xl:col-span-5 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                        <span class="w-2 h-4 rounded-full bg-blue-500"></span>
+                        Deposit / Withdraw by Card Number
+                    </h2>
+
+                    <form id="txForm" class="space-y-4">
                         <div>
-                            <label class="text-xs text-slate-400">Customer ရွေးချယ်ပါ *</label>
-                            <select id="txCustomerSelect" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white" required>
-                                <option value="">-- Customer ရွေးပါ --</option>
-                            </select>
+                            <label class="text-xs text-slate-400 font-semibold">16-Digit Card Number *</label>
+                            <input
+                                type="text"
+                                id="txCardInput"
+                                maxlength="19"
+                                placeholder="1234 5678 9101 1121"
+                                autocomplete="off"
+                                class="mono w-full mt-1.5 p-3.5 rounded-xl input-modern text-base tracking-wider text-white font-bold"
+                                required
+                            >
                         </div>
+
+                        
+                        <div id="matchedCardBox" class="hidden p-4 rounded-2xl bg-slate-900/90 border border-blue-500/40 space-y-2.5">
+                            <div class="flex items-center gap-3">
+                                <img id="matchedPhoto" src="" alt="" class="w-12 h-12 rounded-xl object-cover border border-slate-700 bg-slate-800 hidden">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <p id="matchedName" class="font-extrabold text-white text-sm truncate"></p>
+                                        <span id="matchedLevelBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
+                                    </div>
+                                    <p id="matchedPhone" class="mono text-xs text-slate-400"></p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-xs">
+                                <span class="text-slate-400">Current Balance:</span>
+                                <span id="matchedBalance" class="mono font-extrabold text-emerald-400 text-sm"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-[11px]">
+                                <span class="text-slate-400">Level Rule:</span>
+                                <span id="matchedRuleText" class="mono text-blue-300 font-semibold"></span>
+                            </div>
+                        </div>
+
+                        <p id="cardNotFoundHint" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/25 p-2.5 rounded-xl">
+                            No member found with this 16-digit card number.
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs text-slate-400">Transaction Type *</label>
+                                <select id="txType" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white">
+                                    <option value="deposit">Deposit (+)</option>
+                                    <option value="withdraw">Withdraw (-)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400">Amount (Ks) *</label>
+                                <input type="number" id="txAmount" placeholder="0" min="1" step="any" class="mono w-full mt-1 p-3 rounded-xl input-modern text-sm text-white" required>
+                            </div>
+                        </div>
+
                         <div>
-                            <label class="text-xs text-slate-400">လုပ်ဆောင်မှု *</label>
-                            <select id="txType" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white">
-                                <option value="deposit">🟢 ငွေသွင်းမည် (Deposit)</option>
-                                <option value="withdraw">🔴 ငွေထုတ်မည် (Withdraw)</option>
-                            </select>
+                            <label class="text-xs text-slate-400">Note (Optional)</label>
+                            <input type="text" id="txNote" placeholder="e.g. Cash / KBZPay" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white">
                         </div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs text-slate-400">ငွေပမာဏ (Ks) *</label>
-                            <input type="number" id="txAmount" placeholder="0" min="1" step="any" class="mono w-full mt-1 p-3 rounded-xl input-modern text-sm text-white" required>
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-400">မှတ်ချက် (Note - Optional)</label>
-                            <input type="text" id="txNote" placeholder="ဥပမာ - KBZPay ဖြင့်သွင်း" class="w-full mt-1 p-3 rounded-xl input-modern text-sm text-white">
-                        </div>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold text-sm text-white transition shadow-lg shadow-blue-600/25">
-                        အတည်ပြု လုပ်ဆောင်မည်
-                    </button>
-                </form>
+
+                        <button type="submit" id="txSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 py-3.5 rounded-xl font-bold text-sm text-white transition shadow-lg shadow-blue-600/25">
+                            Confirm Transaction
+                        </button>
+                    </form>
+                </div>
+                <div class="mt-5 p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 text-[11px] text-slate-400 space-y-1">
+                    <p class="font-bold text-slate-300 uppercase tracking-wider">Card Level Minimum Limits</p>
+                    <p>• <span class="text-sky-400 font-semibold">Level 1:</span> Min 1,000 Ks deposit / Min 1,000 Ks withdraw</p>
+                    <p>• <span class="text-amber-400 font-semibold">Level 2:</span> Min 10,000 Ks deposit / Min 10,000 Ks withdraw</p>
+                    <p>• <span class="text-purple-400 font-semibold">Level 3:</span> Min 100,000 Ks deposit / Min 100,000 Ks withdraw</p>
+                </div>
             </div>
         </div>
-
-        <!-- Customer Accounts Table -->
         <div class="glass p-5 rounded-2xl space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-                <h2 class="text-base font-bold text-white">Customer အကောင့်များ နှင့် Balance စာရင်း</h2>
-                <input type="text" id="searchInput" placeholder="🔍 ID, နာမည် သို့မဟုတ် ဖုန်းနံပါတ် ရှာရန်..." class="w-full sm:w-72 px-4 py-2 rounded-xl input-modern text-xs sm:text-sm text-white">
+                <h2 class="text-base font-bold text-white">Member Accounts & Balances</h2>
+                <input type="text" id="searchInput" placeholder="Search by card number, name, phone, level..." class="w-full sm:w-80 px-4 py-2 rounded-xl input-modern text-xs sm:text-sm text-white">
             </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs sm:text-sm whitespace-nowrap">
                     <thead class="text-slate-400 border-b border-slate-800 text-[11px] uppercase">
                         <tr>
-                            <th class="pb-3 pr-4">Customer ID</th>
-                            <th class="pb-3 pr-4">နာမည် (Name)</th>
-                            <th class="pb-3 pr-4">ဖုန်းနံပါတ်</th>
-                            <th class="pb-3 pr-4">လက်ကျန်ငွေ (Balance)</th>
-                            <th class="pb-3 text-right">လုပ်ဆောင်ချက် / QR</th>
+                            <th class="pb-3 pr-4">Card Number</th>
+                            <th class="pb-3 pr-4">Member Name</th>
+                            <th class="pb-3 pr-4">Level</th>
+                            <th class="pb-3 pr-4">Phone</th>
+                            <th class="pb-3 pr-4">Member Since</th>
+                            <th class="pb-3 pr-4">Balance</th>
+                            <th class="pb-3 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="accountsTableBody" class="divide-y divide-slate-800/70"></tbody>
                 </table>
-                <p id="emptyAccMsg" class="hidden text-center text-slate-500 text-xs py-6">Customer အကောင့် မရှိသေးပါ။</p>
+                <p id="emptyAccMsg" class="hidden text-center text-slate-500 text-xs py-6">No member accounts found.</p>
             </div>
         </div>
-
-        <!-- Recent Transactions Table -->
         <div class="glass p-5 rounded-2xl space-y-3">
-            <h2 class="text-base font-bold text-white">နောက်ဆုံး ငွေသွင်း / ငွေထုတ် မှတ်တမ်းများ</h2>
+            <h2 class="text-base font-bold text-white">Recent Transactions</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs whitespace-nowrap">
                     <thead class="text-slate-400 border-b border-slate-800 text-[11px] uppercase">
                         <tr>
-                            <th class="pb-2.5 pr-4">အချိန် (MMT)</th>
-                            <th class="pb-2.5 pr-4">ID / နာမည်</th>
-                            <th class="pb-2.5 pr-4">အမျိုးအစား</th>
-                            <th class="pb-2.5 pr-4">ပမာဏ</th>
-                            <th class="pb-2.5 pr-4">ကျန်ငွေ (After)</th>
-                            <th class="pb-2.5 pr-4">မှတ်ချက်</th>
+                            <th class="pb-2.5 pr-4">Date & Time (MMT)</th>
+                            <th class="pb-2.5 pr-4">Card Number</th>
+                            <th class="pb-2.5 pr-4">Member</th>
+                            <th class="pb-2.5 pr-4">Type</th>
+                            <th class="pb-2.5 pr-4">Amount</th>
+                            <th class="pb-2.5 pr-4">Balance After</th>
+                            <th class="pb-2.5 pr-4">Note</th>
                             <th class="pb-2.5 text-right">Admin</th>
                         </tr>
                     </thead>
                     <tbody id="txTableBody" class="divide-y divide-slate-800/70"></tbody>
                 </table>
-                <p id="emptyTxMsg" class="hidden text-center text-slate-500 text-xs py-6">ငွေသွင်း / ငွေထုတ် မှတ်တမ်း မရှိသေးပါ။</p>
+                <p id="emptyTxMsg" class="hidden text-center text-slate-500 text-xs py-6">No transactions recorded yet.</p>
             </div>
         </div>
     </div>
-
-    <!-- 3. QR CODE MODAL -->
     <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="glass max-w-sm w-full p-6 rounded-3xl text-center space-y-4 relative">
             <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full">✕</button>
             <div>
-                <span id="modalCustId" class="mono text-xs font-bold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400"></span>
+                <span id="modalLevelBadge" class="text-[11px] font-bold px-2.5 py-1 rounded-full"></span>
                 <h3 id="modalCustName" class="text-lg font-extrabold text-white mt-2"></h3>
-                <p id="modalCustPhone" class="mono text-xs text-slate-400"></p>
+                <p id="modalCardNum" class="mono text-sm font-bold text-blue-400 tracking-wider mt-1"></p>
+                <p id="modalMemberSince" class="mono text-xs text-slate-400 mt-0.5"></p>
             </div>
 
             <div class="bg-white p-4 rounded-2xl inline-block mx-auto shadow-xl">
                 <div id="qrcodeContainer"></div>
             </div>
 
-            <p class="text-[11px] text-slate-400">Customer မှ ဤ QR ကို Scan ဖတ်ပြီး Name / ID / Phone / Balance စစ်ဆေးနိုင်ပါသည်</p>
+            <p class="text-[11px] text-slate-400">Scan QR or write the URL to an NFC card for instant balance check.</p>
 
-            <div class="grid grid-cols-2 gap-2.5 pt-2">
+            <div class="grid grid-cols-2 gap-2.5 pt-1">
                 <button onclick="downloadQrImage()" class="bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl font-bold text-xs text-white transition">
-                    ⬇ QR ပုံ Download
+                    Download QR PNG
                 </button>
                 <button onclick="copyQrLink()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 py-2.5 rounded-xl font-bold text-xs text-white transition">
-                    🔗 Link Copy
+                    Copy Card Link
                 </button>
+            </div>
+        </div>
+    </div>
+    <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="glass max-w-lg w-full p-6 rounded-3xl space-y-4 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full">✕</button>
+
+            <div class="flex items-center gap-4">
+                <img id="profPhoto" src="" alt="Member Photo" class="w-20 h-20 rounded-2xl object-cover border border-slate-700 bg-slate-900">
+                <div>
+                    <span id="profLevelBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full"></span>
+                    <h3 id="profName" class="text-xl font-extrabold text-white mt-1"></h3>
+                    <p id="profCardNum" class="mono text-xs font-bold text-blue-400 tracking-wider"></p>
+                    <p id="profBalance" class="mono text-sm font-extrabold text-emerald-400 mt-0.5"></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-800">
+                <div class="bg-slate-950/60 p-3 rounded-xl">
+                    <p class="text-slate-400">Father's Name</p>
+                    <p id="profFather" class="font-semibold text-white mt-0.5"></p>
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-xl">
+                    <p class="text-slate-400">Phone Number</p>
+                    <p id="profPhone" class="mono font-semibold text-white mt-0.5"></p>
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-xl">
+                    <p class="text-slate-400">Date of Birth</p>
+                    <p id="profDob" class="mono font-semibold text-white mt-0.5"></p>
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-xl">
+                    <p class="text-slate-400">Gender & Blood Type</p>
+                    <p id="profGenderBlood" class="font-semibold text-white mt-0.5"></p>
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-xl">
+                    <p class="text-slate-400">Member Since</p>
+                    <p id="profSince" class="mono font-semibold text-white mt-0.5"></p>
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-xl">
+                    <p class="text-slate-400">Issued By</p>
+                    <p id="profIssuedBy" class="font-semibold text-white mt-0.5"></p>
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-xl col-span-2">
+                    <p class="text-slate-400">Distinguishing Mark</p>
+                    <p id="profMark" class="font-semibold text-white mt-0.5"></p>
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-xl col-span-2">
+                    <p class="text-slate-400">Address</p>
+                    <p id="profAddress" class="font-semibold text-white mt-0.5"></p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        const LEVEL_RULES = {
+            1: { label: 'Level 1', minDeposit: 1000, minWithdraw: 1000, badgeClass: 'bg-sky-500/20 text-sky-400 border border-sky-500/30' },
+            2: { label: 'Level 2', minDeposit: 10000, minWithdraw: 10000, badgeClass: 'bg-amber-500/20 text-amber-400 border border-amber-500/30' },
+            3: { label: 'Level 3', minDeposit: 100000, minWithdraw: 100000, badgeClass: 'bg-purple-500/20 text-purple-400 border border-purple-500/30' }
+        };
+
         let currentAdmin = sessionStorage.getItem('bank_admin') || '';
         let currentPass = sessionStorage.getItem('bank_pass') || '';
         let allAccounts = [];
         let allTransactions = [];
+        let matchedAccount = null;
         let currentQrUrl = '';
-        let currentQrFileName = 'customer_qr.png';
+        let currentQrFileName = 'acai_card_qr.png';
 
         function escapeHtml(str) {
             return String(str ?? '')
@@ -259,15 +427,29 @@
                 .replace(/"/g, '&quot;');
         }
 
+        function normalizeDigits(val) {
+            return String(val || '').replace(/\D/g, '').slice(0, 16);
+        }
+
+        function formatCardNum(val) {
+            return normalizeDigits(val).replace(/(\d{4})(?=\d)/g, '$1 ');
+        }
+
+        function getRule(level) {
+            return LEVEL_RULES[Number(level)] || LEVEL_RULES[1];
+        }
+
         async function safeJson(res) {
             try {
                 return await res.json();
             } catch {
-                return { success: false, message: `Server Error (${res.status})` };
+                return { success: false, message: `Server error (${res.status})` };
             }
         }
-
-        // Login
+        document.getElementById('newCardLevel').addEventListener('change', (e) => {
+            const rule = getRule(e.target.value);
+            document.getElementById('initMinHint').textContent = `0 or Min ${rule.minDeposit.toLocaleString()} Ks`;
+        });
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
@@ -277,7 +459,7 @@
 
             errEl.classList.add('hidden');
             btn.disabled = true;
-            btn.textContent = 'စစ်ဆေးနေပါသည်...';
+            btn.textContent = 'Signing in...';
 
             try {
                 const res = await fetch('/api/bank/login', {
@@ -288,7 +470,7 @@
                 const data = await safeJson(res);
 
                 if (!data.success) {
-                    errEl.textContent = data.message || 'Login မအောင်မြင်ပါ။';
+                    errEl.textContent = data.message || 'Invalid credentials.';
                     errEl.classList.remove('hidden');
                     return;
                 }
@@ -298,12 +480,12 @@
                 sessionStorage.setItem('bank_admin', currentAdmin);
                 sessionStorage.setItem('bank_pass', currentPass);
                 showDashboard();
-            } catch (err) {
-                errEl.textContent = 'Server နှင့် ချိတ်ဆက်မရပါ။';
+            } catch {
+                errEl.textContent = 'Unable to connect to server.';
                 errEl.classList.remove('hidden');
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Admin Login ဝင်မည်';
+                btn.textContent = 'Sign In';
             }
         });
 
@@ -319,8 +501,6 @@
             sessionStorage.removeItem('bank_pass');
             location.reload();
         }
-
-        // Load Dashboard Data
         async function loadDashboard() {
             const res = await fetch('/api/bank/dashboard', {
                 headers: {
@@ -338,54 +518,117 @@
             allTransactions = data.transactions || [];
 
             const totalBal = allAccounts.reduce((sum, a) => sum + (Number(a.balance) || 0), 0);
-            document.getElementById('totalAccounts').textContent = `${allAccounts.length} ဦး`;
+            document.getElementById('totalAccounts').textContent = allAccounts.length.toLocaleString();
             document.getElementById('totalSystemBalance').textContent = `${totalBal.toLocaleString()} Ks`;
-            document.getElementById('totalTxCount').textContent = `${allTransactions.length} ကြိမ်`;
-
-            // Customer Dropdown
-            const select = document.getElementById('txCustomerSelect');
-            const prevSelected = select.value;
-            select.innerHTML = `<option value="">-- Customer ရွေးပါ --</option>`;
-            allAccounts.forEach(acc => {
-                const opt = document.createElement('option');
-                opt.value = acc.customer_id;
-                opt.textContent = `${acc.customer_id} — ${acc.name} (${Number(acc.balance).toLocaleString()} Ks)`;
-                select.appendChild(opt);
-            });
-            if (prevSelected) select.value = prevSelected;
+            document.getElementById('totalTxCount').textContent = allTransactions.length.toLocaleString();
 
             renderAccountsTable();
             renderTxTable();
+            handleCardNumberLookup(); // Refresh live matched card preview
+        }
+        const txCardInput = document.getElementById('txCardInput');
+        txCardInput.addEventListener('input', () => {
+            txCardInput.value = formatCardNum(txCardInput.value);
+            handleCardNumberLookup();
+        });
+
+        function handleCardNumberLookup() {
+            const digits = normalizeDigits(txCardInput.value);
+            const box = document.getElementById('matchedCardBox');
+            const notFound = document.getElementById('cardNotFoundHint');
+
+            matchedAccount = null;
+
+            if (digits.length < 16) {
+                box.classList.add('hidden');
+                notFound.classList.add('hidden');
+                return;
+            }
+
+            const found = allAccounts.find(a => normalizeDigits(a.card_number) === digits);
+            if (!found) {
+                box.classList.add('hidden');
+                notFound.classList.remove('hidden');
+                return;
+            }
+
+            matchedAccount = found;
+            const rule = getRule(found.card_level);
+
+            const photoEl = document.getElementById('matchedPhoto');
+            if (found.photo_url) {
+                photoEl.src = found.photo_url;
+                photoEl.classList.remove('hidden');
+            } else {
+                photoEl.classList.add('hidden');
+            }
+
+            document.getElementById('matchedName').textContent = found.name;
+            document.getElementById('matchedPhone').textContent = found.phone;
+            document.getElementById('matchedBalance').textContent = `${Number(found.balance).toLocaleString()} Ks`;
+            document.getElementById('matchedRuleText').textContent = `Min Deposit & Withdraw: ${rule.minDeposit.toLocaleString()} Ks`;
+
+            const badge = document.getElementById('matchedLevelBadge');
+            badge.textContent = rule.label;
+            badge.className = `text-[11px] font-bold px-2 py-0.5 rounded-full ${rule.badgeClass}`;
+
+            document.getElementById('txAmount').min = rule.minDeposit;
+            document.getElementById('txAmount').placeholder = `Min ${rule.minDeposit.toLocaleString()}`;
+
+            notFound.classList.add('hidden');
+            box.classList.remove('hidden');
+        }
+
+        function quickSelectCard(cardNumber, type) {
+            txCardInput.value = formatCardNum(cardNumber);
+            document.getElementById('txType').value = type;
+            handleCardNumberLookup();
+            document.getElementById('txAmount').focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function renderAccountsTable() {
             const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            const qDigits = normalizeDigits(q);
             const tbody = document.getElementById('accountsTableBody');
             const emptyMsg = document.getElementById('emptyAccMsg');
             tbody.innerHTML = '';
 
-            const filtered = allAccounts.filter(a =>
-                !q ||
-                String(a.customer_id).toLowerCase().includes(q) ||
-                String(a.name).toLowerCase().includes(q) ||
-                String(a.phone).toLowerCase().includes(q)
-            );
+            const filtered = allAccounts.filter(a => {
+                if (!q) return true;
+                return (
+                    String(a.card_number).toLowerCase().includes(q) ||
+                    (qDigits && normalizeDigits(a.card_number).includes(qDigits)) ||
+                    String(a.name).toLowerCase().includes(q) ||
+                    String(a.phone).toLowerCase().includes(q) ||
+                    `level ${a.card_level}`.includes(q)
+                );
+            });
 
             emptyMsg.classList.toggle('hidden', filtered.length > 0);
 
             filtered.forEach(acc => {
-                const cid = escapeHtml(acc.customer_id);
+                const rule = getRule(acc.card_level);
+                const safeCard = escapeHtml(acc.card_number);
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/40 transition';
                 tr.innerHTML = `
-                    <td class="py-3.5 pr-4 mono font-bold text-blue-400">${cid}</td>
-                    <td class="py-3.5 pr-4 font-semibold text-white">${escapeHtml(acc.name)}</td>
+                    <td class="py-3.5 pr-4 mono font-bold text-blue-400 tracking-wide">${safeCard}</td>
+                    <td class="py-3.5 pr-4 font-semibold text-white">
+                        <div class="flex items-center gap-2.5">
+                            ${acc.photo_url ? `<img src="${escapeHtml(acc.photo_url)}" class="w-7 h-7 rounded-full object-cover border border-slate-700">` : `<div class="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-400">${escapeHtml(String(acc.name || '?')[0].toUpperCase())}</div>`}
+                            <span>${escapeHtml(acc.name)}</span>
+                        </div>
+                    </td>
+                    <td class="py-3.5 pr-4"><span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${rule.badgeClass}">${rule.label}</span></td>
                     <td class="py-3.5 pr-4 mono text-slate-300">${escapeHtml(acc.phone)}</td>
+                    <td class="py-3.5 pr-4 mono text-slate-400">${escapeHtml(acc.member_since || '-')}</td>
                     <td class="py-3.5 pr-4 mono font-extrabold text-emerald-400">${Number(acc.balance).toLocaleString()} Ks</td>
-                    <td class="py-3.5 text-right space-x-1.5">
-                        <button onclick="quickSelectTx('${cid}', 'deposit')" class="text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg hover:bg-emerald-500/25 font-semibold">+ သွင်း</button>
-                        <button onclick="quickSelectTx('${cid}', 'withdraw')" class="text-xs bg-rose-500/15 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded-lg hover:bg-rose-500/25 font-semibold">- ထုတ်</button>
-                        <button onclick="openQrModal('${cid}')" class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded-lg font-bold shadow">QR ပြရန်</button>
+                    <td class="py-3.5 text-right space-x-1">
+                        <button onclick="quickSelectCard('${safeCard}', 'deposit')" class="text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg hover:bg-emerald-500/25 font-semibold">+ In</button>
+                        <button onclick="quickSelectCard('${safeCard}', 'withdraw')" class="text-xs bg-rose-500/15 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded-lg hover:bg-rose-500/25 font-semibold">- Out</button>
+                        <button onclick="openProfileModal('${safeCard}')" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg font-semibold">Info</button>
+                        <button onclick="openQrModal('${safeCard}')" class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1 rounded-lg font-bold shadow">QR</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -393,12 +636,6 @@
         }
 
         document.getElementById('searchInput').addEventListener('input', renderAccountsTable);
-
-        function quickSelectTx(custId, type) {
-            document.getElementById('txCustomerSelect').value = custId;
-            document.getElementById('txType').value = type;
-            document.getElementById('txAmount').focus();
-        }
 
         function formatMMT(str) {
             if (!str) return '-';
@@ -408,6 +645,7 @@
                 timeZone: 'Asia/Rangoon',
                 month: 'short',
                 day: '2-digit',
+                year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: true
@@ -423,14 +661,15 @@
 
             allTransactions.forEach(tx => {
                 const badge = tx.type === 'deposit'
-                    ? `<span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold">ငွေသွင်း (+)</span>`
-                    : `<span class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 font-bold">ငွေထုတ် (-)</span>`;
+                    ? `<span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold">DEPOSIT</span>`
+                    : `<span class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 font-bold">WITHDRAW</span>`;
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/30 transition';
                 tr.innerHTML = `
                     <td class="py-3 pr-4 mono text-slate-400">${formatMMT(tx.created_at)}</td>
-                    <td class="py-3 pr-4"><span class="mono text-blue-400 font-bold">${escapeHtml(tx.customer_id)}</span> • ${escapeHtml(tx.customer_name)}</td>
+                    <td class="py-3 pr-4 mono font-bold text-blue-400">${escapeHtml(tx.card_number || tx.customer_id)}</td>
+                    <td class="py-3 pr-4 font-semibold text-white">${escapeHtml(tx.customer_name)}</td>
                     <td class="py-3 pr-4">${badge}</td>
                     <td class="py-3 pr-4 mono font-bold text-white">${Number(tx.amount).toLocaleString()} Ks</td>
                     <td class="py-3 pr-4 mono text-slate-300">${Number(tx.balance_after).toLocaleString()} Ks</td>
@@ -440,76 +679,140 @@
                 tbody.appendChild(tr);
             });
         }
-
-        // Create New Account
         document.getElementById('createAccForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('newName').value.trim();
-            const phone = document.getElementById('newPhone').value.trim();
-            const initial_deposit = document.getElementById('newInitDeposit').value;
+            const btn = document.getElementById('createAccBtn');
+            const cardLevel = Number(document.getElementById('newCardLevel').value);
+            const initDeposit = parseFloat(document.getElementById('newInitDeposit').value) || 0;
+            const rule = getRule(cardLevel);
 
-            const res = await fetch('/api/bank/accounts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-admin-user': currentAdmin,
-                    'x-admin-pass': currentPass
-                },
-                body: JSON.stringify({ name, phone, initial_deposit })
-            });
-            const data = await safeJson(res);
-            if (data.success) {
-                document.getElementById('newName').value = '';
-                document.getElementById('newPhone').value = '';
-                document.getElementById('newInitDeposit').value = '';
-                await loadDashboard();
-                openQrModal(data.customer_id);
-            } else {
-                alert(data.message);
+            if (initDeposit > 0 && initDeposit < rule.minDeposit) {
+                return alert(`Minimum initial deposit for ${rule.label} is ${rule.minDeposit.toLocaleString()} Ks.`);
+            }
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('newName').value.trim());
+            formData.append('father_name', document.getElementById('newFatherName').value.trim());
+            formData.append('phone', document.getElementById('newPhone').value.trim());
+            formData.append('dob', document.getElementById('newDob').value);
+            formData.append('gender', document.getElementById('newGender').value);
+            formData.append('blood_type', document.getElementById('newBloodType').value);
+            formData.append('card_level', String(cardLevel));
+            formData.append('issued_by', document.getElementById('newIssuedBy').value.trim());
+            formData.append('address', document.getElementById('newAddress').value.trim());
+            formData.append('distinguishing_mark', document.getElementById('newMark').value.trim());
+            formData.append('initial_deposit', String(initDeposit));
+
+            const photoFile = document.getElementById('newPhoto').files[0];
+            if (photoFile) {
+                formData.append('photo', photoFile);
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Creating Account...';
+
+            try {
+                const res = await fetch('/api/bank/accounts', {
+                    method: 'POST',
+                    headers: {
+                        'x-admin-user': currentAdmin,
+                        'x-admin-pass': currentPass
+                    },
+                    body: formData
+                });
+                const data = await safeJson(res);
+
+                if (data.success) {
+                    document.getElementById('createAccForm').reset();
+                    document.getElementById('initMinHint').textContent = '0 or Min 1,000 Ks';
+                    await loadDashboard();
+                    openQrModal(data.card_number);
+                } else {
+                    alert(data.message);
+                }
+            } catch {
+                alert('Failed to create account. Please check your connection.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '+ Create Account & Generate 16-Digit Card + QR';
             }
         });
-
-        // Deposit / Withdraw
         document.getElementById('txForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const customer_id = document.getElementById('txCustomerSelect').value;
+            if (!matchedAccount) {
+                return alert('Please enter a valid registered 16-digit card number.');
+            }
+
             const type = document.getElementById('txType').value;
-            const amount = document.getElementById('txAmount').value;
+            const amount = parseFloat(document.getElementById('txAmount').value);
             const note = document.getElementById('txNote').value.trim();
+            const rule = getRule(matchedAccount.card_level);
 
-            const actionName = type === 'deposit' ? 'ငွေသွင်း' : 'ငွေထုတ်';
-            if (!confirm(`${customer_id} အကောင့်သို့ ${Number(amount).toLocaleString()} Ks ${actionName} မှာ သေချာပါသလား?`)) return;
+            if (type === 'deposit' && amount < rule.minDeposit) {
+                return alert(`${rule.label} minimum deposit is ${rule.minDeposit.toLocaleString()} Ks.`);
+            }
+            if (type === 'withdraw' && amount < rule.minWithdraw) {
+                return alert(`${rule.label} minimum withdrawal is ${rule.minWithdraw.toLocaleString()} Ks.`);
+            }
+            if (type === 'withdraw' && amount > Number(matchedAccount.balance)) {
+                return alert(`Insufficient balance. Available: ${Number(matchedAccount.balance).toLocaleString()} Ks.`);
+            }
 
-            const res = await fetch('/api/bank/transaction', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-admin-user': currentAdmin,
-                    'x-admin-pass': currentPass
-                },
-                body: JSON.stringify({ customer_id, type, amount, note })
-            });
-            const data = await safeJson(res);
-            if (data.success) {
-                document.getElementById('txAmount').value = '';
-                document.getElementById('txNote').value = '';
-                loadDashboard();
-            } else {
-                alert(data.message);
+            const actionLabel = type === 'deposit' ? 'DEPOSIT' : 'WITHDRAW';
+            if (!confirm(`Confirm ${actionLabel} of ${amount.toLocaleString()} Ks for ${matchedAccount.name} (${matchedAccount.card_number})?`)) {
+                return;
+            }
+
+            const btn = document.getElementById('txSubmitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+
+            try {
+                const res = await fetch('/api/bank/transaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-user': currentAdmin,
+                        'x-admin-pass': currentPass
+                    },
+                    body: JSON.stringify({
+                        card_number: matchedAccount.card_number,
+                        type,
+                        amount,
+                        note
+                    })
+                });
+                const data = await safeJson(res);
+                if (data.success) {
+                    document.getElementById('txAmount').value = '';
+                    document.getElementById('txNote').value = '';
+                    await loadDashboard();
+                } else {
+                    alert(data.message);
+                }
+            } catch {
+                alert('Network error while processing transaction.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Confirm Transaction';
             }
         });
-
-        // QR Modal
-        function openQrModal(customerId) {
-            const acc = allAccounts.find(a => a.customer_id === customerId);
+        function openQrModal(cardNumber) {
+            const digits = normalizeDigits(cardNumber);
+            const acc = allAccounts.find(a => normalizeDigits(a.card_number) === digits);
             if (!acc) return;
 
-            document.getElementById('modalCustId').textContent = acc.customer_id;
+            const rule = getRule(acc.card_level);
+            const badge = document.getElementById('modalLevelBadge');
+            badge.textContent = rule.label;
+            badge.className = `text-[11px] font-bold px-2.5 py-1 rounded-full ${rule.badgeClass}`;
+
             document.getElementById('modalCustName').textContent = acc.name;
-            document.getElementById('modalCustPhone').textContent = acc.phone;
+            document.getElementById('modalCardNum').textContent = acc.card_number;
+            document.getElementById('modalMemberSince').textContent = `MEMBER SINCE ${acc.member_since || '-'}`;
 
             currentQrUrl = `${window.location.origin}/bank/card?t=${acc.qr_token}`;
-            currentQrFileName = `QR_${acc.customer_id}.png`;
+            currentQrFileName = `QR_${normalizeDigits(acc.card_number)}.png`;
 
             const container = document.getElementById('qrcodeContainer');
             container.innerHTML = '';
@@ -547,7 +850,42 @@
 
         function copyQrLink() {
             navigator.clipboard.writeText(currentQrUrl);
-            alert('Customer Card Link ကို Copy ကူးပြီးပါပြီ!');
+            alert('Card URL copied to clipboard!');
+        }
+        function openProfileModal(cardNumber) {
+            const digits = normalizeDigits(cardNumber);
+            const acc = allAccounts.find(a => normalizeDigits(a.card_number) === digits);
+            if (!acc) return;
+
+            const rule = getRule(acc.card_level);
+            const badge = document.getElementById('profLevelBadge');
+            badge.textContent = rule.label;
+            badge.className = `text-[11px] font-bold px-2.5 py-0.5 rounded-full ${rule.badgeClass}`;
+
+            const photoEl = document.getElementById('profPhoto');
+            photoEl.src = acc.photo_url || 'https://ui-avatars.com/api/?background=1e293b&color=ffffff&name=' + encodeURIComponent(acc.name);
+
+            document.getElementById('profName').textContent = acc.name;
+            document.getElementById('profCardNum').textContent = acc.card_number;
+            document.getElementById('profBalance').textContent = `${Number(acc.balance).toLocaleString()} Ks`;
+            document.getElementById('profFather').textContent = acc.father_name || '-';
+            document.getElementById('profPhone').textContent = acc.phone || '-';
+            document.getElementById('profDob').textContent = acc.dob || '-';
+            document.getElementById('profGenderBlood').textContent = `${acc.gender || '-'} • Blood ${acc.blood_type || '-'}`;
+            document.getElementById('profSince').textContent = acc.member_since || '-';
+            document.getElementById('profIssuedBy').textContent = acc.issued_by || '-';
+            document.getElementById('profMark').textContent = acc.distinguishing_mark || 'None';
+            document.getElementById('profAddress').textContent = acc.address || '-';
+
+            const modal = document.getElementById('profileModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeProfileModal() {
+            const modal = document.getElementById('profileModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         if (currentAdmin && currentPass) showDashboard();

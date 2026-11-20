@@ -1,76 +1,91 @@
 <!DOCTYPE html>
-<html lang="my">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Customer Member Card</title>
+    <title>Açaí Member Card</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #050811;
+            background-color: #050b16;
             color: #f8fafc;
-            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-            background-image: 
-                radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.18), transparent 40%),
-                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.14), transparent 40%);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.22), transparent 45%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.14), transparent 45%);
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .wallet-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
-            backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            background: linear-gradient(145deg, #162640 0%, #0b1526 55%, #070e1a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 28px 55px -12px rgba(0, 0, 0, 0.85);
         }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
     <div class="max-w-sm w-full">
-        <!-- Loading -->
         <div id="loadingBox" class="text-center text-slate-400 text-sm py-10">
-            အချက်အလက် စစ်ဆေးနေပါသည်...
+            Loading member card...
         </div>
-
-        <!-- Error -->
         <div id="errorBox" class="hidden wallet-card p-6 rounded-3xl text-center space-y-2">
-            <p class="text-rose-400 font-bold text-base">အကောင့် ရှာမတွေ့ပါ</p>
+            <p class="text-rose-400 font-bold text-base">Card Not Found</p>
             <p id="errorMsg" class="text-xs text-slate-400"></p>
         </div>
-
-        <!-- Customer Card (Name / ID / Phone / Balance Only) -->
         <div id="cardBox" class="hidden wallet-card p-6 sm:p-7 rounded-3xl relative overflow-hidden space-y-6">
-            <div class="absolute -top-16 -right-16 w-40 h-40 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -top-16 -right-16 w-44 h-44 bg-blue-500/20 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -left-16 w-40 h-40 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none"></div>
 
-            <!-- Balance Section -->
-            <div class="bg-slate-950/70 border border-slate-800/80 p-5 rounded-2xl text-center">
-                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Balance (လက်ကျန်ငွေ)</p>
-                <p id="custBalance" class="mono text-3xl font-extrabold text-emerald-400 mt-1.5">0 Ks</p>
+            <div class="flex justify-between items-center relative">
+                <div>
+                    <p class="text-lg font-extrabold tracking-tight text-white">Açaí</p>
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400">Member Card</p>
+                </div>
+                <span id="cardLevelBadge" class="text-xs font-bold px-3 py-1 rounded-full"></span>
             </div>
 
-            <!-- 3 Details: Name, ID, Phone -->
-            <div class="space-y-3.5 text-sm">
-                <div class="flex justify-between items-center border-b border-slate-800/80 pb-3">
-                    <span class="text-slate-400 text-xs">Name (နာမည်)</span>
-                    <span id="custName" class="font-bold text-white text-base">-</span>
+            <!-- Balance Display -->
+            <div class="bg-slate-950/65 border border-white/10 p-5 rounded-2xl text-center relative">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Available Balance</p>
+                <p id="custBalance" class="mono text-3xl font-extrabold text-emerald-400 mt-1.5">0 Ks</p>
+            </div>
+            <div class="text-center relative">
+                <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400">Card Number</p>
+                <p id="custCardNumber" class="mono text-lg sm:text-xl font-bold text-white tracking-[0.14em] mt-1">0000 0000 0000 0000</p>
+            </div>
+            <div class="space-y-3 text-sm pt-2 border-t border-white/10 relative">
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400 text-xs">Cardholder Name</span>
+                    <span id="custName" class="font-bold text-white">-</span>
                 </div>
-                <div class="flex justify-between items-center border-b border-slate-800/80 pb-3">
-                    <span class="text-slate-400 text-xs">ID</span>
-                    <span id="custId" class="mono font-bold text-blue-400">-</span>
-                </div>
-                <div class="flex justify-between items-center pb-1">
+                <div class="flex justify-between items-center">
                     <span class="text-slate-400 text-xs">Phone Number</span>
                     <span id="custPhone" class="mono font-semibold text-slate-200">-</span>
                 </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400 text-xs">Member Since</span>
+                    <span id="custMemberSince" class="mono font-bold text-blue-300">-</span>
+                </div>
             </div>
 
-            <button onclick="fetchCardData()" class="w-full py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 text-xs text-slate-300 font-semibold transition">
-                ↻ လက်ကျန်ငွေ ပြန်စစ်ရန်
+            <p class="text-[10px] text-center text-slate-400 leading-relaxed pt-1">
+                Your responsibility to keep the card safe and prevent it from being lost or damaged.
+            </p>
+
+            <button onclick="fetchCardData()" class="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-200 font-semibold transition">
+                ↻ Refresh Balance
             </button>
         </div>
     </div>
 
     <script>
+        const LEVEL_STYLES = {
+            1: { label: 'Level 1', cls: 'bg-sky-500/20 text-sky-300 border border-sky-400/30' },
+            2: { label: 'Level 2', cls: 'bg-amber-500/20 text-amber-300 border border-amber-400/30' },
+            3: { label: 'Level 3', cls: 'bg-purple-500/20 text-purple-300 border border-purple-400/30' }
+        };
+
         const params = new URLSearchParams(window.location.search);
         const token = params.get('t');
 
@@ -82,7 +97,7 @@
             if (!token) {
                 loading.classList.add('hidden');
                 errorBox.classList.remove('hidden');
-                document.getElementById('errorMsg').textContent = 'QR Code Link မပြည့်စုံပါ';
+                document.getElementById('errorMsg').textContent = 'Invalid or missing QR link.';
                 return;
             }
 
@@ -99,16 +114,23 @@
                 }
 
                 const info = result.data;
-                document.getElementById('custName').textContent = info.name;
-                document.getElementById('custId').textContent = info.customer_id;
-                document.getElementById('custPhone').textContent = info.phone;
+                const lvl = LEVEL_STYLES[Number(info.card_level)] || LEVEL_STYLES[1];
+
+                const badge = document.getElementById('cardLevelBadge');
+                badge.textContent = lvl.label;
+                badge.className = `text-xs font-bold px-3 py-1 rounded-full ${lvl.cls}`;
+
                 document.getElementById('custBalance').textContent = `${Number(info.balance).toLocaleString()} Ks`;
+                document.getElementById('custCardNumber').textContent = info.card_number || '-';
+                document.getElementById('custName').textContent = info.name || '-';
+                document.getElementById('custPhone').textContent = info.phone || '-';
+                document.getElementById('custMemberSince').textContent = info.member_since || '-';
 
                 cardBox.classList.remove('hidden');
-            } catch (e) {
+            } catch {
                 loading.classList.add('hidden');
                 errorBox.classList.remove('hidden');
-                document.getElementById('errorMsg').textContent = 'ကွန်ရက်ချိတ်ဆက်မှု အမှားရှိနေပါသည်';
+                document.getElementById('errorMsg').textContent = 'Network error. Please try again.';
             }
         }
 
