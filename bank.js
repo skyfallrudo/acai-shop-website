@@ -509,5 +509,64 @@ router.get('/public/:token', async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error. Please try again.' });
     }
 });
+router.get('/transactions/:cardNumber', verifyAdmin, async (req, res) => {
+    try {
+        await bankTablesReady;
+        const digits = normalizeCardDigits(req.params.cardNumber);
 
+        if (digits.length !== 16) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid 16-digit card number.'
+            });
+        }
+
+        const formattedCard = formatCardNumber(digits);
+
+        const accRes = await db.execute({
+            sql: `SELECT card_number, customer_id, name, phone, card_level, balance, member_since, photo_url
+                  FROM bank_accounts
+                  WHERE card_number = ? OR REPLACE(card_number, ' ', '') = ?`,
+            args: [formattedCard, digits]
+        });
+
+        if (accRes.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No account found with this 16-digit card number.'
+            });
+        }
+
+        const account = accRes.rows[0];
+
+        const txRes = await db.execute({
+            sql: `SELECT * FROM bank_transactions
+                  WHERE REPLACE(card_number, ' ', '') = ? OR REPLACE(customer_id, ' ', '') = ? OR customer_id = ?
+                  ORDER BY id DESC`,
+            args: [digits, digits, account.customer_id]
+        });
+
+        let totalDeposit = 0;
+        let totalWithdraw = 0;
+        for (const tx of txRes.rows) {
+            const amt = Number(tx.amount) || 0;
+            if (tx.type === 'deposit') totalDeposit += amt;
+            else if (tx.type === 'withdraw') totalWithdraw += amt;
+        }
+
+        res.json({
+            success: true,
+            account,
+            summary: {
+                total_deposit: totalDeposit,
+                total_withdraw: totalWithdraw,
+                tx_count: txRes.rows.length
+            },
+            transactions: txRes.rows
+        });
+    } catch (err) {
+        console.error('Card Transaction Lookup Error:', err);
+        res.status(500).json({ success: false, message: 'Failed to load card transaction history.' });
+    }
+});
 module.exports = router;

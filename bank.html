@@ -43,6 +43,7 @@
 </head>
 <body class="min-h-screen p-3 sm:p-6">
 
+   
     <div id="loginScreen" class="max-w-md mx-auto mt-16 sm:mt-24 p-7 glass rounded-3xl">
         <div class="text-center mb-6">
             <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-500/15 border border-blue-500/30 mb-3 text-blue-400 font-extrabold text-lg">
@@ -68,10 +69,10 @@
         </form>
     </div>
 
-   
+  
     <div id="dashboardScreen" class="max-w-7xl mx-auto hidden space-y-5">
 
-      
+       
         <div class="glass p-4 sm:px-6 rounded-2xl flex flex-wrap justify-between items-center gap-3">
             <div>
                 <h1 class="text-lg sm:text-xl font-extrabold text-white">Açaí Shop — Member Bank</h1>
@@ -87,6 +88,7 @@
             </div>
         </div>
 
+   
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="glass p-5 rounded-2xl">
                 <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Issued Cards</p>
@@ -105,7 +107,7 @@
       
         <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
 
-            
+          
             <div class="glass p-5 sm:p-6 rounded-2xl xl:col-span-7">
                 <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
                     <span class="w-2 h-4 rounded-full bg-emerald-500"></span>
@@ -201,7 +203,7 @@
                 </form>
             </div>
 
-            
+      
             <div class="glass p-5 sm:p-6 rounded-2xl xl:col-span-5 flex flex-col justify-between">
                 <div>
                     <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
@@ -223,7 +225,7 @@
                             >
                         </div>
 
-                        
+                      
                         <div id="matchedCardBox" class="hidden p-4 rounded-2xl bg-slate-900/90 border border-blue-500/40 space-y-2.5">
                             <div class="flex items-center gap-3">
                                 <img id="matchedPhoto" src="" alt="" class="w-12 h-12 rounded-xl object-cover border border-slate-700 bg-slate-800 hidden">
@@ -273,6 +275,8 @@
                         </button>
                     </form>
                 </div>
+
+               
                 <div class="mt-5 p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 text-[11px] text-slate-400 space-y-1">
                     <p class="font-bold text-slate-300 uppercase tracking-wider">Card Level Minimum Limits</p>
                     <p>• <span class="text-sky-400 font-semibold">Level 1:</span> Min 1,000 Ks deposit / Min 1,000 Ks withdraw</p>
@@ -281,6 +285,8 @@
                 </div>
             </div>
         </div>
+
+     
         <div class="glass p-5 rounded-2xl space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                 <h2 class="text-base font-bold text-white">Member Accounts & Balances</h2>
@@ -305,8 +311,69 @@
                 <p id="emptyAccMsg" class="hidden text-center text-slate-500 text-xs py-6">No member accounts found.</p>
             </div>
         </div>
-        <div class="glass p-5 rounded-2xl space-y-3">
-            <h2 class="text-base font-bold text-white">Recent Transactions</h2>
+
+        <div id="transactionsSection" class="glass p-5 rounded-2xl space-y-4">
+            <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3">
+                <div>
+                    <h2 id="txSectionTitle" class="text-base font-bold text-white">Recent Transactions (All Members)</h2>
+                    <p id="txSectionSubtitle" class="text-xs text-slate-400 mt-0.5">Enter a 16-digit card number to inspect a single member's complete history.</p>
+                </div>
+
+              
+                <form id="txSearchForm" class="flex flex-wrap items-center gap-2">
+                    <input
+                        type="text"
+                        id="txSearchCard"
+                        maxlength="19"
+                        placeholder="1234 5678 9101 1121"
+                        autocomplete="off"
+                        class="mono w-full sm:w-56 px-3.5 py-2 rounded-xl input-modern text-xs sm:text-sm text-white font-semibold tracking-wider"
+                    >
+                    <select id="txFilterType" class="px-3 py-2 rounded-xl input-modern text-xs text-white">
+                        <option value="all">All Types</option>
+                        <option value="deposit">Deposit Only</option>
+                        <option value="withdraw">Withdraw Only</option>
+                    </select>
+                    <button type="submit" id="txSearchBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow">
+                        Search Card
+                    </button>
+                    <button type="button" id="txClearBtn" onclick="clearCardTxSearch()" class="hidden bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition">
+                        Show All
+                    </button>
+                </form>
+            </div>
+
+            <p id="txSearchError" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/25 p-3 rounded-xl"></p>
+
+          
+            <div id="txCardSummary" class="hidden p-4 rounded-2xl bg-slate-900/90 border border-blue-500/35 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                <div class="md:col-span-5 flex items-center gap-3">
+                    <img id="txSumPhoto" src="" alt="" class="w-12 h-12 rounded-xl object-cover border border-slate-700 bg-slate-800">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <p id="txSumName" class="font-extrabold text-white text-sm truncate"></p>
+                            <span id="txSumLevel" class="text-[10px] font-bold px-2 py-0.5 rounded-full"></span>
+                        </div>
+                        <p id="txSumCard" class="mono text-xs text-blue-400 font-bold tracking-wider mt-0.5"></p>
+                        <p id="txSumBalance" class="mono text-xs text-emerald-400 font-bold mt-0.5"></p>
+                    </div>
+                </div>
+                <div class="md:col-span-7 grid grid-cols-3 gap-2.5 text-center">
+                    <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
+                        <p class="text-[10px] text-slate-400 uppercase">Total Deposit</p>
+                        <p id="txSumDeposit" class="mono text-xs sm:text-sm font-extrabold text-emerald-400 mt-0.5">0 Ks</p>
+                    </div>
+                    <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
+                        <p class="text-[10px] text-slate-400 uppercase">Total Withdraw</p>
+                        <p id="txSumWithdraw" class="mono text-xs sm:text-sm font-extrabold text-rose-400 mt-0.5">0 Ks</p>
+                    </div>
+                    <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
+                        <p class="text-[10px] text-slate-400 uppercase">Transactions</p>
+                        <p id="txSumCount" class="mono text-xs sm:text-sm font-extrabold text-blue-400 mt-0.5">0</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs whitespace-nowrap">
                     <thead class="text-slate-400 border-b border-slate-800 text-[11px] uppercase">
@@ -323,10 +390,12 @@
                     </thead>
                     <tbody id="txTableBody" class="divide-y divide-slate-800/70"></tbody>
                 </table>
-                <p id="emptyTxMsg" class="hidden text-center text-slate-500 text-xs py-6">No transactions recorded yet.</p>
+                <p id="emptyTxMsg" class="hidden text-center text-slate-500 text-xs py-6">No transactions found.</p>
             </div>
         </div>
     </div>
+
+    
     <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="glass max-w-sm w-full p-6 rounded-3xl text-center space-y-4 relative">
             <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full">✕</button>
@@ -353,6 +422,7 @@
             </div>
         </div>
     </div>
+
     <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="glass max-w-lg w-full p-6 rounded-3xl space-y-4 relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full">✕</button>
@@ -415,6 +485,8 @@
         let currentPass = sessionStorage.getItem('bank_pass') || '';
         let allAccounts = [];
         let allTransactions = [];
+        let cardTransactions = null; // Holds specific card's transactions when searching
+        let activeTxSearchDigits = '';
         let matchedAccount = null;
         let currentQrUrl = '';
         let currentQrFileName = 'acai_card_qr.png';
@@ -446,10 +518,14 @@
                 return { success: false, message: `Server error (${res.status})` };
             }
         }
+
+    
         document.getElementById('newCardLevel').addEventListener('change', (e) => {
             const rule = getRule(e.target.value);
             document.getElementById('initMinHint').textContent = `0 or Min ${rule.minDeposit.toLocaleString()} Ks`;
         });
+
+      
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
@@ -501,6 +577,8 @@
             sessionStorage.removeItem('bank_pass');
             location.reload();
         }
+
+    
         async function loadDashboard() {
             const res = await fetch('/api/bank/dashboard', {
                 headers: {
@@ -523,9 +601,17 @@
             document.getElementById('totalTxCount').textContent = allTransactions.length.toLocaleString();
 
             renderAccountsTable();
-            renderTxTable();
-            handleCardNumberLookup(); // Refresh live matched card preview
+            handleCardNumberLookup();
+
+        
+            if (activeTxSearchDigits.length === 16) {
+                await fetchCardTransactions(activeTxSearchDigits);
+            } else {
+                renderTxTable();
+            }
         }
+
+       
         const txCardInput = document.getElementById('txCardInput');
         txCardInput.addEventListener('input', () => {
             txCardInput.value = formatCardNum(txCardInput.value);
@@ -587,6 +673,113 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+     
+        const txSearchCardInput = document.getElementById('txSearchCard');
+        txSearchCardInput.addEventListener('input', () => {
+            txSearchCardInput.value = formatCardNum(txSearchCardInput.value);
+            const digits = normalizeDigits(txSearchCardInput.value);
+            if (digits.length === 0 && activeTxSearchDigits) {
+                clearCardTxSearch();
+            } else if (digits.length === 16) {
+                fetchCardTransactions(digits);
+            }
+        });
+
+        document.getElementById('txSearchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const digits = normalizeDigits(txSearchCardInput.value);
+            if (digits.length !== 16) {
+                const err = document.getElementById('txSearchError');
+                err.textContent = 'Please enter a complete 16-digit card number.';
+                err.classList.remove('hidden');
+                return;
+            }
+            fetchCardTransactions(digits);
+        });
+
+        document.getElementById('txFilterType').addEventListener('change', renderTxTable);
+
+        async function fetchCardTransactions(digits) {
+            const errEl = document.getElementById('txSearchError');
+            const btn = document.getElementById('txSearchBtn');
+            errEl.classList.add('hidden');
+            btn.disabled = true;
+            btn.textContent = 'Searching...';
+
+            try {
+                const res = await fetch(`/api/bank/transactions/${encodeURIComponent(digits)}`, {
+                    headers: {
+                        'x-admin-user': currentAdmin,
+                        'x-admin-pass': currentPass
+                    }
+                });
+                const data = await safeJson(res);
+
+                if (!data.success) {
+                    if (res.status === 401) return logout();
+                    errEl.textContent = data.message || 'No account found with this card number.';
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+
+                activeTxSearchDigits = digits;
+                cardTransactions = data.transactions || [];
+
+                const acc = data.account;
+                const sum = data.summary || {};
+                const rule = getRule(acc.card_level);
+
+                document.getElementById('txSectionTitle').textContent = `Transaction History — ${acc.name}`;
+                document.getElementById('txSectionSubtitle').textContent = `Showing complete history for Card ${acc.card_number}`;
+
+                document.getElementById('txSumPhoto').src =
+                    acc.photo_url || `https://ui-avatars.com/api/?background=1e293b&color=ffffff&name=${encodeURIComponent(acc.name)}`;
+                document.getElementById('txSumName').textContent = acc.name;
+                document.getElementById('txSumCard').textContent = acc.card_number;
+                document.getElementById('txSumBalance').textContent = `Balance: ${Number(acc.balance).toLocaleString()} Ks`;
+
+                const lvlBadge = document.getElementById('txSumLevel');
+                lvlBadge.textContent = rule.label;
+                lvlBadge.className = `text-[10px] font-bold px-2 py-0.5 rounded-full ${rule.badgeClass}`;
+
+                document.getElementById('txSumDeposit').textContent = `+${Number(sum.total_deposit || 0).toLocaleString()} Ks`;
+                document.getElementById('txSumWithdraw').textContent = `-${Number(sum.total_withdraw || 0).toLocaleString()} Ks`;
+                document.getElementById('txSumCount').textContent = Number(sum.tx_count || 0).toLocaleString();
+
+                document.getElementById('txCardSummary').classList.remove('hidden');
+                document.getElementById('txClearBtn').classList.remove('hidden');
+
+                renderTxTable();
+            } catch {
+                errEl.textContent = 'Network error while fetching transaction history.';
+                errEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Search Card';
+            }
+        }
+
+        function clearCardTxSearch() {
+            activeTxSearchDigits = '';
+            cardTransactions = null;
+            txSearchCardInput.value = '';
+            document.getElementById('txFilterType').value = 'all';
+            document.getElementById('txSearchError').classList.add('hidden');
+            document.getElementById('txCardSummary').classList.add('hidden');
+            document.getElementById('txClearBtn').classList.add('hidden');
+            document.getElementById('txSectionTitle').textContent = 'Recent Transactions (All Members)';
+            document.getElementById('txSectionSubtitle').textContent = "Enter a 16-digit card number to inspect a single member's complete history.";
+            renderTxTable();
+        }
+
+        function viewCardHistory(cardNumber) {
+            const digits = normalizeDigits(cardNumber);
+            txSearchCardInput.value = formatCardNum(digits);
+            fetchCardTransactions(digits);
+            document.getElementById('transactionsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+      
         function renderAccountsTable() {
             const q = document.getElementById('searchInput').value.trim().toLowerCase();
             const qDigits = normalizeDigits(q);
@@ -627,6 +820,7 @@
                     <td class="py-3.5 text-right space-x-1">
                         <button onclick="quickSelectCard('${safeCard}', 'deposit')" class="text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg hover:bg-emerald-500/25 font-semibold">+ In</button>
                         <button onclick="quickSelectCard('${safeCard}', 'withdraw')" class="text-xs bg-rose-500/15 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded-lg hover:bg-rose-500/25 font-semibold">- Out</button>
+                        <button onclick="viewCardHistory('${safeCard}')" class="text-xs bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 px-2.5 py-1 rounded-lg hover:bg-indigo-500/25 font-semibold">History</button>
                         <button onclick="openProfileModal('${safeCard}')" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg font-semibold">Info</button>
                         <button onclick="openQrModal('${safeCard}')" class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1 rounded-lg font-bold shadow">QR</button>
                     </td>
@@ -655,11 +849,15 @@
         function renderTxTable() {
             const tbody = document.getElementById('txTableBody');
             const emptyMsg = document.getElementById('emptyTxMsg');
+            const typeFilter = document.getElementById('txFilterType').value;
             tbody.innerHTML = '';
 
-            emptyMsg.classList.toggle('hidden', allTransactions.length > 0);
+            const source = cardTransactions !== null ? cardTransactions : allTransactions;
+            const list = source.filter(tx => typeFilter === 'all' || tx.type === typeFilter);
 
-            allTransactions.forEach(tx => {
+            emptyMsg.classList.toggle('hidden', list.length > 0);
+
+            list.forEach(tx => {
                 const badge = tx.type === 'deposit'
                     ? `<span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold">DEPOSIT</span>`
                     : `<span class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 font-bold">WITHDRAW</span>`;
@@ -797,6 +995,7 @@
                 btn.textContent = 'Confirm Transaction';
             }
         });
+
         function openQrModal(cardNumber) {
             const digits = normalizeDigits(cardNumber);
             const acc = allAccounts.find(a => normalizeDigits(a.card_number) === digits);
