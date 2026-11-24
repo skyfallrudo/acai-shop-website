@@ -43,7 +43,6 @@
 </head>
 <body class="min-h-screen p-3 sm:p-6">
 
-   
     <div id="loginScreen" class="max-w-md mx-auto mt-16 sm:mt-24 p-7 glass rounded-3xl">
         <div class="text-center mb-6">
             <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-500/15 border border-blue-500/30 mb-3 text-blue-400 font-extrabold text-lg">
@@ -68,11 +67,9 @@
             </button>
         </form>
     </div>
-
-  
     <div id="dashboardScreen" class="max-w-7xl mx-auto hidden space-y-5">
 
-       
+   
         <div class="glass p-4 sm:px-6 rounded-2xl flex flex-wrap justify-between items-center gap-3">
             <div>
                 <h1 class="text-lg sm:text-xl font-extrabold text-white">Açaí Shop — Member Bank</h1>
@@ -88,7 +85,7 @@
             </div>
         </div>
 
-   
+    
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="glass p-5 rounded-2xl">
                 <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Issued Cards</p>
@@ -107,7 +104,7 @@
       
         <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
 
-          
+    
             <div class="glass p-5 sm:p-6 rounded-2xl xl:col-span-7">
                 <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
                     <span class="w-2 h-4 rounded-full bg-emerald-500"></span>
@@ -181,13 +178,17 @@
                         <input type="text" id="newAddress" placeholder="Full residential address" class="w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white" required>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="text-xs text-slate-400">Distinguishing Mark</label>
-                            <input type="text" id="newMark" placeholder="e.g. Mole on left cheek / None" class="w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white">
+                            <input type="text" id="newMark" placeholder="e.g. Mole / None" class="w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white">
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400">Initial Deposit (Ks) — <span id="initMinHint" class="text-emerald-400">0 or Min 1,000 Ks</span></label>
+                            <label class="text-xs text-slate-400">6-Digit PIN (Auto if blank)</label>
+                            <input type="text" id="newPinCode" maxlength="6" inputmode="numeric" placeholder="Auto 6 digits" class="mono w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-amber-300 font-bold tracking-widest">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Initial Deposit — <span id="initMinHint" class="text-emerald-400">Min 1,000</span></label>
                             <input type="number" id="newInitDeposit" placeholder="0" min="0" step="any" class="mono w-full mt-1 p-2.5 rounded-xl input-modern text-sm text-white">
                         </div>
                     </div>
@@ -198,12 +199,12 @@
                     </div>
 
                     <button type="submit" id="createAccBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-sm text-white transition shadow-lg shadow-emerald-600/25">
-                        + Create Account & Generate 16-Digit Card + QR
+                        + Create Account & Generate Card + PIN + QR
                     </button>
                 </form>
             </div>
 
-      
+   
             <div class="glass p-5 sm:p-6 rounded-2xl xl:col-span-5 flex flex-col justify-between">
                 <div>
                     <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
@@ -225,7 +226,7 @@
                             >
                         </div>
 
-                      
+                 
                         <div id="matchedCardBox" class="hidden p-4 rounded-2xl bg-slate-900/90 border border-blue-500/40 space-y-2.5">
                             <div class="flex items-center gap-3">
                                 <img id="matchedPhoto" src="" alt="" class="w-12 h-12 rounded-xl object-cover border border-slate-700 bg-slate-800 hidden">
@@ -276,7 +277,6 @@
                     </form>
                 </div>
 
-               
                 <div class="mt-5 p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 text-[11px] text-slate-400 space-y-1">
                     <p class="font-bold text-slate-300 uppercase tracking-wider">Card Level Minimum Limits</p>
                     <p>• <span class="text-sky-400 font-semibold">Level 1:</span> Min 1,000 Ks deposit / Min 1,000 Ks withdraw</p>
@@ -286,7 +286,7 @@
             </div>
         </div>
 
-     
+   
         <div class="glass p-5 rounded-2xl space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                 <h2 class="text-base font-bold text-white">Member Accounts & Balances</h2>
@@ -312,6 +312,7 @@
             </div>
         </div>
 
+  
         <div id="transactionsSection" class="glass p-5 rounded-2xl space-y-4">
             <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3">
                 <div>
@@ -319,7 +320,7 @@
                     <p id="txSectionSubtitle" class="text-xs text-slate-400 mt-0.5">Enter a 16-digit card number to inspect a single member's complete history.</p>
                 </div>
 
-              
+        
                 <form id="txSearchForm" class="flex flex-wrap items-center gap-2">
                     <input
                         type="text"
@@ -343,9 +344,9 @@
                 </form>
             </div>
 
+         
             <p id="txSearchError" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/25 p-3 rounded-xl"></p>
 
-          
             <div id="txCardSummary" class="hidden p-4 rounded-2xl bg-slate-900/90 border border-blue-500/35 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                 <div class="md:col-span-5 flex items-center gap-3">
                     <img id="txSumPhoto" src="" alt="" class="w-12 h-12 rounded-xl object-cover border border-slate-700 bg-slate-800">
@@ -394,8 +395,6 @@
             </div>
         </div>
     </div>
-
-    
     <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="glass max-w-sm w-full p-6 rounded-3xl text-center space-y-4 relative">
             <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full">✕</button>
@@ -405,12 +404,21 @@
                 <p id="modalCardNum" class="mono text-sm font-bold text-blue-400 tracking-wider mt-1"></p>
                 <p id="modalMemberSince" class="mono text-xs text-slate-400 mt-0.5"></p>
             </div>
+            <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-center justify-between">
+                <div class="text-left">
+                    <p class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">Customer 6-Digit PIN</p>
+                    <p id="modalPinCode" class="mono text-lg font-extrabold text-white tracking-[0.25em] mt-0.5">------</p>
+                </div>
+                <button onclick="copyPinCode()" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 px-3 py-1.5 rounded-xl font-bold transition">
+                    Copy PIN
+                </button>
+            </div>
 
             <div class="bg-white p-4 rounded-2xl inline-block mx-auto shadow-xl">
                 <div id="qrcodeContainer"></div>
             </div>
 
-            <p class="text-[11px] text-slate-400">Scan QR or write the URL to an NFC card for instant balance check.</p>
+            <p class="text-[11px] text-slate-400">Customer must enter the 6-digit PIN after scanning QR / tapping NFC to view their balance.</p>
 
             <div class="grid grid-cols-2 gap-2.5 pt-1">
                 <button onclick="downloadQrImage()" class="bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl font-bold text-xs text-white transition">
@@ -422,7 +430,6 @@
             </div>
         </div>
     </div>
-
     <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="glass max-w-lg w-full p-6 rounded-3xl space-y-4 relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full">✕</button>
@@ -434,6 +441,25 @@
                     <h3 id="profName" class="text-xl font-extrabold text-white mt-1"></h3>
                     <p id="profCardNum" class="mono text-xs font-bold text-blue-400 tracking-wider"></p>
                     <p id="profBalance" class="mono text-sm font-extrabold text-emerald-400 mt-0.5"></p>
+                </div>
+            </div>
+
+
+            <div class="bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-2xl space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">Active 6-Digit PIN</p>
+                        <p id="profPinCode" class="mono text-lg font-extrabold text-white tracking-[0.25em]"></p>
+                    </div>
+                    <button type="button" onclick="resetProfilePin(true)" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 px-3 py-1.5 rounded-xl font-bold transition">
+                        Auto New PIN
+                    </button>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="profNewPinInput" maxlength="6" inputmode="numeric" placeholder="Enter custom 6-digit PIN" class="mono flex-1 px-3 py-2 rounded-xl input-modern text-xs text-white tracking-widest">
+                    <button type="button" onclick="resetProfilePin(false)" class="bg-blue-600 hover:bg-blue-500 px-3.5 py-2 rounded-xl text-xs font-bold text-white transition">
+                        Save PIN
+                    </button>
                 </div>
             </div>
 
@@ -485,11 +511,13 @@
         let currentPass = sessionStorage.getItem('bank_pass') || '';
         let allAccounts = [];
         let allTransactions = [];
-        let cardTransactions = null; // Holds specific card's transactions when searching
+        let cardTransactions = null;
         let activeTxSearchDigits = '';
         let matchedAccount = null;
         let currentQrUrl = '';
         let currentQrFileName = 'acai_card_qr.png';
+        let currentModalPin = '';
+        let activeProfileCard = '';
 
         function escapeHtml(str) {
             return String(str ?? '')
@@ -518,14 +546,15 @@
                 return { success: false, message: `Server error (${res.status})` };
             }
         }
-
-    
+        ['newPinCode', 'profNewPinInput'].forEach(id => {
+            document.getElementById(id).addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+            });
+        });
         document.getElementById('newCardLevel').addEventListener('change', (e) => {
             const rule = getRule(e.target.value);
-            document.getElementById('initMinHint').textContent = `0 or Min ${rule.minDeposit.toLocaleString()} Ks`;
+            document.getElementById('initMinHint').textContent = `Min ${rule.minDeposit.toLocaleString()}`;
         });
-
-      
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
@@ -577,8 +606,6 @@
             sessionStorage.removeItem('bank_pass');
             location.reload();
         }
-
-    
         async function loadDashboard() {
             const res = await fetch('/api/bank/dashboard', {
                 headers: {
@@ -603,15 +630,12 @@
             renderAccountsTable();
             handleCardNumberLookup();
 
-        
             if (activeTxSearchDigits.length === 16) {
                 await fetchCardTransactions(activeTxSearchDigits);
             } else {
                 renderTxTable();
             }
         }
-
-       
         const txCardInput = document.getElementById('txCardInput');
         txCardInput.addEventListener('input', () => {
             txCardInput.value = formatCardNum(txCardInput.value);
@@ -672,8 +696,6 @@
             document.getElementById('txAmount').focus();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
-     
         const txSearchCardInput = document.getElementById('txSearchCard');
         txSearchCardInput.addEventListener('input', () => {
             txSearchCardInput.value = formatCardNum(txSearchCardInput.value);
@@ -778,8 +800,6 @@
             fetchCardTransactions(digits);
             document.getElementById('transactionsSection').scrollIntoView({ behavior: 'smooth' });
         }
-
-      
         function renderAccountsTable() {
             const q = document.getElementById('searchInput').value.trim().toLowerCase();
             const qDigits = normalizeDigits(q);
@@ -882,8 +902,12 @@
             const btn = document.getElementById('createAccBtn');
             const cardLevel = Number(document.getElementById('newCardLevel').value);
             const initDeposit = parseFloat(document.getElementById('newInitDeposit').value) || 0;
+            const pinCode = document.getElementById('newPinCode').value.trim();
             const rule = getRule(cardLevel);
 
+            if (pinCode !== '' && !/^\d{6}$/.test(pinCode)) {
+                return alert('PIN must be exactly 6 digits (or leave blank to auto-generate).');
+            }
             if (initDeposit > 0 && initDeposit < rule.minDeposit) {
                 return alert(`Minimum initial deposit for ${rule.label} is ${rule.minDeposit.toLocaleString()} Ks.`);
             }
@@ -899,6 +923,7 @@
             formData.append('issued_by', document.getElementById('newIssuedBy').value.trim());
             formData.append('address', document.getElementById('newAddress').value.trim());
             formData.append('distinguishing_mark', document.getElementById('newMark').value.trim());
+            formData.append('pin_code', pinCode);
             formData.append('initial_deposit', String(initDeposit));
 
             const photoFile = document.getElementById('newPhoto').files[0];
@@ -922,7 +947,7 @@
 
                 if (data.success) {
                     document.getElementById('createAccForm').reset();
-                    document.getElementById('initMinHint').textContent = '0 or Min 1,000 Ks';
+                    document.getElementById('initMinHint').textContent = 'Min 1,000';
                     await loadDashboard();
                     openQrModal(data.card_number);
                 } else {
@@ -932,7 +957,7 @@
                 alert('Failed to create account. Please check your connection.');
             } finally {
                 btn.disabled = false;
-                btn.textContent = '+ Create Account & Generate 16-Digit Card + QR';
+                btn.textContent = '+ Create Account & Generate Card + PIN + QR';
             }
         });
         document.getElementById('txForm').addEventListener('submit', async (e) => {
@@ -1009,6 +1034,8 @@
             document.getElementById('modalCustName').textContent = acc.name;
             document.getElementById('modalCardNum').textContent = acc.card_number;
             document.getElementById('modalMemberSince').textContent = `MEMBER SINCE ${acc.member_since || '-'}`;
+            currentModalPin = acc.pin_code || '------';
+            document.getElementById('modalPinCode').textContent = currentModalPin;
 
             currentQrUrl = `${window.location.origin}/bank/card?t=${acc.qr_token}`;
             currentQrFileName = `QR_${normalizeDigits(acc.card_number)}.png`;
@@ -1035,6 +1062,11 @@
             modal.classList.remove('flex');
         }
 
+        function copyPinCode() {
+            navigator.clipboard.writeText(currentModalPin);
+            alert(`PIN (${currentModalPin}) copied!`);
+        }
+
         function downloadQrImage() {
             const canvas = document.querySelector('#qrcodeContainer canvas');
             const img = document.querySelector('#qrcodeContainer img');
@@ -1056,6 +1088,7 @@
             const acc = allAccounts.find(a => normalizeDigits(a.card_number) === digits);
             if (!acc) return;
 
+            activeProfileCard = digits;
             const rule = getRule(acc.card_level);
             const badge = document.getElementById('profLevelBadge');
             badge.textContent = rule.label;
@@ -1067,6 +1100,8 @@
             document.getElementById('profName').textContent = acc.name;
             document.getElementById('profCardNum').textContent = acc.card_number;
             document.getElementById('profBalance').textContent = `${Number(acc.balance).toLocaleString()} Ks`;
+            document.getElementById('profPinCode').textContent = acc.pin_code || '------';
+            document.getElementById('profNewPinInput').value = '';
             document.getElementById('profFather').textContent = acc.father_name || '-';
             document.getElementById('profPhone').textContent = acc.phone || '-';
             document.getElementById('profDob').textContent = acc.dob || '-';
@@ -1085,6 +1120,42 @@
             const modal = document.getElementById('profileModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+        }
+
+        async function resetProfilePin(autoGenerate) {
+            if (!activeProfileCard) return;
+            const customPin = autoGenerate ? '' : document.getElementById('profNewPinInput').value.trim();
+
+            if (!autoGenerate && !/^\d{6}$/.test(customPin)) {
+                return alert('Please enter a 6-digit PIN.');
+            }
+
+            if (!confirm(autoGenerate ? 'Generate a new random 6-digit PIN for this card?' : `Change card PIN to ${customPin}?`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/bank/accounts/${encodeURIComponent(activeProfileCard)}/pin`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-user': currentAdmin,
+                        'x-admin-pass': currentPass
+                    },
+                    body: JSON.stringify({ pin_code: customPin })
+                });
+                const data = await safeJson(res);
+                if (data.success) {
+                    document.getElementById('profPinCode').textContent = data.pin_code;
+                    document.getElementById('profNewPinInput').value = '';
+                    await loadDashboard();
+                    alert(`PIN updated successfully! New PIN: ${data.pin_code}`);
+                } else {
+                    alert(data.message);
+                }
+            } catch {
+                alert('Network error while updating PIN.');
+            }
         }
 
         if (currentAdmin && currentPass) showDashboard();

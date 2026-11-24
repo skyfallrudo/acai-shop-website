@@ -10,8 +10,6 @@ const db = createClient({
     url: (process.env.BMK_DATABASE_URL || process.env.TURSO_DATABASE_URL || '').trim(),
     authToken: (process.env.BMK_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || '').trim()
 });
-
-
 const hasCloudinary = !!(
     process.env.CLOUDINARY_CLOUD_NAME &&
     process.env.CLOUDINARY_API_KEY &&
@@ -46,8 +44,6 @@ const uploadPhoto = multer({
         cb(new Error('Only image files (JPG, PNG, WEBP) are allowed.'));
     }
 });
-
-
 const LEVEL_RULES = {
     1: { level: 1, label: 'Level 1', minDeposit: 1000, minWithdraw: 1000 },
     2: { level: 2, label: 'Level 2', minDeposit: 10000, minWithdraw: 10000 },
@@ -57,8 +53,9 @@ const LEVEL_RULES = {
 function getLevelRule(level) {
     return LEVEL_RULES[Number(level)] || LEVEL_RULES[1];
 }
-
-
+const pinAttempts = new Map();
+const MAX_PIN_ATTEMPTS = 5;
+const PIN_LOCK_MS = 5 * 60 * 1000;
 function getMyanmarISO() {
     const now = new Date();
     const mmt = new Date(now.getTime() + 6.5 * 60 * 60 * 1000);
@@ -89,9 +86,19 @@ function formatCardNumber(digits) {
     return clean.replace(/(\d{4})(?=\d)/g, '$1 ');
 }
 
+function maskCardNumber(cardNumber) {
+    const digits = normalizeCardDigits(cardNumber);
+    const last4 = digits.slice(-4) || '0000';
+    return `•••• •••• •••• ${last4}`;
+}
+
+function generateSixDigitPin() {
+    return String(crypto.randomInt(100000, 1000000));
+}
+
 async function generateUniqueCardNumber() {
     for (let attempt = 0; attempt < 20; attempt++) {
-        let digits = String(crypto.randomInt(1, 10)); // First digit 1-9
+        let digits = String(crypto.randomInt(1, 10));
         for (let i = 0; i < 15; i++) {
             digits += String(crypto.randomInt(0, 10));
         }
@@ -114,6 +121,7 @@ const bankTablesReady = (async () => {
                 customer_id TEXT UNIQUE NOT NULL,
                 card_number TEXT DEFAULT '',
                 qr_token TEXT UNIQUE NOT NULL,
+                pin_code TEXT DEFAULT '',
                 name TEXT NOT NULL,
                 father_name TEXT DEFAULT '',
                 phone TEXT NOT NULL,
@@ -133,6 +141,7 @@ const bankTablesReady = (async () => {
 
         const accountMigrations = [
             ['card_number', "TEXT DEFAULT ''"],
+            ['pin_code', "TEXT DEFAULT ''"],
             ['father_name', "TEXT DEFAULT ''"],
             ['address', "TEXT DEFAULT ''"],
             ['distinguishing_mark', "TEXT DEFAULT ''"],
@@ -170,30 +179,40 @@ const bankTablesReady = (async () => {
             await db.execute(`ALTER TABLE bank_transactions ADD COLUMN card_number TEXT DEFAULT ''`);
         } catch (e) {}
 
+        // Backfill older accounts missing card_number, member_since, or 6-digit pin_code
         const legacyRows = await db.execute(
-            `SELECT id, created_at, card_number, member_since FROM bank_accounts WHERE card_number IS NULL OR card_number = '' OR member_since IS NULL OR member_since = ''`
+            `SELECT id, created_at, card_number, member_since, pin_code
+             FROM bank_accounts
+             WHERE card_number IS NULL OR card_number = ''
+                OR member_since IS NULL OR member_since = ''
+                OR pin_code IS NULL OR pin_code = ''`
         );
         for (const row of legacyRows.rows) {
             const newCard = row.card_number && normalizeCardDigits(row.card_number).length === 16
                 ? formatCardNumber(row.card_number)
                 : await generateUniqueCardNumber();
+
             let memberSince = row.member_since;
             if (!memberSince) {
                 const parsedDate = row.created_at ? new Date(row.created_at) : new Date();
                 memberSince = getMyanmarMemberSince(isNaN(parsedDate.getTime()) ? new Date() : parsedDate);
             }
+
+            const pinCode = /^\d{6}$/.test(String(row.pin_code || ''))
+                ? String(row.pin_code)
+                : generateSixDigitPin();
+
             await db.execute({
-                sql: `UPDATE bank_accounts SET card_number = ?, member_since = ? WHERE id = ?`,
-                args: [newCard, memberSince, row.id]
+                sql: `UPDATE bank_accounts SET card_number = ?, member_since = ?, pin_code = ? WHERE id = ?`,
+                args: [newCard, memberSince, pinCode, row.id]
             });
         }
 
-        console.log('✅ Acai Bank Database tables & migrations ready!');
+        console.log('✅ Acai Bank Database tables & PIN migrations ready!');
     } catch (err) {
         console.error('❌ Acai Bank DB Error:', err.message);
     }
 })();
-
 function getAdmins() {
     const list = [
         { username: process.env.BANK_ADMIN_USER, pass: process.env.BANK_ADMIN_PASS },
@@ -259,7 +278,6 @@ router.get('/dashboard', verifyAdmin, async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to load dashboard data.' });
     }
 });
-
 router.post(
     '/accounts',
     verifyAdmin,
@@ -289,6 +307,7 @@ router.post(
             const cardLevel = Number(body.card_level || 1);
             const bloodType = String(body.blood_type || '').trim();
             const gender = String(body.gender || '').trim();
+            const rawPin = String(body.pin_code || '').trim();
             const initAmtRaw = String(body.initial_deposit ?? '').trim();
             const initAmt = initAmtRaw === '' ? 0 : parseFloat(initAmtRaw);
 
@@ -306,6 +325,14 @@ router.post(
                 });
             }
 
+            if (rawPin !== '' && !/^\d{6}$/.test(rawPin)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'PIN must be exactly 6 digits (or leave blank to auto-generate).'
+                });
+            }
+
+            const pinCode = rawPin || generateSixDigitPin();
             const rule = getLevelRule(cardLevel);
 
             if (!Number.isFinite(initAmt) || initAmt < 0) {
@@ -338,14 +365,15 @@ router.post(
 
             await db.execute({
                 sql: `INSERT INTO bank_accounts (
-                    customer_id, card_number, qr_token, name, father_name, phone,
+                    customer_id, card_number, qr_token, pin_code, name, father_name, phone,
                     address, distinguishing_mark, dob, issued_by, card_level,
                     blood_type, gender, photo_url, member_since, balance, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 args: [
                     cardNumber,
                     cardNumber,
                     qrToken,
+                    pinCode,
                     name,
                     fatherName,
                     phone,
@@ -377,7 +405,8 @@ router.post(
                 success: true,
                 card_number: cardNumber,
                 member_since: memberSince,
-                qr_token: qrToken
+                qr_token: qrToken,
+                pin_code: pinCode
             });
         } catch (err) {
             console.error('Create Account Error:', err);
@@ -385,6 +414,46 @@ router.post(
         }
     }
 );
+router.patch('/accounts/:cardNumber/pin', verifyAdmin, async (req, res) => {
+    try {
+        await bankTablesReady;
+        const digits = normalizeCardDigits(req.params.cardNumber);
+        const rawPin = String((req.body || {}).pin_code || '').trim();
+
+        if (digits.length !== 16) {
+            return res.status(400).json({ success: false, message: 'Invalid 16-digit card number.' });
+        }
+
+        if (rawPin !== '' && !/^\d{6}$/.test(rawPin)) {
+            return res.status(400).json({
+                success: false,
+                message: 'PIN must be exactly 6 digits (or leave blank to auto-generate).'
+            });
+        }
+
+        const newPin = rawPin || generateSixDigitPin();
+        const formattedCard = formatCardNumber(digits);
+
+        const accRes = await db.execute({
+            sql: `SELECT id FROM bank_accounts WHERE card_number = ? OR REPLACE(card_number, ' ', '') = ?`,
+            args: [formattedCard, digits]
+        });
+
+        if (accRes.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Account not found.' });
+        }
+
+        await db.execute({
+            sql: `UPDATE bank_accounts SET pin_code = ? WHERE id = ?`,
+            args: [newPin, accRes.rows[0].id]
+        });
+
+        res.json({ success: true, pin_code: newPin });
+    } catch (err) {
+        console.error('Update PIN Error:', err);
+        res.status(500).json({ success: false, message: 'Failed to update PIN.' });
+    }
+});
 router.post('/transaction', verifyAdmin, async (req, res) => {
     try {
         await bankTablesReady;
@@ -484,31 +553,6 @@ router.post('/transaction', verifyAdmin, async (req, res) => {
         res.status(500).json({ success: false, message: 'Transaction failed. Please try again.' });
     }
 });
-router.get('/public/:token', async (req, res) => {
-    try {
-        await bankTablesReady;
-        const token = String(req.params.token || '').trim();
-
-        const resDb = await db.execute({
-            sql: `SELECT card_number, member_since, name, phone, card_level, balance
-                  FROM bank_accounts
-                  WHERE qr_token = ?`,
-            args: [token]
-        });
-
-        if (resDb.rows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'Card not found or invalid QR code.'
-            });
-        }
-
-        res.json({ success: true, data: resDb.rows[0] });
-    } catch (err) {
-        console.error('Public Card Error:', err);
-        res.status(500).json({ success: false, message: 'Server error. Please try again.' });
-    }
-});
 router.get('/transactions/:cardNumber', verifyAdmin, async (req, res) => {
     try {
         await bankTablesReady;
@@ -569,4 +613,110 @@ router.get('/transactions/:cardNumber', verifyAdmin, async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to load card transaction history.' });
     }
 });
+router.get('/public/:token', async (req, res) => {
+    try {
+        await bankTablesReady;
+        const token = String(req.params.token || '').trim();
+
+        const resDb = await db.execute({
+            sql: `SELECT card_number, card_level FROM bank_accounts WHERE qr_token = ?`,
+            args: [token]
+        });
+
+        if (resDb.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Card not found or invalid QR code.'
+            });
+        }
+
+        const row = resDb.rows[0];
+        res.json({
+            success: true,
+            locked: true,
+            data: {
+                masked_card: maskCardNumber(row.card_number),
+                card_level: row.card_level
+            }
+        });
+    } catch (err) {
+        console.error('Public Card Check Error:', err);
+        res.status(500).json({ success: false, message: 'Server error. Please try again.' });
+    }
+});
+router.post('/public/:token/unlock', async (req, res) => {
+    try {
+        await bankTablesReady;
+        const token = String(req.params.token || '').trim();
+        const pin = String((req.body || {}).pin || '').trim();
+
+        if (!/^\d{6}$/.test(pin)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid 6-digit PIN.'
+            });
+        }
+
+        const attemptKey = `${token}:${req.ip || 'unknown'}`;
+        const now = Date.now();
+        const record = pinAttempts.get(attemptKey);
+
+        if (record && record.lockedUntil && record.lockedUntil > now) {
+            const minsLeft = Math.ceil((record.lockedUntil - now) / 60000);
+            return res.status(429).json({
+                success: false,
+                message: `Too many incorrect attempts. Please try again in ${minsLeft} minute(s).`
+            });
+        }
+
+        const resDb = await db.execute({
+            sql: `SELECT card_number, member_since, name, phone, card_level, balance, pin_code, photo_url
+                  FROM bank_accounts
+                  WHERE qr_token = ?`,
+            args: [token]
+        });
+
+        if (resDb.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Card not found or invalid QR code.'
+            });
+        }
+
+        const account = resDb.rows[0];
+
+        if (String(account.pin_code || '').trim() !== pin) {
+            const fails = (record && (!record.lockedUntil || record.lockedUntil <= now) ? record.fails : 0) + 1;
+            if (fails >= MAX_PIN_ATTEMPTS) {
+                pinAttempts.set(attemptKey, { fails, lockedUntil: now + PIN_LOCK_MS });
+                return res.status(429).json({
+                    success: false,
+                    message: 'Too many incorrect PIN attempts. Card locked for 5 minutes.'
+                });
+            }
+            pinAttempts.set(attemptKey, { fails, lockedUntil: 0 });
+            return res.status(401).json({
+                success: false,
+                message: `Incorrect PIN. ${MAX_PIN_ATTEMPTS - fails} attempt(s) remaining.`
+            });
+        }
+        pinAttempts.delete(attemptKey);
+res.json({
+    success: true,
+    data: {
+        card_number: account.card_number,
+        member_since: account.member_since,
+        name: account.name,
+        phone: account.phone,
+        card_level: account.card_level,
+        balance: account.balance,
+        photo_url: account.photo_url || ''
+    }
+});
+    } catch (err) {
+        console.error('Public Card Unlock Error:', err);
+        res.status(500).json({ success: false, message: 'Server error. Please try again.' });
+    }
+});
+
 module.exports = router;
