@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acai Shop</title>
-    
+
     <link rel="icon" href="./logo.ico?v=2" type="image/x-icon">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -12,160 +12,381 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="language.js"></script>
 
     <style>
-        
+        /* --- Summer Smoothie Stand (Light Default) --- */
         :root {
-            --bg-color: #f8fafc;
-            --text-color: #0f172a;
-            --card-bg: #ffffff;
-            --nav-bg: rgba(255, 255, 255, 0.85);
-            --border-color: rgba(0, 0, 0, 0.08);
-            --primary-blue: #2563eb;
-            --accent-text: #2563eb;
-            --subtext-color: #64748b;
+            --bg-cream: #fff8ee;
+            --bg-sand: #f7ead8;
+            --surface: #ffffff;
+            --ink: #220d20;
+            --muted: #6e546b;
+
+            /* Tropical Açai Palette */
+            --acai: #4e154c;
+            --acai-deep: #340b33;
+            --berry: #e1416f;
+            --mango: #ffb703;
+            --mint: #2a9d8f;
+            --peach: #ffd6a5;
+
+            --border-ink: #220d20;
+            --shadow-ink: #220d20;
+            --soft-line: rgba(34, 13, 32, 0.14);
+            --card-img-bg: #f6e7d8;
+            --ticker-bg: #4e154c;
+            --ticker-text: #fff8ee;
         }
 
-        /* --- Dark Mode --- */
+        /* --- Summer Night Juice Bar (Dark Mode) --- */
         [data-theme="dark"] {
-            --bg-color: #05080f;
-            --text-color: #ffffff;
-            --card-bg: #0f172a;
-            --nav-bg: rgba(15, 23, 42, 0.85);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --primary-blue: #2563eb;
-            --accent-text: #60a5fa;
-            --subtext-color: #94a3b8;
+            --bg-cream: #130914;
+            --bg-sand: #1e0f20;
+            --surface: #261428;
+            --ink: #fff6ea;
+            --muted: #c2a7bf;
+
+            --acai: #d46bc9;
+            --acai-deep: #b84fae;
+            --berry: #ff5d8f;
+            --mango: #ffc436;
+            --mint: #52c7b8;
+            --peach: #43213f;
+
+            --border-ink: #573359;
+            --shadow-ink: #080309;
+            --soft-line: rgba(255, 246, 234, 0.14);
+            --card-img-bg: #1a0c1c;
+            --ticker-bg: #2e1231;
+            --ticker-text: #ffc436;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Myanmar', sans-serif;
         }
 
         html, body {
             width: 100%;
             min-height: 100vh;
             overflow-x: hidden;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s ease, color 0.3s ease;
+            background-color: var(--bg-cream);
+            color: var(--ink);
+            transition: background-color 0.25s ease, color 0.25s ease;
+            -webkit-font-smoothing: antialiased;
         }
 
-       
-        @keyframes spin {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        @keyframes spin-search {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        .language-select {
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            color: var(--text-color);
-            outline: none;
-            cursor: pointer;
-            backdrop-filter: blur(12px);
+        /* Subtle warm grain texture */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
 
-        .language-select option {
-            background: #111827;
-            color: white;
+        h1, h2, h3, .display-font {
+            font-family: 'Bricolage Grotesque', 'Noto Sans Myanmar', sans-serif;
+        }
+
+        /* --- 1. Top Summer Marquee Strip --- */
+        .marquee-strip {
+            width: 100%;
+            background: var(--ticker-bg);
+            color: var(--ticker-text);
+            overflow: hidden;
+            padding: 8px 0;
+            border-bottom: 2px solid var(--border-ink);
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .marquee-track {
+            display: flex;
+            width: max-content;
+            gap: 32px;
+            animation: scroll-marquee 26s linear infinite;
+        }
+
+        .marquee-track span {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .marquee-track i {
+            color: var(--mango);
+            font-size: 11px;
+        }
+
+        @keyframes scroll-marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* --- 2. Detached Floating Island Navbar --- */
+        .nav-shell {
+            position: sticky;
+            top: 10px;
+            z-index: 120;
+            padding: 0 4%;
+            margin-top: 14px;
         }
 
         nav {
+            max-width: 1240px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 18px 6%;
-            background: var(--nav-bg);
-            backdrop-filter: blur(18px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid var(--border-color);
+            padding: 10px 18px;
+            background: var(--surface);
+            border: 2px solid var(--border-ink);
+            border-radius: 22px;
+            box-shadow: 0 5px 0 var(--shadow-ink);
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 11px;
             cursor: pointer;
         }
 
         .logo img {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background: white;
-            padding: 3px;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: #fff8ee;
+            padding: 2px;
+            border: 2px solid var(--border-ink);
+            object-fit: cover;
+            box-shadow: 2px 2px 0 var(--mango);
+            transition: transform 0.2s ease;
+        }
+
+        .logo:hover img {
+            transform: rotate(-8deg) scale(1.05);
+        }
+
+        .logo-text-wrap {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.05;
         }
 
         .logo h2 {
-            font-size: 22px;
-            font-weight: 600;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+        }
+
+        .logo-sub {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--berry);
         }
 
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 10px;
         }
 
+        /* Squircle 3D Tactile Buttons */
         .icon-btn {
             width: 42px;
             height: 42px;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 50%;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
+            border-radius: 14px;
+            background: var(--bg-cream);
+            border: 2px solid var(--border-ink);
+            box-shadow: 0 3px 0 var(--shadow-ink);
+            color: var(--ink);
             text-decoration: none;
             cursor: pointer;
-            transition: 0.3s;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
         }
 
         .icon-btn:hover {
-            background: var(--primary-blue);
-            color: white;
-            border-color: var(--primary-blue);
+            background: var(--mango);
+            color: #220d20;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 var(--shadow-ink);
+        }
+
+        .icon-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 var(--shadow-ink);
+        }
+
+        .language-select {
+            height: 42px;
+            padding: 0 12px;
+            border-radius: 14px;
+            border: 2px solid var(--border-ink);
+            box-shadow: 0 3px 0 var(--shadow-ink);
+            background: var(--bg-cream);
+            color: var(--ink);
+            font-size: 12.5px;
+            font-weight: 700;
+            outline: none;
+            cursor: pointer;
+            transition: transform 0.12s ease;
+        }
+
+        .language-select:hover {
+            background: var(--bg-sand);
+        }
+
+        .language-select option {
+            background: var(--surface);
+            color: var(--ink);
         }
 
         .sign-btn {
-            padding: 10px 18px;
-            border-radius: 12px;
-            background: var(--primary-blue);
-            color: white;
+            height: 42px;
+            padding: 0 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border-radius: 14px;
+            background: var(--berry);
+            color: #ffffff;
             text-decoration: none;
-            font-weight: 500;
-            transition: 0.3s;
+            font-size: 13px;
+            font-weight: 800;
+            border: 2px solid var(--border-ink);
+            box-shadow: 0 3px 0 var(--shadow-ink);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
         }
 
-        
-        .sub-nav {
+        .sign-btn:hover {
+            background: var(--acai);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 var(--shadow-ink);
+        }
+
+        .sign-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 var(--shadow-ink);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -7px;
+            right: -7px;
+            background: var(--berry);
+            color: #ffffff;
+            min-width: 21px;
+            height: 21px;
+            padding: 0 4px;
+            border-radius: 8px;
+            border: 2px solid var(--border-ink);
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 12px;
-            padding: 12px 6%;
-            background: var(--nav-bg);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 79px;
-            z-index: 99;
+            font-size: 10.5px;
+            font-weight: 800;
+            transform: rotate(6deg);
+        }
+
+        /* --- Profile Dropdown --- */
+        #profile-area {
+            display: none;
+            position: relative;
+        }
+
+        #profile-menu {
+            display: none;
+            position: absolute;
+            top: 54px;
+            right: 0;
+            width: 230px;
+            background: var(--surface);
+            border: 2px solid var(--border-ink);
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 5px 5px 0 var(--shadow-ink);
+            z-index: 200;
+        }
+
+        .user-email-text {
+            display: block;
+            color: var(--acai);
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        #profile-menu hr {
+            border: none;
+            border-top: 2px dashed var(--soft-line);
+            margin: 10px 0;
+        }
+
+        #profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            color: var(--ink);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 700;
+            border-radius: 10px;
+            transition: background 0.15s;
+        }
+
+        #profile-menu a:hover {
+            background: var(--bg-sand);
+        }
+
+        .logout-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px 12px;
+            border: 2px solid var(--border-ink);
+            border-radius: 12px;
+            background: var(--berry);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 3px 0 var(--shadow-ink);
+            transition: transform 0.12s, box-shadow 0.12s;
+        }
+
+        .logout-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 var(--shadow-ink);
+        }
+
+        /* --- 3. Café Board Menu Bar (Non-Pill Sub-Nav) --- */
+        .sub-nav {
+            max-width: 1240px;
+            margin: 14px auto 0;
+            padding: 10px 4%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
             overflow-x: auto;
             white-space: nowrap;
             scrollbar-width: none;
@@ -175,201 +396,325 @@
 
         .sub-nav a {
             flex: 0 0 auto;
-            position: relative;
-            color: var(--text-color);
+            color: var(--ink);
             text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 999px;
-            display: flex;
+            font-size: 12.5px;
+            font-weight: 700;
+            padding: 7px 12px;
+            border-radius: 10px;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .sub-nav a i {
+            color: var(--berry);
+            font-size: 12.5px;
+        }
+
+        .sub-nav a:hover {
+            background: var(--bg-sand);
+            border-bottom-color: var(--acai);
+            transform: translateY(-2px);
+        }
+
+        /* --- 4. Split Editorial Summer Hero --- */
+        .hero-section {
+            max-width: 1240px;
+            margin: 18px auto 10px;
+            padding: 0 4%;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.85fr;
+            gap: 28px;
+            align-items: center;
+            background: var(--bg-sand);
+            border: 2px solid var(--border-ink);
+            border-radius: 30px;
+            padding: 36px 40px;
+            box-shadow: 6px 6px 0 var(--shadow-ink);
+            position: relative;
             overflow: hidden;
-            background: transparent;
-            transition: transform 0.3s ease;
         }
 
-        .sub-nav a::before {
-            content: '';
+        .hero-grid::before {
+            content: "";
             position: absolute;
-            top: -200%;
-            left: -50%;
-            width: 200%;
-            height: 500%;
-            background: conic-gradient(#F09EA7,#F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB,#F6C2F3);
-            animation: spin 3s linear infinite;
-            z-index: 1;
+            top: -80px;
+            right: -60px;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 183, 3, 0.32), transparent 70%);
+            pointer-events: none;
         }
 
-        .sub-nav a::after {
-            content: '';
-            position: absolute;
-            inset: 2px;
-            background: var(--card-bg);
-            border-radius: 999px;
+        .hero-left {
+            position: relative;
             z-index: 2;
         }
 
-        .sub-nav a span, .sub-nav a i {
-            position: relative;
-            z-index: 3;
-        }
-
-        .sub-nav a i { color: var(--accent-text); }
-        .sub-nav a:hover { transform: translateY(-2px); }
-
-        #profile-area {
-            display: none;
-            position: relative;
-        }
-
-        #profile-menu {
-            display: none;
-            position: absolute;
-            top: 55px;
-            right: 0;
-            width: 210px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            z-index: 100;
-        }
-
-        .user-email-text {
-            display: block;
-            color: var(--accent-text);
-            font-size: 13px;
-            margin-bottom: 10px;
-            word-break: break-all;
-        }
-
-        #profile-menu hr {
-            border: none;
-            border-top: 1px solid var(--border-color);
-            margin: 10px 0;
-        }
-
-        #profile-menu a {
-            display: flex;
+        .hero-kicker {
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-            color: var(--text-color);
-            text-decoration: none;
-            font-size: 14px;
+            gap: 8px;
+            padding: 6px 14px;
+            background: var(--mango);
+            color: #220d20;
+            border: 2px solid var(--border-ink);
+            border-radius: 10px;
+            font-size: 11.5px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            transform: rotate(-1.5deg);
+            margin-bottom: 18px;
+            box-shadow: 3px 3px 0 var(--shadow-ink);
         }
 
-        .logout-btn {
-            width: 100%;
-            margin-top: 8px;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 8px;
-            background: #ef4444;
-            color: white;
+        .hero-title {
+            font-size: clamp(32px, 4.4vw, 52px);
+            font-weight: 800;
+            line-height: 1.04;
+            letter-spacing: -0.03em;
+            margin-bottom: 14px;
+            color: var(--ink);
+        }
+
+        .hero-title .highlight {
+            color: var(--berry);
+            text-decoration: underline wavy var(--mango) 3px;
+            text-underline-offset: 6px;
+        }
+
+        .hero-copy {
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 470px;
+            margin-bottom: 24px;
             font-weight: 500;
-            cursor: pointer;
-        }
-        .hero {
-            text-align: center;
-            padding: 35px 6% 25px;
-        }
-        .hero-logo {
-            display: block;
-            width: 400px;
-            max-width: 75%;
-            height: auto;
-            margin: -100px auto -100px; 
         }
 
-        
+        /* Chunky 3D Search Bar */
         .search {
             position: relative;
             max-width: 500px;
-            margin: 0 auto;
-            border-radius: 999px;
-            overflow: hidden;
             display: flex;
             align-items: center;
-            background: transparent;
-            padding: 2px;
+            background: var(--surface);
+            border: 2px solid var(--border-ink);
+            border-radius: 18px;
+            padding: 5px 6px 5px 16px;
+            box-shadow: 0 5px 0 var(--shadow-ink);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
-        .search::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 650px;
-            height: 650px;
-            background: conic-gradient(#F09EA7, #F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB, #F6C2F3);
-            animation: spin-search 3s linear infinite;
-            z-index: 1;
-        }
-
-        .search::after {
-            content: '';
-            position: absolute;
-            inset: 2px;
-            background: var(--card-bg);
-            border-radius: 999px;
-            z-index: 2;
-        }
-
-        .search input {
-            position: relative;
-            z-index: 3;
-            width: 100%;
-            padding: 14px 20px 14px 50px;
-            border: none;
-            outline: none;
-            background: transparent;
-            color: var(--text-color);
-            font-size: 15px;
+        .search:focus-within {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 var(--berry);
         }
 
         .search i {
+            color: var(--acai);
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        .search input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--ink);
+            font-size: 14.5px;
+            font-weight: 600;
+            padding: 10px 6px;
+        }
+
+        .search input::placeholder {
+            color: var(--muted);
+        }
+
+        .search-go-badge {
+            flex-shrink: 0;
+            padding: 9px 15px;
+            border-radius: 12px;
+            background: var(--acai);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 800;
+            border: 2px solid var(--border-ink);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        /* Right Side Tilted Polaroid Logo Card */
+        .hero-right {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+        }
+
+        .poster-card {
+            width: 100%;
+            max-width: 340px;
+            background: var(--surface);
+            border: 2px solid var(--border-ink);
+            border-radius: 26px;
+            padding: 16px;
+            box-shadow: 7px 7px 0 var(--acai);
+            transform: rotate(2deg);
+            transition: transform 0.25s ease;
+            position: relative;
+        }
+
+        .poster-card:hover {
+            transform: rotate(0deg) translateY(-4px);
+        }
+
+        .poster-sticker {
             position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--accent-text);
-            z-index: 3;
-            font-size: 15px;
+            top: -16px;
+            right: -14px;
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            background: var(--berry);
+            color: #ffffff;
+            border: 2px solid var(--border-ink);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bricolage Grotesque', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            line-height: 1.05;
+            text-transform: uppercase;
+            transform: rotate(12deg);
+            box-shadow: 3px 3px 0 var(--shadow-ink);
+            z-index: 4;
+        }
+
+        .poster-logo-stage {
+            height: 205px;
+            border-radius: 18px;
+            background: linear-gradient(145deg, #4e154c 0%, #832161 52%, #e1416f 100%);
+            border: 2px solid var(--border-ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-logo {
+            width: 280px;
+            max-width: 112%;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.25));
+        }
+
+        .poster-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 13px;
+            gap: 8px;
+        }
+
+        .flavor-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .flavor-tags span {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 9px;
+            border-radius: 8px;
+            background: var(--bg-sand);
+            border: 1.5px solid var(--border-ink);
+            color: var(--ink);
+        }
+
+        /* --- 5. Mechanical Push-Key Category Board --- */
+        .category-wrap {
+            max-width: 1240px;
+            margin: 28px auto 12px;
+            padding: 0 4%;
         }
 
         .categories {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
-            padding: 20px 6%;
         }
 
         .categories button {
-            padding: 10px 20px;
-            border: 1px solid var(--border-color);
-            border-radius: 999px;
-            background: var(--card-bg);
-            color: var(--text-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 20px;
+            border: 2px solid var(--border-ink);
+            border-radius: 14px;
+            background: var(--surface);
+            color: var(--ink);
             cursor: pointer;
-            font-weight: 500;
-            transition: 0.3s;
+            font-family: 'Bricolage Grotesque', 'Noto Sans Myanmar', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 4px 0 var(--shadow-ink);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
         }
 
-        .categories button:hover,
+        .categories button::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border-ink);
+            background: var(--mango);
+            flex-shrink: 0;
+        }
+
+        .categories button[data-category="keychain"]::before { background: var(--berry); }
+        .categories button[data-category="squishy"]::before { background: var(--mint); }
+        .categories button[data-category="jewelry"]::before { background: #a855f7; }
+        .categories button[data-category="accessories"]::before { background: #fb8500; }
+
+        .categories button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 var(--shadow-ink);
+            background: var(--bg-sand);
+        }
+
         .categories button.active {
-            background: var(--primary-blue);
-            color: white;
-            border-color: var(--primary-blue);
+            background: var(--acai);
+            color: #ffffff;
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 var(--shadow-ink);
         }
 
+        .categories button.active::before {
+            background: var(--mango);
+            border-color: #ffffff;
+        }
+
+        /* --- 6. Product Menu Shelf --- */
         .section {
-            padding: 10px 6% 30px;
-            max-width: 1250px;
+            padding: 20px 4% 36px;
+            max-width: 1240px;
             margin: 0 auto;
         }
 
@@ -377,273 +722,621 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding: 0 6px;
+            margin-bottom: 24px;
+            padding-bottom: 14px;
+            border-bottom: 2px dashed var(--soft-line);
         }
 
-        .section-title h2 { font-size: 22px; font-weight: 600; }
-        .section-title a { color: var(--accent-text); text-decoration: none; font-size: 14px; }
+        .section-title h2 {
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title h2::before {
+            content: "✦";
+            color: var(--berry);
+            font-size: 22px;
+        }
+
+        .see-all-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            border-radius: 12px;
+            background: var(--mango);
+            color: #220d20;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            border: 2px solid var(--border-ink);
+            box-shadow: 0 3px 0 var(--shadow-ink);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .see-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 var(--shadow-ink);
+        }
+
+        .see-all-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 var(--shadow-ink);
+        }
 
         .products {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(230px, 270px));
+            grid-template-columns: repeat(auto-fill, minmax(245px, 280px));
             justify-content: center;
-            gap: 22px;
+            gap: 24px;
         }
 
-        /* --- Product Card with Rainbow Hover Effect --- */
+        /* --- Redesigned Juice-Label / Sticker Product Card --- */
         .card {
             position: relative;
-            background: var(--card-bg);
-            border-radius: 22px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            width: 100%;
-            max-width: 280px;
-            margin: 0 auto;
-            padding: 2px;
+            background: var(--surface);
+            border: 2px solid var(--border-ink);
+            border-radius: 24px;
+            padding: 12px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
+            box-shadow: 5px 5px 0 var(--shadow-ink);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
         }
-        
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: -150%;
-            left: -50%;
-            width: 200%;
-            height: 400%;
-            background: conic-gradient(#F09EA7, #F6CA94, #FAFABE, #C1EBC0, #C7CAFF, #CDABEB, #F6C2F3);
-            animation: spin 3s linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 0;
-        }
-
-        .card:hover::before { opacity: 1; }
 
         .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 30px rgba(199, 202, 255, 0.2);
+            transform: translate(-3px, -5px);
+            box-shadow: 8px 9px 0 var(--acai);
         }
 
-        .card img {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
+        .card-media {
             position: relative;
-            z-index: 1;
-            border-radius: 20px 20px 0 0;
-            background: #020617;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid var(--border-ink);
+            background: var(--card-img-bg);
+            aspect-ratio: 1 / 0.94;
+        }
+
+        .card-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.35s ease;
+        }
+
+        .card:hover .card-media img {
+            transform: scale(1.05);
+        }
+
+        /* Floating Tilted Price Sticker on Photo Corner */
+        .price {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: var(--mango);
+            color: #220d20;
+            border: 2px solid var(--border-ink);
+            border-radius: 11px;
+            padding: 5px 11px;
+            font-family: 'Bricolage Grotesque', sans-serif;
+            font-weight: 800;
+            font-size: 14.5px;
+            box-shadow: 2px 3px 0 var(--shadow-ink);
+            transform: rotate(-2.5deg);
+            z-index: 2;
         }
 
         .card-content {
-            padding: 16px;
-            position: relative;
-            z-index: 1;
-            background: var(--card-bg);
-            border-radius: 0 0 20px 20px;
+            padding: 14px 4px 4px;
             flex: 1;
             display: flex;
             flex-direction: column;
         }
 
         .card-content h3 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .price {
-            color: var(--accent-text);
-            font-weight: 700;
-            font-size: 17px;
-            margin: 4px 0;
+            font-size: 16.5px;
+            font-weight: 800;
+            line-height: 1.32;
+            color: var(--ink);
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1.5px dashed var(--soft-line);
         }
 
         .stock {
-            color: var(--subtext-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             font-size: 12px;
-            margin-bottom: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 14px;
         }
 
+        .stock::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--mint);
+            border: 1px solid var(--border-ink);
+        }
+
+        /* Split-Tone Tactile Button */
         .buy-btn {
             width: 100%;
-            padding: 11px;
-            border: none;
-            border-radius: 12px;
-            background: var(--primary-blue);
-            color: white;
+            padding: 7px 8px 7px 16px;
+            border: 2px solid var(--border-ink);
+            border-radius: 14px;
+            background: var(--acai);
+            color: #ffffff;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 800;
             font-size: 13px;
-            transition: 0.3s;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
             margin-top: auto;
+            box-shadow: 0 3px 0 var(--shadow-ink);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
         }
 
-        .buy-btn:hover { opacity: 0.9; }
+        .buy-btn-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 9px;
+            background: var(--mango);
+            color: #220d20;
+            border: 1.5px solid var(--border-ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .buy-btn:hover {
+            background: var(--berry);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 var(--shadow-ink);
+        }
+
+        .buy-btn:hover .buy-btn-icon {
+            transform: translateX(2px) rotate(-10deg);
+        }
+
+        .buy-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 var(--shadow-ink);
+        }
+
+        /* --- 7. Perforated Summer Ticket-Stub Banner --- */
+        .banner-wrap {
+            max-width: 1240px;
+            margin: 18px auto 40px;
+            padding: 0 4%;
+        }
 
         .banner {
-            margin: 40px 6%;
-            padding: 35px;
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), var(--card-bg));
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            text-align: center;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 28px;
+            padding: 34px 42px;
+            background: var(--acai);
+            color: #fff8ee;
+            border: 2px solid var(--border-ink);
+            border-radius: 28px;
+            box-shadow: 7px 7px 0 var(--mango);
+            position: relative;
         }
 
-        .banner h2 { font-size: 28px; margin-bottom: 8px; }
-        .banner p { color: var(--subtext-color); font-size: 14px; margin-bottom: 18px; }
-        .banner button { padding: 12px 26px; border: none; border-radius: 12px; background: var(--primary-blue); color: white; font-weight: 700; cursor: pointer; }
+        /* Ticket Side Notches */
+        .banner::before,
+        .banner::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 28px;
+            height: 28px;
+            background: var(--bg-cream);
+            border: 2px solid var(--border-ink);
+            border-radius: 50%;
+            transform: translateY(-50%);
+        }
 
+        .banner::before { left: -16px; }
+        .banner::after { right: -16px; }
+
+        .banner-left {
+            padding-right: 28px;
+            border-right: 2px dashed rgba(255, 248, 238, 0.35);
+        }
+
+        .banner-tag {
+            display: inline-block;
+            padding: 4px 11px;
+            border-radius: 8px;
+            background: var(--berry);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            border: 1.5px solid #220d20;
+        }
+
+        .banner h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: #fff8ee;
+            line-height: 1.12;
+        }
+
+        .banner p {
+            color: #f3dceb;
+            font-size: 14.5px;
+            line-height: 1.55;
+        }
+
+        .banner button {
+            padding: 16px 28px;
+            border: 2px solid #220d20;
+            border-radius: 16px;
+            background: var(--mango);
+            color: #220d20;
+            font-family: 'Bricolage Grotesque', 'Noto Sans Myanmar', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 0 #220d20;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+            white-space: nowrap;
+        }
+
+        .banner button:hover {
+            transform: translateY(-3px) rotate(-1deg);
+            box-shadow: 0 8px 0 #220d20;
+        }
+
+        .banner button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #220d20;
+        }
+
+        /* --- 8. Multi-Column Café Receipt Footer --- */
         footer {
-            margin-top: 50px;
-            padding: 35px 6%;
-            background: var(--nav-bg);
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-            color: var(--subtext-color);
-            font-size: 13px;
+            margin-top: 56px;
+            background: var(--bg-sand);
+            border-top: 2px solid var(--border-ink);
+            padding: 44px 4% 36px;
+            color: var(--ink);
         }
-@media (max-width: 768px) {
-    nav {
-        padding: 10px 4% !important;
-        gap: 8px;
-        flex-wrap: nowrap;
-    }
 
-    .logo img {
-        width: 36px !important;
-        height: 36px !important;
-    }
+        .footer-grid {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr;
+            gap: 28px;
+            align-items: start;
+        }
 
-    .logo h2 {
-        display: none !important;
-    }
+        .footer-brand h3 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            color: var(--acai);
+        }
 
-    .nav-right {
-        gap: 6px !important;
-    }
+        .footer-brand p {
+            color: var(--muted);
+            font-size: 13.5px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
 
-   
-    .language-select {
-        padding: 5px 8px !important;
-        font-size: 11px !important;
-        border-radius: 8px;
-    }
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
 
-    .icon-btn {
-        width: 34px !important;
-        height: 34px !important;
-        font-size: 13px !important;
-    }
+        .footer-links a {
+            padding: 6px 12px;
+            border-radius: 10px;
+            background: var(--surface);
+            border: 1.5px solid var(--border-ink);
+            color: var(--ink);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            transition: background 0.15s;
+        }
 
-    .sign-btn {
-        padding: 6px 12px !important;
-        font-size: 11px !important;
-        border-radius: 8px;
-    }
+        .footer-links a:hover {
+            background: var(--mango);
+            color: #220d20;
+        }
 
+        .receipt-credits {
+            background: var(--surface);
+            border: 2px dashed var(--border-ink);
+            border-radius: 16px;
+            padding: 14px 18px;
+            font-size: 12.5px;
+            font-weight: 700;
+            box-shadow: 4px 4px 0 var(--shadow-ink);
+        }
 
-    .sub-nav {
-        top: 58px !important;
-        padding: 8px 3% !important;
-        gap: 6px !important;
-    }
+        .receipt-credits .receipt-head {
+            font-size: 10.5px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--berry);
+            margin-bottom: 8px;
+            display: block;
+        }
 
-    .sub-nav a {
-        padding: 6px 12px !important;
-        font-size: 11px !important;
-    }
-.hero {
-        padding: 15px 4% 10px !important;
-    }
-    .hero-logo {
-        width: 280px;
-        max-width: 82%;
-        height: auto;
-        margin: -38px auto -42px !important;
-    }
+        .receipt-credits p {
+            margin: 0 0 4px 0;
+        }
 
-    .search {
-        max-width: 100%;
-        padding: 4px 12px;
-    }
+        /* --- Mobile & Tablet Responsive --- */
+        @media (max-width: 900px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                padding: 24px 20px;
+                gap: 22px;
+                text-align: left;
+            }
 
-    .search input {
-        height: 40px;
-        padding: 0 10px 0 34px !important;
-        font-size: 13px;
-    }
+            .hero-right {
+                order: -1;
+            }
 
-    .search i {
-        left: 14px;
-        font-size: 13px;
-    }
+            .poster-card {
+                max-width: 100%;
+                transform: rotate(0deg);
+            }
 
-   
-    .categories {
-        padding: 12px 4% !important;
-        gap: 6px !important;
-        justify-content: flex-start;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        scrollbar-width: none;
-    }
+            .poster-logo-stage {
+                height: 155px;
+            }
 
-    .categories button {
-        flex: 0 0 auto;
-        padding: 7px 14px !important;
-        font-size: 11px !important;
-        white-space: nowrap;
-    }
-}
+            .hero-logo {
+                width: 230px;
+            }
+
+            .banner {
+                grid-template-columns: 1fr;
+                padding: 28px 22px;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .banner-left {
+                padding-right: 0;
+                padding-bottom: 20px;
+                border-right: none;
+                border-bottom: 2px dashed rgba(255, 248, 238, 0.35);
+            }
+
+            .banner::before,
+            .banner::after {
+                display: none;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-shell {
+                top: 6px;
+                padding: 0 3%;
+                margin-top: 8px;
+            }
+
+            nav {
+                padding: 8px 10px;
+                border-radius: 18px;
+            }
+
+            .logo img {
+                width: 36px;
+                height: 36px;
+                border-radius: 11px;
+            }
+
+            .logo-text-wrap {
+                display: none;
+            }
+
+            .nav-right {
+                gap: 6px;
+            }
+
+            .icon-btn {
+                width: 36px;
+                height: 36px;
+                border-radius: 11px;
+                font-size: 13px;
+            }
+
+            .language-select {
+                height: 36px;
+                padding: 0 8px;
+                font-size: 11px;
+                border-radius: 11px;
+            }
+
+            .sign-btn {
+                height: 36px;
+                padding: 0 12px;
+                font-size: 11.5px;
+                border-radius: 11px;
+            }
+
+            .sub-nav {
+                justify-content: flex-start;
+                padding: 8px 3%;
+                margin-top: 8px;
+            }
+
+            .sub-nav a {
+                font-size: 11.5px;
+                padding: 6px 10px;
+            }
+
+            .search-go-badge {
+                display: none;
+            }
+
+            .categories {
+                justify-content: flex-start;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 8px;
+                scrollbar-width: none;
+            }
+
+            .categories::-webkit-scrollbar { display: none; }
+
+            .categories button {
+                flex: 0 0 auto;
+                padding: 9px 15px;
+                font-size: 12.5px;
+                white-space: nowrap;
+            }
+
+            .section-title h2 {
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 580px) {
+            .products {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .card {
+                padding: 8px;
+                border-radius: 18px;
+                box-shadow: 3px 3px 0 var(--shadow-ink);
+            }
+
+            .price {
+                font-size: 11.5px;
+                padding: 3px 8px;
+                bottom: 7px;
+                right: 7px;
+                border-radius: 8px;
+            }
+
+            .card-content {
+                padding: 10px 2px 2px;
+            }
+
+            .card-content h3 {
+                font-size: 13.5px;
+                margin-bottom: 7px;
+                padding-bottom: 7px;
+            }
+
+            .stock {
+                font-size: 10.5px;
+                margin-bottom: 10px;
+            }
+
+            .buy-btn {
+                padding: 5px 6px 5px 10px;
+                font-size: 11.5px;
+                border-radius: 11px;
+            }
+
+            .buy-btn-icon {
+                width: 23px;
+                height: 23px;
+                font-size: 10px;
+                border-radius: 7px;
+            }
+        }
     </style>
 </head>
-<body data-theme="dark">
+<body data-theme="light">
 
-<nav>
-    <div class="logo" onclick="window.location.href='index.html'">
-        <img src="logo.jpg" alt="Acai Shop">
-        <h2>Acai Shop</h2>
+<div class="marquee-strip" aria-hidden="true">
+    <div class="marquee-track">
+        <span><i class="fa-solid fa-sun"></i> ACAI SHOP SUMMER EDITION</span>
+        <span><i class="fa-solid fa-star"></i> FRESH DAILY DROPS</span>
+        <span><i class="fa-solid fa-heart"></i> KEYCHAINS • SQUISHY • JEWELRY • ACCESSORIES</span>
+        <span><i class="fa-solid fa-bolt"></i> HANDPICKED WITH GOOD VIBES</span>
+        <span><i class="fa-solid fa-sun"></i> ACAI SHOP SUMMER EDITION</span>
+        <span><i class="fa-solid fa-star"></i> FRESH DAILY DROPS</span>
+        <span><i class="fa-solid fa-heart"></i> KEYCHAINS • SQUISHY • JEWELRY • ACCESSORIES</span>
+        <span><i class="fa-solid fa-bolt"></i> HANDPICKED WITH GOOD VIBES</span>
     </div>
-    <div class="nav-right">
-       
-        <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
-            <i class="fa-solid fa-moon" id="theme-icon"></i>
-        </button>
+</div>
 
-        <select class="language-select" onchange="changeLanguage(this.value)">
-            <option value="en">English</option>
-            <option value="mm">မြန်မာ</option>
-        </select>
-        <a href="cart.html" class="icon-btn" style="position:relative;">
-            <i class="fa-solid fa-cart-shopping"></i>
-            <span id="cart-count" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;width:18px;height:18px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:10px;font-weight:700;">0</span>
-        </a>
-        <div id="guest-area">
-            <a href="login.html" class="sign-btn" data-lang="signIn">Sign In</a>
-        </div>
-        <div id="profile-area">
-            <div class="icon-btn" id="profile-btn" title="My Profile">
-                <i class="fa-solid fa-user"></i>
-            </div>
-            <div id="profile-menu">
-                <span id="user-email" class="user-email-text">Loading...</span>
-                <hr>
-                <a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a>
-                <button id="logoutBtn" class="logout-btn">Logout</button>
+<div class="nav-shell">
+    <nav>
+        <div class="logo" onclick="window.location.href='index.html'">
+            <img src="logo.jpg" alt="Acai Shop">
+            <div class="logo-text-wrap">
+                <h2>Acai Shop</h2>
+                <span class="logo-sub">Summer Goods</span>
             </div>
         </div>
-    </div>
-</nav>
+
+        <div class="nav-right">
+            <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
+                <i class="fa-solid fa-moon" id="theme-icon"></i>
+            </button>
+
+            <select class="language-select" onchange="changeLanguage(this.value)">
+                <option value="en">EN</option>
+                <option value="mm">မြန်မာ</option>
+            </select>
+
+            <a href="cart.html" class="icon-btn" style="position:relative;" title="Cart">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span id="cart-count" class="cart-badge">0</span>
+            </a>
+
+            <div id="guest-area">
+                <a href="login.html" class="sign-btn" data-lang="signIn">Sign In</a>
+            </div>
+
+            <div id="profile-area">
+                <div class="icon-btn" id="profile-btn" title="My Profile">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div id="profile-menu">
+                    <span id="user-email" class="user-email-text">Loading...</span>
+                    <hr>
+                    <a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
 
 <div class="sub-nav">
     <a href="my-orders.html">
@@ -675,21 +1368,56 @@
         <span data-lang="feedback">Feedback</span>
     </a>
 </div>
-  <img src="acai-logo.png" class="hero-logo" alt="Acai Shop">
-<section class="hero">
-    <div class="search">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input id="searchInput" placeholder="Search products..." data-lang-placeholder="searchPlaceholder">
+
+<section class="hero-section">
+    <div class="hero-grid">
+        <div class="hero-left">
+            <div class="hero-kicker">
+                <i class="fa-solid fa-sun"></i> Open Daily • Fresh Menu
+            </div>
+            <h1 class="hero-title">
+                Sweet Finds &amp; <span class="highlight">Summer</span> Picks.
+            </h1>
+            <p class="hero-copy" data-lang="shopLatestDesc">
+                Premium quality accessories with affordable prices.
+            </p>
+            <div class="search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input id="searchInput" placeholder="Search products..." data-lang-placeholder="searchPlaceholder">
+                <span class="search-go-badge">Find</span>
+            </div>
+        </div>
+
+        <div class="hero-right">
+            <div class="poster-card">
+                <div class="poster-sticker">
+                    <span>Fresh</span>
+                    <span>Drop!</span>
+                </div>
+                <div class="poster-logo-stage">
+                    <img src="acai-logo.png" class="hero-logo" alt="Acai Shop">
+                </div>
+                <div class="poster-footer">
+                    <div class="flavor-tags">
+                        <span>#AçaiVibe</span>
+                        <span>#Keychains</span>
+                        <span>#Squishy</span>
+                    </div>
+                    <i class="fa-solid fa-umbrella-beach" style="color:var(--berry);font-size:18px;"></i>
+                </div>
+            </div>
+        </div>
     </div>
-  
 </section>
 
-<section class="categories">
-    <button class="active" data-category="all" data-lang="new">New</button>
-    <button data-category="keychain" data-lang="keychains">Keychains</button>
-    <button data-category="squishy" data-lang="squishy">Squishy</button>
-    <button data-category="jewelry" data-lang="jewelry">Jewelry</button>
-    <button data-category="accessories" data-lang="accessories">Accessories</button>
+<section class="category-wrap">
+    <div class="categories">
+        <button class="active" data-category="all" data-lang="new">New</button>
+        <button data-category="keychain" data-lang="keychains">Keychains</button>
+        <button data-category="squishy" data-lang="squishy">Squishy</button>
+        <button data-category="jewelry" data-lang="jewelry">Jewelry</button>
+        <button data-category="accessories" data-lang="accessories">Accessories</button>
+    </div>
 </section>
 
 <section class="section">
@@ -702,26 +1430,48 @@
     <div class="products" id="productList"></div>
 </section>
 
-<section class="banner">
-    <h2 data-lang="shopLatestTitle">Shop The Latest Collection</h2>
-    <p data-lang="shopLatestDesc">Premium quality accessories with affordable prices.</p>
-    <button data-lang="shopNow" onclick="window.scrollTo({top:0,behavior:'smooth'})">Shop Now</button>
+<section class="banner-wrap">
+    <div class="banner">
+        <div class="banner-left">
+            <span class="banner-tag">Summer Menu • Limited Batch</span>
+            <h2 data-lang="shopLatestTitle">Shop The Latest Collection</h2>
+            <p data-lang="shopLatestDesc">Premium quality accessories with affordable prices.</p>
+        </div>
+        <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
+            <span data-lang="shopNow">Shop Now</span>
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+    </div>
 </section>
 
 <footer>
-    <p>© 2026 Acai Shop. All rights reserved.</p>
-    <p data-lang="footerTagline">Accessories • Quality • Style</p>
-    <div style="border:1px solid var(--border-color);padding:10px 15px;display:inline-block;border-radius:10px;margin-top:12px;background:var(--card-bg);">
-        <p style="margin:0 0 4px 0;" data-lang="developer">Developer and Founder: Rudox</p>
-        <p style="margin:0;" data-lang="creativeLead">Creative lead and Co-founder: Valrqx</p>
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <h3>Acai Shop</h3>
+            <p data-lang="footerTagline">Accessories • Quality • Style</p>
+            <p>© 2026 Acai Shop. All rights reserved.</p>
+        </div>
+
+        <div class="footer-links">
+            <a href="my-orders.html" data-lang="myOrders">My Orders</a>
+            <a href="waiting.html" data-lang="waitingTime">Waiting Time</a>
+            <a href="support.html" data-lang="customerSupport">Customer Support</a>
+            <a href="faq.html" data-lang="faq">FAQ</a>
+            <a href="reviews.html" data-lang="customerReviews">Customer Reviews</a>
+        </div>
+
+        <div class="receipt-credits">
+            <span class="receipt-head">★ Menu Crafted By</span>
+            <p data-lang="developer">Developer and Founder: Rudox</p>
+            <p data-lang="creativeLead">Creative lead and Co-founder: Valrqx</p>
+        </div>
     </div>
 </footer>
 
 <script>
-
 const themeToggleBtn = document.getElementById("theme-toggle");
 const themeIcon = document.getElementById("theme-icon");
-const currentTheme = localStorage.getItem("theme") || "dark";
+const currentTheme = localStorage.getItem("theme") || "light";
 
 document.body.setAttribute("data-theme", currentTheme);
 updateThemeIcon(currentTheme);
@@ -729,7 +1479,7 @@ updateThemeIcon(currentTheme);
 themeToggleBtn.addEventListener("click", () => {
     let theme = document.body.getAttribute("data-theme");
     let newTheme = theme === "dark" ? "light" : "dark";
-    
+
     document.body.setAttribute("data-theme", newTheme);
     localStorage.setItem("theme", newTheme);
     updateThemeIcon(newTheme);
@@ -742,7 +1492,6 @@ function updateThemeIcon(theme) {
         themeIcon.className = "fa-solid fa-moon";
     }
 }
-
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -839,18 +1588,18 @@ function goToDetail(id) {
     window.location.href = `product-detail.html?id=${encodeURIComponent(id)}`;
 }
 
-async function loadProducts(){ 
-    try{ 
-        const response = await fetch("/products"); 
-        const products = await response.json(); 
-        const list = document.getElementById("productList"); 
+async function loadProducts(){
+    try{
+        const response = await fetch("/products");
+        const products = await response.json();
+        const list = document.getElementById("productList");
         if (!list) return;
-        
-        list.innerHTML = ""; 
+
+        list.innerHTML = "";
         const lang = localStorage.getItem("language") || "en";
         const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : {};
 
-        products.forEach(p => { 
+        products.forEach(p => {
             let firstImg = p.image || "";
             try {
                 if (p.images) {
@@ -861,29 +1610,32 @@ async function loadProducts(){
                 }
             } catch (e) {}
 
-            const imageUrl = firstImg ? (firstImg.startsWith("http") ? firstImg : "/uploads/" + firstImg) : "logo.jpg"; 
+            const imageUrl = firstImg ? (firstImg.startsWith("http") ? firstImg : "/uploads/" + firstImg) : "logo.jpg";
             const stockText = t.stock || (lang === 'mm' ? "လက်ကျန်" : "Stock");
             const detailsText = t.details || (lang === 'mm' ? "အသေးစိတ်ကြည့်ရန်" : "Details");
             const productCategory = String(p.category || "accessories").toLowerCase().trim();
 
-            list.innerHTML += ` 
-            <div class="card" data-category="${productCategory}" onclick="goToDetail('${p.id}')"> 
-                <img src="${imageUrl}" onerror="this.src='logo.jpg'" alt="${p.name}"> 
-                <div class="card-content"> 
-                    <h3>${p.name}</h3> 
-                    <div class="price">${Number(p.price).toLocaleString()} MMK</div> 
-                    <div class="stock">${stockText}: ${p.stock}</div> 
+            list.innerHTML += `
+            <div class="card" data-category="${productCategory}" onclick="goToDetail('${p.id}')">
+                <div class="card-media">
+                    <img src="${imageUrl}" onerror="this.src='logo.jpg'" alt="${p.name}">
+                    <div class="price">${Number(p.price).toLocaleString()} MMK</div>
+                </div>
+                <div class="card-content">
+                    <h3>${p.name}</h3>
+                    <div class="stock">${stockText}: ${p.stock}</div>
                     <button class="buy-btn" onclick="event.stopPropagation(); goToDetail('${p.id}')">
-                        <i class="fa-solid fa-circle-info"></i> ${detailsText}
-                    </button> 
-                </div> 
-            </div>`; 
+                        <span>${detailsText}</span>
+                        <span class="buy-btn-icon"><i class="fa-solid fa-arrow-right"></i></span>
+                    </button>
+                </div>
+            </div>`;
         });
 
         filterProducts();
-    }catch(err){ 
-        console.log("Error loading products:", err); 
-    } 
+    }catch(err){
+        console.log("Error loading products:", err);
+    }
 }
 
 initLanguage();
